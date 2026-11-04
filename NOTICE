@@ -1,8 +1,11 @@
 EdgeDoc
-Copyright 2026 EdgeDoc contributors
+Copyright 2026 Raphael Mansuy
 
-This product includes software developed by the EdgeDoc contributors.
+Licensed under the Apache License, Version 2.0.
 
 The design follows the WordCraft project for the parts named in
 docs/10-traceability.md. WordCraft is used as a reference for behaviour only.
 No WordCraft source is copied into this repository.
+
+The example documents embed pictures that tools/make_assets.py draws from the
+standard library. They carry no third-party image.

@@ -459,6 +459,53 @@ Error codes are stable and documented in `docs/07-adapters.md`.
 The specification follows ECMA-376 5th edition, ISO/IEC 29500-1:2016, MS-DOCX, and
 MS-OI29500. `docs/02-references.md` holds the links.
 
+## Author
+
+<img src="site/assets/author/raphael-mansuy.jpg" alt="Headshot of Raphael Mansuy, author of EdgeDoc." width="120" align="right">
+
+Raphael Mansuy is a data engineering and AI strategist with more than 20 years of global
+technology leadership experience. He works on democratizing data management and AI, and
+helps organizations build scalable data platforms. His work covers resilient data
+infrastructure, machine learning models, and coaching teams on practice. He leads a
+startup studio in Hong Kong and writes about AI and data strategy.
+
+EdgeDoc started from a simple observation: a Word library that rebuilds a document from a
+paragraph list cannot keep an approved template. A package that is read and written part
+by part is the smallest honest fix.
+
+- LinkedIn: [linkedin.com/in/raphaelmansuy](https://www.linkedin.com/in/raphaelmansuy/)
+- Repository: [github.com/raphaelmansuy/edgedoc](https://github.com/raphaelmansuy/edgedoc)
+- Site: [raphaelmansuy.github.io/edgedoc](https://raphaelmansuy.github.io/edgedoc/)
+- PyPI: [pypi.org/project/edgedoc](https://pypi.org/project/edgedoc/)
+- crates.io: [crates.io/crates/edgedoc](https://crates.io/crates/edgedoc)
+
+[Connect with Raphael on LinkedIn](https://www.linkedin.com/in/raphaelmansuy/).
+
+### Recognition
+
+Favikon ranks Raphael at **12** in
+[Top 20 AI Experts in France in 2026](https://www.favikon.com/blog/top-ai-experts-france),
+with a Favikon Authority Score of 7,012 points. The list covers the most visible AI
+practitioners in France. The entry cites his 20 years of data and AI leadership, and his
+work on scalable data platforms.
+
+### Book
+
+Co-author of
+[**The Definitive Guide to Data Integration**](https://www.oreilly.com/library/view/the-definitive-guide/9781837631919/)
+(Packt, 2024), with Pierre-Yves Bonnefoy, Emeric Chaize, Mehdi Tazi, and Stephane Heckel.
+The subtitle is *Unlock the power of data integration to efficiently manage, transform,
+and analyze data*.
+
+### Other projects by Raphael
+
+| Project | What it does |
+|---|---|
+| [**EdgeQuake**](https://edgequake.com/) | Graph-RAG in Rust. One binary, one Postgres, any LLM. It reads PDFs and text, builds a knowledge graph in PostgreSQL, and answers questions with sources. Six retrieval modes. Apache 2.0. |
+| [**EdgeSQL**](https://github.com/raphaelmansuy/EdgeSQL) | Change SQL with a typed tree instead of string replacement, with a preview of the change before it applies. |
+| [**EdgeCrab**](https://www.edgecrab.com/) | A personal and coding agent in one native Rust binary, with a ratatui terminal UI and a ReAct tool loop. 24 model providers and 17 messaging gateways. |
+| [**EdgeWhisper**](https://edgewhisper.com/) | Voice dictation for macOS, powered by Voxtral from Mistral AI. It runs fully on the device, with no cloud and no data collection. |
+
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Run `make check` before a pull request. To
@@ -466,6 +513,7 @@ report a vulnerability, read [SECURITY.md](SECURITY.md).
 
 ## Licence
 
-Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Copyright 2026 Raphael Mansuy.
 
-Copyright 2026 EdgeDoc contributors.
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text
+and [NOTICE](NOTICE) for the attribution of third-party components.
