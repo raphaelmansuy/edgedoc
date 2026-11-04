@@ -30,15 +30,17 @@ version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
 rust-version = "1.76"
-publish = false
+repository = "https://github.com/raphaelmansuy/edgedoc"
+homepage = "https://github.com/raphaelmansuy/edgedoc"
+documentation = "https://docs.rs/edgedoc"
 
 [workspace.dependencies]
-edgedoc-limit = { path = "crates/edgedoc-limit" }
-edgedoc-unit = { path = "crates/edgedoc-unit" }
-edgedoc-model = { path = "crates/edgedoc-model" }
-edgedoc-opc = { path = "crates/edgedoc-opc" }
-edgedoc-wml = { path = "crates/edgedoc-wml" }
-edgedoc-merge = { path = "crates/edgedoc-merge" }
+edgedoc-limit = { version = "0.1.0", path = "crates/edgedoc-limit" }
+edgedoc-unit = { version = "0.1.0", path = "crates/edgedoc-unit" }
+edgedoc-model = { version = "0.1.0", path = "crates/edgedoc-model" }
+edgedoc-opc = { version = "0.1.0", path = "crates/edgedoc-opc" }
+edgedoc-wml = { version = "0.1.0", path = "crates/edgedoc-wml" }
+edgedoc-merge = { version = "0.1.0", path = "crates/edgedoc-merge" }
 edgedoc = { path = "crates/edgedoc" }
 thiserror = "1.0"
 quick-xml = "0.31"

@@ -4,7 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
 description = "Read, create, edit, merge, and save Word documents"
 
 [features]
