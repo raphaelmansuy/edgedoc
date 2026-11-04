@@ -22,7 +22,7 @@
     {
       "name": "the first paint is under 300 ms",
       "ok": true,
-      "detail": "162 ms"
+      "detail": "169 ms"
     },
     {
       "name": "a missing font is reported",
@@ -88,5 +88,5 @@
     }
   ],
   "failed": 0,
-  "at": "2026-11-04T13:59:55.693Z"
+  "at": "2026-11-04T14:13:24.923Z"
 }

@@ -19,6 +19,8 @@ jobs:
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
+      - name: Fetch the Word corpus
+        run: tools/fetch_corpus.sh
       - name: Format
         run: cargo fmt --all -- --check
       - name: Build
@@ -76,6 +78,50 @@ jobs:
         run: cargo run --quiet -p edgedoc-demos --bin write-demos -- target/examples
       - name: Run the examples
         run: node examples/wasm/run.mjs
+
+  display:
+    name: display
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.76.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Fetch the Word corpus
+        run: tools/fetch_corpus.sh
+      - name: Lay out every corpus document
+        run: cargo run -q -p edgedoc-display --example corpus -- tests/corpus/downloaded
+      - name: Build the display module
+        run: cargo build --target wasm32-unknown-unknown -p edgedoc-display-wasm --features wasm --release
+      - name: Check the size budget
+        run: |
+          wasm=target/wasm32-unknown-unknown/release/edgedoc_display_wasm.wasm
+          raw=$(wc -c < "$wasm")
+          gz=$(gzip -c "$wasm" | wc -c)
+          printf 'raw %d bytes, gzip %d bytes\n' "$raw" "$gz"
+          # DP-B-32: 6.0 MiB raw and 1.6 MiB gzip.
+          test "$raw" -le 6291456 || { echo "raw passes the 6 MiB budget"; exit 1; }
+          test "$gz" -le 1677721 || { echo "gzip passes the 1.6 MiB budget"; exit 1; }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install wasm-bindgen
+        run: cargo install wasm-bindgen-cli --version 0.2.100
+      - name: Generate the glue
+        run: wasm-bindgen --target web --out-dir site/display --out-name edgedoc_display --no-typescript target/wasm32-unknown-unknown/release/edgedoc_display_wasm.wasm
+      - name: Install puppeteer
+        run: npm install --no-save puppeteer
+      - name: Run the viewer test
+        run: node tools/display_e2e.mjs
+        env:
+          PUPPETEER_PATH: puppeteer
+          CHROME_PATH: ""
+      - name: Run the corpus test
+        run: node tools/display_corpus_e2e.mjs
+        env:
+          PUPPETEER_PATH: puppeteer
+          CHROME_PATH: ""
 
   python:
     name: python

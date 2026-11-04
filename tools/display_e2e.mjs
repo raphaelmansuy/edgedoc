@@ -25,8 +25,12 @@ const PORT = 8901;
 const PUPPETEER =
   process.env.PUPPETEER_PATH ||
   "/Users/raphaelmansuy/.nvm/versions/node/v20.14.0/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer";
+// An explicit path wins. An empty value means "let puppeteer find the browser it installed", which
+// is what CI does. With no value at all, the macOS default is assumed.
 const CHROME =
-  process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  process.env.CHROME_PATH !== undefined
+    ? process.env.CHROME_PATH || undefined
+    : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
