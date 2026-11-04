@@ -1,0 +1,22 @@
+[package]
+name = "edgedoc-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "WebAssembly adapter for EdgeDoc"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+wasm = ["dep:wasm-bindgen"]
+
+[dependencies]
+edgedoc = { path = "../edgedoc", default-features = false }
+wasm-bindgen = { version = "0.2.92", optional = true }
+
+[lints]
+workspace = true

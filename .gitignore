@@ -1,0 +1,18 @@
+/target
+**/*.rs.bk
+.DS_Store
+*.whl
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Build output that a local `maturin develop` writes into the source tree.
+*.so
+*.dylib
+*.dll
+*.pyd
+python/edgedoc/_native*
+
+# Node output from the WebAssembly example.
+node_modules/
+target/wasm-node/

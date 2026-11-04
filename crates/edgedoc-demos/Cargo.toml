@@ -1,0 +1,15 @@
+[package]
+name = "edgedoc-demos"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Example documents built with EdgeDoc"
+
+[dependencies]
+edgedoc = { workspace = true }
+edgedoc-opc = { workspace = true }
+
+[lints]
+workspace = true

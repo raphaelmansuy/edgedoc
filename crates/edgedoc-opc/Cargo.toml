@@ -1,0 +1,16 @@
+[package]
+name = "edgedoc-opc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "OPC package reader and writer"
+
+[dependencies]
+edgedoc-limit = { workspace = true }
+quick-xml = { workspace = true }
+zip = { workspace = true }
+
+[lints]
+workspace = true

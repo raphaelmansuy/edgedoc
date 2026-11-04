@@ -1,0 +1,19 @@
+[package]
+name = "edgedoc-py"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Python adapter for EdgeDoc"
+
+[features]
+default = []
+python = ["dep:pyo3"]
+
+[dependencies]
+edgedoc = { workspace = true }
+pyo3 = { version = "0.21", optional = true, features = ["extension-module"] }
+
+[lints]
+workspace = true

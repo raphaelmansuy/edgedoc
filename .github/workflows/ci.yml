@@ -1,0 +1,101 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.76.0
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Build
+        run: cargo build --workspace --all-targets
+      - name: Test
+        run: cargo test --workspace --all-targets
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Documentation
+        run: RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+
+  examples:
+    name: example documents
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.76.0
+      - uses: Swatinem/rust-cache@v2
+      - name: Build the example documents
+        run: cargo run --quiet -p edgedoc-demos --bin write-demos -- target/examples
+      - name: Check the packages
+        run: cargo test -p edgedoc-demos --test documents
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-documents
+          path: target/examples
+          if-no-files-found: error
+
+  wasm:
+    name: webassembly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.76.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Build the module
+        run: cargo build --target wasm32-unknown-unknown -p edgedoc-wasm --features wasm
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install wasm-bindgen
+        run: cargo install wasm-bindgen-cli --version 0.2.100
+      - name: Build the example documents
+        run: cargo run --quiet -p edgedoc-demos --bin write-demos -- target/examples
+      - name: Run the examples
+        run: node examples/wasm/run.mjs
+
+  python:
+    name: python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.76.0
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the build tools
+        run: python3 -m pip install --upgrade pip maturin pytest
+      - name: Build the example documents
+        run: cargo run --quiet -p edgedoc-demos --bin write-demos -- target/examples
+      - name: Build and install the wheel
+        run: maturin develop --manifest-path crates/edgedoc-py/Cargo.toml --features python
+      - name: Run the examples
+        run: python3 examples/python/basic.py
+      - name: Run the tests
+        run: python3 -m pytest examples/python -q
+
+  docs:
+    name: documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the prose
+        run: python3 tools/ste_lint.py --fail-on error docs/ README.md CONTRIBUTING.md SECURITY.md CHANGELOG.md

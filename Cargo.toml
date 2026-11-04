@@ -1,0 +1,56 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/edgedoc-limit",
+  "crates/edgedoc-unit",
+  "crates/edgedoc-model",
+  "crates/edgedoc-opc",
+  "crates/edgedoc-wml",
+  "crates/edgedoc-merge",
+  "crates/edgedoc",
+  "crates/edgedoc-py",
+  "crates/edgedoc-wasm",
+  "crates/edgedoc-demos",
+]
+default-members = [
+  "crates/edgedoc-limit",
+  "crates/edgedoc-unit",
+  "crates/edgedoc-model",
+  "crates/edgedoc-opc",
+  "crates/edgedoc-wml",
+  "crates/edgedoc-merge",
+  "crates/edgedoc",
+  "crates/edgedoc-py",
+  "crates/edgedoc-wasm",
+  "crates/edgedoc-demos",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+rust-version = "1.76"
+publish = false
+
+[workspace.dependencies]
+edgedoc-limit = { path = "crates/edgedoc-limit" }
+edgedoc-unit = { path = "crates/edgedoc-unit" }
+edgedoc-model = { path = "crates/edgedoc-model" }
+edgedoc-opc = { path = "crates/edgedoc-opc" }
+edgedoc-wml = { path = "crates/edgedoc-wml" }
+edgedoc-merge = { path = "crates/edgedoc-merge" }
+edgedoc = { path = "crates/edgedoc" }
+thiserror = "1.0"
+quick-xml = "0.31"
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"

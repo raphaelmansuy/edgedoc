@@ -1,0 +1,29 @@
+[package]
+name = "edgedoc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Read, create, edit, merge, and save Word documents"
+
+[features]
+default = ["fs"]
+fs = []
+
+[dependencies]
+edgedoc-limit = { workspace = true }
+edgedoc-merge = { workspace = true }
+edgedoc-model = { workspace = true }
+edgedoc-opc = { workspace = true }
+edgedoc-unit = { workspace = true }
+edgedoc-wml = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+edgedoc-opc = { workspace = true }
+edgedoc-py = { path = "../edgedoc-py" }
+edgedoc-wasm = { path = "../edgedoc-wasm" }
+
+[lints]
+workspace = true

@@ -1,0 +1,285 @@
+//! WebAssembly calls the same Rust functions as the other adapters.
+//!
+//! The `fs` feature stays off, so the module holds bytes and never touches a file.
+//! SharedArrayBuffer and threads are not required.
+
+use edgedoc::{
+    Budget, CsvOptions, Document, Join, MergeKind, MissingField, PartKind, Records, SortKey,
+    StoryRef, WriteOptions,
+};
+
+/// An error with the stable code that the Rust facade returns.
+#[derive(Debug)]
+pub struct AdapterError {
+    pub code: String,
+    pub message: String,
+}
+
+impl AdapterError {
+    fn new(code: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            code: code.into(),
+            message: message.into(),
+        }
+    }
+
+    /// `code: message`, which is what the adapters return as text.
+    pub fn render(&self) -> String {
+        format!("{} {}", self.code, self.message)
+    }
+}
+
+fn error(err: edgedoc::Error) -> AdapterError {
+    AdapterError::new(err.code, err.message)
+}
+
+/// Merge letters. The bytes match [`edgedoc::Document::merge_letters_bytes`].
+pub fn merge_csv_bytes(template: &[u8], csv: &[u8]) -> Result<Vec<u8>, String> {
+    Document::merge_letters_bytes(template, csv)
+        .map_err(|err| format!("{} {}", err.code, err.message))
+}
+
+pub fn read_plain(bytes: &[u8]) -> Result<String, String> {
+    let doc = Document::read_bytes(bytes).map_err(|err| format!("{} {}", err.code, err.message))?;
+    Ok(doc.plain_text(StoryRef::Body))
+}
+
+/// The body text of one record, with the fields replaced. The template does not change.
+pub fn preview_text(template: &[u8], csv: &[u8], missing: &str) -> Result<String, AdapterError> {
+    let doc = Document::read_bytes(template).map_err(error)?;
+    let records = Records::from_csv(csv, &CsvOptions::default())
+        .map_err(|err| AdapterError::new(err.code, err.message))?;
+    let preview = doc
+        .preview_with(&records, 0, missing_field(missing)?)
+        .map_err(error)?;
+    Ok(preview.plain_text(StoryRef::Body))
+}
+
+/// The body text, or the text of one story. `story` is a name such as `"body"`.
+pub fn text_of(bytes: &[u8], story: &str) -> Result<String, AdapterError> {
+    let doc = Document::read_bytes(bytes).map_err(error)?;
+    let kind = match story.to_ascii_lowercase().as_str() {
+        "body" => return Ok(doc.plain_text(StoryRef::Body)),
+        "header" => PartKind::Header,
+        "footer" => PartKind::Footer,
+        "footnote" => PartKind::Footnote,
+        "endnote" => PartKind::Endnote,
+        "comment" => PartKind::Comment,
+        other => {
+            return Err(AdapterError::new(
+                "unsupported",
+                format!("Unknown story \"{other}\". Use body, header, footer, footnote, endnote, or comment."),
+            ))
+        }
+    };
+    let mut out = String::new();
+    for id in doc.parts(kind) {
+        out.push_str(&doc.plain_text(StoryRef::Part(id)));
+    }
+    Ok(out)
+}
+
+/// The merge field names in body, headers, and footers, in order.
+pub fn merge_fields(bytes: &[u8]) -> Result<Vec<String>, AdapterError> {
+    let doc = Document::read_bytes(bytes).map_err(error)?;
+    Ok(doc.merge_field_names())
+}
+
+/// Merge every record and join the results.
+pub fn merge_all(
+    template: &[u8],
+    csv: &[u8],
+    kind: &str,
+    join: &str,
+    missing: &str,
+) -> Result<Vec<u8>, AdapterError> {
+    let doc = Document::read_bytes(template).map_err(error)?;
+    let records = Records::from_csv(csv, &CsvOptions::default())
+        .map_err(|err| AdapterError::new(err.code, err.message))?;
+    let header = first_header(csv);
+    let records = if header.is_empty() {
+        records
+    } else {
+        match records.clone().sort(&[SortKey::new(&header)]) {
+            Ok(sorted) => sorted,
+            Err(_) => records,
+        }
+    };
+    let batch = doc
+        .merge()
+        .records(records)
+        .kind(merge_kind(kind)?)
+        .missing(missing_field(missing)?)
+        .finish()
+        .map_err(error)?;
+    batch
+        .join(join_mode(join)?)
+        .map_err(error)?
+        .write_bytes()
+        .map_err(error)
+}
+
+fn first_header(csv: &[u8]) -> String {
+    let text = String::from_utf8_lossy(csv);
+    text.lines()
+        .next()
+        .and_then(|line| line.split(',').next())
+        .map(|cell| cell.trim().trim_matches('"').to_string())
+        .unwrap_or_default()
+}
+
+fn merge_kind(kind: &str) -> Result<MergeKind, AdapterError> {
+    match kind.to_ascii_lowercase().as_str() {
+        "letters" => Ok(MergeKind::Letters),
+        "directory" => Ok(MergeKind::Directory),
+        "labels" => Ok(MergeKind::Labels),
+        "emails" => Ok(MergeKind::Emails),
+        other => Err(AdapterError::new(
+            "unsupported",
+            format!("Unknown merge kind \"{other}\". Use letters, directory, labels, or emails."),
+        )),
+    }
+}
+
+fn join_mode(join: &str) -> Result<Join, AdapterError> {
+    match join.to_ascii_lowercase().as_str() {
+        "auto" => Ok(Join::Auto),
+        "page-break" | "page_break" => Ok(Join::PageBreak),
+        "none" => Ok(Join::None),
+        other => Err(AdapterError::new(
+            "unsupported",
+            format!("Unknown join \"{other}\". Use auto, page-break, or none."),
+        )),
+    }
+}
+
+fn missing_field(missing: &str) -> Result<MissingField, AdapterError> {
+    match missing.to_ascii_lowercase().as_str() {
+        "error" => Ok(MissingField::Error),
+        "empty" => Ok(MissingField::Empty),
+        "placeholder" => Ok(MissingField::Placeholder),
+        other => Err(AdapterError::new(
+            "unsupported",
+            format!("Unknown missing-field mode \"{other}\". Use error, empty, or placeholder."),
+        )),
+    }
+}
+
+/// A small summary as `key=value` lines, so the caller needs no JSON parser.
+pub fn summary(bytes: &[u8]) -> Result<String, AdapterError> {
+    let doc = Document::read_bytes(bytes).map_err(error)?;
+    Ok(format!(
+        "title={}\ncreator={}\nflavor={:?}\nparts={}\nmerge_fields={}\nbody_blocks={}\nsection_breaks={}\npictures={}",
+        doc.core_props().title,
+        doc.core_props().creator,
+        doc.flavor(),
+        doc.part_names().len(),
+        doc.merge_field_names().len(),
+        doc.body_len(),
+        doc.section_break_count(),
+        doc.pictures().len()
+    ))
+}
+
+/// Write the package in another flavour.
+pub fn write_as(bytes: &[u8], flavor: &str) -> Result<Vec<u8>, AdapterError> {
+    let doc = Document::read_bytes(bytes).map_err(error)?;
+    let flavor = match flavor.to_ascii_lowercase().as_str() {
+        "docx" => edgedoc::Flavor::Docx,
+        "docm" => edgedoc::Flavor::Docm,
+        "dotx" => edgedoc::Flavor::Dotx,
+        "dotm" => edgedoc::Flavor::Dotm,
+        other => {
+            return Err(AdapterError::new(
+                "unsupported",
+                format!("Unknown flavor \"{other}\". Use docx, docm, dotx, or dotm."),
+            ))
+        }
+    };
+    doc.write_bytes_with(&WriteOptions {
+        flavor,
+        budget: Budget::default(),
+        pretty: false,
+    })
+    .map_err(error)
+}
+
+#[cfg(feature = "wasm")]
+mod bind {
+    use wasm_bindgen::prelude::*;
+
+    fn message(err: super::AdapterError) -> JsValue {
+        JsValue::from(err.render())
+    }
+
+    #[wasm_bindgen(js_name = readDocument)]
+    pub fn read_document(bytes: &[u8]) -> Result<String, JsValue> {
+        super::read_plain(bytes).map_err(JsValue::from)
+    }
+
+    #[wasm_bindgen(js_name = writeDocument)]
+    pub fn write_document(bytes: &[u8]) -> Result<Vec<u8>, JsValue> {
+        edgedoc::Document::read_bytes(bytes)
+            .and_then(|doc| doc.write_bytes())
+            .map_err(|err| JsValue::from(format!("{} {}", err.code, err.message)))
+    }
+
+    #[wasm_bindgen]
+    pub fn merge(template: &[u8], csv: &[u8]) -> Result<Vec<u8>, JsValue> {
+        super::merge_csv_bytes(template, csv).map_err(JsValue::from)
+    }
+
+    /// Merge every record with a kind, a join mode, and a missing-field mode.
+    #[wasm_bindgen(js_name = mergeRecords)]
+    pub fn merge_records(
+        template: &[u8],
+        csv: &[u8],
+        kind: &str,
+        join: &str,
+        missing: &str,
+    ) -> Result<Vec<u8>, JsValue> {
+        super::merge_all(template, csv, kind, join, missing).map_err(message)
+    }
+
+    /// The body text, or the text of one story.
+    #[wasm_bindgen(js_name = textOf)]
+    pub fn text_of(bytes: &[u8], story: &str) -> Result<String, JsValue> {
+        super::text_of(bytes, story).map_err(message)
+    }
+
+    #[wasm_bindgen(js_name = mergeFieldNames)]
+    pub fn merge_field_names(bytes: &[u8]) -> Result<Vec<String>, JsValue> {
+        super::merge_fields(bytes).map_err(message)
+    }
+
+    /// A summary as `key=value` lines.
+    #[wasm_bindgen(js_name = documentSummary)]
+    pub fn document_summary(bytes: &[u8]) -> Result<String, JsValue> {
+        super::summary(bytes).map_err(message)
+    }
+
+    /// Write the package in another flavour.
+    #[wasm_bindgen(js_name = writeAs)]
+    pub fn write_as_flavor(bytes: &[u8], flavor: &str) -> Result<Vec<u8>, JsValue> {
+        super::write_as(bytes, flavor).map_err(message)
+    }
+
+    /// The plain-text preview of one record. The template is not changed.
+    ///
+    /// `missing` is `"error"`, `"empty"`, or `"placeholder"`. When it is omitted, a
+    /// field with no column is an error.
+    #[wasm_bindgen]
+    pub fn preview(
+        template: &[u8],
+        csv: &[u8],
+        missing: Option<String>,
+    ) -> Result<String, JsValue> {
+        super::preview_text(template, csv, missing.as_deref().unwrap_or("error")).map_err(message)
+    }
+
+    /// True when the bytes hold a package that a password protects.
+    #[wasm_bindgen(js_name = isPasswordProtected)]
+    pub fn is_password_protected(bytes: &[u8]) -> bool {
+        edgedoc::Document::is_password_protected(bytes)
+    }
+}

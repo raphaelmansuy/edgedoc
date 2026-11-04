@@ -1,0 +1,15 @@
+[package]
+name = "edgedoc-model"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "In-memory Word document model"
+
+[dependencies]
+edgedoc-limit = { workspace = true }
+edgedoc-unit = { workspace = true }
+
+[lints]
+workspace = true
