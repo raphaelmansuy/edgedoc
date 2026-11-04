@@ -1,0 +1,92 @@
+{
+  "results": [
+    {
+      "name": "the viewer module loads",
+      "ok": true
+    },
+    {
+      "name": "every page mounts",
+      "ok": true,
+      "detail": "15 pages"
+    },
+    {
+      "name": "the first page paints ink",
+      "ok": true,
+      "detail": "215675 dark pixels"
+    },
+    {
+      "name": "the text layer holds one span per run",
+      "ok": true,
+      "detail": "52 spans"
+    },
+    {
+      "name": "the first paint is under 300 ms",
+      "ok": true,
+      "detail": "162 ms"
+    },
+    {
+      "name": "a missing font is reported",
+      "ok": true,
+      "detail": "2 diagnostics"
+    },
+    {
+      "name": "fit width sets a scale",
+      "ok": true,
+      "detail": "1.861"
+    },
+    {
+      "name": "zoom 200 reaches 2.0",
+      "ok": true,
+      "detail": "2.000"
+    },
+    {
+      "name": "a zoom change moves the scroll position",
+      "ok": true
+    },
+    {
+      "name": "goToPage reaches page 2",
+      "ok": true,
+      "detail": "Page 2 of 15"
+    },
+    {
+      "name": "the page field follows",
+      "ok": true
+    },
+    {
+      "name": "a page field shows the page number",
+      "ok": true,
+      "detail": "the next board meeting."
+    },
+    {
+      "name": "a total field shows the page count",
+      "ok": true,
+      "detail": "of 15"
+    },
+    {
+      "name": "a click finds a character",
+      "ok": true
+    },
+    {
+      "name": "search finds a term",
+      "ok": true,
+      "detail": "21 hits"
+    },
+    {
+      "name": "the outline holds the headings",
+      "ok": true,
+      "detail": "30 entries"
+    },
+    {
+      "name": "a bad file is refused with a code",
+      "ok": true,
+      "detail": "package.not_zip"
+    },
+    {
+      "name": "the browser reported no error",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0,
+  "at": "2026-11-04T13:59:55.693Z"
+}

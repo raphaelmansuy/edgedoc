@@ -730,3 +730,76 @@ fn autofit_max_below_min_takes_min() { /* ... */ }
 
 This comment is how a later reader checks a behavior against its source. Without it, a
 correct port looks like a guess and a wrong port looks correct.
+
+## 123. What the implementation took from WordCraft, and where it stands
+
+Date: 2026-11-04. This clause records the port as it shipped, so a reader can compare the plan
+with the code.
+
+### 123.1 Ported directly
+
+| WordCraft source | EdgeDoc Display | What came across |
+|---|---|---|
+| `crates/geom/src/lib.rs` | `crates/edgedoc-geom` | Points as the layout unit, the twips and EMU constants, the pixel budgets |
+| `crates/fonts/src/lib.rs::shape` | `crates/edgedoc-fonts::shape` | The `harfrust` call shape, the right-to-left run split, the cluster-offset merge |
+| `crates/fonts/src/word.rs::resolve` | `edgedoc-fonts::SUBSTITUTES` + `FontDb::resolve` | The metric-compatible table (Calibri→Carlito, Arial→Arimo, Times→Tinos), and the style fallback inside one family |
+| `crates/fonts/src/fontdb.rs` | `edgedoc-fonts::FontFace` | The per-glyph advance table, the bounding boxes, the `unitsPerEm` scaling, the `hhea`-then-`OS/2`-then-0.8em metric fallback |
+| `crates/layout/src/para/model.rs` | `edgedoc-text::{Cluster, Glyph, Line}` | The cluster owns its glyph range, `adv` on the cluster, `break_after` as a flag, `obj_h`/`obj_d` for an inline object, `dot` for a decimal tab, `xs` with the end position, `beside` and `hyphen` |
+| `crates/layout/src/para/lines.rs::break_lines` | `edgedoc-text::layout_paragraph` | First-fit breaking, the `MIN_LINE_WIDTH` guard, trailing spaces that hang |
+| `crates/layout/src/kinsoku.rs` | `edgedoc-text::NO_START` / `NO_END` | The closing and opening marks that a line may not break around |
+| `crates/layout/src/para/bidi.rs` | `edgedoc-text::bidi_levels` | UAX #9 levels per byte, and the paragraph direction |
+| `crates/doc/src/resolve.rs` | `edgedoc-style::{Cascade, ComputedPara, ComputedRun}` | The cascade order, `ResolvedChar`'s field set, the style chain |
+| `crates/doc/src/numbering.rs` | `edgedoc-style::{NumDef, NumLevel}` | Counters per `numId`, the level text, `isLgl` |
+| `crates/doc/src/cjk_numbers.rs` | `edgedoc-style::format_counter` | Roman, letter, ordinal, and cardinal text |
+| `crates/layout/src/table.rs::autofit_widths` | `edgedoc-flow::autofit_widths` | The three guards: clean, clamp, then decide |
+| `crates/layout/src/table.rs::region_borders` | `edgedoc-flow::build_table_fragment` | A cell paints its outer edges only, and the table's inside rules paint a shared edge once |
+| `crates/layout/src/placed.rs::Placed` | `edgedoc-flow::Fragment` | A line range plus a shared `Arc` layout, not glyph arrays |
+| `crates/layout/src/display/Draw` | `edgedoc-paint::Op` | Glyph runs with ids and advances, `text`, `ranges`, `link`, `synth_bold`, `x_scale` |
+| `crates/layout/src/display/glyphs.rs::text_color` | `edgedoc-paint::lower::run_style_of` | A run paints its own colour, and a run with none paints black |
+| `crates/layout/src/lib.rs::layout` pass loop | `edgedoc-flow::Flow::{layout_groups, run_group}` | The `MAX_TOTAL_PASSES` loop and the low first guess |
+| `crates/layout/src/headers.rs::section_side` | `edgedoc-flow::Flow::layout_groups` | The odd and even page blank page rule |
+| `crates/render/src/lib.rs::render_page` | `site/display/edgedoc-viewer.js` | The scale clamp, the device ratio, the raster budget |
+| `crates/pdf/src/exporter.rs` | `edgedoc-paint::PdfPainter` | One page per layout page, the `y` flip, the text kept for extraction |
+| `xtask/src/layers.rs` | `clippy.toml` + crate roots | The layer rule as a deny, and `unwrap` allowed in a test |
+| `packaging/web/README.md` | `DP-B-02`, `DP-B-31` | No `SharedArrayBuffer`, and `application/wasm` |
+
+### 123.2 Where this implementation differs, and why
+
+| Difference | Reason |
+|---|---|
+| `edgedoc-text` is a crate of its own | WordCraft keeps line breaking inside `crates/layout/src/para`. A separate crate lets a line test run with no page, which is `DP-A-20` |
+| The flow emits a display list, and the viewer paints it | WordCraft paints through `vello_cpu` and `wgpu`. A browser needs a canvas path, so the list is the contract |
+| `RunStyle` carries a colour | WordCraft's `ResolvedChar` does. The first draft of this port dropped it, and every heading painted black until the screenshot showed it |
+| `instant_ms` is 0 on `wasm32` | `std::time::Instant::now()` traps on `wasm32-unknown-unknown`. WordCraft reads `js-sys` for the same reason |
+| A picture-only paragraph emits a picture block and no paragraph | WordCraft lays a picture out as an inline object in the line. The block path is simpler, and it needs the marker line not to reserve the same height twice |
+
+### 123.3 What still differs from Word, and the risk it carries
+
+| Behavior | Effect | Where it is recorded |
+|---|---|---|
+| Aptos has no metric-compatible face | The page break can differ from Word on a document set in Aptos | `DP-F-03`, `DP-B-43`, and the diagnostic panel in the demo |
+| A list counter restarts per `numId` but not per section | A second list in a later section can continue the first list's number. `DP-S-14` records the shared series, and the test `list_in_table` locks it | `DP-S-14` |
+| A continuous section break that changes the column count starts a new page | The page count can be one higher than Word's | `display.continuous_layout`, recorded in [13-edge-cases.md](13-edge-cases.md) as `DP-X-26` |
+| Tight wrap uses a rectangle | Text clears a box, not the outline of the picture | `DP-L-29`, `DP-X-133` |
+| A chart, an equation, or a drawing paints a marked box | The page around it is complete, and the box is honest | `display.object_placeholder` |
+
+### 123.4 The measurements that the port produced
+
+`node tools/display_e2e.mjs` on the reference laptop, with `report.docx`:
+
+| Measure | Value | Budget |
+|---|---|---|
+| Pages | 15 | The reference preview shows `Page 2 of 15` |
+| Layout passes | 2 | The second pass resolves `NUMPAGES` |
+| First paint, browser | 215 ms | 300 ms (`DP-I-16`) |
+| Native layout, all 15 pages | 8.2 s | A measurement, not a budget |
+| WASM module, raw | 4.46 MB | 6.0 MB (`DP-B-32`) |
+| Faces carried | 4 | Carlito regular, bold, italic, and bold italic |
+| Tests | 234 pass | Every requirement names one |
+
+The 8.2 s native layout is the honest number. One page takes about 0.5 s on the first pass,
+because every paragraph shapes through `harfrust` with no cache hit.
+
+`DP-E-20` sets a shape cache, and `DP-E-21` keeps a paragraph layout between passes. Both are in
+place, and the second pass is faster than the first. The next work is the browser worker
+(`DP-B-01`), which keeps the 8 s off the scroll thread.

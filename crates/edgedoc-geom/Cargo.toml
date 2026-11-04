@@ -1,0 +1,16 @@
+[package]
+name = "edgedoc-geom"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+publish = false
+description = "Geometry and units for the EdgeDoc display library"
+
+[dependencies]
+
+[lints]
+workspace = true

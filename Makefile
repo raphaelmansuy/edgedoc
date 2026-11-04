@@ -123,6 +123,52 @@ example-wasm: examples ## Run the WebAssembly examples in Node
 	@printf '%s→%s running the WebAssembly examples\n' '$(BLUE)' '$(RESET)'
 	@node examples/wasm/run.mjs
 
+##@ Display
+
+.PHONY: display-test
+display-test: ## Run the display library tests
+	@printf '%s→%s cargo test -p edgedoc-display -p edgedoc-display-wasm\n' '$(BLUE)' '$(RESET)'
+	@$(CARGO) test -p edgedoc-display -p edgedoc-display-wasm
+
+.PHONY: display-wasm
+display-wasm: ## Build the display module and its glue into site/display
+	@printf '%s→%s building the display module\n' '$(BLUE)' '$(RESET)'
+	@$(CARGO) build --target wasm32-unknown-unknown -p edgedoc-display-wasm --features wasm --release
+	@wasm-bindgen --target web --out-dir site/display --out-name edgedoc_display --no-typescript \
+		target/wasm32-unknown-unknown/release/edgedoc_display_wasm.wasm
+	@printf '%s✓%s site/display holds the module\n' '$(GREEN)' '$(RESET)'
+
+.PHONY: display-e2e
+display-e2e: display-wasm ## Run the display end-to-end test and write docs/display/e2e
+	@printf '%s→%s node tools/display_e2e.mjs\n' '$(BLUE)' '$(RESET)'
+	@node tools/display_e2e.mjs
+
+.PHONY: display-serve
+display-serve: ## Serve the demo site on http://127.0.0.1:8900
+	@printf '%s→%s python3 -m http.server 8900 --directory site\n' '$(BLUE)' '$(RESET)'
+	@python3 -m http.server 8900 --directory site
+
+.PHONY: display-clean
+display-clean: ## Remove the generated display module
+	@rm -rf site/display/edgedoc_display.js site/display/edgedoc_display_bg.wasm
+	@printf '%s✓ removed the generated module%s\n' '$(GREEN)' '$(RESET)'
+
+##@ Corpus
+
+.PHONY: corpus
+corpus: ## Download the Word test corpus into tests/corpus/downloaded
+	@printf '%s→%s tools/fetch_corpus.sh\n' '$(BLUE)' '$(RESET)'
+	@tools/fetch_corpus.sh
+
+.PHONY: corpus-report
+corpus-report: corpus ## Lay out every corpus document and print one line each
+	@$(CARGO) run -q -p edgedoc-display --example corpus -- tests/corpus/downloaded
+
+.PHONY: corpus-e2e
+corpus-e2e: display-wasm corpus ## Run the browser test over the corpus
+	@printf '%s→%s node tools/display_corpus_e2e.mjs\n' '$(BLUE)' '$(RESET)'
+	@node tools/display_corpus_e2e.mjs
+
 ##@ Packaging
 
 .PHONY: wasm

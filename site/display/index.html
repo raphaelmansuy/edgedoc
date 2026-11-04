@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EdgeDoc Display — a Word document in the browser</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f4e79'/%3E%3C/svg%3E">
+<meta name="description" content="A Rust and WebAssembly library that paints a Word document page by page, with zoom, scroll, selection, search, and print.">
+<style>
+:root {
+  --bg: #eef1f6;
+  --panel: #ffffff;
+  --ink: #10151d;
+  --muted: #5b6472;
+  --line: #d8dee8;
+  --accent: #1f4e79;
+  --warn: #b45309;
+  --error: #b91c1c;
+  --shadow: 0 1px 2px rgba(16, 21, 29, .06), 0 8px 24px rgba(16, 21, 29, .08);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The page shell. */
+.top {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 650; letter-spacing: -.01em; }
+.brand svg { display: block; }
+.tag { color: var(--muted); font-size: 12.5px; }
+.spacer { flex: 1; }
+.pick {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; cursor: pointer; font: inherit; font-weight: 550;
+}
+.pick:hover { border-color: var(--accent); color: var(--accent); }
+.pick input { display: none; }
+
+main { flex: 1; min-height: 0; display: flex; }
+#viewer { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* The viewer controls. */
+.edv-root { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.edv-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.edv-btn {
+  min-width: 28px; height: 28px; padding: 0 8px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: #fff; color: var(--ink);
+  font: inherit; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.edv-btn:hover { border-color: var(--accent); color: var(--accent); }
+.edv-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.edv-btn.edv-fit { font-size: 12px; font-weight: 550; }
+.edv-page-input {
+  width: 44px; height: 28px; text-align: center;
+  border: 1px solid var(--line); border-radius: 6px;
+  font: inherit; font-variant-numeric: tabular-nums;
+}
+.edv-count { color: var(--muted); font-variant-numeric: tabular-nums; }
+.edv-title { font-weight: 600; margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30ch; }
+.edv-spacer { flex: 1; }
+.edv-zoom { min-width: 46px; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.edv-progress { height: 2px; background: transparent; }
+.edv-progress-bar { height: 100%; width: 40%; background: var(--accent); opacity: .7; animation: edv-slide 1.1s linear infinite; }
+.edv-progress.is-hidden { display: none; }
+@keyframes edv-slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+.edv-viewport {
+  flex: 1; min-height: 0;
+  overflow: auto;
+  background: var(--bg);
+  padding: 16px;
+  scroll-behavior: auto;
+}
+.edv-stack { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.edv-page {
+  position: relative;
+  background: #fff;
+  box-shadow: var(--shadow);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.edv-canvas { display: block; }
+.edv-text {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  user-select: text;
+  -webkit-user-select: text;
+  line-height: 1;
+}
+.edv-line { position: absolute; left: 0; right: 0; margin: 0; }
+.edv-line span {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  transform-origin: 0 0;
+  cursor: text;
+}
+.edv-line span::selection { background: rgba(31, 78, 121, .25); }
+
+.edv-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px;
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 12.5px;
+}
+.edv-diag-count.is-warning { color: var(--warn); }
+.edv-diag-count.is-error { color: var(--error); font-weight: 600; }
+
+/* The side panel. */
+.side { width: 300px; border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; }
+.side-head { padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 650; font-size: 13px; }
+.side-body { padding: 12px 14px; overflow: auto; font-size: 12.5px; color: var(--muted); }
+.side-body h3 { margin: 14px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.side-body h3:first-child { margin-top: 0; }
+.diag { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.diag:last-child { border-bottom: 0; }
+.diag .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--ink); }
+.diag .sev { flex: none; width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; background: var(--muted); }
+.diag .sev.warning { background: var(--warn); }
+.diag .sev.error { background: var(--error); }
+.metric { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; font-variant-numeric: tabular-nums; }
+.metric b { color: var(--ink); font-weight: 600; }
+.hint { margin: 10px 0 0; line-height: 1.45; }
+
+/* The error panel. */
+.fail {
+  margin: 40px auto; max-width: 480px; padding: 20px;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
+}
+.fail h2 { margin: 0 0 6px; font-size: 16px; }
+.fail .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--error); font-size: 12px; }
+.fail p { color: var(--muted); margin: 8px 0 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .edv-progress-bar { animation: none; width: 100%; opacity: .35; }
+}
+@media (max-width: 900px) {
+  .side { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span class="brand">
+    <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#1f4e79"/>
+      <rect x="7" y="19" width="4" height="7" rx="1" fill="#fff"/>
+      <rect x="14" y="14" width="4" height="12" rx="1" fill="#bfdbfe"/>
+      <rect x="21" y="8" width="4" height="18" rx="1" fill="#93c5fd"/>
+    </svg>
+    EdgeDoc Display
+  </span>
+  <span class="tag">Rust + WebAssembly · a Word document, painted</span>
+  <span class="spacer"></span>
+  <label class="pick">
+    Open a .docx
+    <input id="file" type="file" accept=".docx,.docm,.dotx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+  </label>
+</header>
+
+<main>
+  <div id="viewer"></div>
+  <aside class="side">
+    <div class="side-head">Measured</div>
+    <div class="side-body">
+      <h3>This document</h3>
+      <div class="metric"><span>Pages</span><b id="m-pages">–</b></div>
+      <div class="metric"><span>Layout passes</span><b id="m-passes">–</b></div>
+      <div class="metric"><span>First paint</span><b id="m-ms">–</b></div>
+      <div class="metric"><span>Faces carried</span><b id="m-faces">4</b></div>
+      <h3>Diagnostics</h3>
+      <div id="m-diag"><p class="hint">Open a document to see its diagnostics.</p></div>
+      <p class="hint">
+        Every number on this panel comes from the run that painted the page. Nothing is a claim.
+      </p>
+    </div>
+  </aside>
+</main>
+
+<script type="module">
+import { createViewer } from "./edgedoc-viewer.js";
+
+const container = document.getElementById("viewer");
+const viewer = createViewer({
+  container,
+  wasmUrl: new URL("./edgedoc_display_bg.wasm", import.meta.url),
+});
+
+// Expose the viewer for a browser test. See DP-U-27.
+window.__edgedoc = { viewer };
+
+const mPages = document.getElementById("m-pages");
+const mPasses = document.getElementById("m-passes");
+const mMs = document.getElementById("m-ms");
+const mDiag = document.getElementById("m-diag");
+const mFaces = document.getElementById("m-faces");
+
+async function loadBytes(bytes, name) {
+  // A failure panel replaces the viewer, so a later load creates a new viewer. Do not rewrite the
+  // container's HTML: that would detach the elements the viewer holds.
+  if (viewer.destroyed) {
+    Object.assign(viewer, createViewer({
+      container,
+      wasmUrl: new URL("./edgedoc_display_bg.wasm", import.meta.url),
+    }));
+  }
+  try {
+    const report = await viewer.load(bytes);
+    mPages.textContent = String(report.pages);
+    mPasses.textContent = String(report.passes);
+    mMs.textContent = `${Math.round(viewer.firstPageMs)} ms`;
+    mFaces.textContent = String(4);
+    renderDiagnostics();
+    document.title = `${name} — EdgeDoc Display`;
+  } catch (err) {
+    console.error("edgedoc load failed", err);
+    showFailure(err, name);
+  }
+}
+
+function renderDiagnostics() {
+  const list = viewer.diagnostics || [];
+  if (!list.length) {
+    mDiag.innerHTML = '<p class="hint">No diagnostics. Every part of the document paints.</p>';
+    return;
+  }
+  mDiag.innerHTML = list
+    .map(
+      (d) => `<div class="diag"><span class="sev ${d.severity}"></span><div>
+        <div class="code">${d.code}</div>
+        <div>${escapeHtml(d.summary || d.detail)}</div>
+        ${d.detail && d.summary ? `<div style="opacity:.75">${escapeHtml(d.detail)}</div>` : ""}
+      </div></div>`,
+    )
+    .join("");
+}
+
+function showFailure(err, name) {
+  viewer.destroyed = true;
+  const code = err.code || "display.unknown";
+  const action = code === "package.password_required" ? "The file needs a password." : "Choose another file.";
+  container.innerHTML = `<div class="fail">
+    <h2>This file did not open</h2>
+    <div class="code">${escapeHtml(code)}</div>
+    <p>${escapeHtml(err.message || "The document could not be read.")}</p>
+    <p>${escapeHtml(action)}</p>
+    <p style="font-size:12px">${escapeHtml(name || "")}</p>
+  </div>`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+}
+
+document.getElementById("file").addEventListener("change", async (event) => {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  await loadBytes(bytes, file.name);
+});
+
+// A URL parameter opens a sample, which a screenshot test uses. See DP-U-28.
+const params = new URLSearchParams(location.search);
+const sample = params.get("doc");
+if (sample) {
+  const response = await fetch(`../assets/documents/${sample}`);
+  if (response.ok) {
+    await loadBytes(new Uint8Array(await response.arrayBuffer()), sample);
+  }
+}
+window.__edgedoc.ready = true;
+</script>
+</body>
+</html>

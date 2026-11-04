@@ -1,0 +1,21 @@
+[package]
+name = "edgedoc-text"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+publish = false
+description = "Line breaking, bidi, justification, and tabs for the EdgeDoc display library"
+
+[dependencies]
+edgedoc-geom = { workspace = true }
+edgedoc-fonts = { workspace = true }
+unicode-bidi = { workspace = true }
+unicode-linebreak = { workspace = true }
+unicode-segmentation = { workspace = true }
+
+[lints]
+workspace = true

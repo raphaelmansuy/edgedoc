@@ -1,0 +1,31 @@
+[package]
+name = "edgedoc-display-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+publish = false
+description = "WebAssembly adapter for the EdgeDoc display library"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+wasm = ["dep:wasm-bindgen", "dep:js-sys"]
+
+[dependencies]
+edgedoc-display = { workspace = true }
+edgedoc-geom = { workspace = true }
+wasm-bindgen = { workspace = true, optional = true }
+js-sys = { workspace = true, optional = true }
+edgedoc-paint = { workspace = true }
+
+[dev-dependencies]
+edgedoc-demos = { path = "../edgedoc-demos" }
+
+[lints]
+workspace = true

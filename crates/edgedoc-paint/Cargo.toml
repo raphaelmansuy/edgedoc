@@ -1,0 +1,21 @@
+[package]
+name = "edgedoc-paint"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+publish = false
+description = "Display list, codec, and painters for the EdgeDoc display library"
+
+[dependencies]
+edgedoc-geom = { workspace = true }
+edgedoc-fonts = { workspace = true }
+edgedoc-text = { workspace = true }
+edgedoc-style = { workspace = true }
+edgedoc-flow = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,912 @@
+{
+  "rows": [
+    {
+      "file": "blk-containing-table.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "blk-paras-and-tables.docx",
+      "pages": 1,
+      "ink": 10442,
+      "rules": 0,
+      "spans": 10,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "Left-sideRight-sideCopyrightPage-numberLorem ipsum dolor sit amet, consectetur a"
+    },
+    {
+      "file": "comments-rich-para.docx",
+      "pages": 1,
+      "ink": 7124,
+      "rules": 0,
+      "spans": 12,
+      "outOfBounds": false,
+      "diag": 10,
+      "text": "Document textSome text worthy of note.1Other document text.Other text worthy of "
+    },
+    {
+      "file": "doc-access-sections.docx",
+      "pages": 3,
+      "ink": 47718,
+      "rules": 0,
+      "spans": 2,
+      "outOfBounds": false,
+      "diag": 2,
+      "text": "Section one paragraph.Section two paragraph.Section three (sentinel section) par"
+    },
+    {
+      "file": "doc-add-section.docx",
+      "pages": 1,
+      "ink": 5119,
+      "rules": 0,
+      "spans": 5,
+      "outOfBounds": false,
+      "diag": 2,
+      "text": "Even Page Header contentEven Page Footer contentFirst pageSecond pageThird page"
+    },
+    {
+      "file": "doc-coreprops.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "doc-default.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "doc-no-coreprops.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "doc-odd-even-hdrs.docx",
+      "pages": 1,
+      "ink": 2577,
+      "rules": 0,
+      "spans": 3,
+      "outOfBounds": false,
+      "diag": 1,
+      "text": "Even page header.First Page.Second Page."
+    },
+    {
+      "file": "doc-word-default-blank.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "fnt-color.docx",
+      "pages": 1,
+      "ink": 4289,
+      "rules": 0,
+      "spans": 4,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "Text with no color Text with auto color Text with RGB color Text with theme colo"
+    },
+    {
+      "file": "hdr-header-footer.docx",
+      "pages": 2,
+      "ink": 2882,
+      "rules": 0,
+      "spans": 2,
+      "outOfBounds": false,
+      "diag": 1,
+      "text": "section with headersection without header of its own."
+    },
+    {
+      "file": "num-having-numbering-part.docx",
+      "pages": 1,
+      "ink": 2126,
+      "rules": 0,
+      "spans": 1,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "Paragraph having List Number style."
+    },
+    {
+      "file": "par-alignment.docx",
+      "pages": 1,
+      "ink": 4467,
+      "rules": 0,
+      "spans": 5,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "Inherited alignmentLeft aligned.Center aligned.Right aligned.Fully justified."
+    },
+    {
+      "file": "par-hyperlinks.docx",
+      "pages": 1,
+      "ink": 6430,
+      "rules": 4,
+      "spans": 12,
+      "outOfBounds": false,
+      "diag": 1,
+      "text": "No hyperlinksOne awesome hyperlink.Three hyperlinks: the first one here, the sec"
+    },
+    {
+      "file": "par-known-paragraphs.docx",
+      "pages": 1,
+      "ink": 3044,
+      "rules": 0,
+      "spans": 3,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "Heading ParagraphNormal paragraph"
+    },
+    {
+      "file": "par-known-styles.docx",
+      "pages": 1,
+      "ink": 3303,
+      "rules": 0,
+      "spans": 4,
+      "outOfBounds": false,
+      "diag": 2,
+      "text": "no specified stylemissing styleHeading 1Body Text"
+    },
+    {
+      "file": "par-rendered-page-breaks.docx",
+      "pages": 1,
+      "ink": 10274,
+      "rules": 2,
+      "spans": 10,
+      "outOfBounds": false,
+      "diag": 8,
+      "text": "No page breaksPage break here>><<followed by more text.Page break in>><<this hyp"
+    },
+    {
+      "file": "run-char-style.docx",
+      "pages": 1,
+      "ink": 6798,
+      "rules": 0,
+      "spans": 3,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "First run having no directly-applied character style. Next run having Emphasis c"
+    },
+    {
+      "file": "run-enumerated-props.docx",
+      "pages": 1,
+      "ink": 4676,
+      "rules": 3,
+      "spans": 4,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "Inherited underline,no underline,single underline,double underline."
+    },
+    {
+      "file": "sct-first-page-hdrftr.docx",
+      "pages": 2,
+      "ink": 10061,
+      "rules": 0,
+      "spans": 7,
+      "outOfBounds": false,
+      "diag": 5,
+      "text": "Default (odd, primary) HeaderFirst page.Second (even) page.Third (odd) page.Defa"
+    },
+    {
+      "file": "sct-section-props.docx",
+      "pages": 5,
+      "ink": 137434,
+      "rules": 0,
+      "spans": 2,
+      "outOfBounds": false,
+      "diag": 1,
+      "text": "Section 1 paragraph.Section 2 paragraph.Section 3 paragraph.Section 4 paragraph."
+    },
+    {
+      "file": "shp-inline-shape-access.docx",
+      "pages": 1,
+      "ink": 10374,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "sty-having-styles-part.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "sty-known-styles.docx",
+      "pages": 3,
+      "ink": 47195,
+      "rules": 0,
+      "spans": 3,
+      "outOfBounds": false,
+      "diag": 1,
+      "text": "Normal Paragraph.Base Paragraph.Citation Paragraph."
+    },
+    {
+      "file": "tab-stops.docx",
+      "pages": 1,
+      "ink": 2991,
+      "rules": 0,
+      "spans": 19,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "DefaulttabstopsAssignedLeftcenterright...............-0.50.5"
+    },
+    {
+      "file": "tbl-2x2-table.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "tbl-cell-props.docx",
+      "pages": 1,
+      "ink": 996,
+      "rules": 0,
+      "spans": 14,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "abcdefghijklmn"
+    },
+    {
+      "file": "tbl-having-applied-style.docx",
+      "pages": 1,
+      "ink": 11140,
+      "rules": 0,
+      "spans": 24,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "foobarbarfoofoobarbarfoofoo to youand a hearty foo to you too sir!foobarbarfoofo"
+    },
+    {
+      "file": "tbl-having-tables.docx",
+      "pages": 1,
+      "ink": 0,
+      "rules": 0,
+      "spans": 0,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": ""
+    },
+    {
+      "file": "tbl-props.docx",
+      "pages": 2,
+      "ink": 1368,
+      "rules": 0,
+      "spans": 19,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "abcdefghijabcdefghi"
+    },
+    {
+      "file": "txt-font-highlight-color.docx",
+      "pages": 1,
+      "ink": 29657,
+      "rules": 0,
+      "spans": 4,
+      "outOfBounds": false,
+      "diag": 0,
+      "text": "A paragraph having background color No ColorA paragraph having background color "
+    },
+    {
+      "file": "txt-font-props.docx",
+      "pages": 1,
+      "ink": 19041,
+      "rules": 3,
+      "spans": 10,
+      "outOfBounds": false,
+      "diag": 2,
+      "text": "A paragraph in ‘Having Typeface’ style.Paragraph in ‘Large Size’ style.Paragraph"
+    }
+  ],
+  "results": [
+    {
+      "name": "blk-containing-table.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "blk-containing-table.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "blk-containing-table.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "blk-paras-and-tables.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "blk-paras-and-tables.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "blk-paras-and-tables.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "blk-paras-and-tables.docx: paints text",
+      "ok": true,
+      "detail": "10442 ink"
+    },
+    {
+      "name": "comments-rich-para.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "comments-rich-para.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "comments-rich-para.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "comments-rich-para.docx: paints text",
+      "ok": true,
+      "detail": "7124 ink"
+    },
+    {
+      "name": "doc-access-sections.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-access-sections.docx: has at least one page",
+      "ok": true,
+      "detail": "3"
+    },
+    {
+      "name": "doc-access-sections.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "doc-access-sections.docx: paints text",
+      "ok": true,
+      "detail": "47718 ink"
+    },
+    {
+      "name": "doc-add-section.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-add-section.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "doc-add-section.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "doc-add-section.docx: paints text",
+      "ok": true,
+      "detail": "5119 ink"
+    },
+    {
+      "name": "doc-coreprops.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-coreprops.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "doc-coreprops.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "doc-default.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-default.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "doc-default.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "doc-no-coreprops.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-no-coreprops.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "doc-no-coreprops.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "doc-odd-even-hdrs.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-odd-even-hdrs.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "doc-odd-even-hdrs.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "doc-odd-even-hdrs.docx: paints text",
+      "ok": true,
+      "detail": "2577 ink"
+    },
+    {
+      "name": "doc-word-default-blank.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "doc-word-default-blank.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "doc-word-default-blank.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "fnt-color.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "fnt-color.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "fnt-color.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "fnt-color.docx: paints text",
+      "ok": true,
+      "detail": "4289 ink"
+    },
+    {
+      "name": "hdr-header-footer.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "hdr-header-footer.docx: has at least one page",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "name": "hdr-header-footer.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "hdr-header-footer.docx: paints text",
+      "ok": true,
+      "detail": "2882 ink"
+    },
+    {
+      "name": "num-having-numbering-part.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "num-having-numbering-part.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "num-having-numbering-part.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "num-having-numbering-part.docx: paints text",
+      "ok": true,
+      "detail": "2126 ink"
+    },
+    {
+      "name": "par-alignment.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "par-alignment.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "par-alignment.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "par-alignment.docx: paints text",
+      "ok": true,
+      "detail": "4467 ink"
+    },
+    {
+      "name": "par-hyperlinks.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "par-hyperlinks.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "par-hyperlinks.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "par-hyperlinks.docx: paints text",
+      "ok": true,
+      "detail": "6430 ink"
+    },
+    {
+      "name": "par-hyperlinks.docx: paints a rule",
+      "ok": true,
+      "detail": "4 rules"
+    },
+    {
+      "name": "par-known-paragraphs.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "par-known-paragraphs.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "par-known-paragraphs.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "par-known-paragraphs.docx: paints text",
+      "ok": true,
+      "detail": "3044 ink"
+    },
+    {
+      "name": "par-known-styles.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "par-known-styles.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "par-known-styles.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "par-known-styles.docx: paints text",
+      "ok": true,
+      "detail": "3303 ink"
+    },
+    {
+      "name": "par-rendered-page-breaks.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "par-rendered-page-breaks.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "par-rendered-page-breaks.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "par-rendered-page-breaks.docx: paints text",
+      "ok": true,
+      "detail": "10274 ink"
+    },
+    {
+      "name": "par-rendered-page-breaks.docx: paints a rule",
+      "ok": true,
+      "detail": "2 rules"
+    },
+    {
+      "name": "run-char-style.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "run-char-style.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "run-char-style.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "run-char-style.docx: paints text",
+      "ok": true,
+      "detail": "6798 ink"
+    },
+    {
+      "name": "run-enumerated-props.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "run-enumerated-props.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "run-enumerated-props.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "run-enumerated-props.docx: paints text",
+      "ok": true,
+      "detail": "4676 ink"
+    },
+    {
+      "name": "run-enumerated-props.docx: paints a rule",
+      "ok": true,
+      "detail": "3 rules"
+    },
+    {
+      "name": "sct-first-page-hdrftr.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "sct-first-page-hdrftr.docx: has at least one page",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "name": "sct-first-page-hdrftr.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "sct-first-page-hdrftr.docx: paints text",
+      "ok": true,
+      "detail": "10061 ink"
+    },
+    {
+      "name": "sct-section-props.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "sct-section-props.docx: has at least one page",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "name": "sct-section-props.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "sct-section-props.docx: paints text",
+      "ok": true,
+      "detail": "137434 ink"
+    },
+    {
+      "name": "shp-inline-shape-access.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "shp-inline-shape-access.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "shp-inline-shape-access.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "sty-having-styles-part.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "sty-having-styles-part.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "sty-having-styles-part.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "sty-known-styles.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "sty-known-styles.docx: has at least one page",
+      "ok": true,
+      "detail": "3"
+    },
+    {
+      "name": "sty-known-styles.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "sty-known-styles.docx: paints text",
+      "ok": true,
+      "detail": "47195 ink"
+    },
+    {
+      "name": "tab-stops.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "tab-stops.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "tab-stops.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "tab-stops.docx: paints text",
+      "ok": true,
+      "detail": "2991 ink"
+    },
+    {
+      "name": "tbl-2x2-table.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "tbl-2x2-table.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "tbl-2x2-table.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "tbl-cell-props.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "tbl-cell-props.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "tbl-cell-props.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "tbl-cell-props.docx: paints text",
+      "ok": true,
+      "detail": "996 ink"
+    },
+    {
+      "name": "tbl-having-applied-style.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "tbl-having-applied-style.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "tbl-having-applied-style.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "tbl-having-applied-style.docx: paints text",
+      "ok": true,
+      "detail": "11140 ink"
+    },
+    {
+      "name": "tbl-having-tables.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "tbl-having-tables.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "tbl-having-tables.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "tbl-props.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "tbl-props.docx: has at least one page",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "name": "tbl-props.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "tbl-props.docx: paints text",
+      "ok": true,
+      "detail": "1368 ink"
+    },
+    {
+      "name": "txt-font-highlight-color.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "txt-font-highlight-color.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "txt-font-highlight-color.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "txt-font-highlight-color.docx: paints text",
+      "ok": true,
+      "detail": "29657 ink"
+    },
+    {
+      "name": "txt-font-props.docx: opens",
+      "ok": true
+    },
+    {
+      "name": "txt-font-props.docx: has at least one page",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "txt-font-props.docx: paints inside the page",
+      "ok": true
+    },
+    {
+      "name": "txt-font-props.docx: paints text",
+      "ok": true,
+      "detail": "19041 ink"
+    },
+    {
+      "name": "txt-font-props.docx: paints a rule",
+      "ok": true,
+      "detail": "3 rules"
+    },
+    {
+      "name": "the browser reported no error",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0,
+  "at": "2026-11-04T14:01:14.160Z"
+}

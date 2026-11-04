@@ -16,3 +16,11 @@ python/edgedoc/_native*
 # Node output from the WebAssembly example.
 node_modules/
 target/wasm-node/
+
+# The WebAssembly module that `make display-wasm` and wasm-bindgen write.
+site/display/edgedoc_display.js
+site/display/edgedoc_display_bg.wasm
+site/display/edgedoc_display_bg.wasm.d.ts
+
+# A copy of the corpus that the demo serves. The canonical files live in tests/corpus/downloaded.
+site/assets/corpus/

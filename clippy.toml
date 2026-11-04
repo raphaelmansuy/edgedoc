@@ -1,0 +1,6 @@
+# Clippy configuration.
+#
+# A test may use `unwrap` and `expect`: a failing assertion should name the value it read.
+# Library code may not, which each crate root enforces with `deny`.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

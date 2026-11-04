@@ -1,0 +1,19 @@
+[package]
+name = "edgedoc-fonts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+publish = false
+description = "Font database, shaping, and Word face substitution for the EdgeDoc display library"
+
+[dependencies]
+edgedoc-geom = { workspace = true }
+ttf-parser = { workspace = true }
+rustybuzz = { workspace = true }
+
+[lints]
+workspace = true

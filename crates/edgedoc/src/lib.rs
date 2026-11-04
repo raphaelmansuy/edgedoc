@@ -478,6 +478,15 @@ impl Document {
         self.inner.parts_of(kind)
     }
 
+    /// The blocks of one story part, in document order. A header part is one example.
+    pub fn part_blocks(&self, id: u32) -> Vec<Block> {
+        self.inner
+            .parts
+            .get(&id)
+            .map(|part| part.blocks.iter().map(|b| b.as_ref().clone()).collect())
+            .unwrap_or_default()
+    }
+
     /// The identity of a story part: note id, author, and date.
     pub fn part_meta(&self, id: u32) -> Option<&PartMeta> {
         self.inner.parts.get(&id).map(|part| &part.meta)

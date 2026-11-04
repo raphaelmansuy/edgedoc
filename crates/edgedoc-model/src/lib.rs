@@ -11,12 +11,14 @@ mod style;
 mod table;
 
 pub use document::{BlockPath, BodyCursor, CoreProps, DocumentEdit, ModelDocument, ParaCursor};
+pub use edgedoc_unit::Twips;
 pub use error::{ModelError, ModelResult};
 pub use fields::{placeholder, quote_name, Field, FormField, FormKind, Instruction};
 pub use para::{
     Anchor, InlineObject, Paragraph, Picture, Run, RunBuilder, SectionBreak, LINE_BREAK, OBJ,
     PAGE_BREAK, TAB,
 };
+
 pub use props::{
     CharProps, DropKind, EastAsianLayout, EditOptions, EditReport, FrameProps, ListKind, ListSpec,
     ParaProps, Retention, TabStop,

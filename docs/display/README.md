@@ -56,6 +56,9 @@ claims in [16-traceability.md](16-traceability.md).
 | [15-plan.md](15-plan.md) | Phases, exit tests, estimates, risks |
 | [16-traceability.md](16-traceability.md) | Requirement index, cross-reference matrix, DRY and SOLID audit |
 | [17-wordcraft-map.md](17-wordcraft-map.md) | The WordCraft reference: crate map, ported code, known gaps |
+| [18-assessment.md](18-assessment.md) | Every WordCraft-measured behavior, its state here, and the gap list |
+| [19-deep-audit.md](19-deep-audit.md) | The deeper audit: property diff, test-name map, defects found, and the 29 gaps |
+| [../../tests/corpus/README.md](../../tests/corpus/README.md) | The 33 real Word documents, and the checks that run over them |
 
 ## Quick start
 

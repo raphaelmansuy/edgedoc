@@ -11,6 +11,14 @@ members = [
   "crates/edgedoc-py",
   "crates/edgedoc-wasm",
   "crates/edgedoc-demos",
+  "crates/edgedoc-geom",
+  "crates/edgedoc-fonts",
+  "crates/edgedoc-text",
+  "crates/edgedoc-style",
+  "crates/edgedoc-flow",
+  "crates/edgedoc-paint",
+  "crates/edgedoc-display",
+  "crates/edgedoc-display-wasm",
 ]
 default-members = [
   "crates/edgedoc-limit",
@@ -23,6 +31,14 @@ default-members = [
   "crates/edgedoc-py",
   "crates/edgedoc-wasm",
   "crates/edgedoc-demos",
+  "crates/edgedoc-geom",
+  "crates/edgedoc-fonts",
+  "crates/edgedoc-text",
+  "crates/edgedoc-style",
+  "crates/edgedoc-flow",
+  "crates/edgedoc-paint",
+  "crates/edgedoc-display",
+  "crates/edgedoc-display-wasm",
 ]
 
 [workspace.package]
@@ -41,10 +57,28 @@ edgedoc-model = { version = "0.1.0", path = "crates/edgedoc-model" }
 edgedoc-opc = { version = "0.1.0", path = "crates/edgedoc-opc" }
 edgedoc-wml = { version = "0.1.0", path = "crates/edgedoc-wml" }
 edgedoc-merge = { version = "0.1.0", path = "crates/edgedoc-merge" }
-edgedoc = { path = "crates/edgedoc" }
+edgedoc = { path = "crates/edgedoc", default-features = true }
+edgedoc-geom = { version = "0.1.0", path = "crates/edgedoc-geom" }
+edgedoc-fonts = { version = "0.1.0", path = "crates/edgedoc-fonts" }
+edgedoc-text = { version = "0.1.0", path = "crates/edgedoc-text" }
+edgedoc-style = { version = "0.1.0", path = "crates/edgedoc-style" }
+edgedoc-flow = { version = "0.1.0", path = "crates/edgedoc-flow" }
+edgedoc-paint = { version = "0.1.0", path = "crates/edgedoc-paint" }
+edgedoc-display = { version = "0.1.0", path = "crates/edgedoc-display" }
+edgedoc-display-wasm = { version = "0.1.0", path = "crates/edgedoc-display-wasm" }
 thiserror = "1.0"
 quick-xml = "0.31"
 zip = { version = "0.6", default-features = false, features = ["deflate"] }
+ttf-parser = "0.21"
+rustybuzz = "0.14"
+unicode-bidi = "0.3.13"
+unicode-linebreak = "0.1"
+unicode-segmentation = "=1.10.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "=1.0.108"
+base64 = "0.22"
+wasm-bindgen = "0.2.100"
+js-sys = "0.3"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
