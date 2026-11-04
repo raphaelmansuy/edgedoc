@@ -74,9 +74,14 @@ assets: ## Redraw the PNG assets that the examples embed
 	@python3 tools/make_assets.py
 
 .PHONY: verify
-verify: examples ## Check every document with the WordCraft reader
+verify: examples schema ## Check every document with WordCraft and the ECMA-376 schema
 	@printf '%s→%s verifying with WordCraft\n' '$(BLUE)' '$(RESET)'
 	@python3 tools/verify_with_wordcraft.py
+
+.PHONY: schema
+schema: examples ## Validate every document against the ECMA-376 schema
+	@printf '%s→%s validating against the ECMA-376 schema\n' '$(BLUE)' '$(RESET)'
+	@python3 tools/validate_ooxml.py
 
 .PHONY: clean-examples
 clean-examples: ## Remove the generated example documents

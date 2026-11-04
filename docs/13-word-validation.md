@@ -78,6 +78,99 @@ text.
 
 The merged text must hold no `MERGEFIELD` instruction and no `«` placeholder.
 
+## The defect Word found and the readers did not
+
+A user opened `INV-2026-0418.docx` in Word and received:
+
+> Word experienced an error trying to open the file.
+
+The same file opened without error in WordCraft and in python-docx. That is the
+important part: **a lenient reader is not a validator.** The package passed every
+check this project had, and Word still refused it.
+
+### Root cause
+
+`wp:docPr` was missing from every drawing. ECMA-376 defines `CT_Inline` and
+`CT_Anchor` with `wp:docPr` as a mandatory child:
+
+```xml
+<xsd:complexType name="CT_Inline">
+  <xsd:sequence>
+    <xsd:element name="extent" type="CT_PositiveSize2D"/>
+    <xsd:element name="effectExtent" type="CT_EffectExtent" minOccurs="0"/>
+    <xsd:element name="docPr" type="CT_NonVisualDrawingProps"/>
+    <xsd:element name="cNvGraphicFramePr" type="CT_NonVisualGraphicFrameProperties" minOccurs="0"/>
+    <xsd:element ref="a:graphic"/>
+  </xsd:sequence>
+</xsd:complexType>
+```
+
+`minOccurs` defaults to one, so `docPr` is required. Without it, Word stops at the
+`a:graphic` element and reports the file as corrupt. The XML Schema validator gives
+the same answer:
+
+```
+word/document.xml: Element 'a:graphic': This element is not expected.
+  Expected is one of ( wp:docPr, wp:cNvGraphicFramePr, a:graphic )
+```
+
+### The fix
+
+The writer emits `wp:docPr` and `wp:cNvGraphicFramePr` for every drawing, inline and
+anchored. One counter runs over the package, so every `docPr/@id` is unique: Word
+repairs a file where two drawings share an id. A floating drawing also gets the
+`wp:effectExtent` that Word writes.
+
+### Why the existing tests missed it
+
+| Check | Result on the broken file |
+|---|---|
+| ZIP integrity | Passed |
+| XML well-formedness | Passed |
+| Content types and relationships | Passed |
+| Container child order | Passed — the check only inspected elements that were present |
+| WordCraft `info` and `text` | Passed |
+| python-docx | Passed |
+| **ECMA-376 schema** | **Failed** |
+
+The child-order test in chapter 14 compared the order of the elements that were
+there. It never asked whether a required element was absent. That is the gap.
+
+## Structural rules under test
+
+`crates/edgedoc-demos/tests/word_schema.rs` holds these cases. A case without a row
+fails the test, and a row without a case fails it too.
+
+| Area | Rule | Test |
+|---|---|---|
+| Drawing | `wp:inline` holds `extent`, `docPr`, and `graphic`, in that order | `inline-required-children` |
+| Drawing | `wp:anchor` holds `simplePos`, `extent`, `docPr`, and `graphic` | `anchor-required-children` |
+| Drawing | Every `wp:docPr/@id` in the package is unique | `drawing-ids-unique` |
+| Drawing | A picture holds `nvPicPr`, `blipFill`, `spPr`, a blip, and a geometry | `picture-graphic-children` |
+| Package | One part name, and every relationship target exists | `package-consistent` |
+| Package | The core properties hold their required elements | `core-properties` |
+| Story | A header picture part carries its namespaces and a `docPr` | `header-picture` |
+| Table | A table cell ends with a paragraph | `table-cell-ends-with-p` |
+| Merge | A merged document follows the same rules | `merged-document-valid` |
+| Check | The check notices a drawing without `docPr` | `catches-missing-doc-pr` |
+
+The last row matters most: it proves that the rule would catch the defect again.
+
+## Validating against the schema
+
+The only check that found the defect validates the parts against `wml.xsd`, the
+schema that ECMA-376 publishes.
+
+```bash
+make schema
+```
+
+The script `tools/validate_ooxml.py` downloads the schema once into `target/`, then
+validates every part of every document. It exits with status 2 when lxml or the schema
+is unavailable, so "not checked" is never reported as "passed".
+
+CI runs it after the tests. A document that Word would refuse now fails the build.
+
 ## Defects found with the WordCraft reader
 
 These defects were present before this chapter existed. Each one is now locked by a

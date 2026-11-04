@@ -24,6 +24,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Every drawing now carries `wp:docPr`, which ECMA-376 makes mandatory. A file
+  without it failed in Word with "Word experienced an error trying to open the file",
+  while WordCraft and python-docx opened it without complaint. One counter keeps the
+  drawing ids unique across the package, and a floating drawing gains the
+  `wp:effectExtent` that Word writes.
+- The build now validates every generated document against `wml.xsd`, so a package
+  that Word would refuse fails the tests.
+
 - A merge field result longer than its placeholder truncated the saved text, because
   the run length was not updated.
 - A header picture wrote its media part twice, which made the package invalid.

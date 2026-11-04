@@ -229,12 +229,15 @@ pub fn write_document(
             .map(|(_, bytes, _)| std::str::from_utf8(bytes).unwrap_or(""))
     });
     let mut numbering = Numbering::from_existing(existing_numbering);
+    // One counter for the package, so every `wp:docPr` id is unique.
+    let mut drawings = 0u32;
     let body = write_body(
         doc,
         &mut doc_rels,
         &mut media,
         &mut header_files,
         &mut numbering,
+        &mut drawings,
     )?;
     // A document that already holds a numbering part keeps it. So does a document whose
     // body refers to a list, even when this save builds no new definition.
@@ -288,13 +291,19 @@ pub fn write_document(
     for (name, bytes) in header_files {
         files.push((name, bytes));
     }
-    for (name, bytes) in note_parts(doc, "footnotes", "footnote", PartKind::Footnote)? {
+    for (name, bytes) in note_parts(
+        doc,
+        "footnotes",
+        "footnote",
+        PartKind::Footnote,
+        &mut drawings,
+    )? {
         files.push((name, bytes));
     }
-    for (name, bytes) in note_parts(doc, "endnotes", "endnote", PartKind::Endnote)? {
+    for (name, bytes) in note_parts(doc, "endnotes", "endnote", PartKind::Endnote, &mut drawings)? {
         files.push((name, bytes));
     }
-    for (name, bytes) in comment_parts(doc)? {
+    for (name, bytes) in comment_parts(doc, &mut drawings)? {
         files.push((name, bytes));
     }
     let mut pkg_rels = Rels::new();
@@ -435,12 +444,15 @@ fn write_body(
     media: &mut Vec<(String, Vec<u8>)>,
     headers: &mut Vec<(String, Vec<u8>)>,
     numbering: &mut Numbering,
+    drawings: &mut u32,
 ) -> WmlResult<String> {
     let mut out = String::new();
     if let Some(before) = doc.last_section.extra.iter().find(|_| false) {
         let _ = before;
     }
-    write_blocks(&doc.body, &mut out, rels, media, headers, numbering, doc)?;
+    write_blocks(
+        &doc.body, &mut out, rels, media, headers, numbering, doc, drawings,
+    )?;
     out.push_str(&sect_pr(
         &doc.last_section,
         rels,
@@ -448,6 +460,7 @@ fn write_body(
         doc,
         numbering,
         media,
+        drawings,
     ));
     Ok(out)
 }
@@ -461,15 +474,16 @@ fn write_blocks(
     headers: &mut Vec<(String, Vec<u8>)>,
     numbering: &mut Numbering,
     doc: &ModelDocument,
+    drawings: &mut u32,
 ) -> WmlResult<()> {
     for block in blocks {
         match block.as_ref() {
-            Block::Paragraph(para) => {
-                out.push_str(&paragraph_xml(para, rels, media, headers, numbering, doc))
-            }
-            Block::Table(table) => {
-                out.push_str(&table_xml(table, rels, media, headers, numbering, doc)?)
-            }
+            Block::Paragraph(para) => out.push_str(&paragraph_xml(
+                para, rels, media, headers, numbering, doc, drawings,
+            )),
+            Block::Table(table) => out.push_str(&table_xml(
+                table, rels, media, headers, numbering, doc, drawings,
+            )?),
             Block::Opaque(xml) => out.push_str(xml),
             Block::Alternate {
                 requires,
@@ -480,10 +494,10 @@ fn write_blocks(
                     "<mc:AlternateContent><mc:Choice Requires=\"{}\">",
                     escape(requires)
                 ));
-                write_blocks(choice, out, rels, media, headers, numbering, doc)?;
+                write_blocks(choice, out, rels, media, headers, numbering, doc, drawings)?;
                 out.push_str("</mc:Choice><mc:Fallback>");
                 if fallback_xml.is_empty() {
-                    write_blocks(choice, out, rels, media, headers, numbering, doc)?;
+                    write_blocks(choice, out, rels, media, headers, numbering, doc, drawings)?;
                 } else {
                     out.push_str(fallback_xml);
                 }
@@ -548,7 +562,16 @@ fn write_blocks(
                     out.push_str(binding);
                 }
                 out.push_str("</w:sdtPr><w:sdtContent>");
-                write_blocks(&control.blocks, out, rels, media, headers, numbering, doc)?;
+                write_blocks(
+                    &control.blocks,
+                    out,
+                    rels,
+                    media,
+                    headers,
+                    numbering,
+                    doc,
+                    drawings,
+                )?;
                 out.push_str("</w:sdtContent></w:sdt>");
             }
         }
@@ -564,12 +587,13 @@ fn paragraph_xml(
     headers: &mut Vec<(String, Vec<u8>)>,
     numbering: &mut Numbering,
     doc: &ModelDocument,
+    drawings: &mut u32,
 ) -> String {
     if let Some(raw) = &para.raw_xml {
         return raw.clone();
     }
     let mut out = String::from("<w:p>");
-    out.push_str(&ppr(para, rels, media, headers, numbering, doc));
+    out.push_str(&ppr(para, rels, media, headers, numbering, doc, drawings));
     let mut object_at = 0usize;
     let mut cursor = 0usize;
     for run in &para.runs {
@@ -578,7 +602,7 @@ fn paragraph_xml(
         let piece = if text == "\u{FFFC}" {
             let object = para.objects.get(object_at);
             object_at += 1;
-            object_xml(object, &run.props, rels, media)
+            object_xml(object, &run.props, rels, media, drawings)
         } else if text.contains(PAGE_BREAK) {
             let props = rpr(&run.props);
             let mut piece = String::new();
@@ -645,6 +669,7 @@ fn object_xml(
     props: &CharProps,
     rels: &mut Rels,
     media: &mut Vec<(String, Vec<u8>)>,
+    drawings: &mut u32,
 ) -> String {
     match object {
         Some(InlineObject::Field(field)) => {
@@ -678,7 +703,8 @@ fn object_xml(
         Some(InlineObject::Opaque(xml)) => xml.clone(),
         Some(InlineObject::Picture(picture)) => {
             let id = add_image(rels, media, picture);
-            let drawing = drawing_xml(picture, &id);
+            *drawings = drawings.saturating_add(1);
+            let drawing = drawing_xml(picture, &id, *drawings);
             format!("<w:r>{}{drawing}</w:r>", rpr(props))
         }
         Some(InlineObject::Hyperlink { target }) => {
@@ -846,16 +872,21 @@ fn extension(content_type: &str) -> &'static str {
     }
 }
 
-fn drawing_xml(picture: &Picture, id: &str) -> String {
+fn drawing_xml(picture: &Picture, id: &str, doc_pr_id: u32) -> String {
     let width = picture.width.map(|emu| emu.0).unwrap_or(914_400);
     let height = picture.height.map(|emu| emu.0).unwrap_or(914_400);
     let name = escape(picture.name.rsplit('/').next().unwrap_or("image"));
     let descr = picture.alt.as_deref().map(escape).unwrap_or_default();
+    // `wp:docPr` is required by CT_Inline and CT_Anchor in ECMA-376. A file without it
+    // is well-formed XML that Word refuses to open, so every drawing carries one.
+    let doc_pr = format!(
+        "<wp:docPr id=\"{doc_pr_id}\" name=\"{name}\" descr=\"{descr}\"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect=\"1\"/></wp:cNvGraphicFramePr>"
+    );
     let graphic = format!(
-        "<a:graphic xmlns:a=\"{A}\"><a:graphicData uri=\"{PIC}\"><pic:pic xmlns:pic=\"{PIC}\"><pic:nvPicPr><pic:cNvPr id=\"0\" name=\"{name}\" descr=\"{descr}\"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed=\"{id}\"/></pic:blipFill><pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"{width}\" cy=\"{height}\"/></a:xfrm><a:prstGeom prst=\"rect\"/></pic:spPr></pic:pic></a:graphicData></a:graphic>"
+        "<a:graphic xmlns:a=\"{A}\"><a:graphicData uri=\"{PIC}\"><pic:pic xmlns:pic=\"{PIC}\"><pic:nvPicPr><pic:cNvPr id=\"{doc_pr_id}\" name=\"{name}\" descr=\"{descr}\"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed=\"{id}\"/></pic:blipFill><pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"{width}\" cy=\"{height}\"/></a:xfrm><a:prstGeom prst=\"rect\"/></pic:spPr></pic:pic></a:graphicData></a:graphic>"
     );
     match &picture.anchor {
-        None => format!("<w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"{width}\" cy=\"{height}\"/>{graphic}</wp:inline></w:drawing>"),
+        None => format!("<w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"{width}\" cy=\"{height}\"/>{doc_pr}{graphic}</wp:inline></w:drawing>"),
         Some(anchor) => {
             let wrap = match anchor.wrap.as_deref() {
                 Some(value) if value.starts_with("square") => {
@@ -876,7 +907,7 @@ fn drawing_xml(picture: &Picture, id: &str) -> String {
             let horizontal = position_axis(anchor.h_align.as_deref(), anchor.x.map(|emu| emu.0), "H");
             let vertical = position_axis(anchor.v_align.as_deref(), anchor.y.map(|emu| emu.0), "V");
             format!(
-                "<w:drawing><wp:anchor distT=\"{}\" distB=\"{}\" distL=\"{}\" distR=\"{}\" simplePos=\"0\" relativeHeight=\"0\" behindDoc=\"{}\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\"><wp:simplePos x=\"0\" y=\"0\"/>{horizontal}{vertical}<wp:extent cx=\"{width}\" cy=\"{height}\"/>{wrap}{graphic}</wp:anchor></w:drawing>",
+                "<w:drawing><wp:anchor distT=\"{}\" distB=\"{}\" distL=\"{}\" distR=\"{}\" simplePos=\"0\" relativeHeight=\"0\" behindDoc=\"{}\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\"><wp:simplePos x=\"0\" y=\"0\"/>{horizontal}{vertical}<wp:extent cx=\"{width}\" cy=\"{height}\"/><wp:effectExtent l=\"0\" t=\"0\" r=\"0\" b=\"0\"/>{wrap}{doc_pr}{graphic}</wp:anchor></w:drawing>",
                 anchor.dist_top.map(|emu| emu.0).unwrap_or(0),
                 anchor.dist_bottom.map(|emu| emu.0).unwrap_or(0),
                 anchor.dist_left.map(|emu| emu.0).unwrap_or(0),
@@ -920,6 +951,7 @@ fn ppr(
     headers: &mut Vec<(String, Vec<u8>)>,
     numbering: &mut Numbering,
     doc: &ModelDocument,
+    drawings: &mut u32,
 ) -> String {
     let props = &para.props;
     let mut inner = String::new();
@@ -1101,6 +1133,7 @@ fn ppr(
             doc,
             numbering,
             media,
+            drawings,
         ));
     }
     if inner.is_empty() {
@@ -1328,6 +1361,7 @@ fn table_xml(
     headers: &mut Vec<(String, Vec<u8>)>,
     numbering: &mut Numbering,
     doc: &ModelDocument,
+    drawings: &mut u32,
 ) -> WmlResult<String> {
     let mut out = String::from("<w:tbl><w:tblPr>");
     // ECMA-376 fixes the order: style, position, overlap, direction, width, then the rest.
@@ -1512,7 +1546,16 @@ fn table_xml(
                 }
                 out.push_str("</w:tcPr>");
             }
-            write_blocks(&cell.blocks, &mut out, rels, media, headers, numbering, doc)?;
+            write_blocks(
+                &cell.blocks,
+                &mut out,
+                rels,
+                media,
+                headers,
+                numbering,
+                doc,
+                drawings,
+            )?;
             if cell.blocks.is_empty() {
                 out.push_str("<w:p/>");
             }
@@ -1531,6 +1574,7 @@ fn sect_pr(
     doc: &ModelDocument,
     numbering: &mut Numbering,
     media: &mut Vec<(String, Vec<u8>)>,
+    drawings: &mut u32,
 ) -> String {
     let mut out = String::from("<w:sectPr>");
     let mut refs = String::new();
@@ -1543,7 +1587,9 @@ fn sect_pr(
         (&props.footers.even, "footer", "even"),
     ];
     for (id, kind, which) in story_refs {
-        if let Some(markup) = story_ref(id, kind, which, rels, headers, doc, numbering, media) {
+        if let Some(markup) = story_ref(
+            id, kind, which, rels, headers, doc, numbering, media, drawings,
+        ) {
             refs.push_str(&markup);
         }
     }
@@ -1680,6 +1726,7 @@ fn story_ref(
     doc: &ModelDocument,
     numbering: &mut Numbering,
     media: &mut Vec<(String, Vec<u8>)>,
+    drawings: &mut u32,
 ) -> Option<String> {
     let id = id.as_ref()?;
     let part = doc.parts.get(id)?;
@@ -1714,6 +1761,7 @@ fn story_ref(
         &mut nested_headers,
         numbering,
         doc,
+        drawings,
     )
     .ok();
     headers.push((
@@ -1739,6 +1787,7 @@ fn note_parts(
     file: &str,
     element: &str,
     kind: PartKind,
+    drawings: &mut u32,
 ) -> WmlResult<Vec<(String, Vec<u8>)>> {
     let ids = doc.parts_of(kind);
     if ids.is_empty() {
@@ -1775,6 +1824,7 @@ fn note_parts(
             &mut Vec::new(),
             &mut numbering,
             doc,
+            drawings,
         )?;
         inner.push_str(&format!("</w:{element}>"));
     }
@@ -1796,7 +1846,7 @@ fn note_parts(
     Ok(files)
 }
 
-fn comment_parts(doc: &ModelDocument) -> WmlResult<Vec<(String, Vec<u8>)>> {
+fn comment_parts(doc: &ModelDocument, drawings: &mut u32) -> WmlResult<Vec<(String, Vec<u8>)>> {
     let ids = doc.parts_of(PartKind::Comment);
     if ids.is_empty() {
         return Ok(Vec::new());
@@ -1829,6 +1879,7 @@ fn comment_parts(doc: &ModelDocument) -> WmlResult<Vec<(String, Vec<u8>)>> {
             &mut Vec::new(),
             &mut numbering,
             doc,
+            drawings,
         )?;
         inner.push_str("</w:comment>");
     }
@@ -2008,6 +2059,7 @@ fn ppr_of(props: &ParaProps) -> String {
     let mut numbering = Numbering::new();
     let mut media = Vec::new();
     let mut headers = Vec::new();
+    let mut drawings = 0u32;
     ppr(
         &para,
         &mut rels,
@@ -2015,6 +2067,7 @@ fn ppr_of(props: &ParaProps) -> String {
         &mut headers,
         &mut numbering,
         &doc,
+        &mut drawings,
     )
 }
 

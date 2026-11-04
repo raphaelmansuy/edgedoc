@@ -41,6 +41,15 @@ jobs:
         run: cargo run --quiet -p edgedoc-demos --bin write-demos -- target/examples
       - name: Check the packages
         run: cargo test -p edgedoc-demos --test documents
+      - name: Check the schema rules
+        run: cargo test -p edgedoc-demos --test word_schema
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the schema validator
+        run: python3 -m pip install lxml
+      - name: Validate against the ECMA-376 schema
+        run: python3 tools/validate_ooxml.py
       - uses: actions/upload-artifact@v4
         with:
           name: example-documents

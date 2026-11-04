@@ -35,6 +35,7 @@ The full text is in [01-intent.md](01-intent.md). The chain is:
 | [13-word-validation.md](13-word-validation.md) | The rules Word enforces, and how to check a file |
 | [14-round-trip.md](14-round-trip.md) | Every feature that must survive an edit, and its test |
 | [15-adapters-audit.md](15-adapters-audit.md) | The Python and WebAssembly surface, and the audit against the spec |
+| [display/README.md](display/README.md) | The display library: layout, paint, viewer, and demo. A separate specification |
 
 The WordCraft checkout used for this design is `/Users/raphaelmansuy/Github/03-working/wordcraft`, package version `0.14.0`.
 
