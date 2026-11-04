@@ -108,11 +108,22 @@ pub fn parse(bytes: &[u8], budget: &Budget) -> OpcResult<El> {
                     .unescape()
                     .map_err(|err| OpcError::new("xml.malformed", err.to_string()))?
                     .into_owned();
+                // Text outside the root element is the whitespace that a writer puts after the
+                // last close tag, and Word documents hold it. It is not a second root.
+                if stack.is_empty() && root.is_some() {
+                    buf.clear();
+                    continue;
+                }
                 if !value.is_empty() {
                     push_child(&mut stack, &mut root, Node::Text(value))?;
                 }
             }
             Event::CData(text) => {
+                // A comment or a CDATA block after the root is outside the document element.
+                if stack.is_empty() && root.is_some() {
+                    buf.clear();
+                    continue;
+                }
                 let value = String::from_utf8_lossy(&text).into_owned();
                 push_child(&mut stack, &mut root, Node::Text(value))?;
             }
