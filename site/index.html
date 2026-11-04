@@ -203,6 +203,33 @@
         </div>
       </article>
 
+      <article class="card wide" id="table-merge">
+        <div class="shot">
+          <img src="assets/previews/price-list.png" alt="A price list: a navy table header, then one row per product with code, pack, unit, price in dollars, and a trend mark." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Table merge</p>
+          <h3>Every table cell is a merge field</h3>
+          <p>
+            The template holds one row of fields: <code>{Product}</code>, <code>{Code}</code>,
+            <code>{Pack}</code>, <code>{Unit}</code>, <code>{Price}</code>, <code>{Trend}</code>.
+            A catalogue merge repeats that row for every record, so three products produce three
+            rows and four regions produce four documents. The header row stays once.
+          </p>
+          <p class="detail">
+            The price and the trend mark come from <code>map_value</code>, which reads the currency
+            and the trend column and returns the symbol. The template stays plain text.
+          </p>
+          <ul class="chips">
+            <li>Table cells</li><li>Row per record</li><li>Currency by region</li><li>Unicode marks</li>
+          </ul>
+          <div class="downloads">
+            <a class="btn small" href="assets/documents/north-america.docx" download>Download .docx</a>
+            <a class="link" href="assets/documents/price-list-template.docx" download>Template</a>
+          </div>
+        </div>
+      </article>
+
       <article class="card">
         <div class="shot">
           <img src="assets/previews/invoice-template.png" alt="The invoice template, showing placeholder text where the merge fields sit." loading="lazy">

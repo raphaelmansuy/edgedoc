@@ -17,6 +17,7 @@ fn main() -> Result<(), String> {
         edgedoc_demos::invoice::render,
         edgedoc_demos::report::render,
         edgedoc_demos::letter::render,
+        edgedoc_demos::price_list::render_by_region,
     ] {
         for file in builder()? {
             let path = root.join(&file.name);

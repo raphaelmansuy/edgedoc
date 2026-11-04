@@ -199,6 +199,7 @@ h2 {
 }
 .body h3 { margin: 0; font-size: 1.16rem; letter-spacing: -.015em; }
 .body p { margin: 0; font-size: .92rem; color: var(--ink-soft); }
+.body .detail { font-size: .87rem; color: var(--muted); }
 
 .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: .15rem 0 0; padding: 0; list-style: none; }
 .chips li {

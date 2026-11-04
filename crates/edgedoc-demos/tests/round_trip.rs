@@ -553,6 +553,58 @@ fn alt_chunk() -> Test {
     )
 }
 
+/// A table row marked `repeats` takes one row per record, and the other rows stay put.
+fn merge_repeats_a_table_row() -> Test {
+    use edgedoc::{
+        Block, Cell, CsvOptions, MergeKind, MissingField, Paragraph, Records, Row, StoryRef, Table,
+    };
+    use std::sync::Arc;
+
+    let mut table = Table::new()
+        .widths([edgedoc::Mm(40.0), edgedoc::Mm(30.0)])
+        .header(["Name", "City"]);
+    table.rows.push(Row::cells([
+        Cell::paragraph("").blocks(vec![Arc::new(Block::Paragraph(
+            Paragraph::new().merge_field("Name"),
+        ))]),
+        Cell::paragraph("").blocks(vec![Arc::new(Block::Paragraph(
+            Paragraph::new().merge_field("City"),
+        ))]),
+    ]));
+    let doc = Document::builder()
+        .paragraph(Paragraph::new().text("List").merge_field("Name"))
+        .table(table)
+        .build()
+        .map_err(err)?;
+    let records = Records::from_csv(
+        b"Name,City\nAda,Leeds\nGrace,Oslo\nAlan,Paris\n",
+        &CsvOptions::default(),
+    )
+    .map_err(err)?;
+    let merged = doc
+        .merge()
+        .records(records)
+        .kind(MergeKind::Directory)
+        .missing(MissingField::Error)
+        .finish()
+        .map_err(err)?
+        .join(edgedoc::Join::Auto)
+        .map_err(err)?;
+    let text = merged.plain_text(StoryRef::Body);
+    for name in ["Ada", "Grace", "Alan"] {
+        if !text.contains(name) {
+            return fail(format!("{name} is missing from {text}"));
+        }
+    }
+    // Three records produce one document, not three.
+    let bytes = merged.write_bytes().map_err(err)?;
+    let reread = Document::read_bytes(&bytes).map_err(err)?;
+    if reread.plain_text(StoryRef::Body) != text {
+        return fail("the saved copy differs");
+    }
+    Ok(())
+}
+
 type Case = (&'static str, fn() -> Test);
 
 fn cases() -> Vec<Case> {
@@ -591,6 +643,7 @@ fn cases() -> Vec<Case> {
         ("equation", equation),
         ("shape-text-box", shape_text_box),
         ("alt-chunk", alt_chunk),
+        ("merge-repeats-a-table-row", merge_repeats_a_table_row),
     ]
 }
 

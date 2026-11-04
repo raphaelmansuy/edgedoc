@@ -73,6 +73,7 @@ orphan, and the writer drops it.
 | Table | Content control inside a cell | Modeled | `control-in-table` |
 | Table | List inside a cell | Modeled | `list-in-table` |
 | Numbering | Level override and start override | Kept | `numbering-override` |
+| Table | A row marked `repeats` takes one row per record | Modeled | `merge-repeats-a-table-row` |
 
 ## Stories
 

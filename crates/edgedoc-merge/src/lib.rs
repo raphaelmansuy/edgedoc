@@ -180,10 +180,8 @@ fn merge_blocks(
                 }
             }
             Block::Table(table) => {
-                for cell in table.rows.iter_mut().flat_map(|row| &mut row.cells) {
-                    if !merge_blocks(request, &mut cell.blocks, cursor, end, depth + 1)? {
-                        return Ok(false);
-                    }
+                if !merge_table(request, table, cursor, end, depth)? {
+                    return Ok(false);
                 }
             }
             Block::Alternate { choice, .. } => {
@@ -199,6 +197,60 @@ fn merge_blocks(
             Block::Opaque(_) => {}
         }
     }
+    Ok(true)
+}
+
+/// Merge the fields in a table.
+///
+/// Word repeats a table row that holds a merge field in a catalogue merge, and keeps
+/// every row in place for a letters merge. The distinction is the merge kind, not the
+/// row: a price list is a directory, and an invoice that lays out two blocks side by
+/// side is a letter.
+fn merge_table(
+    request: &MergeRequest<'_>,
+    table: &mut edgedoc_model::Table,
+    cursor: &mut usize,
+    end: usize,
+    depth: usize,
+) -> Result<bool, MergeError> {
+    let repeats_rows = matches!(request.kind, MergeKind::Directory | MergeKind::Labels);
+    let mut rows = std::mem::take(&mut table.rows);
+    let mut out: Vec<edgedoc_model::Row> = Vec::with_capacity(rows.len());
+    let mut repeated = false;
+    for row in rows.iter_mut() {
+        let holds_field = row.cells.iter().any(|cell| blocks_have_field(&cell.blocks));
+        // The first field-bearing data row of a catalogue repeats; every other row stays.
+        let repeats_this_row = repeats_rows && holds_field && !repeated && !row.header;
+        if !repeats_this_row {
+            for cell in &mut row.cells {
+                if !merge_blocks(request, &mut cell.blocks, cursor, end, depth + 1)? {
+                    table.rows = out;
+                    return Ok(false);
+                }
+            }
+            out.push(row.clone());
+            continue;
+        }
+        // A catalogue row takes one copy per record, from the cursor to the last record.
+        repeated = true;
+        let template = row.clone();
+        let mut record = *cursor;
+        while record < end {
+            let mut copy = template.clone();
+            let mut row_cursor = record;
+            for cell in &mut copy.cells {
+                if !merge_blocks(request, &mut cell.blocks, &mut row_cursor, end, depth + 1)? {
+                    table.rows = out;
+                    return Ok(false);
+                }
+            }
+            out.push(copy);
+            record += 1;
+        }
+        // The document now holds every record, so the outer loop stops after it.
+        *cursor = end;
+    }
+    table.rows = out;
     Ok(true)
 }
 

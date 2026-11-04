@@ -16,6 +16,7 @@
 pub mod common;
 pub mod invoice;
 pub mod letter;
+pub mod price_list;
 pub mod report;
 
 /// One document ready to write.
