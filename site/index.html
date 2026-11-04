@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EdgeDoc — read, edit, merge, and save Word documents</title>
+<meta name="description" content="A Rust library for Word documents, with Python and WebAssembly adapters. It reads the parts it models and keeps every other part, so a template survives an edit.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="currentColor"/>
+        <rect x="7"  y="18" width="4" height="8"  rx="1.2" fill="#fff"/>
+        <rect x="14" y="13" width="4" height="13" rx="1.2" fill="#bfdbfe"/>
+        <rect x="21" y="7"  width="4" height="19" rx="1.2" fill="#93c5fd"/>
+      </svg>
+      <span>EdgeDoc</span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#why">Why</a>
+      <a href="#documents">Documents</a>
+      <a href="#code">Code</a>
+      <a href="#coverage">Coverage</a>
+      <a href="#start">Start</a>
+    </nav>
+    <a class="gh" href="https://github.com/raphaelmansuy/edgedoc" aria-label="EdgeDoc on GitHub">
+      <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <span>GitHub</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">Rust · Python · WebAssembly</p>
+    <h1>A Word library that<br><em>keeps the package.</em></h1>
+    <p class="lede">
+      Most libraries rebuild a <code>.docx</code> from a paragraph list. The file opens, but it is
+      no longer the approved template: the header lost its picture, the numbering changed, the
+      macros are gone.
+      <strong>EdgeDoc reads the parts it models and keeps every other part unchanged.</strong>
+    </p>
+    <div class="actions">
+      <a class="btn primary" href="#documents">See the documents</a>
+      <a class="btn" href="#start">Get started</a>
+    </div>
+    <ul class="facts">
+      <li><b>7</b><span>crates on crates.io</span></li>
+      <li><b>12</b><span>example documents</span></li>
+      <li><b>34</b><span>round-trip rules tested</span></li>
+      <li><b>0</b><span><code>unsafe</code> blocks</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="why" class="band">
+  <div class="wrap">
+    <h2>The rule</h2>
+    <p class="section-lede">
+      A <code>.docx</code> file is a ZIP of parts, not a list of paragraphs. So a feature is
+      either modeled or kept — never silently dropped.
+    </p>
+    <div class="rule-grid">
+      <article class="rule">
+        <h3><span class="dot modeled"></span>Modeled</h3>
+        <p>The reader builds a typed value and the writer emits it. An edit can change it.</p>
+        <p class="examples">Runs, paragraphs, tables, sections, numbering, styles, pictures, fields.</p>
+      </article>
+      <article class="rule">
+        <h3><span class="dot kept"></span>Kept</h3>
+        <p>The reader does not model the feature. It holds the markup, and the save copies it.</p>
+        <p class="examples">Macros, charts, equations, tracked changes, themes, custom XML.</p>
+      </article>
+      <article class="rule">
+        <h3><span class="dot refused"></span>Refused</h3>
+        <p>The file cannot be read safely. The call returns a stable error code.</p>
+        <p class="examples">Binary <code>.doc</code>, Word 2003 XML, encrypted packages.</p>
+      </article>
+    </div>
+    <p class="aside">
+      A save with no edit returns the original bytes, byte for byte.
+    </p>
+  </div>
+</section>
+
+<section id="documents">
+  <div class="wrap">
+    <h2>Documents built with the library</h2>
+    <p class="section-lede">
+      Every file below comes from the public fluent API. Each one is rendered by an independent
+      Word reader, so what you see is what a word processor computes — not a mock-up.
+      Download any of them and open it in Word.
+    </p>
+
+    <div class="gallery">
+
+      <article class="card wide">
+        <div class="shot">
+          <img src="assets/previews/invoice-p1.png" alt="Page one of a tax invoice: header with logo, billed-to block, a line-item table with a navy header row, and a totals block." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Invoice</p>
+          <h3>Tax invoice, two pages</h3>
+          <p>
+            A header logo, a footer with “Page 1 of 2”, a billed-to block laid out side by side with
+            the reference, a line-item table with alternating shading, and a totals strip with a
+            double rule under the amount due.
+          </p>
+          <ul class="chips">
+            <li>Header and footer</li><li>Page fields</li><li>Table shading</li><li>Merge fields</li>
+          </ul>
+          <div class="downloads">
+            <a class="btn small" href="assets/documents/INV-2026-0418.docx" download>Download .docx</a>
+            <a class="link" href="assets/documents/invoice-template.docx" download>Template</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="shot">
+          <img src="assets/previews/invoice-p2.png" alt="Page two of the invoice: terms, a bulleted payment list, a signature area with a seal." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Page two</p>
+          <h3>Terms and signature</h3>
+          <p>A page break before the terms, a bulleted list, and a two-column closing block.</p>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="shot">
+          <img src="assets/previews/report-cover.png" alt="Report cover: title, subtitle, a chart figure with a caption, and a preparation note." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Report</p>
+          <h3>Quarterly business review</h3>
+          <p>
+            A title page with its own header, an embedded chart with a caption, then one section per
+            region. The footer carries a merge field, so each region page names itself.
+          </p>
+          <ul class="chips">
+            <li>Title page</li><li>Chart</li><li>Section per record</li><li>Footer merge field</li>
+          </ul>
+          <div class="downloads">
+            <a class="btn small" href="assets/documents/report.docx" download>Download .docx</a>
+            <a class="link" href="assets/documents/report-template.docx" download>Template</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="shot">
+          <img src="assets/previews/report-region.png" alt="A region page: heading, a metric strip with three values, a summary, and a fact table." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Merged section</p>
+          <h3>One page per region</h3>
+          <p>
+            Five records produce five sections. Each metric, heading, and footer value comes from
+            the CSV row.
+          </p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="shot">
+          <img src="assets/previews/letter.png" alt="A letter: greeting, three paragraphs, a closing, and a signature with a seal." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Letter</p>
+          <h3>Personalised letter</h3>
+          <p>
+            A <code>GREETINGLINE</code> field builds the salutation. A conditional paragraph appears
+            only for enterprise accounts.
+          </p>
+          <div class="downloads">
+            <a class="btn small" href="assets/documents/Hart-Amelia.docx" download>Download .docx</a>
+            <a class="link" href="assets/documents/letter-template.docx" download>Template</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="shot">
+          <img src="assets/previews/directory.png" alt="A three-column label grid, each cell holding a name, company, and address." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Directory</p>
+          <h3>Label sheet</h3>
+          <p>Every recipient on one page, three per row, with dotted separators.</p>
+          <div class="downloads">
+            <a class="btn small" href="assets/documents/directory.docx" download>Download .docx</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="shot">
+          <img src="assets/previews/invoice-template.png" alt="The invoice template, showing placeholder text where the merge fields sit." loading="lazy">
+        </div>
+        <div class="body">
+          <p class="tag">Template</p>
+          <h3>The template itself</h3>
+          <p>
+            Placeholders in guillemets show where each field lands. A merge fills them; the template
+            never changes.
+          </p>
+          <div class="downloads">
+            <a class="btn small" href="assets/documents/invoice-template.docx" download>Download .docx</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section id="code" class="band">
+  <div class="wrap">
+    <h2>One core, three runtimes</h2>
+    <p class="section-lede">
+      The crate, the wheel, and the WebAssembly module call the same facade. There is one catalog,
+      one field parser, one budget, and one write path.
+    </p>
+
+    <div class="tabs" role="tablist" aria-label="Runtime">
+      <button role="tab" aria-selected="true" aria-controls="panel-rust" id="tab-rust">Rust</button>
+      <button role="tab" aria-selected="false" aria-controls="panel-python" id="tab-python">Python</button>
+      <button role="tab" aria-selected="false" aria-controls="panel-wasm" id="tab-wasm">WebAssembly</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-rust" aria-labelledby="tab-rust">
+<pre><code><span class="c">// Build a document with the fluent API.</span>
+<span class="k">let</span> <span class="k">mut</span> doc = Document::builder()
+    .core(CoreProps::new().title(<span class="s">"Invoice"</span>))
+    .page(Page::a4().margins(Mm(<span class="n">20.0</span>)))
+    .style(Style::paragraph(<span class="s">"Heading1"</span>).size(Pt(<span class="n">16.0</span>)).bold())
+    .paragraph(Paragraph::new().style(<span class="s">"Heading1"</span>).text(<span class="s">"Invoice "</span>).merge_field(<span class="s">"Number"</span>))
+    .table(Table::new().widths([Mm(<span class="n">90.0</span>), Mm(<span class="n">30.0</span>)]).header([<span class="s">"Item"</span>, <span class="s">"Amount"</span>]).row([<span class="s">"Widget"</span>, <span class="s">"40.00"</span>]))
+    .build()?;
+
+<span class="c">// Merge one CSV into it. The template is never changed.</span>
+<span class="k">let</span> letters = doc.merge()
+    .records(Records::from_csv(csv, &amp;CsvOptions::default())?)
+    .kind(MergeKind::Letters)
+    .missing(MissingField::Error)
+    .finish()?
+    .join(Join::Auto)?;
+
+letters.save(<span class="s">"out.docx"</span>)?;</code></pre>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-python" aria-labelledby="tab-python" hidden>
+<pre><code><span class="k">import</span> edgedoc
+
+template = edgedoc.read_path(<span class="s">"invoice-template.docx"</span>)
+csv = edgedoc.read_path(<span class="s">"orders.csv"</span>)
+
+<span class="c"># Every function takes bytes and returns bytes.</span>
+merged = edgedoc.merge_records(template, csv, kind=<span class="s">"letters"</span>, join=<span class="s">"auto"</span>, missing=<span class="s">"empty"</span>)
+edgedoc.write_path(<span class="s">"invoices.docx"</span>, merged)
+
+<span class="c"># Read what is inside without opening Word.</span>
+<span class="k">print</span>(edgedoc.doc_title(merged))
+<span class="k">print</span>(edgedoc.merge_field_names(template))
+<span class="k">print</span>(edgedoc.text_of_story(template, <span class="s">"header"</span>))</code></pre>
+      <p class="note">Install with <code>pip install edgedoc</code>.</p>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-wasm" aria-labelledby="tab-wasm" hidden>
+<pre><code><span class="k">import</span> init, { mergeRecords, documentSummary, textOf } <span class="k">from</span> <span class="s">"./edgedoc.js"</span>;
+
+<span class="k">await</span> init();
+
+<span class="c">// Bytes in, bytes out. No file system, no threads.</span>
+<span class="k">const</span> merged = mergeRecords(templateBytes, csvBytes, <span class="s">"letters"</span>, <span class="s">"auto"</span>, <span class="s">"empty"</span>);
+
+console.log(documentSummary(templateBytes));
+console.log(textOf(templateBytes, <span class="s">"footer"</span>));</code></pre>
+      <p class="note">Build with <code>make example-wasm</code>, which also runs nine examples in Node.</p>
+    </div>
+  </div>
+</section>
+
+<section id="coverage">
+  <div class="wrap">
+    <h2>What it handles</h2>
+    <p class="section-lede">
+      The table below is locked by a test. A row without a test fails the build, and a test without
+      a row fails it too — so the claim cannot drift from the code.
+    </p>
+    <div class="table-scroll">
+      <table class="coverage">
+        <thead><tr><th>Area</th><th>Status</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>DOCX, DOCM, DOTX, DOTM</td><td><span class="pill modeled">Modeled</span></td><td>Macros stay, and never run</td></tr>
+          <tr><td>Runs, paragraphs, character and paragraph formatting</td><td><span class="pill modeled">Modeled</span></td><td>Caps, spacing, kerning, borders, tab stops, frames</td></tr>
+          <tr><td>Tables</td><td><span class="pill modeled">Modeled</span></td><td>Spans, merges, borders, shading, floating position</td></tr>
+          <tr><td>Sections</td><td><span class="pill modeled">Modeled</span></td><td>Columns, headers, footers, page numbering, line numbers</td></tr>
+          <tr><td>Bullet and number lists</td><td><span class="pill modeled">Modeled</span></td><td>The writer builds the numbering part</td></tr>
+          <tr><td>Pictures, inline and floating</td><td><span class="pill modeled">Modeled</span></td><td>Size, alt text, wrap, offset</td></tr>
+          <tr><td>Fields and content controls</td><td><span class="pill modeled">Modeled</span></td><td>Including legacy form fields and <code>w:ffData</code></td></tr>
+          <tr><td>Footnotes, endnotes, comments</td><td><span class="pill modeled">Modeled</span></td><td>Each note and comment is an editable story</td></tr>
+          <tr><td>Styles of every kind</td><td><span class="pill modeled">Modeled</span></td><td>Table styles keep their conditional formatting</td></tr>
+          <tr><td>Themes, charts, equations, tracked changes</td><td><span class="pill kept">Kept</span></td><td>The save copies the parts</td></tr>
+          <tr><td>Binary <code>.doc</code>, Word 2003 XML</td><td><span class="pill refused">Refused</span></td><td>A stable error code, never a corrupt file</td></tr>
+          <tr><td>Encrypted packages</td><td><span class="pill refused">Refused</span></td><td>Detected and refused; decryption is not in this version</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="aside">
+      Pagination, PDF, spell check, and VBA execution are out of scope. A layout engine is a
+      different product.
+    </p>
+  </div>
+</section>
+
+<section id="start" class="band">
+  <div class="wrap">
+    <h2>Start in one command</h2>
+    <div class="start-grid">
+      <div class="start">
+        <h3>Rust</h3>
+        <pre><code>cargo add edgedoc</code></pre>
+        <p><a href="https://crates.io/crates/edgedoc">crates.io/crates/edgedoc</a></p>
+        <p><a href="https://docs.rs/edgedoc">docs.rs/edgedoc</a></p>
+      </div>
+      <div class="start">
+        <h3>Python</h3>
+        <pre><code>pip install edgedoc</code></pre>
+        <p><a href="https://pypi.org/project/edgedoc/">pypi.org/project/edgedoc</a></p>
+        <p class="note">The wheel ships native code for macOS, Linux, and Windows.</p>
+      </div>
+      <div class="start">
+        <h3>WebAssembly</h3>
+        <pre><code>make example-wasm</code></pre>
+        <p>Builds the <code>wasm32-unknown-unknown</code> module and runs nine examples in Node.</p>
+      </div>
+    </div>
+
+    <div class="commands">
+      <h3>The commands</h3>
+      <pre><code>make            <span class="c"># the target list</span>
+make check      <span class="c"># format, clippy, and every test</span>
+make examples   <span class="c"># build the twelve documents</span>
+make verify     <span class="c"># check them with an independent reader</span>
+make test-python
+make example-wasm</code></pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <strong>EdgeDoc</strong> · Apache License 2.0 ·
+      <a href="https://github.com/raphaelmansuy/edgedoc">source</a> ·
+      <a href="https://github.com/raphaelmansuy/edgedoc/tree/main/docs">documentation</a>
+    </p>
+    <p class="fine">
+      The specification follows ECMA-376 5th edition, ISO/IEC 29500-1:2016, MS-DOCX, and
+      MS-OI29500. Documents on this page are rendered by WordCraft, an independent reader.
+    </p>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
