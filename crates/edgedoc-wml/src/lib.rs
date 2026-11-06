@@ -3,6 +3,7 @@
 
 mod catalog;
 mod error;
+mod math;
 mod read;
 mod write;
 

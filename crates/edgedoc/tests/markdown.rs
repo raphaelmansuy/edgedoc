@@ -619,6 +619,396 @@ fn an_image_name_cannot_escape_the_image_directory() -> Test {
     Ok(())
 }
 
+/// Every Office Math construct the exporter understands, read from a hand-written DOCX.
+#[test]
+fn equations_become_latex() -> Test {
+    fn run(text: &str) -> String {
+        format!("<m:r><m:t xml:space=\"preserve\">{text}</m:t></m:r>")
+    }
+    fn styled(style: &str, text: &str) -> String {
+        format!(
+            "<m:r><m:rPr><m:sty m:val=\"{style}\"/></m:rPr><m:t xml:space=\"preserve\">{text}</m:t></m:r>"
+        )
+    }
+    fn om(inner: &str) -> String {
+        format!(
+            "<m:oMath xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">{inner}</m:oMath>"
+        )
+    }
+    fn para(inner: &str) -> String {
+        format!("<w:p>{inner}</w:p>")
+    }
+    fn shown(inner: &str) -> String {
+        para(&om(inner))
+    }
+    let fraction = |kind: &str, num: &str, den: &str| {
+        let props = if kind.is_empty() {
+            String::new()
+        } else {
+            format!("<m:fPr><m:type m:val=\"{kind}\"/></m:fPr>")
+        };
+        format!(
+            "<m:f>{props}<m:num>{}</m:num><m:den>{}</m:den></m:f>",
+            run(num),
+            run(den)
+        )
+    };
+    let cases = [
+        (shown(&run("x+y")), "$x+y$"),
+        (
+            format!(
+                "<w:p><m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">{}</m:oMathPara></w:p>",
+                om(&fraction("", "a", "b"))
+            ),
+            "$$\n\\frac{a}{b}\n$$",
+        ),
+        (
+            shown(&format!(
+                "<m:sSup><m:e>{}</m:e><m:sup>{}</m:sup></m:sSup>",
+                run("x"),
+                run("2")
+            )),
+            "${x}^{2}$",
+        ),
+        (
+            shown(&format!(
+                "<m:sSub><m:e>{}</m:e><m:sub>{}</m:sub></m:sSub>",
+                run("x"),
+                run("i")
+            )),
+            "${x}_{i}$",
+        ),
+        (
+            shown(&format!(
+                "<m:sSubSup><m:e>{}</m:e><m:sub>{}</m:sub><m:sup>{}</m:sup></m:sSubSup>",
+                run("x"),
+                run("i"),
+                run("n")
+            )),
+            "${x}_{i}^{n}$",
+        ),
+        (
+            shown(&format!(
+                "<m:sSup><m:e>{}</m:e><m:sup>{}</m:sup></m:sSup>",
+                fraction("", "a", "b"),
+                run("2")
+            )),
+            "${\\frac{a}{b}}^{2}$",
+        ),
+        (
+            shown(&format!(
+                "<m:sPre><m:sub>{}</m:sub><m:sup>{}</m:sup><m:e>{}</m:e></m:sPre>",
+                run("a"),
+                run("b"),
+                run("x")
+            )),
+            "${}_{a}^{b}{x}$",
+        ),
+        (shown(&fraction("lin", "a", "b")), "${a}/{b}$"),
+        (shown(&fraction("skw", "a", "b")), "${}^{a}/_{b}$"),
+        (
+            shown(&fraction("noBar", "a", "b")),
+            "$\\genfrac{}{}{0pt}{}{a}{b}$",
+        ),
+        (
+            shown(
+                "<m:rad><m:radPr><m:degHide m:val=\"1\"/></m:radPr><m:e><m:r><m:t>x</m:t></m:r></m:e></m:rad>",
+            ),
+            "$\\sqrt{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:rad><m:deg>{}</m:deg><m:e>{}</m:e></m:rad>",
+                run("3"),
+                run("x")
+            )),
+            "$\\sqrt[3]{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:nary><m:naryPr><m:chr m:val=\"∑\"/><m:limLoc m:val=\"undOvr\"/></m:naryPr><m:sub>{}</m:sub><m:sup>{}</m:sup><m:e>{}</m:e></m:nary>",
+                run("i=1"),
+                run("n"),
+                run("i")
+            )),
+            "$\\sum\\limits_{i=1}^{n}{i}$",
+        ),
+        (
+            shown(&format!(
+                "<m:nary><m:naryPr><m:chr m:val=\"∑\"/><m:limLoc m:val=\"undOvr\"/><m:supHide m:val=\"1\"/></m:naryPr><m:sub>{}</m:sub><m:sup>{}</m:sup><m:e>{}</m:e></m:nary>",
+                run("i"),
+                run("n"),
+                run("i")
+            )),
+            "$\\sum\\limits_{i}{i}$",
+        ),
+        (
+            shown(&format!(
+                "<m:nary><m:sub>{}</m:sub><m:sup>{}</m:sup><m:e>{}</m:e></m:nary>",
+                run("0"),
+                run("1"),
+                run("x")
+            )),
+            "$\\int_{0}^{1}{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:nary><m:naryPr><m:subHide m:val=\"1\"/></m:naryPr><m:sub>{}</m:sub><m:sup>{}</m:sup><m:e>{}</m:e></m:nary>",
+                run("0"),
+                run("1"),
+                run("x")
+            )),
+            "$\\int^{1}{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:nary><m:naryPr><m:chr m:val=\"∏\"/></m:naryPr><m:sub>{}</m:sub><m:e>{}</m:e></m:nary>",
+                run("i"),
+                run("i")
+            )),
+            "$\\prod_{i}{i}$",
+        ),
+        (
+            shown(&format!(
+                "<m:d><m:e>{}</m:e><m:e>{}</m:e></m:d>",
+                run("a"),
+                run("b")
+            )),
+            "$\\left(a,b\\right)$",
+        ),
+        (
+            shown(&format!(
+                "<m:d><m:dPr><m:begChr m:val=\"{}\"/><m:endChr m:val=\"{}\"/></m:dPr><m:e>{}</m:e></m:d>",
+                "{", "}", run("a")
+            )),
+            "$\\left\\{a\\right\\}$",
+        ),
+        (
+            shown(&format!(
+                "<m:d><m:dPr><m:grow m:val=\"0\"/></m:dPr><m:e>{}</m:e></m:d>",
+                run("x")
+            )),
+            "$(x)$",
+        ),
+        (
+            shown(&format!(
+                "<m:d><m:dPr><m:begChr m:val=\"\"/></m:dPr><m:e>{}</m:e></m:d>",
+                run("x")
+            )),
+            "$\\left.x\\right)$",
+        ),
+        (
+            shown(&format!(
+                "<m:func><m:fName>{}</m:fName><m:e><m:d><m:e>{}</m:e></m:d></m:e></m:func>",
+                styled("p", "sin"),
+                run("x")
+            )),
+            "$\\sin \\left(x\\right)$",
+        ),
+        (
+            shown(&format!(
+                "<m:limLow><m:e>{}</m:e><m:lim>{}</m:lim></m:limLow>",
+                styled("p", "lim"),
+                run("x→0")
+            )),
+            "$\\underset{x\\rightarrow 0}{\\lim }$",
+        ),
+        (
+            shown(&format!(
+                "<m:limUpp><m:e>{}</m:e><m:lim>{}</m:lim></m:limUpp>",
+                run("x"),
+                run("n")
+            )),
+            "$\\overset{n}{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:acc><m:accPr><m:chr m:val=\"̂\"/></m:accPr><m:e>{}</m:e></m:acc>",
+                run("x")
+            )),
+            "$\\hat{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:acc><m:accPr><m:chr m:val=\"̃\"/></m:accPr><m:e>{}</m:e></m:acc>",
+                run("x")
+            )),
+            "$\\tilde{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:acc><m:accPr><m:chr m:val=\"*\"/></m:accPr><m:e>{}</m:e></m:acc>",
+                run("x")
+            )),
+            "$\\overset{*}{x}$",
+        ),
+        (
+            shown(&format!("<m:bar><m:e>{}</m:e></m:bar>", run("x"))),
+            "$\\overline{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:bar><m:barPr><m:pos m:val=\"bot\"/></m:barPr><m:e>{}</m:e></m:bar>",
+                run("x")
+            )),
+            "$\\underline{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:groupChr><m:groupChrPr><m:chr m:val=\"⏞\"/><m:pos m:val=\"top\"/></m:groupChrPr><m:e>{}</m:e></m:groupChr>",
+                run("abc")
+            )),
+            "$\\overbrace{abc}$",
+        ),
+        (
+            shown(&format!(
+                "<m:groupChr><m:groupChrPr><m:chr m:val=\"⏟\"/><m:pos m:val=\"bot\"/></m:groupChrPr><m:e>{}</m:e></m:groupChr>",
+                run("abc")
+            )),
+            "$\\underbrace{abc}$",
+        ),
+        (
+            shown(&format!(
+                "<m:groupChr><m:groupChrPr><m:chr m:val=\"∗\"/><m:pos m:val=\"bot\"/></m:groupChrPr><m:e>{}</m:e></m:groupChr>",
+                run("x")
+            )),
+            "$\\underset{\\ast }{x}$",
+        ),
+        (
+            shown(&format!("<m:borderBox><m:e>{}</m:e></m:borderBox>", run("x"))),
+            "$\\boxed{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:phant><m:phantPr><m:show m:val=\"0\"/></m:phantPr><m:e>{}</m:e></m:phant>",
+                run("x")
+            )),
+            "$\\phantom{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:phant><m:phantPr><m:show m:val=\"0\"/><m:zeroWid m:val=\"1\"/></m:phantPr><m:e>{}</m:e></m:phant>",
+                run("x")
+            )),
+            "$\\vphantom{x}$",
+        ),
+        (
+            shown(&format!(
+                "<m:phant><m:phantPr><m:show m:val=\"0\"/><m:zeroAsc m:val=\"1\"/></m:phantPr><m:e>{}</m:e></m:phant>",
+                run("x")
+            )),
+            "$\\hphantom{x}$",
+        ),
+        (
+            shown(&format!("<m:box><m:e>{}</m:e></m:box>", run("q"))),
+            "$q$",
+        ),
+        (
+            shown(&format!(
+                "<m:eqArr><m:e>{}<m:aln/>{}</m:e><m:e>{}</m:e></m:eqArr>",
+                run("a"),
+                run("b"),
+                run("c")
+            )),
+            "$\\begin{aligned}a&b\\\\c\\end{aligned}$",
+        ),
+        (
+            shown(&format!(
+                "<m:m><m:mr><m:e>{}</m:e><m:e>{}</m:e></m:mr><m:mr><m:e>{}</m:e><m:e>{}</m:e></m:mr></m:m>",
+                run("a"),
+                run("b"),
+                run("c"),
+                run("d")
+            )),
+            "$\\begin{matrix}a&b\\\\c&d\\end{matrix}$",
+        ),
+        (shown(&styled("b", "v")), "$\\mathbf{v}$"),
+        (shown(&styled("bi", "w")), "$\\boldsymbol{w}$"),
+        (shown(&styled("p", "dx")), "$\\mathrm{dx}$"),
+        (
+            shown("<m:r><m:rPr><m:nor/></m:rPr><m:t xml:space=\"preserve\">a b</m:t></m:r>"),
+            "$\\text{a b}$",
+        ),
+        (shown(&run("a_b")), "$a\\_b$"),
+        (shown(&run("α")), "$\\alpha$"),
+        (shown(&run("×")), "$\\times$"),
+        (
+            format!(
+                "<w:p><w:r><w:t xml:space=\"preserve\">Area </w:t></w:r>{}<w:r><w:t xml:space=\"preserve\"> now</w:t></w:r></w:p>",
+                om(&run("x"))
+            ),
+            "Area $x$ now",
+        ),
+        (
+            format!(
+                "<w:p><w:hyperlink r:id=\"rIdL\">{}</w:hyperlink></w:p>",
+                om(&run("y"))
+            ),
+            "[$y$](https://example.com/m)",
+        ),
+        (
+            format!(
+                "<w:sdt><w:sdtContent><w:p>{}</w:p></w:sdtContent></w:sdt>",
+                om(&run("k"))
+            ),
+            "$k$",
+        ),
+        (
+            format!(
+                "<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Eq</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:tc><w:p>{}</w:p></w:tc></w:tr></w:tbl>",
+                om(&run("c"))
+            ),
+            "| $c$ |",
+        ),
+    ];
+    let mut body = String::from(
+        "<?xml version=\"1.0\"?><w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><w:body>",
+    );
+    for (block, _) in &cases {
+        body.push_str(block);
+    }
+    body.push_str("<w:p><w:r><w:t>See</w:t></w:r><w:r><w:footnoteReference w:id=\"7\"/></w:r></w:p></w:body></w:document>");
+    let footnotes = format!(
+        "<?xml version=\"1.0\"?><w:footnotes xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:footnote w:type=\"separator\" w:id=\"-1\"><w:p><w:r><w:t>separator</w:t></w:r></w:p></w:footnote><w:footnote w:id=\"7\"><w:p>{}</w:p></w:footnote></w:footnotes>",
+        om(&run("z"))
+    );
+    let bytes = package(
+        &body,
+        r#"<Relationship Id="rIdF" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" Target="footnotes.xml"/><Relationship Id="rIdL" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://example.com/m" TargetMode="External"/>"#,
+        &[("word/footnotes.xml", footnotes.as_bytes())],
+    )?;
+    let doc = Document::read_bytes(&bytes).map_err(err)?;
+    let exported = doc.to_markdown().map_err(err)?;
+    let markdown = exported.markdown.as_str();
+    for (_, fragment) in &cases {
+        if !markdown.contains(fragment) {
+            return Err(format!("missing {fragment:?}\n\n{markdown}"));
+        }
+    }
+    for fragment in ["See[^7]", "[^7]: $z$", "separator"] {
+        let present = markdown.contains(fragment);
+        if fragment == "separator" {
+            if present {
+                return Err(format!("separator leaked\n\n{markdown}"));
+            }
+        } else if !present {
+            return Err(format!("missing {fragment:?}\n\n{markdown}"));
+        }
+    }
+    let saved = doc.write_bytes().map_err(err)?;
+    let package = edgedoc_opc::read_zip(&saved, &edgedoc::Budget::default()).map_err(err)?;
+    let document = package
+        .part("word/document.xml")
+        .ok_or("the saved package has no document")?;
+    let xml = String::from_utf8_lossy(&document.bytes);
+    for marker in ["<m:f", "<m:nary", "<m:rad", "xmlns:m="] {
+        if !xml.contains(marker) {
+            return Err(format!("saved document lost {marker}"));
+        }
+    }
+    Ok(())
+}
+
 fn files_in(dir: &Path) -> Result<Vec<PathBuf>, String> {
     let mut out = Vec::new();
     if !dir.exists() {

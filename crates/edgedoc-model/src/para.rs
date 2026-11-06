@@ -89,6 +89,12 @@ pub enum InlineObject {
         relative_to: String,
         leader: Option<String>,
     },
+    /// An Office Math equation. `latex` has no `$` delimiters. `display` is an `m:oMathPara`.
+    Math {
+        raw: String,
+        latex: String,
+        display: bool,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -420,6 +426,7 @@ impl Paragraph {
                     Some(InlineObject::Field(field)) => out.push_str(&field.result),
                     Some(InlineObject::Hyperlink { .. }) => {}
                     Some(InlineObject::PositionalTab { .. }) => out.push('\t'),
+                    Some(InlineObject::Math { latex, .. }) => out.push_str(latex),
                     _ => {}
                 }
             } else {

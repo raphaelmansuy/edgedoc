@@ -249,6 +249,9 @@ for image in &exported.images {
 Without `image_dir`, nothing is written and each [`edgedoc::ExportedImage`] still carries
 `bytes` and the `markdown_path` to use when you store the file yourself.
 
+An equation is LaTeX. Inline Office Math uses `$...$`. A displayed equation (`m:oMathPara`)
+uses `$$` on its own lines.
+
 ## Example documents
 
 The repository builds twelve real documents. `make examples` writes them to

@@ -81,7 +81,8 @@ impl Document {
     ///
     /// Headings come from a `Heading1`–`Heading9` style, a style based on one, or a
     /// Word outline level. Lists use the paragraph's list, or the numbering part after
-    /// a DOCX read. A page or column break becomes a thematic break. Footnotes and
+    /// a DOCX read. A page or column break becomes a thematic break. An equation becomes
+    /// LaTeX, with `$` for inline math and `$$` for a displayed equation. Footnotes and
     /// endnotes become Markdown footnotes. The link in each image is
     /// [`ExportedImage::markdown_path`].
     pub fn to_markdown_with(&self, options: &MarkdownOptions) -> Result<MarkdownDocument, Error> {
@@ -348,6 +349,7 @@ impl<'a> Export<'a> {
             Some(InlineObject::Picture(picture)) => self.image(picture),
             Some(InlineObject::Field(field)) => field_text(field),
             Some(InlineObject::Note { kind, id }) => note_marker(kind, *id),
+            Some(InlineObject::Math { latex, display, .. }) => math_markdown(latex, *display, cell),
             Some(InlineObject::PositionalTab { .. }) => {
                 if cell {
                     " ".into()
@@ -682,6 +684,19 @@ fn hyperlink_target(instr: &str) -> Option<String> {
         index += 1;
     }
     instr.split_whitespace().nth(1).map(str::to_string)
+}
+
+fn math_markdown(latex: &str, display: bool, cell: bool) -> String {
+    if latex.is_empty() {
+        return String::new();
+    }
+    if display && !cell {
+        format!("\n\n$$\n{latex}\n$$\n\n")
+    } else if display {
+        format!("$${latex}$$")
+    } else {
+        format!("${latex}$")
+    }
 }
 
 fn note_marker(kind: &str, id: i32) -> String {
