@@ -9,6 +9,7 @@ pub const OWNED: &[&str] = &[
     "r",
     "t",
     "tab",
+    "ptab",
     "br",
     "cr",
     "rPr",

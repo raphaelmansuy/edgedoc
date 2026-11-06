@@ -21,7 +21,7 @@ const require = createRequire(import.meta.url);
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const SITE = join(ROOT, "site");
 const CORPUS = join(ROOT, "tests/corpus/downloaded");
-const OUT = join(ROOT, "docs/display/e2e/corpus");
+const OUT = resolve(process.env.DISPLAY_E2E_OUT || join(ROOT, "docs/display/e2e/corpus"));
 const PORT = 8902;
 
 const PUPPETEER =

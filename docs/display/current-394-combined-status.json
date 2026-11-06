@@ -1,0 +1,1597 @@
+{
+  "scope": "394-case current-source comparison across a 188-case run and checkpointed remaining 206 cases",
+  "comparison_tool_sha256": "67d4c9b5a8bf953f3ad9c3d57fcf2a8d2a5af581ff52566c44266c4e779b61b2",
+  "edgedoc_build_inputs_sha256": "800482772469160255d7a5a4ea6dafdd389db09121ee7e1c898291e84e527905",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "parts": [
+    "footer-fallback-188-result.json",
+    "remaining-206-result.json"
+  ],
+  "cases": [
+    {
+      "id": "core-layout",
+      "status": "passed"
+    },
+    {
+      "id": "a_column_break_survives_an_edited_save-0f6df3fc921617f1",
+      "status": "passed"
+    },
+    {
+      "id": "a_long_paragraph_continues_without_repeating_or_dropping_lines-8ad99c4c125c4545",
+      "status": "passed"
+    },
+    {
+      "id": "a_multi_page_table_keeps_each_row_once_and_repeats_its_header-392f8516a232609c",
+      "status": "passed"
+    },
+    {
+      "id": "balancing_the_last_page_preserves_a_paragraph_continued_from_an_earlier_page-08362fd45718e7b9",
+      "status": "passed"
+    },
+    {
+      "id": "bottom_vertical_alignment_reaches_the_bottom_margin-f569de52225d6067",
+      "status": "passed"
+    },
+    {
+      "id": "changing_fonts_invalidates_previous_layout-7621e5a46e342c81",
+      "status": "passed"
+    },
+    {
+      "id": "continuous_column_changes_start_below_the_previous_column_set-a55edd1dac74210e",
+      "status": "passed"
+    },
+    {
+      "id": "continuous_sections_keep_the_current_page-cdd50cbbc843d683",
+      "status": "passed"
+    },
+    {
+      "id": "final_columns_balance_before_a_continuous_section-a55edd1dac74210e",
+      "status": "passed"
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-3f215bb4aa1275f0",
+      "status": "passed"
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-b3b5a094580df065",
+      "status": "passed"
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-b62b11dbab321b12",
+      "status": "passed"
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-f13fabc411d03322",
+      "status": "passed"
+    },
+    {
+      "id": "header_and_footer_distances_are_measured_from_the_page_edges-df611536eddfc950",
+      "status": "passed"
+    },
+    {
+      "id": "header_references_choose_variants_by_id_and_link_to_previous-6f70d2a973a67e34",
+      "status": "passed"
+    },
+    {
+      "id": "identical_text_with_different_alignment_does_not_share_the_wrong_layout-b124d1abf40d0188",
+      "status": "passed"
+    },
+    {
+      "id": "inline_page_and_column_breaks_change_the_flow-0f6df3fc921617f1",
+      "status": "passed"
+    },
+    {
+      "id": "inline_page_and_column_breaks_change_the_flow-648cb50776287869",
+      "status": "passed"
+    },
+    {
+      "id": "keep_with_next_moves_the_heading_with_its_following_paragraph-28021ee5d8b11fd8",
+      "status": "passed"
+    },
+    {
+      "id": "ligatures_and_kerning_survive_layout_and_paint-185f3dca73c2301b",
+      "status": "passed"
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-817f20ba56cad56f",
+      "status": "passed"
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-bf96f3099e4c6a3b",
+      "status": "passed"
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-d00df35b4648c335",
+      "status": "passed"
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-fa16a42b8388c59e",
+      "status": "passed"
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-fd63cb0a011c777f",
+      "status": "passed"
+    },
+    {
+      "id": "mirror_margins_move_the_inside_gutter_on_even_pages-0fe7037a055c498a",
+      "status": "passed"
+    },
+    {
+      "id": "mirror_margins_move_the_inside_gutter_on_even_pages-d8054e17a6d7f053",
+      "status": "passed"
+    },
+    {
+      "id": "omitted_import_properties_follow_wordcraft_defaults-7eae5c39be2b8c3e",
+      "status": "passed"
+    },
+    {
+      "id": "page_budget_is_enforced_and_hidden_text_can_be_shown-357232373f590274",
+      "status": "passed"
+    },
+    {
+      "id": "page_budget_is_enforced_and_hidden_text_can_be_shown-d3870bae2e8374b4",
+      "status": "passed"
+    },
+    {
+      "id": "page_limit_also_applies_between_sections-a4d3f69ddf27c6b2",
+      "status": "passed"
+    },
+    {
+      "id": "painted_baselines_use_one_line_offset_and_respect_justified_positions-adc9ceac6ece36bd",
+      "status": "passed"
+    },
+    {
+      "id": "section_properties_apply_to_the_section_they_end-2c5984a696f0ed99",
+      "status": "passed"
+    },
+    {
+      "id": "sections_sharing_a_page_each_count_that_page-46d4eaaf7de0d606",
+      "status": "passed"
+    },
+    {
+      "id": "separate_clipped_paragraphs_have_distinct_svg_clip_paths-fa6222773c8d3bf8",
+      "status": "passed"
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-34a503e15750bf2a",
+      "status": "passed"
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-fa3203eb4cb612ed",
+      "status": "passed"
+    },
+    {
+      "id": "tall_headers_and_footers_reserve_body_space_and_keep_all_their_lines-177986df98cc47f7",
+      "status": "passed"
+    },
+    {
+      "id": "poi-01-complexnumberedlists",
+      "status": "passed"
+    },
+    {
+      "id": "poi-03-numberingwoverrides",
+      "status": "passed"
+    },
+    {
+      "id": "poi-05-difffirstpageheadfoot",
+      "status": "passed"
+    },
+    {
+      "id": "poi-06-fancyfoot",
+      "status": "passed"
+    },
+    {
+      "id": "poi-09-headerfooterunicode",
+      "status": "passed"
+    },
+    {
+      "id": "poi-10-headers",
+      "status": "passed"
+    },
+    {
+      "id": "poi-14-simpleheadthreecolfoot",
+      "status": "passed"
+    },
+    {
+      "id": "poi-15-styles",
+      "status": "passed"
+    },
+    {
+      "id": "poi-18-threecolfoot",
+      "status": "passed"
+    },
+    {
+      "id": "poi-19-threecolhead",
+      "status": "passed"
+    },
+    {
+      "id": "poi-20-threecolheadfoot",
+      "status": "passed"
+    },
+    {
+      "id": "poi-21-withtabs",
+      "status": "passed"
+    },
+    {
+      "id": "poi-26-headerfooter",
+      "status": "passed"
+    },
+    {
+      "id": "poi-29-sample",
+      "status": "passed"
+    },
+    {
+      "id": "poi-31-table-indent",
+      "status": "passed"
+    },
+    {
+      "id": "poi-34-bug-paragraph-alignment",
+      "status": "passed"
+    },
+    {
+      "id": "poi-35-bug56075-changetracking_on",
+      "status": "passed"
+    },
+    {
+      "id": "poi-38-saut_page",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-10-different_first_page",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-14-sections_multiple",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-15-simple_hf_long",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-16-simple_hf_margin",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-17-simple_hf_negative",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-18-indentation_firstline",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-19-indentation_hanging",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-20-numbering_indentation",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-21-numbering_indentation_firstline",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-23-startoverride",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-24-article-section-islgl",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-35-inheritance",
+      "status": "passed"
+    },
+    {
+      "id": "regression-a_column_break_survives_an_edited_save-3b1292818740b96b",
+      "status": "passed"
+    },
+    {
+      "id": "regression-a_localized_default_style_applies_when_the_paragraph_omits_pstyle-f509c02fcf4648c0",
+      "status": "passed"
+    },
+    {
+      "id": "regression-document_defaults_are_cascaded_without_rewriting_the_preserved_markup-f47a32be8c7145fa",
+      "status": "passed"
+    },
+    {
+      "id": "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-7301662067fc3068",
+      "status": "passed"
+    },
+    {
+      "id": "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-9437217bacf43520",
+      "status": "passed"
+    },
+    {
+      "id": "regression-leader_glyphs_paint_without_polluting_the_text_layer-06fe6a73e472ab3b",
+      "status": "passed"
+    },
+    {
+      "id": "regression-missing_styles_defaults_survive_an_edited_save-64486a7d16359091",
+      "status": "passed"
+    },
+    {
+      "id": "regression-numbering_formats_and_start_overrides_are_read_from_their_elements-5ebfc6581d26980b",
+      "status": "passed"
+    },
+    {
+      "id": "regression-only_enabled_document_grids_request_unsupported_layout-bfa7cc5ac12d47b2",
+      "status": "passed"
+    },
+    {
+      "id": "regression-only_enabled_document_grids_request_unsupported_layout-cc12ec7510a828e0",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_space_before_is_retained_at_document_start-eca50350ac63efa5",
+      "status": "passed"
+    },
+    {
+      "id": "regression-positional_tabs_align_to_margins_or_indents_and_roundtrip-0791e8291d633286",
+      "status": "passed"
+    },
+    {
+      "id": "regression-positional_tabs_align_to_margins_or_indents_and_roundtrip-d09984cdc951ac5c",
+      "status": "passed"
+    },
+    {
+      "id": "regression-proofing_and_bookmark_markers_do_not_insert_visible_object_widths-0f4876ce437410ac",
+      "status": "passed"
+    },
+    {
+      "id": "regression-proofing_and_bookmark_markers_do_not_insert_visible_object_widths-ec37702d476f2f0e",
+      "status": "passed"
+    },
+    {
+      "id": "regression-right_center_and_decimal_tabs_measure_the_text_that_follows-54acf73fb7ef87d8",
+      "status": "passed"
+    },
+    {
+      "id": "regression-right_center_and_decimal_tabs_measure_the_text_that_follows-72255c745b8a4f92",
+      "status": "passed"
+    },
+    {
+      "id": "regression-space_before_after_explicit_breaks_follows_compatibility_mode-5a08c7ddedec066d",
+      "status": "passed"
+    },
+    {
+      "id": "regression-space_before_after_explicit_breaks_follows_compatibility_mode-b3ab95e85b519800",
+      "status": "passed"
+    },
+    {
+      "id": "regression-space_before_after_explicit_breaks_follows_compatibility_mode-dac25b3f6b66eef6",
+      "status": "passed"
+    },
+    {
+      "id": "regression-theme_fonts_override_literal_names_and_survive_an_edited_save-42ab7909b8a239c5",
+      "status": "passed"
+    },
+    {
+      "id": "regression-utf8_bom_does_not_truncate_preserved_style_defaults-9fed94e588304c1a",
+      "status": "passed"
+    },
+    {
+      "id": "regression-footer_borders_keep_their_width_and_distance_from_text-9ed06cbba35249e0",
+      "status": "passed"
+    },
+    {
+      "id": "regression-leading_tabs_preserve_the_first_glyph_origin_across_style_changes-bee7b308327b7408",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-8e6608aa6526",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-a27a2c2fb6b2",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-6fd23c221b39",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-3f9c9c787331",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-6bd18ab3b455",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-cf380cd9dbe4",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-df49cb615afe",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-bb1b8bd67870",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-52104d1357d4",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-8895c0d98d26",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-d81b24672f09",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-51b3af13ac07",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-78a320dfb1f7",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-defcb06c352c",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-bad58e840052",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-946c228566ef",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-3e6e8e14b42a",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-0a64a8d86368",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-80ffb7986b23",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-a9e8fecc9e87",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-56844fc65fc3",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-6028920f22c7",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-934359602172",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-1962f4225443",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-f7873179ad5d",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-7f3e67a254ad",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-b6ce5cb05bd7",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-ff44c21938b2",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-29edb04b1174",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-369f021993fd",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-7d3c41011a95",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-26a250b12d9e",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-8dfa675f6d80",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-bd04d7268f51",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-c4b3fba53439",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-ccdc62fe92eb",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-9696b8ddce24",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-56cde1f750d1",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-a2da07fc299b",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-34c8105d8043",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-3cb15414a412",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-c1f28cd154cf",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-5f88fa6951eb",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-81d125b255ce",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-638f7b5cdcfd",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-781a065b2c97",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-20ef77f77b6b",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-40691fdb124e",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-1e7d1d3efb87",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-f97992ae2270",
+      "status": "passed"
+    },
+    {
+      "id": "regression-a_table_without_rows_does_not_create_endless_pages-83a1d7802f33716c",
+      "status": "passed"
+    },
+    {
+      "id": "regression-row_content_controls_render_once_and_survive_an_edited_save-4428a8cb3e5d0011",
+      "status": "passed"
+    },
+    {
+      "id": "regression-explicit_and_default_tabs_are_measured_from_the_column_margin_with_indents-ad1e5a5ef27a3c7b",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_border_spacing_takes_space_in_the_body_flow-0c5858946e0d597f",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_border_spacing_takes_space_in_the_body_flow-241a1f27e1b785cb",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_border_spacing_takes_space_in_the_body_flow-e0557c2b0b94bcd5",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_borders_cascade_by_side_without_losing_inherited_lines-8ee8dc7f6d5604f6",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_borders_inherit_until_an_explicit_set_replaces_them-86b23b43bd8a4dcc",
+      "status": "passed"
+    },
+    {
+      "id": "regression-automatic_paragraph_spacing_overrides_numeric_spacing_and_survives_save-e6ad39054adcebd8",
+      "status": "passed"
+    },
+    {
+      "id": "regression-explicit_off_character_properties_override_inherited_formatting_after_save-ca4e3d61e214cce2",
+      "status": "passed"
+    },
+    {
+      "id": "regression-final_hard_break_keeps_an_empty_line_before_the_next_paragraph-9785a5f361740687",
+      "status": "passed"
+    },
+    {
+      "id": "regression-bullet_without_a_level_font_uses_the_paragraph_text_face-f0d3d73b7df05547",
+      "status": "passed"
+    },
+    {
+      "id": "regression-bullet_without_a_level_font_uses_the_paragraph_mark_face-1f5a083ecf55254d",
+      "status": "passed"
+    },
+    {
+      "id": "regression-extra_multiple_spacing_may_extend_into_the_bottom_margin-5ae13eb4ef7b0257",
+      "status": "passed"
+    },
+    {
+      "id": "regression-exact_line_spacing_must_fit_above_the_bottom_margin-819632974b3e5fb5",
+      "status": "passed"
+    },
+    {
+      "id": "regression-soft_hyphen_can_break_a_word_without_a_placeholder-ad0e1d79cc4607cd",
+      "status": "passed"
+    },
+    {
+      "id": "regression-superscript_and_subscript_use_wordcraft_glyph_sizes-9b72fb15e93a1001",
+      "status": "passed"
+    },
+    {
+      "id": "regression-a_paragraph_with_only_superscript_uses_its_shifted_line_metrics-d6b148a149487676",
+      "status": "passed"
+    },
+    {
+      "id": "regression-cell_content_control_renders_as_a_table_cell-3bab4942affe1a76",
+      "status": "passed"
+    },
+    {
+      "id": "regression-inline_content_controls_render_their_runs_in_body_and_header-23a70d5b0fcc65d1",
+      "status": "passed"
+    },
+    {
+      "id": "regression-paragraph_spacing_precedes_a_table_with_a_wide_preferred_grid-e36aa970eb07363e",
+      "status": "passed"
+    },
+    {
+      "id": "regression-table_row_height_includes_cell_insets_and_border_bands-43dbb91a81bec4fa",
+      "status": "passed"
+    },
+    {
+      "id": "regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf",
+      "status": "passed"
+    },
+    {
+      "id": "table-numbering-continuity",
+      "status": "passed"
+    },
+    {
+      "id": "table-numbering-repeated-header",
+      "status": "passed"
+    },
+    {
+      "id": "header-table-numbering",
+      "status": "passed"
+    },
+    {
+      "id": "row-border-exception",
+      "status": "passed"
+    },
+    {
+      "id": "grid-offset",
+      "status": "passed"
+    },
+    {
+      "id": "wide-explicit-table",
+      "status": "passed"
+    },
+    {
+      "id": "half-percent-table",
+      "status": "passed"
+    },
+    {
+      "id": "over-percent-table",
+      "status": "passed"
+    },
+    {
+      "id": "nested-percent-table",
+      "status": "passed"
+    },
+    {
+      "id": "literal-percent-table",
+      "status": "passed"
+    },
+    {
+      "id": "header-table-two-pages",
+      "status": "passed"
+    },
+    {
+      "id": "header-paragraph-two-pages",
+      "status": "passed"
+    },
+    {
+      "id": "footer-paragraph-two-pages",
+      "status": "passed"
+    },
+    {
+      "id": "numbered-header-two-sections",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-797bfdf13936",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-11-odd_even",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-12-odd_even_different_first_page",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-22-numberingimplicitnumid",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-fcd5027c3c76",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-f749038ff223",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-5aeabaa6f7ce",
+      "status": "passed"
+    },
+    {
+      "id": "poi-extra-62a6f4519bd5",
+      "status": "passed"
+    },
+    {
+      "id": "notes-dropcap",
+      "status": "failed"
+    },
+    {
+      "id": "known_fidelity_gaps_are_reported_and_relayout_does_not_duplicate_diagnostics-1b7931ef3d33db86",
+      "status": "failed"
+    },
+    {
+      "id": "section_fields_count_their_own_section_and_page_uses_its_format-7d75666c82b6724e",
+      "status": "failed"
+    },
+    {
+      "id": "poi-02-numbering",
+      "status": "failed"
+    },
+    {
+      "id": "poi-04-numberingwithoutoforderid",
+      "status": "failed"
+    },
+    {
+      "id": "poi-07-fieldcodes",
+      "status": "failed"
+    },
+    {
+      "id": "poi-08-fldsimple",
+      "status": "failed"
+    },
+    {
+      "id": "poi-11-illustrativecases",
+      "status": "failed"
+    },
+    {
+      "id": "poi-12-pagespecificheadfoot",
+      "status": "failed"
+    },
+    {
+      "id": "poi-13-sampledoc",
+      "status": "failed"
+    },
+    {
+      "id": "poi-16-testtablecellalign",
+      "status": "failed"
+    },
+    {
+      "id": "poi-17-testtablecolumns",
+      "status": "failed"
+    },
+    {
+      "id": "poi-22-deep-table-cell",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-23-footnotes",
+      "status": "failed"
+    },
+    {
+      "id": "poi-24-form_footnotes",
+      "status": "failed"
+    },
+    {
+      "id": "poi-25-endnotes",
+      "status": "failed"
+    },
+    {
+      "id": "poi-27-headerpic",
+      "status": "failed"
+    },
+    {
+      "id": "poi-28-heading123",
+      "status": "failed"
+    },
+    {
+      "id": "poi-30-table-alignment",
+      "status": "failed"
+    },
+    {
+      "id": "poi-32-table_footnotes",
+      "status": "failed"
+    },
+    {
+      "id": "poi-33-rtl",
+      "status": "failed"
+    },
+    {
+      "id": "poi-36-comment",
+      "status": "failed"
+    },
+    {
+      "id": "poi-37-bookmarks",
+      "status": "failed"
+    },
+    {
+      "id": "poi-39-variouspictures",
+      "status": "failed"
+    },
+    {
+      "id": "poi-40-shapes-with-text",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-01-docx4j_gettingstarted",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-02-headers_footers",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-03-bookmark_crossrefs",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-04-docx4j_russian",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-05-compatsetting",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-06-rfonts",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-07-locale-styles",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-08-eastern-arabic-numbering",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-09-invoice",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-13-same_as_previous_numbering",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-25-arabic_align",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-26-arabic_numbering",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-27-textbox",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-28-tblheadertestone",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-29-tblheadertesttwo",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-30-tables",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-31-sample-docx",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-32-toc",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-33-hyperlinks-internal",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-34-2010-mcalternatecontent-in-header",
+      "status": "failed"
+    },
+    {
+      "id": "regression-only_enabled_document_grids_request_unsupported_layout-98010da5373e6f02",
+      "status": "failed"
+    },
+    {
+      "id": "regression-right_center_and_decimal_tabs_measure_the_text_that_follows-b8356d6ef830fee9",
+      "status": "failed"
+    },
+    {
+      "id": "regression-explicit_cell_borders_paint_shared_edges_without_table_inside_rules-e84212e7d41cd348",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-12d36225024b",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-2d06be0efd68",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-2b9113f42ae4",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-0a15e0b16c26",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-1857ebe7e32f",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-9c1a183acdd4",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-49e505debc61",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-e818b7f851ec",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-bcdee200e9d4",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-beb260560d03",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-33200a85fb5b",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-b7668ab3f815",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-fc489ae79869",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-f409e5487ec7",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-22f6e0f4d24f",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-812bde95b63b",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-6a6413f93cdd",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-0c1ec0515def",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-57c8431cd88e",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-6657220cc85a",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-f4085af47035",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-120fb934c494",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-24c53d4cf0f7",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-d5418e2896db",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-01894d4e445f",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-9a4098b5ee6a",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-5d050edd39c0",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-a5cad9f7fdc3",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-df9ffb5779f6",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-91a9a6f2e9fa",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-ef0acb5db4f4",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-19d2e157ea85",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-42b54dddd092",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-4fea3a5a68ad",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-873ab485555f",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-741a0d6a4619",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-a84e6a1a86cc",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-f114377ca30a",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-8e705769ea2d",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-cd375e3b584a",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-8ad1f12a875e",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-b0b6fafba074",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-520b32a1cd7b",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-9132aea3d7a5",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-de80ac4e2558",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-b48f81d5258d",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-0b35487998e0",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-7b1519b6776a",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-dac79ab57e4a",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-e035c87ed031",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-a6b2fc152435",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-b1ebe1eee2af",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-37cfbcecf546",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-ccb12c4291de",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-aeec089cdd88",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-b308ae500e71",
+      "status": "blocked"
+    },
+    {
+      "id": "poi-extra-01aeac572095",
+      "status": "failed"
+    },
+    {
+      "id": "poi-extra-42affb302e24",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-375d370aacec",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-a8ff26549a67",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-b152daff1670",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-cf3728d2149e",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-a813c54603e2",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-5699960d16a7",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-a0e868588388",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-9796c5c8a7b9",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-c9811bad70b2",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-c1efa2018b28",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-5c3648fc2eea",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-b96fc008bc27",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-02b78288ec96",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-d7041398d9be",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-9973c2acc7b8",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-f113b91e9274",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-d9f6266361e0",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-a586d57ac318",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-5f594c95e9aa",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-6eab0083efbc",
+      "status": "passed"
+    },
+    {
+      "id": "docx4j-extra-9adcf9b83290",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-dabd9ba10828",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-870fd1736e4e",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-8144f451fd39",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-1f20434b03a2",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-e0fce0827eb3",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-91355bafb8c3",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-46a1b831a080",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-35b8ba79e923",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-997530d38a3d",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-c155cb166228",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-02a884fa4738",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-9b1059870cf2",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-5c9993003011",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-e3154428501b",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-e6dcea07f562",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-26922f182be4",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-23dd2fc50219",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-263fb9ae4d86",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-93b14f31ab7f",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-54e04f448122",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-9938b3ae178d",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-7af00ff12df4",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-f1f9241c745f",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-aba9ddc8fd0c",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-8d47c7fd5e25",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-b49a01a67e96",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-77c65e1f60e0",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-3ce52aaa7857",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-55d8615cc8b6",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-7edc7c24d324",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-bb3c80a78974",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-aff6f3642a76",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-b95b523ee488",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-bcfcfac5882e",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-8799f67d455e",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-630cf4ee8546",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-b55b4e62bb30",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-a01cbbbce41b",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-18ad767f94c8",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-6ac4dcab0e65",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-30f139d067ac",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-5bbc9147cb59",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-6ea14a15d116",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-9c39c10e7abe",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-520f06fdb120",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-4f44f178c2f1",
+      "status": "failed"
+    },
+    {
+      "id": "docx4j-extra-1c81c78c99ef",
+      "status": "failed"
+    },
+    {
+      "id": "regression-right_margin_aligned_footer_page_field_survives_an_edit_and_renders_at_the_margin-816f07449c011977",
+      "status": "failed"
+    },
+    {
+      "id": "regression-right_margin_aligned_footer_page_field_survives_an_edit_and_renders_at_the_margin-f863d1d132563dd6",
+      "status": "failed"
+    },
+    {
+      "id": "regression-symbol_font_bullets_use_unicode_and_share_the_text_baseline-5ea4fa5327add93a",
+      "status": "failed"
+    },
+    {
+      "id": "regression-special_hyphens_render_and_survive_an_edited_save-39b66f2c09e8de9c",
+      "status": "failed"
+    },
+    {
+      "id": "regression-special_hyphens_render_and_survive_an_edited_save-fa1b520fde237911",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-db384ee97c0aeeca",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-2ae78db23c29775e",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-edf0e1ceb93348a1",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-3fbe756d4f0fafe0",
+      "status": "failed"
+    },
+    {
+      "id": "regression-comment_reference_does_not_paint_a_note_number-a8711dcbdb9b04d8",
+      "status": "failed"
+    },
+    {
+      "id": "regression-references_to_missing_note_stories_do_not_paint_numbers-f87b073d44e693e4",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-1dbe56a66398d0ed",
+      "status": "failed"
+    },
+    {
+      "id": "regression-long_footnote_continuation",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-e036feecbbee2528",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-54d924374e4cede3",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-cd6ca127b5daa2bb",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-e0b07b2d194f20f4",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-51f9026369fddb80",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-177c29e8bfe247ba",
+      "status": "failed"
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-5d9214e5ee77a59d",
+      "status": "failed"
+    },
+    {
+      "id": "regression-table_style_supplies_cell_spacing_and_borders-4b88124b6d5435b1",
+      "status": "failed"
+    },
+    {
+      "id": "regression-table_style_supplies_cell_spacing_and_borders-6dec079bbd9728f3",
+      "status": "failed"
+    },
+    {
+      "id": "regression-conditional_table_styles_apply_first_row_and_corner_precedence-6d21b772091f67e9",
+      "status": "failed"
+    },
+    {
+      "id": "regression-conditional_table_bands_edges_and_direct_cell_properties_cascade-e8ab74df45181e01",
+      "status": "failed"
+    },
+    {
+      "id": "regression-conditional_table_last_edges_and_column_bands_follow_look_switches-f15e3d48e3f25e53",
+      "status": "failed"
+    },
+    {
+      "id": "regression-whole_table_region_overrides_base_shading_and_borders-bd834ad83ca7200e",
+      "status": "failed"
+    },
+    {
+      "id": "regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1",
+      "status": "failed"
+    },
+    {
+      "id": "regression-whole_table_region_overrides_base_shading_and_borders-223a4a7c08717a19",
+      "status": "failed"
+    },
+    {
+      "id": "spanning-cells",
+      "status": "failed"
+    },
+    {
+      "id": "vmerge-height",
+      "status": "failed"
+    },
+    {
+      "id": "vmerge-page-break",
+      "status": "failed"
+    },
+    {
+      "id": "vmerge-split-rows",
+      "status": "failed"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Numbering labels, small caps and cleared tab stops
+
+Numbering-level run properties now supply uppercase, bold, italic, font and size to list labels. Small capitals shape lowercase letters as uppercase at 80% of the run size, matching Wordcraft. Tab stops now merge with inherited stops by position, and a clear entry removes the matching stop instead of becoming a left-aligned tab.
+
+The downloaded docx4j legal-numbering document `docx4j-22-numberingimplicitnumid` exercises all three behaviors. The numbering-label fixes alone reduced unmatched page ink from 21% to 1.5%; correcting small caps and the cleared footer tab brought the document within the strict comparison thresholds: 0.43 pt maximum glyph-position error and 0.36% unmatched ink (`label-tab-focused-result.json`). Both final page images were inspected (`label-tab-image-inspection.json`); they are not byte-identical, with a small highlighted-box difference remaining.
+
+`label-style-184-result.json` compares the 183 previously passing documents plus this legal document; all 184 pass. Focused tests cover label font and size, small-cap letter sizes, and inherited tab clearing. Workspace tests, Clippy, and browser checks pass (18/18 viewer checks and 134/134 checks over 33 corpus documents). The latest complete 394-case baseline is `linebreak-394-streaming-result.json`; it predates the later font, shading, even-page and legal-numbering fixes and still documents the many features and evidence gaps that need work.

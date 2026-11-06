@@ -58,6 +58,18 @@ claims in [16-traceability.md](16-traceability.md).
 | [17-wordcraft-map.md](17-wordcraft-map.md) | The WordCraft reference: crate map, ported code, known gaps |
 | [18-assessment.md](18-assessment.md) | Every WordCraft-measured behavior, its state here, and the gap list |
 | [19-deep-audit.md](19-deep-audit.md) | The deeper audit: property diff, test-name map, defects found, and the 29 gaps |
+| [20-rendering-parity.md](20-rendering-parity.md) | Current verified rendering behavior, regression evidence, and remaining Word parity work |
+| [21-external-corpus-parity.md](21-external-corpus-parity.md) | Pinned external DOCX corpus, measured Wordcraft comparisons, and manual rendered-page inspection |
+| [22-expanded-corpus-parity.md](22-expanded-corpus-parity.md) | 256 upstream inputs, retained failures, table fixes, and current Wordcraft measurements |
+| [23-wordcraft-code-parity-audit.md](23-wordcraft-code-parity-audit.md) | Detailed code-to-code rendering assessment, evidence limits, and prioritized gaps |
+| [24-field-range-followup.md](24-field-range-followup.md) | Nested fields, TOC rendering fixes, image inspection, and current verification |
+| [25-tabs-and-borders-followup.md](25-tabs-and-borders-followup.md) | Tab coordinates, inherited borders, page inspection, and updated comparison |
+| [26-style-and-spacing-followup.md](26-style-and-spacing-followup.md) | Explicit formatting off values, automatic spacing, and line-break comparison |
+| [27-footer-and-break-followup.md](27-footer-and-break-followup.md) | Bounded footer frame and trailing line-break behavior with page evidence |
+| [28-bullet-followup.md](28-bullet-followup.md) | Symbol mappings, hanging bullet geometry, and updated comparison |
+| [29-leading-and-notes-followup.md](29-leading-and-notes-followup.md) | Bottom-margin leading, automatic page breaks, and footnote image inspection |
+| [30-hyphen-followup.md](30-hyphen-followup.md) | Special hyphen elements, edited saves, and remaining font fallback differences |
+| [31-footnote-layout-followup.md](31-footnote-layout-followup.md) | Footnote reservation, continuation, image evidence, and remaining note gaps |
 | [../../tests/corpus/README.md](../../tests/corpus/README.md) | The 33 real Word documents, and the checks that run over them |
 
 ## Quick start
@@ -99,3 +111,9 @@ The layout, shaping, and rendering behavior comes from the WordCraft checkout at
 that proves the behavior. Read that chapter before you write a layout module. It also lists
 the WordCraft gaps that this specification either fixes or states as a known limit. It also
 corrects two decisions that an earlier draft made against the measured behavior.
+
+- [Endnote layout follow-up](32-endnote-layout-followup.md)
+- [Content-control layout follow-up](33-control-layout-followup.md)
+- [Inherited table-style follow-up](34-table-style-followup.md)
+- [Conditional table-style follow-up](35-conditional-table-style-followup.md)
+- [Table row-height follow-up](36-table-row-height-followup.md)

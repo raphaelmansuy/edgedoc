@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "inspected_at": "2026-11-05T03:57:32.472816+00:00",
+  "method": "Inspected both engines at 144 dpi with unchanged layout and no alignment, registration or crop.",
+  "records": [
+    {
+      "case": "poi-31-table-indent",
+      "page": 1,
+      "source_sha256": "aaa3fd6a1c0d6ac222ccacad213257b9061be7d706396a36b3ffedacb3a56c9b",
+      "edgedoc_build_inputs_sha256": "9e3e3d5d835bea69ad12c02eaf289ee54f2cad6b602d22f9415c5c5641327566",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 1,
+        "wordcraft": 1
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-256-latest/poi-31-table-indent/wordcraft-page-001.png",
+          "svg_sha256": "b3dfaaaeafeec6972c8beeafd930be99ff76c70499f92efb30c80cddb2959bf8",
+          "png_sha256": "aadd3473360326e4fcc0c1cb432660ecc401e5a6fd27f72a9d7b06f199bca9b6"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-256-latest/poi-31-table-indent/edgedoc-page-001.png",
+          "svg_sha256": "cd19a417da99f03ab6aa388b4df583b6c9f86fbecbc8b6e66f758b21ba5a7585",
+          "png_sha256": "f13e88c1a58d13e24fa2fe3fe46231cbc124e50502743cf8a98cab04173118e9"
+        }
+      },
+      "observations": "Both engines show the same interior cell grid and aligned row positions after the border and spacing fixes; pixels are unchanged from the previously inspected post-fix images.",
+      "visual_result": "visually matched after fixes"
+    },
+    {
+      "case": "poi-extra-52104d1357d4",
+      "page": 1,
+      "source_sha256": "2d3aedaf149375071e54c10a898c1900b343fb22a7b2db9261a32b1452ed7737",
+      "edgedoc_build_inputs_sha256": "9e3e3d5d835bea69ad12c02eaf289ee54f2cad6b602d22f9415c5c5641327566",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 1,
+        "wordcraft": 1
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-256-latest/poi-extra-52104d1357d4/wordcraft-page-001.png",
+          "svg_sha256": "8c42d62f67c2a7293a7fc0a2d7a5dc5f15f09611d281ff04291b6f14cbcb784a",
+          "png_sha256": "afa089d369f0afade7fd4cbed7b54ae25c49baadc4308d3257bb596e8bbf6fe0"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-256-latest/poi-extra-52104d1357d4/edgedoc-page-001.png",
+          "svg_sha256": "fcce4a13a7ae8bb9a09e0ad09eff67a1be54cf3e7ee5a302807ab40f6c43f00c",
+          "png_sha256": "afa089d369f0afade7fd4cbed7b54ae25c49baadc4308d3257bb596e8bbf6fe0"
+        }
+      },
+      "observations": "Both engines show one page with the same two adjacent cells. Before the fixes EdgeDoc produced 20,000 blank pages; after row-control parsing and simple auto-width sizing its visual output matches the reference.",
+      "visual_result": "visually matched after fixes"
+    },
+    {
+      "case": "docx4j-extra-375d370aacec",
+      "page": 1,
+      "source_sha256": "016a83aed42cac85a323b303e6271b53ed2113e2bfea885bcf7a7f05d5e19120",
+      "edgedoc_build_inputs_sha256": "9e3e3d5d835bea69ad12c02eaf289ee54f2cad6b602d22f9415c5c5641327566",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 5,
+        "wordcraft": 5
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-256-latest/docx4j-extra-375d370aacec/wordcraft-page-001.png",
+          "svg_sha256": "a6de75b51d7e0b9d56c7fb28c7c10a8b223dd3a0d9c36ae5345b726e595fc276",
+          "png_sha256": "066fc6daf0fe80a04d96f0c35d7eda68d271dd56cb48dae45dbcba013d23c042"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-256-latest/docx4j-extra-375d370aacec/edgedoc-page-001.png",
+          "svg_sha256": "18bd3cb9c19a9b48ed3c0ace4a9d35554c71af5ca16e30065ca05dfd05663772",
+          "png_sha256": "128856d2c57a9e2fa838ee303f47a6429072b2308564f10f3a44145455f92882"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "Both engines render a five-page guide and its first-page raster image. EdgeDoc omits bullet marks and the title underline; paragraph spacing, hyperlink line breaks and the embedded image position/size differ. Matching page counts do not establish parity."
+    }
+  ]
+}

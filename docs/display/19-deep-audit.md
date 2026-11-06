@@ -2,6 +2,9 @@
 
 Date: 2026-11-04. Part of the EdgeDoc Display specification. See [README.md](README.md).
 
+Historical audit. See [20-rendering-parity.md](20-rendering-parity.md) for corrected coverage
+checks, subsequent fixes, and the current state of all 29 gaps.
+
 This chapter is the result of a systematic audit of the WordCraft checkout at
 `/Users/raphaelmansuy/Github/03-working/wordcraft` (version 0.14.0). It is deeper than
 [18-assessment.md](18-assessment.md), because it reads the source and the 531 layout tests, not

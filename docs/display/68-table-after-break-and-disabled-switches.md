@@ -1,0 +1,9 @@
+# A table following a page break
+
+The pinned Word-exported `030c864b67` document has a page break followed by a table. EdgeDoc carried the preceding paragraph's 10-point after-spacing onto the new page, shifting the table and all following content down. Wordcraft leaves that spacing on the previous page. EdgeDoc now discards the carried gap when a table starts at the top of a new page or column, while preserving the gap when the table follows text within the same column. A regression checks the page-break case.
+
+The same document contains `autoSpaceDE`, `autoSpaceDN` and `adjustRightInd`, each explicitly disabled. Those exact, structurally valid off values do not request the corresponding behavior and no longer produce an unsupported-property diagnostic. Enabled values, unknown attributes, other elements and malformed markup remain diagnosed; a regression covers the distinction.
+
+With the installed Word font profile, both pages pass the strict Wordcraft comparison. Glyph origins match, unmatched ink is at most 0.23%, and mean common-ink color error is below 0.014. The second page was visually inspected against the Word-exported PDF, Wordcraft and EdgeDoc. This is a focused result and does not establish parity for the rest of the corpus. The input is identified by `tests/corpus/word-benchmark-manifest.json`.
+
+A full 48-document recheck with the same verified references and installed Word font profile passed 8 and failed 40, with no blocked cases. The previously passing seven remained passing, and this case became the eighth. The per-case statuses and fingerprints are in `word-benchmark-48-table-break-summary.json`. Fresh per-case SVGs were discarded after comparison to conserve temporary disk space; specifically inspected images, source documents and reference output were retained.

@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "inspected_at": "2026-11-05T08:08:58.407057+00:00",
+  "method": "Inspected both engines at 144 dpi without image registration or cropping.",
+  "records": [
+    {
+      "case": "docx4j-01-docx4j_gettingstarted",
+      "page": 1,
+      "source_sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97",
+      "edgedoc_build_inputs_sha256": "3683e38292298ab9e388311758582e96c0552514aa2b6dd24ea107d125b16f34",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 45,
+        "wordcraft": 45
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/tab-border-final-inspection/docx4j-01-docx4j_gettingstarted/wordcraft-page-001.png",
+          "svg_sha256": "1f56e3b7cf479bb4cc92fe58d91fc045f1237b7d896e67e529be56b9f19e4dd8",
+          "png_sha256": "1c0debce7c1d6fec79c2ee8a6fc25bebf801e9b933288a34dfe91647a5f444dc"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/tab-border-final-inspection/docx4j-01-docx4j_gettingstarted/edgedoc-page-001.png",
+          "svg_sha256": "d4d7a8321c2976226a048f367b804c83ced52d080baf6ab8e360b4ae542d4abc",
+          "png_sha256": "2ce9cadd9f098a022840f6627be82be376c9958e24a5237e0b26dd823df2f1e3"
+        }
+      },
+      "observations": "The prior broken indented tab leaders and missing title rule are corrected. All 31 text lines and their glyph origins match; unmatched ink is zero in the controlled first-page comparison. The complete 45-page document still has unsupported features and other failures.",
+      "visual_result": "bounded first-page visual match"
+    },
+    {
+      "case": "docx4j-32-toc",
+      "page": 1,
+      "source_sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49",
+      "edgedoc_build_inputs_sha256": "3683e38292298ab9e388311758582e96c0552514aa2b6dd24ea107d125b16f34",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 4,
+        "wordcraft": 4
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/tab-border-final-inspection/docx4j-32-toc/wordcraft-page-001.png",
+          "svg_sha256": "caa4eba36de11be4e06dffbbd12c5142c821f8ac35429e29e51ced4131233a61",
+          "png_sha256": "7f0cf16f8f36d3ea17e1a8a04fa9fef6c0f0b7fc94c097c02b804bdac7e7405a"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/tab-border-final-inspection/docx4j-32-toc/edgedoc-page-001.png",
+          "svg_sha256": "0c6142560380edbfca9f0b68eb79c03731ef8b236ba8e0384128cc2765533131",
+          "png_sha256": "29c9ad8ed9e4084a617fcc703329adbafb8d853689e82e3d85ad4365a5239444"
+        }
+      },
+      "observations": "The title rule is present and the TOC links are black. Contents is italic where Wordcraft renders it upright, and body paragraph spacing and flow still differ.",
+      "visual_result": "not visually matched"
+    }
+  ]
+}

@@ -228,6 +228,7 @@ pub struct Document {
     dirty: bool,
     flavor: Flavor,
     budget: Budget,
+    styles_part_present: bool,
 }
 
 impl Document {
@@ -264,8 +265,14 @@ impl Document {
             .and_then(|part| part.content_type.as_deref())
             .map(Flavor::from_content_type)
             .unwrap_or(Flavor::Docx);
+        let styles_part_present = package.parts.values().any(|p| {
+            p.content_type
+                .as_deref()
+                .is_some_and(|t| t.ends_with("wordprocessingml.styles+xml"))
+        });
         Ok(Self {
             inner,
+            styles_part_present,
             original: Some(bytes.to_vec()),
             kept,
             dirty: false,
@@ -301,7 +308,22 @@ impl Document {
         } else {
             self.kept.clone()
         };
-        let written = write_document(&self.inner, options.flavor.as_str(), &kept)?;
+        // A rewritten package gains a styles part. Make the no-styles import defaults explicit
+        // so the next reader does not switch from that fallback to an empty-styles fallback.
+        let mut normalized;
+        let model = if !self.styles_part_present && self.inner.styles.doc_defaults_xml.is_none() {
+            normalized = self.inner.clone();
+            normalized.styles.doc_defaults_xml = Some(concat!(
+                "<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii=\"Calibri\"/>",
+                "<w:sz w:val=\"24\"/><w:kern w:val=\"2\"/></w:rPr></w:rPrDefault>",
+                "<w:pPrDefault><w:pPr><w:spacing w:after=\"160\" w:line=\"276\" w:lineRule=\"auto\"/>",
+                "</w:pPr></w:pPrDefault></w:docDefaults>"
+            ).into());
+            &normalized
+        } else {
+            &self.inner
+        };
+        let written = write_document(model, options.flavor.as_str(), &kept)?;
         Ok(write_zip(&written.files)?)
     }
 
@@ -467,6 +489,33 @@ impl Document {
         &self.inner.styles
     }
 
+    /// Whether the imported package included a styles part.
+    pub fn has_styles_part(&self) -> bool {
+        self.styles_part_present
+    }
+
+    /// Document defaults decoded for layout, with Wordcraft's fallback for omitted styles.
+    /// Reading these values does not rewrite the preserved defaults markup.
+    pub fn default_formatting(&self) -> Result<(CharProps, ParaProps), Error> {
+        let (mut run, mut para) = match self.inner.styles.doc_defaults_xml.as_deref() {
+            Some(raw) => edgedoc_wml::style_default_properties(raw, &self.budget)?,
+            None => (CharProps::default(), ParaProps::default()),
+        };
+        if run.font.is_none() {
+            run.font = Some("Calibri".into());
+        }
+        if run.size_pt.is_none() {
+            run.size_pt = Some(if self.styles_part_present { 10.0 } else { 12.0 });
+        }
+        if !self.styles_part_present {
+            run.kern = Some(2);
+            para.spacing_after = Some(Twips(160));
+            para.line = Some(Twips(276));
+            para.line_rule = Some("auto".into());
+        }
+        Ok((run, para))
+    }
+
     /// Add a style. A style with the same id is replaced.
     pub fn add_style(&mut self, style: Style) {
         self.inner.styles.replace(style);
@@ -523,6 +572,23 @@ impl Document {
     /// The last section properties, which set the page size and the margins.
     pub fn section(&self) -> &SectionProps {
         &self.inner.last_section
+    }
+
+    /// The validated document settings markup, when the package defines it.
+    pub fn settings_xml(&self) -> Option<&str> {
+        self.inner.settings_xml.as_deref()
+    }
+
+    /// The preserved DrawingML theme, used to resolve major/minor text font slots.
+    pub fn theme_xml(&self) -> Option<&str> {
+        self.kept
+            .iter()
+            .find(|(_, _, content_type)| {
+                content_type
+                    .as_deref()
+                    .is_some_and(|t| t.ends_with("officedocument.theme+xml"))
+            })
+            .and_then(|(_, bytes, _)| std::str::from_utf8(bytes).ok())
     }
 
     /// The paragraph properties at a body index, if the block is a paragraph.
@@ -677,6 +743,7 @@ impl Document {
     fn wrap(&self, inner: ModelDocument) -> Document {
         Document {
             inner,
+            styles_part_present: self.styles_part_present,
             original: None,
             kept: Vec::new(),
             dirty: true,
@@ -745,6 +812,7 @@ impl<'a> MergeBuilder<'a> {
             inner,
             flavor: self.doc.flavor,
             budget: self.doc.budget.clone(),
+            styles_part_present: self.doc.styles_part_present,
         })
     }
 }
@@ -753,6 +821,7 @@ pub struct Batch {
     inner: edgedoc_merge::MergeBatch,
     flavor: Flavor,
     budget: Budget,
+    styles_part_present: bool,
 }
 
 impl Batch {
@@ -772,6 +841,7 @@ impl Batch {
             dirty: true,
             flavor: self.flavor,
             budget: self.budget.clone(),
+            styles_part_present: self.styles_part_present,
         })
     }
 
@@ -806,6 +876,7 @@ impl Batch {
             dirty: true,
             flavor: self.flavor,
             budget: self.budget.clone(),
+            styles_part_present: self.styles_part_present,
         })
     }
 }
@@ -936,6 +1007,7 @@ impl DocumentBuilder {
         }
         Ok(Document {
             inner,
+            styles_part_present: true,
             original: None,
             kept: Vec::new(),
             dirty: true,

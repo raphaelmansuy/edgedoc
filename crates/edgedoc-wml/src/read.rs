@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::sync::Arc;
 
 use edgedoc_limit::Budget;
@@ -5,7 +6,8 @@ use edgedoc_model::{
     Anchor, Block, Borders, Cell, CellMargins, CharProps, ContentControl, DocGrid, Field,
     FootnotePr, FormField, FormKind, FrameProps, HeaderRefs, InlineObject, LineBorder,
     LineNumbering, ModelDocument, ParaProps, Paragraph, PartKind, PartMeta, Picture, Row,
-    SectionProps, SectionStart, Style, StyleKind, TabStop, Table, TablePosition, PAGE_BREAK,
+    SectionProps, SectionStart, Style, StyleKind, TabStop, Table, TablePosition, COLUMN_BREAK,
+    PAGE_BREAK,
 };
 use edgedoc_opc::xml::{self, El};
 use edgedoc_opc::{normalize, read_rels, Package, Rel};
@@ -19,6 +21,7 @@ struct Ctx<'a> {
     rels: &'a [Rel],
     base: String,
     source: &'a [u8],
+    fields: RefCell<FieldContext>,
 }
 
 pub fn document_from_package(package: &Package, budget: &Budget) -> WmlResult<ModelDocument> {
@@ -32,12 +35,14 @@ pub fn document_from_package(package: &Package, budget: &Budget) -> WmlResult<Mo
         ));
     }
     let mut doc = ModelDocument::new();
+    doc.last_section = read_section_defaults();
     let ctx = Ctx {
         package,
         budget,
         rels: &rels,
         base: main.name.clone(),
         source: &main.bytes,
+        fields: RefCell::default(),
     };
     if let Some(body) = root.child_els().find(|el| el.name == "body") {
         doc.body = read_blocks(body, &ctx, &mut doc, 0)?;
@@ -248,6 +253,27 @@ fn read_table(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument, depth: usize) -> 
             }
         } else if child.name == "tr" {
             table.rows.push(read_row(child, ctx, doc, depth)?);
+        } else if child.name == "sdt" {
+            // A row-level content control wraps rows in sdtContent. Keep the original wrapper
+            // around the parsed rows so an edited save retains the control and its properties.
+            if let Some(content) = child.children("sdtContent").next() {
+                let rows: Vec<_> = content.children("tr").collect();
+                for (i, element) in rows.iter().enumerate() {
+                    let mut row = read_row(element, ctx, doc, depth)?;
+                    if i == 0 {
+                        row.xml_before = String::from_utf8_lossy(
+                            &ctx.source[child.span.start..element.span.start],
+                        )
+                        .into_owned();
+                    }
+                    let end = rows
+                        .get(i + 1)
+                        .map_or(child.span.end, |next| next.span.start);
+                    row.xml_after =
+                        String::from_utf8_lossy(&ctx.source[element.span.end..end]).into_owned();
+                    table.rows.push(row);
+                }
+            }
         } else if child.name == "tblPrEx" {
             table.extra.push(child.raw(ctx.source).to_string());
             if let Some(borders) = child.child_els().find(|el| el.name == "tblBorders") {
@@ -265,8 +291,30 @@ fn read_table_props(table: &mut Table, pr: &El, ctx: &Ctx<'_>) {
         match child.name.as_str() {
             "bidiVisual" => table.bidi_visual = true,
             "tblBorders" => table.borders = read_borders(child),
-            "tblCellMar" => table.cell_margins = read_margins(child),
-            "tblLook" => table.look = child.attr("val").map(str::to_string),
+            "tblCellMar" => {
+                let mut margins = read_margins(child);
+                // Wordcraft treats an explicit table margin set as a four-sided value;
+                // omitted sides in the set are zero, rather than document defaults.
+                margins.top.get_or_insert(Twips(0));
+                margins.left.get_or_insert(Twips(0));
+                margins.bottom.get_or_insert(Twips(0));
+                margins.right.get_or_insert(Twips(0));
+                table.cell_margins = margins;
+            }
+            "tblLook" => {
+                table.look = child.attr("val").map(str::to_string);
+                let switch = |name| {
+                    child
+                        .attr(name)
+                        .map(|value| !matches!(value, "0" | "false" | "off"))
+                };
+                table.look_options.first_row = switch("firstRow");
+                table.look_options.last_row = switch("lastRow");
+                table.look_options.first_column = switch("firstColumn");
+                table.look_options.last_column = switch("lastColumn");
+                table.look_options.no_h_band = switch("noHBand");
+                table.look_options.no_v_band = switch("noVBand");
+            }
             "tblW" => {
                 let kind = child.attr("type").unwrap_or("dxa");
                 let value = child.attr("w").unwrap_or("");
@@ -313,16 +361,50 @@ fn read_row(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument, depth: usize) -> Wm
         cant_split: false,
         hidden: false,
         extra: Vec::new(),
+        table_properties_exception: None,
+        exception_borders: Borders::default(),
+        xml_before: String::new(),
+        xml_after: String::new(),
     };
+    let mut children = Vec::new();
     for child in el.child_els() {
-        if child.name == "trPr" {
+        if child.name == "sdt" {
+            if let Some(content) = child.children("sdtContent").next() {
+                let cells: Vec<_> = content.children("tc").collect();
+                for (index, cell) in cells.iter().enumerate() {
+                    let before = if index == 0 {
+                        String::from_utf8_lossy(&ctx.source[child.span.start..cell.span.start])
+                            .into_owned()
+                    } else {
+                        String::new()
+                    };
+                    let end = cells
+                        .get(index + 1)
+                        .map_or(child.span.end, |next| next.span.start);
+                    let after =
+                        String::from_utf8_lossy(&ctx.source[cell.span.end..end]).into_owned();
+                    children.push((*cell, before, after));
+                }
+            }
+        } else {
+            children.push((child, String::new(), String::new()));
+        }
+    }
+    for (child, xml_before, xml_after) in children {
+        if child.name == "tblPrEx" {
+            row.table_properties_exception = Some(child.raw(ctx.source).to_string());
+            if let Some(borders) = child.children("tblBorders").next() {
+                row.exception_borders = read_borders(borders);
+            }
+        } else if child.name == "trPr" {
             for pr in child.child_els() {
                 match pr.name.as_str() {
                     "tblHeader" => row.header = val_on(pr),
                     "cantSplit" => row.cant_split = val_on(pr),
                     "hidden" => row.hidden = val_on(pr),
                     "trHeight" => {
-                        row.height = attr_twips(pr, "val");
+                        row.height =
+                            attr_twips(pr, "val").map(|value| Twips(value.0.saturating_abs()));
                         row.height_rule = pr.attr("hRule").map(str::to_string);
                     }
                     _ => row.extra.push(pr.raw(ctx.source).to_string()),
@@ -397,6 +479,8 @@ fn read_row(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument, depth: usize) -> Wm
                     .map(val_on)
                     .unwrap_or(false),
                 extra,
+                xml_before,
+                xml_after,
             });
         }
     }
@@ -414,7 +498,7 @@ fn read_paragraph(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument) -> WmlResult<
             para.section = Some(edgedoc_model::SectionBreak { props });
         }
     }
-    let mut field: Option<FieldBuild> = None;
+    let mut field = ctx.fields.borrow_mut();
     for child in el.child_els() {
         match child.name.as_str() {
             "pPr" => {}
@@ -457,6 +541,7 @@ fn read_paragraph(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument) -> WmlResult<
             }
             "oMath" | "oMathPara" => para.retention.equations = true,
             "r" | "fldSimple" => read_run(child, &mut para, &mut field, ctx),
+            "sdt" => read_inline_control(child, &mut para, &mut field, ctx),
             other if !crate::catalog::is_owned(other) => {
                 para.push_object(
                     InlineObject::Opaque(child.raw(ctx.source).to_string()),
@@ -466,8 +551,22 @@ fn read_paragraph(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument) -> WmlResult<
             _ => {}
         }
     }
-    if field.is_some() {
-        para.push_object(InlineObject::Orphan, &CharProps::default());
+    // A result crossing a paragraph boundary must no longer be buffered as a
+    // single inline field. Preserve the boundary and its visible cached result.
+    for build in &mut field.stack {
+        if build.in_result && !build.range {
+            build.range = true;
+            para.push_object(
+                InlineObject::FieldStart {
+                    instr: build.instr.clone(),
+                    dirty: build.dirty,
+                    locked: build.locked,
+                },
+                &build.props,
+            );
+            para.push_text(&build.result, &build.props);
+            build.result.clear();
+        }
     }
     if para.retention.any() {
         para.raw_xml = Some(raw);
@@ -490,22 +589,134 @@ struct FieldBuild {
     dirty: bool,
     locked: bool,
     form: Option<edgedoc_model::FormField>,
+    props: CharProps,
+    range: bool,
 }
 
-fn read_runs(el: &El, para: &mut Paragraph, field: &mut Option<FieldBuild>, ctx: &Ctx<'_>) {
+#[derive(Default)]
+struct FieldContext {
+    stack: Vec<FieldBuild>,
+    ignored_begins: usize,
+}
+
+/// Keep the control's wrapper while exposing its runs to layout and text editing.
+fn read_inline_control(el: &El, para: &mut Paragraph, field: &mut FieldContext, ctx: &Ctx<'_>) {
+    let Some(content) = el.child_els().find(|child| child.name == "sdtContent") else {
+        para.push_object(
+            InlineObject::Opaque(el.raw(ctx.source).to_string()),
+            &CharProps::default(),
+        );
+        return;
+    };
+    let raw = content.raw(ctx.source);
+    let mut quote = None;
+    let open = raw.bytes().position(|byte| {
+        if let Some(delimiter) = quote {
+            if byte == delimiter {
+                quote = None;
+            }
+            false
+        } else if byte == b'\'' || byte == b'"' {
+            quote = Some(byte);
+            false
+        } else {
+            byte == b'>'
+        }
+    });
+    let bounds = open
+        .zip(raw.rfind("</"))
+        .filter(|(open, close)| close > open);
+    let Some((open, close)) = bounds else {
+        para.push_object(
+            InlineObject::Opaque(el.raw(ctx.source).to_string()),
+            &CharProps::default(),
+        );
+        return;
+    };
+    let first = content.span.start + open + 1;
+    let last = content.span.start + close;
+    let prefix = std::str::from_utf8(&ctx.source[el.span.start..first]).unwrap_or("");
+    let suffix = std::str::from_utf8(&ctx.source[last..el.span.end]).unwrap_or("");
+    para.push_object(
+        InlineObject::InlineControlBoundary(prefix.to_string()),
+        &CharProps::default(),
+    );
+    read_runs(content, para, field, ctx);
+    para.push_object(
+        InlineObject::InlineControlBoundary(suffix.to_string()),
+        &CharProps::default(),
+    );
+}
+
+fn read_runs(el: &El, para: &mut Paragraph, field: &mut FieldContext, ctx: &Ctx<'_>) {
     for child in el.child_els() {
         if child.name == "r" || child.name == "fldSimple" {
             read_run(child, para, field, ctx);
         } else if child.name == "ins" || child.name == "del" {
             read_runs(child, para, field, ctx);
+        } else if child.name == "sdt" {
+            read_inline_control(child, para, field, ctx);
+        } else if child.name == "hyperlink" {
+            let target = child
+                .attr("anchor")
+                .map(|anchor| format!("#{anchor}"))
+                .or_else(|| {
+                    let id = child.attr("id").unwrap_or("");
+                    ctx.rels
+                        .iter()
+                        .find(|rel| rel.id == id)
+                        .map(|rel| rel.target.clone())
+                });
+            let before = para.runs.len();
+            read_runs(child, para, field, ctx);
+            if let Some(target) = target {
+                for run in para.runs.iter_mut().skip(before) {
+                    run.props.link = Some(target.clone());
+                }
+            }
+        } else {
+            // Retain non-run markup inside a control or revision wrapper.
+            para.push_object(
+                InlineObject::Opaque(child.raw(ctx.source).to_string()),
+                &CharProps::default(),
+            );
         }
     }
 }
 
-fn read_run(el: &El, para: &mut Paragraph, field: &mut Option<FieldBuild>, ctx: &Ctx<'_>) {
+fn read_run(el: &El, para: &mut Paragraph, field: &mut FieldContext, ctx: &Ctx<'_>) {
     if el.name == "fldSimple" {
         let instr = el.attr("instr").unwrap_or("").to_string();
-        let cached = descendant_text(el);
+        let mut cached = String::new();
+        fn field_text(el: &El, out: &mut String) {
+            match el.name.as_str() {
+                "t" => {
+                    out.push_str(&el.text());
+                    return;
+                }
+                "tab" => {
+                    out.push('\t');
+                    return;
+                }
+                "softHyphen" => {
+                    out.push('\u{00AD}');
+                    return;
+                }
+                "noBreakHyphen" => {
+                    out.push('\u{2011}');
+                    return;
+                }
+                "cr" | "br" => {
+                    out.push('\n');
+                    return;
+                }
+                _ => {}
+            }
+            for child in el.child_els().filter(|child| child.name != "rPr") {
+                field_text(child, out);
+            }
+        }
+        field_text(el, &mut cached);
         let result = if cached.is_empty() {
             edgedoc_model::Instruction::parse(&instr)
                 .merge_name()
@@ -514,11 +725,15 @@ fn read_run(el: &El, para: &mut Paragraph, field: &mut Option<FieldBuild>, ctx: 
         } else {
             cached
         };
-        // `w:fldSimple` carries `w:dirty` and `w:fldLock` on the element itself.
         let mut built = Field::new(&instr, &result);
         built.dirty = is_set(el.attr("dirty"));
         built.locked = is_set(el.attr("fldLock"));
-        para.push_object(InlineObject::Field(built), &CharProps::default());
+        let result_props = el
+            .children("r")
+            .find_map(|run| run.children("rPr").next())
+            .map(|pr| read_rpr(pr, ctx))
+            .unwrap_or_default();
+        emit_field(para, field, built, &result_props);
         return;
     }
     let props = el
@@ -529,30 +744,33 @@ fn read_run(el: &El, para: &mut Paragraph, field: &mut Option<FieldBuild>, ctx: 
     for child in el.child_els() {
         match child.name.as_str() {
             "rPr" => {}
-            "t" => {
-                let text = child.text();
-                if let Some(build) = field.as_mut() {
-                    if build.in_result {
-                        build.result.push_str(&text);
-                    } else {
-                        para.push_text(&text, &props);
-                    }
-                } else {
-                    para.push_text(&text, &props);
-                }
-            }
+            "t" => push_field_text(para, field, &child.text(), &props),
+            "softHyphen" => push_field_text(para, field, "\u{00AD}", &props),
+            "noBreakHyphen" => push_field_text(para, field, "\u{2011}", &props),
             "instrText" => {
-                if let Some(build) = field.as_mut() {
-                    build.instr.push_str(&child.text());
+                if let Some(build) = field.stack.last_mut() {
+                    if !build.in_result {
+                        build.instr.push_str(&child.text());
+                    }
                 }
             }
-            "tab" => para.push_text("\t", &props),
-            "cr" => para.push_text("\n", &props),
+            "tab" => push_field_text(para, field, "\t", &props),
+            "ptab" => para.push_object(
+                InlineObject::PositionalTab {
+                    alignment: child.attr("alignment").unwrap_or("left").to_string(),
+                    relative_to: child.attr("relativeTo").unwrap_or("margin").to_string(),
+                    leader: child.attr("leader").map(str::to_string),
+                },
+                &props,
+            ),
+            "cr" => push_field_text(para, field, "\n", &props),
             "br" => {
                 if child.attr("type") == Some("page") {
-                    para.push_text(&PAGE_BREAK.to_string(), &props);
+                    push_field_text(para, field, &PAGE_BREAK.to_string(), &props);
+                } else if child.attr("type") == Some("column") {
+                    push_field_text(para, field, &COLUMN_BREAK.to_string(), &props);
                 } else {
-                    para.push_text("\n", &props);
+                    push_field_text(para, field, "\n", &props);
                 }
             }
             "fldChar" => on_fld_char(child, para, field, ctx, &props),
@@ -584,6 +802,28 @@ fn read_run(el: &El, para: &mut Paragraph, field: &mut Option<FieldBuild>, ctx: 
                     &props,
                 );
             }
+            "footnoteRef" | "endnoteRef" => {
+                // This is the note's own number inside its story, rather than an anchor in
+                // the main text. Keep the distinction so edited saves retain the mark.
+                para.push_object(
+                    InlineObject::Note {
+                        kind: if child.name == "footnoteRef" {
+                            "footnoteMark"
+                        } else {
+                            "endnoteMark"
+                        }
+                        .to_string(),
+                        id: 0,
+                    },
+                    &props,
+                );
+            }
+            "separator" | "continuationSeparator" => para.push_object(
+                InlineObject::NoteSeparator {
+                    continuation: child.name == "continuationSeparator",
+                },
+                &props,
+            ),
             other if !crate::catalog::is_owned(other) => {
                 para.push_object(
                     InlineObject::Opaque(child.raw(ctx.source).to_string()),
@@ -592,6 +832,36 @@ fn read_run(el: &El, para: &mut Paragraph, field: &mut Option<FieldBuild>, ctx: 
             }
             _ => {}
         }
+    }
+}
+
+fn push_field_text(para: &mut Paragraph, field: &mut FieldContext, text: &str, props: &CharProps) {
+    if let Some(build) = field
+        .stack
+        .last_mut()
+        .filter(|build| !build.range && build.in_result)
+    {
+        if build.result.is_empty() && !text.is_empty() {
+            build.props = props.clone();
+        }
+        build.result.push_str(text);
+    } else {
+        para.push_text(text, props);
+    }
+}
+
+fn emit_field(para: &mut Paragraph, field: &mut FieldContext, built: Field, props: &CharProps) {
+    if let Some(parent) = field.stack.last_mut().filter(|f| !f.range) {
+        if parent.in_result {
+            if parent.result.is_empty() && !built.result.is_empty() {
+                parent.props = props.clone();
+            }
+            parent.result.push_str(&built.result);
+        } else {
+            parent.instr.push_str(&built.result);
+        }
+    } else {
+        para.push_object(InlineObject::Field(built), props);
     }
 }
 
@@ -672,13 +942,18 @@ fn read_form_field(el: &El, ctx: &Ctx<'_>) -> FormField {
 fn on_fld_char(
     el: &El,
     para: &mut Paragraph,
-    field: &mut Option<FieldBuild>,
+    field: &mut FieldContext,
     ctx: &Ctx<'_>,
     props: &CharProps,
 ) {
     match el.attr("fldCharType").unwrap_or("") {
         "begin" => {
-            *field = Some(FieldBuild {
+            // Bound adversarial nesting without disturbing the enclosing field.
+            if field.stack.len() >= 64 || field.ignored_begins > 0 {
+                field.ignored_begins = field.ignored_begins.saturating_add(1);
+                return;
+            }
+            field.stack.push(FieldBuild {
                 instr: String::new(),
                 result: String::new(),
                 in_result: false,
@@ -688,31 +963,63 @@ fn on_fld_char(
                     .child_els()
                     .find(|child| child.name == "ffData")
                     .map(|child| read_form_field(child, ctx)),
-            })
+                props: props.clone(),
+                range: false,
+            });
         }
-        "separate" => {
-            if let Some(build) = field.as_mut() {
+        "separate" if field.ignored_begins == 0 => {
+            let parent_instruction = field
+                .stack
+                .iter()
+                .rev()
+                .nth(1)
+                .is_some_and(|f| !f.in_result && !f.range);
+            if let Some(build) = field.stack.last_mut() {
                 build.in_result = true;
+                let keyword = build.instr.split_whitespace().next().unwrap_or("");
+                if !parent_instruction
+                    && (keyword.eq_ignore_ascii_case("TOC")
+                        || keyword.eq_ignore_ascii_case("ADDIN"))
+                {
+                    build.range = true;
+                    para.push_object(
+                        InlineObject::FieldStart {
+                            instr: build.instr.clone(),
+                            dirty: build.dirty,
+                            locked: build.locked,
+                        },
+                        &build.props,
+                    );
+                }
             }
         }
-        "end" => match field.take() {
-            Some(build) => {
-                let result = if build.result.is_empty() {
-                    edgedoc_model::Instruction::parse(&build.instr)
-                        .merge_name()
-                        .map(|name| format!("«{name}»"))
-                        .unwrap_or_default()
-                } else {
-                    build.result
-                };
-                let mut built = Field::new(&build.instr, &result);
-                built.dirty = build.dirty;
-                built.locked = build.locked;
-                built.form = build.form;
-                para.push_object(InlineObject::Field(built), props);
+        "end" => {
+            if field.ignored_begins > 0 {
+                field.ignored_begins -= 1;
+                return;
             }
-            None => para.push_object(InlineObject::Orphan, props),
-        },
+            match field.stack.pop() {
+                Some(build) if build.range => {
+                    para.push_object(InlineObject::FieldEnd, &build.props)
+                }
+                Some(build) => {
+                    let result = if build.result.is_empty() {
+                        edgedoc_model::Instruction::parse(&build.instr)
+                            .merge_name()
+                            .map(|name| format!("«{name}»"))
+                            .unwrap_or_default()
+                    } else {
+                        build.result
+                    };
+                    let mut built = Field::new(&build.instr, &result);
+                    built.dirty = build.dirty;
+                    built.locked = build.locked;
+                    built.form = build.form;
+                    emit_field(para, field, built, &build.props);
+                }
+                None => para.push_object(InlineObject::Orphan, props),
+            }
+        }
         _ => {}
     }
 }
@@ -765,6 +1072,22 @@ fn read_drawing(el: &El, para: &mut Paragraph, props: &CharProps, ctx: &Ctx<'_>)
         .map(Emu);
     let alt = find_attr(el, "descr").or_else(|| find_attr(el, "title"));
     let anchor = read_anchor(el);
+    let effect_extent = el
+        .child_els()
+        .find(|child| child.name == "inline")
+        .and_then(|inline| {
+            inline
+                .child_els()
+                .find(|child| child.name == "effectExtent")
+        })
+        .map(|effect| {
+            ["l", "t", "r", "b"].map(|name| {
+                Emu(effect
+                    .attr(name)
+                    .and_then(|v| v.parse::<i64>().ok())
+                    .unwrap_or(0))
+            })
+        });
     para.push_object(
         InlineObject::Picture(Picture {
             name: target.unwrap_or_else(|| "image.png".into()),
@@ -774,9 +1097,28 @@ fn read_drawing(el: &El, para: &mut Paragraph, props: &CharProps, ctx: &Ctx<'_>)
             height,
             alt,
             anchor,
+            crop: picture_crop(el),
+            effect_extent,
         }),
         props,
     );
+}
+
+fn picture_crop(el: &El) -> [i32; 4] {
+    if el.name == "srcRect" {
+        return ["l", "t", "r", "b"].map(|name| {
+            el.attr(name)
+                .and_then(|value| value.parse::<i32>().ok())
+                .unwrap_or(0)
+                .clamp(0, 100_000)
+        });
+    }
+    for child in el.child_els() {
+        if contains_element(child, "srcRect") || child.name == "srcRect" {
+            return picture_crop(child);
+        }
+    }
+    [0; 4]
 }
 
 fn read_anchor(el: &El) -> Option<Anchor> {
@@ -807,8 +1149,16 @@ fn read_anchor(el: &El) -> Option<Anchor> {
                         .attr("behindDoc")
                         .map(|val| val == "1" || val == "true")
                         .unwrap_or(false),
-                    h_anchor: child.attr("relativeFromH").map(str::to_string),
-                    v_anchor: child.attr("relativeFromV").map(str::to_string),
+                    h_anchor: child
+                        .child_els()
+                        .find(|axis| axis.name == "positionH")
+                        .and_then(|axis| axis.attr("relativeFrom"))
+                        .map(str::to_string),
+                    v_anchor: child
+                        .child_els()
+                        .find(|axis| axis.name == "positionV")
+                        .and_then(|axis| axis.attr("relativeFrom"))
+                        .map(str::to_string),
                     h_align: axis_align(child, "positionH"),
                     v_align: axis_align(child, "positionV"),
                     x: axis_offset(child, "positionH"),
@@ -874,15 +1224,43 @@ fn find_attr(el: &El, name: &str) -> Option<String> {
 fn read_rpr(el: &El, ctx: &Ctx<'_>) -> CharProps {
     let mut props = CharProps::default();
     for child in el.child_els() {
+        if matches!(
+            child.name.as_str(),
+            "b" | "i"
+                | "strike"
+                | "dstrike"
+                | "caps"
+                | "smallCaps"
+                | "emboss"
+                | "imprint"
+                | "outline"
+                | "shadow"
+                | "noProof"
+                | "rtl"
+                | "cs"
+                | "vanish"
+                | "webHidden"
+        ) {
+            props.explicit_off.retain(|name| name != &child.name);
+            if !val_on(child) {
+                props.explicit_off.push(child.name.clone());
+            }
+        }
         match child.name.as_str() {
             "b" => props.bold = val_on(child),
             "i" => props.italic = val_on(child),
             "bCs" => props.bold_cs = Some(val_on(child)),
             "iCs" => props.italic_cs = Some(val_on(child)),
             "u" => {
-                props.underline = val_on(child);
-                props.underline_val = child.attr("val").map(str::to_string);
-                props.underline_color = child.attr("color").map(str::to_string);
+                if let Some(value) = child.attr("val") {
+                    props.underline = val_on(child) && value != "none";
+                    props.underline_val = Some(value.to_string());
+                    props.underline_color = child.attr("color").map(str::to_string);
+                } else {
+                    // A missing w:val does not enable underlining. Keep the element for an
+                    // edited save, including its colour and any extension attributes.
+                    props.extra.push(child.raw(ctx.source).to_string());
+                }
             }
             "strike" => props.strike = val_on(child),
             "dstrike" => props.double_strike = val_on(child),
@@ -919,8 +1297,17 @@ fn read_rpr(el: &El, ctx: &Ctx<'_>) -> CharProps {
                     .map(|half| half / 2.0)
             }
             "rFonts" => {
-                props.font = child.attr("ascii").map(str::to_string);
-                props.font_hansi = child.attr("hAnsi").map(str::to_string);
+                let themed = |attribute| {
+                    child.attr(attribute).and_then(|slot| match slot {
+                        "majorAscii" | "majorHAnsi" => Some("+mj-lt".to_string()),
+                        "minorAscii" | "minorHAnsi" => Some("+mn-lt".to_string()),
+                        _ => None,
+                    })
+                };
+                props.font =
+                    themed("asciiTheme").or_else(|| child.attr("ascii").map(str::to_string));
+                props.font_hansi =
+                    themed("hAnsiTheme").or_else(|| child.attr("hAnsi").map(str::to_string));
                 props.font_cs = child.attr("cs").map(str::to_string);
                 props.font_ea = child.attr("eastAsia").map(str::to_string);
                 if props.font.is_none() {
@@ -976,11 +1363,16 @@ fn read_ppr(el: &El, ctx: &Ctx<'_>) -> ParaProps {
             "spacing" => {
                 props.spacing_before = attr_twips(child, "before");
                 props.spacing_after = attr_twips(child, "after");
+                props.spacing_before_auto = child.attr("beforeAutospacing").map(|v| is_on(Some(v)));
+                props.spacing_after_auto = child.attr("afterAutospacing").map(|v| is_on(Some(v)));
                 props.line = attr_twips(child, "line");
                 props.line_rule = child.attr("lineRule").map(str::to_string);
             }
             "shd" => props.shading = child.attr("fill").map(str::to_string),
-            "pBdr" => props.borders = read_borders(child),
+            "pBdr" => {
+                props.borders = read_borders(child);
+                props.borders_present = true;
+            }
             "rPr" => props.mark = read_rpr(child, ctx),
             "numPr" => {
                 props.ilvl = nested_val(child, "ilvl");
@@ -997,14 +1389,28 @@ fn read_ppr(el: &El, ctx: &Ctx<'_>) -> ParaProps {
                 }
             }
             "framePr" => props.frame = Some(read_frame(child, ctx)),
-            "keepNext" => props.keep_next = val_on(child),
-            "keepLines" => props.keep_lines = val_on(child),
-            "pageBreakBefore" => props.page_break_before = val_on(child),
-            "widowControl" => props.widow_control = val_on(child),
-            "contextualSpacing" => props.contextual_spacing = val_on(child),
-            "suppressLineNumbers" => props.suppress_line_numbers = val_on(child),
+            "keepNext"
+            | "keepLines"
+            | "pageBreakBefore"
+            | "widowControl"
+            | "contextualSpacing"
+            | "suppressLineNumbers" => {
+                let value = val_on(child);
+                match child.name.as_str() {
+                    "keepNext" => props.keep_next = value,
+                    "keepLines" => props.keep_lines = value,
+                    "pageBreakBefore" => props.page_break_before = value,
+                    "widowControl" => props.widow_control = value,
+                    "contextualSpacing" => props.contextual_spacing = value,
+                    "suppressLineNumbers" => props.suppress_line_numbers = value,
+                    _ => {}
+                }
+                props.explicit_on_off.push(child.name.clone());
+            }
             "outlineLvl" => props.outline = child.attr("val").and_then(|val| val.parse().ok()),
             "bidi" => props.bidi = val_on(child),
+            "kinsoku" => props.kinsoku = Some(val_on(child)),
+            "wordWrap" => props.word_wrap = Some(val_on(child)),
             other if other != "sectPr" && !crate::catalog::is_owned(other) => {
                 props.extra.push(child.raw(ctx.source).to_string())
             }
@@ -1033,6 +1439,8 @@ fn read_frame(el: &El, ctx: &Ctx<'_>) -> FrameProps {
         y: attr_twips(el, "y"),
         h_anchor: el.attr("hAnchor").map(str::to_string),
         v_anchor: el.attr("vAnchor").map(str::to_string),
+        x_align: el.attr("xAlign").map(str::to_string),
+        y_align: el.attr("yAlign").map(str::to_string),
         h_space: attr_twips(el, "hSpace"),
         v_space: attr_twips(el, "vSpace"),
         width: attr_twips(el, "w"),
@@ -1076,8 +1484,54 @@ fn is_property_element(name: &str) -> bool {
     )
 }
 
+/// Defaults for omitted imported page properties, matching Wordcraft's reader. The public
+/// builder's explicit A4 defaults remain independent of this file-format fallback.
+fn read_section_defaults() -> SectionProps {
+    SectionProps {
+        page_w: Twips(12240),
+        page_h: Twips(15840),
+        header_dist: Twips(720),
+        footer_dist: Twips(720),
+        ..SectionProps::default()
+    }
+}
+
+/// Decode document default properties through the same property readers as paragraphs/runs.
+/// The raw defaults remain unchanged in the model for package preservation.
+pub fn style_default_properties(raw: &str, budget: &Budget) -> WmlResult<(CharProps, ParaProps)> {
+    let source = raw.as_bytes();
+    let root = xml::parse(source, budget).map_err(map_opc)?;
+    let package = Package {
+        parts: Default::default(),
+        rels: Vec::new(),
+    };
+    let ctx = Ctx {
+        package: &package,
+        budget,
+        rels: &[],
+        base: String::new(),
+        source,
+        fields: RefCell::default(),
+    };
+    let run = root
+        .children("rPrDefault")
+        .next()
+        .and_then(|d| d.children("rPr").next())
+        .map(|p| read_rpr(p, &ctx))
+        .unwrap_or_default();
+    let mut para = root
+        .children("pPrDefault")
+        .next()
+        .and_then(|d| d.children("pPr").next())
+        .map(|p| read_ppr(p, &ctx))
+        .unwrap_or_default();
+    // A default frame does not put every body and story paragraph into a frame.
+    para.frame = None;
+    Ok((run, para))
+}
+
 fn read_sect(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument) -> WmlResult<SectionProps> {
-    let mut props = SectionProps::default();
+    let mut props = read_section_defaults();
     for child in el.child_els() {
         match child.name.as_str() {
             "pgSz" => {
@@ -1220,6 +1674,7 @@ fn attach_story(
             rels: &rels,
             base: part.name.clone(),
             source: &part.bytes,
+            fields: RefCell::default(),
         };
         read_blocks(&root, &nested, doc, 0)?
     } else {
@@ -1234,7 +1689,7 @@ fn attach_story(
     Ok(())
 }
 
-fn read_borders(el: &El) -> Borders {
+pub(crate) fn read_borders(el: &El) -> Borders {
     let mut borders = Borders::default();
     for child in el.child_els() {
         let line = read_border(child);
@@ -1318,6 +1773,12 @@ fn read_styles(doc: &mut ModelDocument, ctx: &Ctx<'_>) -> WmlResult<()> {
         return Ok(());
     };
     let root = xml::parse(&part.bytes, ctx.budget).map_err(map_opc)?;
+    let style_ctx = Ctx {
+        source: &part.bytes,
+        base: part.name.clone(),
+        fields: RefCell::default(),
+        ..*ctx
+    };
     for child in root.child_els() {
         match child.name.as_str() {
             "docDefaults" => doc.styles.doc_defaults_xml = Some(child.raw(&part.bytes).to_string()),
@@ -1349,8 +1810,61 @@ fn read_styles(doc: &mut ModelDocument, ctx: &Ctx<'_>) -> WmlResult<()> {
                         "link" => style.link = item.attr("val").map(str::to_string),
                         "semiHidden" => style.semi_hidden = val_on(item),
                         "uiPriority" => style.priority = attr_i32(item, "val"),
-                        "pPr" => style.para_props = read_ppr(item, ctx),
-                        "rPr" => style.char_props = read_rpr(item, ctx),
+                        "pPr" => style.para_props = read_ppr(item, &style_ctx),
+                        "rPr" => style.char_props = read_rpr(item, &style_ctx),
+                        "tblStylePr" if style.kind == StyleKind::Table => {
+                            if let Some(kind) = item.attr("type") {
+                                let mut region = edgedoc_model::TableStyleRegion {
+                                    kind: kind.to_string(),
+                                    ..Default::default()
+                                };
+                                for property in item.child_els() {
+                                    match property.name.as_str() {
+                                        "rPr" => region.char_props = read_rpr(property, &style_ctx),
+                                        "pPr" => {
+                                            let para = read_ppr(property, &style_ctx);
+                                            if kind == "wholeTable" {
+                                                region.para_props = para;
+                                            } else {
+                                                region.para_props.align = para.align;
+                                            }
+                                        }
+                                        "tblPr" => {
+                                            if let Some(borders) =
+                                                property.children("tblBorders").next()
+                                            {
+                                                region.table_borders = read_borders(borders);
+                                            }
+                                        }
+                                        "tcPr" => {
+                                            for cell in property.child_els() {
+                                                match cell.name.as_str() {
+                                                    "shd" => {
+                                                        region.shading =
+                                                            cell.attr("fill").map(str::to_string)
+                                                    }
+                                                    "tcBorders" => {
+                                                        region.borders = read_borders(cell)
+                                                    }
+                                                    "vAlign" => {
+                                                        region.v_align =
+                                                            cell.attr("val").map(str::to_string)
+                                                    }
+                                                    _ => {}
+                                                }
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                                style.table_regions.push(region);
+                            }
+                        }
+                        "tblPr" if style.kind == StyleKind::Table => {
+                            let mut table = Table::new();
+                            read_table_props(&mut table, item, &style_ctx);
+                            style.table_props = Some(table);
+                        }
                         _ => {}
                     }
                 }
@@ -1453,6 +1967,7 @@ fn read_notes(doc: &mut ModelDocument, ctx: &Ctx<'_>) -> WmlResult<()> {
                 rels: &rels,
                 base: part.name.clone(),
                 source: &part.bytes,
+                fields: RefCell::default(),
             };
             let blocks = read_blocks(note, &nested, doc, 0)?;
             let meta = PartMeta {
@@ -1493,6 +2008,7 @@ fn read_comments(doc: &mut ModelDocument, ctx: &Ctx<'_>) -> WmlResult<()> {
             rels: &rels,
             base: part.name.clone(),
             source: &part.bytes,
+            fields: RefCell::default(),
         };
         let blocks = read_blocks(comment, &nested, doc, 0)?;
         let meta = PartMeta {

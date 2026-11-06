@@ -8,6 +8,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- A rendering parity ledger at `docs/display/20-rendering-parity.md`, with 49
+  exercised OOXML regression tests and an explicit inventory of remaining Wordcraft parity work.
+- An independent Wordcraft 0.15.1 differential gate with source/font fingerprints, glyph geometry,
+  144 dpi pixel comparisons, retained failing cases, and negative tests for the acceptance gate.
+- Warnings for known unsupported rendering features, without claiming complete fidelity.
+- A corpus of 75 original DOCX documents pinned to Apache POI and docx4j commits, with dual
+  checksum verification, structural inventory, bounded layout checks and independent Wordcraft
+  geometry/pixel comparisons. Rendered pages from both engines receive manual image inspection.
 - **EdgeDoc Display: a Word document, painted in the browser.** A new set of crates
   reads a package. It produces page geometry, a display list, and SVG or PDF pages. One
   call loads a document and paints it. The viewer gives zoom, paged scroll, text
@@ -36,13 +44,43 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - An indent in characters (`w:leftChars`, `w:firstLineChars`) is read.
 - No line break follows a slash, and a break follows a hyphen before a digit.
 - `assets/fonts/subset/` holds the bundled faces cut to the characters a business document uses:
-  6.2 MB becomes 1.7 MB, and the module is 4.11 MB raw and 1.40 MB gzip.
+  6.2 MB becomes 1.7 MB. The current display module is approximately 3.54 MB raw and 1.61 MB gzip.
 - `docs/display/18-assessment.md` states every WordCraft-measured behavior and its state here:
   50 ported, 22 partial, 4 placeholder, 33 gap.
 - `docs/display/19-deep-audit.md` states the deeper audit against WordCraft 0.14.0: a property
   comparison, a map of its 531 layout tests, and the four defects the audit found.
 
 ### Fixed
+
+- UTF-8 BOM offsets in preserved XML, style-part property slices, omitted/localized default
+  styles, Latin theme fonts, field-result fonts and nonpainting proofing/bookmark markers.
+- Positional tabs, measured right/center/decimal tab segments, leading-tab glyph origins,
+  decorative leader text, and document-start/explicit-break paragraph spacing.
+- All 12 bundled Carlito/Arimo/Tinos faces now load. Supplied compatible faces take precedence
+  over built-in substitutes; an unknown family still respects the caller's explicit fallback.
+- Paragraph-border painting honors width and distance from text, and a footer's bottom rule
+  participates in its bottom placement. Border grouping and full body-flow reservation remain open.
+- Documents requesting the observed incomplete Arabic/bidirectional layout now surface a fidelity
+  diagnostic; the expanded corpus requires this warning.
+- Shared table-cell borders now paint without table-level inside rules. Cell layout reserves the
+  effective top and final bottom border widths, and horizontal rules are centered on their edges.
+  The inspected Apache POI table-indent document now passes the independent Wordcraft geometry
+  and pixel comparison; complex border conflict resolution remains open.
+- Row-level content controls in tables now render their rows and retain the wrapper on an edited
+  save. An empty table completes without generating pages repeatedly. A simple gridless auto-width
+  table sizes its columns from cell content; more complex table autofit remains open.
+- Imported page/style defaults, contextual kerning and ligatures, footer and continuous-section spacing,
+  and table alignment across compatibility modes now follow inspected Wordcraft behavior.
+- SVG and browser Canvas paint loaded-font glyph outlines and layout advances instead of reshaping
+  text with a viewer-selected font. Each clipped paragraph receives a unique SVG clip ID.
+- Display section ranges, header/footer references and inheritance, story distances and height
+  reservation, mirrored margins, section page totals, and section page-number formats.
+- Multi-page paragraph and table continuation, inline page and column breaks, line spacing,
+  keep-with-next, bottom alignment, and final-page column balancing before continuous sections.
+- Layout cache validation, painted baselines and justified glyph positions, numbering XML
+  parsing and start overrides, page-budget enforcement, and showing hidden text.
+- Column breaks survive an edited DOCX save. Four ineffective gap checks were replaced by
+  fixtures that contain and exercise the relevant features.
 
 - **A Word document with whitespace after the root element did not open.** Word writes a newline
   after the last close tag of most parts. The package parser read that newline as a second root.

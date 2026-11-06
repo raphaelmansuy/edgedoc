@@ -1,0 +1,9 @@
+# Picture-only inline paragraphs
+
+Standalone inline pictures now remain inside their paragraph instead of becoming separate picture blocks. That lets the existing inline layout reserve the paragraph mark's descent, respect paragraph spacing, and apply the picture's effect extents. Floating pictures continue to use the existing separate path.
+
+The Apache POI `56392.docx` case (`poi-extra-2b9113f42ae4`) previously placed the signature text after the picture 2.6 pt too high; it now passes the differential comparison. The two-page docx4j compatibility-settings document previously drifted by up to 25.5 pt after several picture-only paragraphs; both pages now pass (`picture-compatsetting-result.json`). The previously passing eight-page section/header document also remains a pass. Paired page images were inspected and are retained in `picture-only-image-inspection/` and `picture-compatsetting-image-inspection/`.
+
+`picture-only-192-result.json` contains 192 passing cases. Together with the separately rerendered docx4j document, with matching engine fingerprints, `picture-only-193-result.json` records 193 distinct passes. This is a selected regression set; the latest full 394-case baseline remains the pre-border and pre-picture result in `final-394-result.json`, which had 186 failures and 18 blocked. Workspace tests, strict clippy and formatting checks passed, as did the rebuilt browser checks (18/18 interactions and 134/134 corpus checks across 33 documents).
+
+Two additional downloaded docx4j image-sequence documents, which display JPEG and PNG images in opposite orders, now pass as well (`image-sequence-focused-result.json`). Their page pairs were visually inspected (`image-sequence-image-inspection.json`). The combined `picture-only-195-result.json` records these with the 193 prior selected passes and identical engine fingerprints.

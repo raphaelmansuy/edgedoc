@@ -289,6 +289,16 @@ it saves the file. `docs/13-word-validation.md` lists the rules it applies.
 `docs/12-word-features.md` maps every modeled field to its test. Both tables are locked
 by a test that fails when the table and the code disagree.
 
+The separate `edgedoc-display` renderer adds paginated viewing in Rust and the browser. It is
+still under development and does not yet render every Word feature. The
+[rendering parity ledger](docs/display/20-rendering-parity.md) uses Wordcraft 0.15.1 as its reference
+and distinguishes exercised behavior from remaining gaps; preserving a DOCX feature through a save does not imply rendering support.
+The [differential gate](tools/wordcraft-parity/README.md) compares actual glyphs and pixels and
+keeps unsupported cases failing.
+The [expanded external corpus](tests/corpus/EXTERNAL.md) adds 75 pinned POI/docx4j files, including
+a 45-page guide, plus 181 more pinned fixtures. [Image inspection and measured results](docs/display/22-expanded-corpus-parity.md)
+record the fixes and remaining differences against Wordcraft.
+
 ## Commands
 
 `make` prints the list. Every target names what it does.

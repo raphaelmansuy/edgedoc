@@ -1,0 +1,451 @@
+{
+  "scope": "Body reference marks only. Note stories are not rendered and document parity fails.",
+  "edgedoc_build_inputs_sha256": "c00befd8ce70388c3e93ae03b1d7dffb69f5da3181146eed6c758dae8283e7d8",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "cases": [
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-2ae78db23c29775e",
+      "input_sha256": "17a77fa44f5027303cf0f27d33d5be88e70e7925d9dc8d02f1cf0253373fda25",
+      "passed": true,
+      "glyphs": [
+        {
+          "wordcraft": {
+            "text": "A",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 2,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "A",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 2,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "1",
+            "x": 78.943359375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 359,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "1",
+            "x": 78.943359375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 359,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "B",
+            "x": 82.89668273925781,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 5,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "B",
+            "x": 82.89668273925781,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 5,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "2",
+            "x": 89.42402648925781,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 360,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "2",
+            "x": 89.42402648925781,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 360,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "C",
+            "x": 93.3773422241211,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 6,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "C",
+            "x": 93.3773422241211,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 6,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 99.7757797241211,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 99.7757797241211,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "D",
+            "x": 101.5658187866211,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 8,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "D",
+            "x": 101.5658187866211,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 8,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 108.9486312866211,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 108.9486312866211,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 110.7386703491211,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 110.7386703491211,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        }
+      ]
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-edf0e1ceb93348a1",
+      "input_sha256": "6989a29ad4b2b6892e11acbfe9ba6f0b2a808c1f310123a17eeee997da2d6587",
+      "passed": true,
+      "glyphs": [
+        {
+          "wordcraft": {
+            "text": "A",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 2,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "A",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 2,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "3",
+            "x": 78.943359375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 361,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "3",
+            "x": 78.943359375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 361,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "B",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 5,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "B",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 5,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "3",
+            "x": 78.52734375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 361,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "3",
+            "x": 78.52734375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 361,
+            "size": 7.799999713897705
+          }
+        }
+      ]
+    },
+    {
+      "id": "regression-note_references_count_each_kind_in_document_order-3fbe756d4f0fafe0",
+      "input_sha256": "0e09f3eef84c7e1eb13ade07dd94230c45e15d403afe4b5dd9650c9ff76a5ff3",
+      "passed": true,
+      "glyphs": [
+        {
+          "wordcraft": {
+            "text": "A",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 2,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "A",
+            "x": 72.0,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 2,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "v",
+            "x": 78.943359375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 127,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "v",
+            "x": 78.943359375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 127,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "B",
+            "x": 82.46630859375,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 5,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "B",
+            "x": 82.46630859375,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 5,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "v",
+            "x": 88.99365234375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 127,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "v",
+            "x": 88.99365234375,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 127,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 92.5166015625,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 92.5166015625,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "C",
+            "x": 94.306640625,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 6,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "C",
+            "x": 94.306640625,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 6,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 100.705078125,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 100.705078125,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "D",
+            "x": 102.4951171875,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 8,
+            "size": 12.0
+          },
+          "edgedoc": {
+            "text": "D",
+            "x": 102.4951171875,
+            "baseline": 83.6484375,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 8,
+            "size": 12.0
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 109.8779296875,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 109.8779296875,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        },
+        {
+          "wordcraft": {
+            "text": "i",
+            "x": 111.66796875,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          },
+          "edgedoc": {
+            "text": "i",
+            "x": 111.66796875,
+            "baseline": 79.68843841552734,
+            "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+            "gid": 92,
+            "size": 7.799999713897705
+          }
+        }
+      ]
+    }
+  ]
+}

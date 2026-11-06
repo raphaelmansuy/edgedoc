@@ -23,11 +23,17 @@ edgedoc-style = { workspace = true }
 edgedoc-flow = { workspace = true }
 edgedoc-paint = { workspace = true }
 edgedoc-model = { workspace = true }
+edgedoc-opc = { workspace = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 
 [dev-dependencies]
 edgedoc-demos = { path = "../edgedoc-demos" }
+zip = { workspace = true }
 
 [lints]
 workspace = true
+
+[[example]]
+name = "parity_dump"
+required-features = ["serde"]

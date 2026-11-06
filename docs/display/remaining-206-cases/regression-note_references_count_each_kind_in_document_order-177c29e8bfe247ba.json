@@ -1,0 +1,75 @@
+{
+  "id": "regression-note_references_count_each_kind_in_document_order-177c29e8bfe247ba",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Footnote, endnote, and comment stories"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Calibri"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.0,
+      "mean_ink_color_error": 0.0002596945851109922,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "12iii",
+              "ABCD",
+              "",
+              "i",
+              " first end",
+              "ii",
+              " second end",
+              "1",
+              " first",
+              "2",
+              " second"
+            ],
+            "edgedoc": [
+              "12iii",
+              "ABCD",
+              "Endnote separator text",
+              "i",
+              " first end",
+              "ii",
+              " second end",
+              "1",
+              " first",
+              "2",
+              " second"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "edgedoc_diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Footnote, endnote, and comment stories"
+        }
+      ]
+    }
+  ]
+}

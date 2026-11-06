@@ -169,6 +169,19 @@ corpus-e2e: display-wasm corpus ## Run the browser test over the corpus
 	@printf '%s→%s node tools/display_corpus_e2e.mjs\n' '$(BLUE)' '$(RESET)'
 	@node tools/display_corpus_e2e.mjs
 
+.PHONY: corpus-external
+corpus-external: ## Download and verify 75 commit-pinned POI/docx4j DOCX documents
+	@python3 tools/fetch_external_corpus.py
+
+.PHONY: corpus-external-expanded
+corpus-external-expanded: ## Download 181 additional pinned upstream fixtures
+	@python3 tools/fetch_external_corpus.py --manifest tests/corpus/external-expanded-manifest.json --directory target/external-docx-expanded
+
+.PHONY: corpus-external-check
+corpus-external-check: ## Verify downloaded DOCX integrity and exercise bounded native layout
+	@python3 tools/fetch_external_corpus.py --verify-only
+	@$(CARGO) test -p edgedoc-display --features serde --test external_corpus -- --ignored
+
 ##@ Packaging
 
 .PHONY: wasm

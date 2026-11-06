@@ -8,7 +8,7 @@
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 #![deny(clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use edgedoc_fonts::Shaper;
 use edgedoc_geom::{Rect, Rgba};
@@ -20,6 +20,18 @@ pub const PAGE_MARKER: char = '\u{F000}';
 
 /// The marker that a `NUMPAGES` field leaves in the text.
 pub const TOTAL_MARKER: char = '\u{F001}';
+/// The markers for section-local page totals and the one-based section number.
+pub const SECTION_TOTAL_MARKER: char = '\u{F002}';
+pub const SECTION_MARKER: char = '\u{F003}';
+
+fn has_fields(text: &str) -> bool {
+    text.chars().any(|c| {
+        matches!(
+            c,
+            PAGE_MARKER | TOTAL_MARKER | SECTION_TOTAL_MARKER | SECTION_MARKER
+        )
+    })
+}
 
 /// Substitute the page markers in a paragraph.
 ///
@@ -27,8 +39,14 @@ pub const TOTAL_MARKER: char = '\u{F001}';
 /// previous pass. A number can be wider than its marker, so the run offsets are rebuilt. The
 /// paragraph layout is then cached under the resolved text, which is why the cache key hashes the
 /// text and not the path. See `DP-L-11` and `DP-L-12`.
-fn with_fields(p: &FlowParagraph, page: u32, totals: &Totals) -> FlowParagraph {
-    if !p.text.contains(PAGE_MARKER) && !p.text.contains(TOTAL_MARKER) {
+fn with_fields(
+    p: &FlowParagraph,
+    page: u32,
+    section: usize,
+    format: &str,
+    totals: &Totals,
+) -> FlowParagraph {
+    if !has_fields(&p.text) {
         return p.clone();
     }
     // The style of every source byte, so an expanded field keeps the run it sat in.
@@ -42,8 +60,16 @@ fn with_fields(p: &FlowParagraph, page: u32, totals: &Totals) -> FlowParagraph {
             *slot = *style;
         }
     }
-    let page_text = crate::format_page_number(page, "decimal");
+    let page_text = crate::format_page_number(page, format);
     let total_text = totals.pages.max(1).to_string();
+    let section_total = totals
+        .section_pages
+        .get(section)
+        .copied()
+        .unwrap_or(1)
+        .max(1)
+        .to_string();
+    let section_text = section.saturating_add(1).to_string();
     let mut text = String::with_capacity(p.text.len() + 8);
     let mut runs: Vec<(usize, usize, u32)> = Vec::new();
     for (i, ch) in p.text.char_indices() {
@@ -52,6 +78,10 @@ fn with_fields(p: &FlowParagraph, page: u32, totals: &Totals) -> FlowParagraph {
             &page_text
         } else if ch == TOTAL_MARKER {
             &total_text
+        } else if ch == SECTION_TOTAL_MARKER {
+            &section_total
+        } else if ch == SECTION_MARKER {
+            &section_text
         } else {
             let start = text.len();
             text.push(ch);
@@ -105,6 +135,7 @@ pub struct FlowDiagnostic {
 /// A section of the document: a page box and its decorations.
 #[derive(Debug, Clone)]
 pub struct FlowSection {
+    pub compatibility_mode: u32,
     pub page_w: f32,
     pub page_h: f32,
     pub margin_top: f32,
@@ -137,6 +168,8 @@ pub struct FlowSection {
     pub title_page: bool,
     /// True when an even page uses its own header.
     pub even_and_odd: bool,
+    /// Put the inside margin and gutter on the binding side of each page.
+    pub mirror_margins: bool,
 }
 
 /// How a section begins.
@@ -186,6 +219,7 @@ impl VAlign {
 impl Default for FlowSection {
     fn default() -> Self {
         Self {
+            compatibility_mode: 15,
             page_w: 595.28,
             page_h: 841.89,
             margin_top: 72.0,
@@ -209,6 +243,7 @@ impl Default for FlowSection {
             v_align: VAlign::Top,
             title_page: false,
             even_and_odd: false,
+            mirror_margins: false,
         }
     }
 }
@@ -216,7 +251,15 @@ impl Default for FlowSection {
 impl FlowSection {
     /// The body rectangle, which is the page inside the margins.
     pub fn body_rect(&self) -> Rect {
-        let x = self.margin_left + self.gutter;
+        self.body_rect_on(false)
+    }
+
+    pub fn body_rect_on(&self, even: bool) -> Rect {
+        let x = if even && self.mirror_margins {
+            self.margin_right
+        } else {
+            self.margin_left + self.gutter
+        };
         Rect::new(
             x,
             self.margin_top,
@@ -235,6 +278,8 @@ pub struct FlowParagraph {
     /// One entry per run: `(start byte, end byte, run index)`.
     pub runs: Vec<(usize, usize, u32)>,
     pub run_styles: Vec<RunStyle>,
+    /// Style used for a line that contains only the paragraph mark, spaces, or tabs.
+    pub mark_style: u32,
     pub para: ComputedPara,
     /// The list label, when the paragraph is a list item and its number is already known.
     pub label: Option<String>,
@@ -246,16 +291,79 @@ pub struct FlowParagraph {
     pub has_page_field: bool,
     /// The text of a `NUMPAGES` field, which needs a second pass.
     pub has_total_field: bool,
-    /// The extent of an inline object in this paragraph: `(ascent, descent)`.
+    /// The extent of an inline object in this paragraph: `(width, height)`.
     pub objects: Vec<(f32, f32)>,
+    /// Images corresponding to object markers, in text order.
+    pub inline_pictures: Vec<Option<InlinePicture>>,
+    /// Behind-text page pictures keyed by object index.
+    pub page_pictures: Vec<(usize, PageAnchorPicture)>,
+    /// A directly specified top/bottom border set that can join its neighbours.
+    pub border_group_safe: bool,
+    pub border_join_above: bool,
+    pub border_join_below: bool,
     /// Hyperlink targets, per byte range.
     pub links: Vec<(usize, usize, String)>,
     /// The outline level, which the viewer uses for navigation.
     pub outline: Option<i32>,
-    /// The footnote text that a reference in this paragraph points at.
-    pub notes: Vec<String>,
+    /// Footnote stories and their reference byte offsets in this paragraph.
+    pub notes: Vec<FlowNote>,
     /// The marker for a tracked change, for the layer state.
     pub revision: Option<RevisionKind>,
+}
+
+/// A picture that shares a line with text.
+#[derive(Debug, Clone, PartialEq)]
+pub struct InlinePicture {
+    pub resource: u32,
+    pub src: [f32; 4],
+    pub width: f32,
+    pub height: f32,
+    pub alt: String,
+    /// Left and bottom effect extents shift the painted image within its line box.
+    pub effect_left: f32,
+    pub effect_bottom: f32,
+}
+
+/// A non-wrapping picture anchored to the page.
+#[derive(Debug, Clone)]
+pub struct PageAnchorPicture {
+    pub resource: u32,
+    pub src: [f32; 4],
+    pub width: f32,
+    pub height: f32,
+    pub alt: String,
+    pub x: PageAnchorAxis,
+    pub y: PageAnchorAxis,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum PageAnchorAxis {
+    Start,
+    Center,
+    End,
+    Offset(f32),
+}
+
+impl PageAnchorAxis {
+    fn position(self, page: f32, size: f32) -> f32 {
+        match self {
+            Self::Start => 0.0,
+            Self::Center => (page - size) / 2.0,
+            Self::End => page - size,
+            Self::Offset(value) => value.clamp(-31_680.0, 31_680.0),
+        }
+    }
+}
+
+/// A footnote referenced by a character position in a body paragraph.
+#[derive(Debug, Clone)]
+pub struct FlowNote {
+    pub id: i32,
+    pub offset: usize,
+    pub blocks: std::sync::Arc<[FlowBlock]>,
+    pub separator: std::sync::Arc<[FlowBlock]>,
+    pub continuation_separator: std::sync::Arc<[FlowBlock]>,
+    pub continuation_notice: std::sync::Arc<[FlowBlock]>,
 }
 
 /// A revision mark on a paragraph.
@@ -287,6 +395,11 @@ pub struct FlowCell {
 #[derive(Debug, Clone)]
 pub struct FlowRow {
     pub cells: Vec<FlowCell>,
+    /// Grid columns omitted before and after the row's cells.
+    pub grid_before: usize,
+    pub grid_after: usize,
+    /// Row exception borders: top, left, bottom, right, inside horizontal, inside vertical.
+    pub exception_borders: [Option<Border>; 6],
     /// True when the row repeats on every page.
     pub header: bool,
     pub height: Option<f32>,
@@ -306,6 +419,10 @@ pub struct FlowTable {
     pub path: String,
     pub rows: Vec<FlowRow>,
     pub widths: Vec<f32>,
+    /// Whether the document requests an automatic table width.
+    pub auto_width: bool,
+    /// An explicit table width, in points or as a fraction of the available width.
+    pub preferred_width: Option<TableWidth>,
     pub align: Align,
     pub indent: f32,
     pub layout_fixed: bool,
@@ -318,6 +435,12 @@ pub struct FlowTable {
     /// The float anchor, when it floats.
     pub anchor: Option<FloatAnchor>,
     pub bidi: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum TableWidth {
+    Points(f32),
+    Fraction(f32),
 }
 
 /// A floating object anchor.
@@ -354,6 +477,11 @@ pub enum WrapMode {
 pub enum FlowBlock {
     Paragraph(FlowParagraph),
     Table(FlowTable),
+    /// The separator before endnote stories.
+    EndnoteSeparator {
+        path: String,
+        blocks: std::sync::Arc<[FlowBlock]>,
+    },
     /// A picture that is a block of its own, as a paragraph with one object is not.
     Picture {
         path: String,
@@ -361,6 +489,7 @@ pub enum FlowBlock {
         height: f32,
         alt: String,
         resource: u32,
+        src: [f32; 4],
         align: Align,
     },
     /// An object that the library does not model, drawn as a box with a label.
@@ -378,6 +507,7 @@ impl FlowBlock {
         match self {
             FlowBlock::Paragraph(p) => &p.path,
             FlowBlock::Table(t) => &t.path,
+            FlowBlock::EndnoteSeparator { path, .. } => path,
             FlowBlock::Picture { path, .. } => path,
             FlowBlock::Placeholder { path, .. } => path,
         }
@@ -397,6 +527,7 @@ pub enum Fragment {
     Picture {
         rect: Rect,
         resource: u32,
+        src: [f32; 4],
         alt: String,
     },
     Placeholder {
@@ -488,8 +619,16 @@ pub struct PageGeometry {
     /// True when the page shows an even-page header.
     pub even: bool,
     pub fragments: Vec<Fragment>,
+    /// Footnote story ids present on this page, including continuations.
+    pub footnote_ids: Vec<i32>,
     /// The body rectangle.
     pub body: Rect,
+    /// Number of leading header and footer fragments.
+    pub decoration_count: usize,
+    /// Section whose header and footer are displayed on this page.
+    pub decoration_section: usize,
+    /// Whether this page uses the section's first-page decorations.
+    pub decoration_first: bool,
 }
 
 impl PageGeometry {
@@ -540,6 +679,8 @@ pub struct Decoration {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Totals {
     pub pages: u32,
+    /// Physical page count per section, including a shared continuous-section page.
+    pub section_pages: Vec<u32>,
 }
 
 impl Totals {
@@ -547,6 +688,7 @@ impl Totals {
     pub fn first_guess(sections: usize) -> Self {
         Self {
             pages: sections.max(1) as u32,
+            section_pages: vec![1; sections.max(1)],
         }
     }
 }
@@ -554,10 +696,25 @@ impl Totals {
 /// One shaped paragraph, cached by content and width.
 #[derive(Debug, Clone)]
 struct ShapedParagraph {
+    width: f32,
+    source: FlowParagraph,
     layout: std::sync::Arc<ParagraphLayout>,
 }
 
 /// The flow engine.
+#[derive(Clone, Default)]
+struct ListCounters {
+    values: BTreeMap<u32, [Option<u32>; 9]>,
+    seen: BTreeSet<(u32, u32)>,
+}
+
+impl ListCounters {
+    fn clear(&mut self) {
+        self.values.clear();
+        self.seen.clear();
+    }
+}
+
 pub struct Flow<'a, S: Shaper> {
     pub shaper: &'a S,
     pub diagnostics: Vec<FlowDiagnostic>,
@@ -565,8 +722,12 @@ pub struct Flow<'a, S: Shaper> {
     cache: BTreeMap<(u64, u32, u64), ShapedParagraph>,
     /// The page count the last pass found.
     pub totals: Totals,
-    /// The numbering counters, per `numId` and level. See `DP-S-14`.
-    counters: BTreeMap<u32, Vec<u32>>,
+    /// Counters are shared by instances of the same abstract definition.
+    counters: ListCounters,
+    /// Document compatibility mode, which affects line breaking.
+    compatibility_mode: u32,
+    /// Per-run page budget, clamped to the hard engine limit.
+    pub max_pages: u32,
 }
 
 impl<'a, S: Shaper> Flow<'a, S> {
@@ -576,32 +737,34 @@ impl<'a, S: Shaper> Flow<'a, S> {
             diagnostics: Vec::new(),
             cache: BTreeMap::new(),
             totals: Totals::default(),
-            counters: BTreeMap::new(),
+            counters: ListCounters::default(),
+            compatibility_mode: 15,
+            max_pages: MAX_PAGES,
         }
     }
 
-    /// The next label for a list paragraph, and the counter update. Word numbers per `numId`, so
-    /// two lists that share one definition keep separate counters. See `DP-S-14`.
+    /// The next label for a list paragraph, and the counter update. See `DP-S-14`.
     fn next_label(&mut self, list: &edgedoc_style::ListRef) -> String {
         let level = list.level.min(8) as usize;
-        let counters = self.counters.entry(list.num_id).or_default();
-        while counters.len() <= level {
-            counters.push(0);
+        let first_use = self.counters.seen.insert((list.num_id, list.level));
+        let counters = self.counters.values.entry(list.abstract_id).or_default();
+        if first_use && list.start_override.is_some() {
+            counters[level] = None;
         }
-        // The first item of a level takes the level start. A later item adds one to the counter.
-        let current = counters.get(level).copied().unwrap_or(0);
-        let value = if current == 0 {
-            list.start.max(1)
-        } else {
-            current.saturating_add(1)
-        };
+        let value = counters[level]
+            .map(|current| current.saturating_add(1))
+            .unwrap_or(if first_use {
+                list.start_override.unwrap_or(list.start)
+            } else {
+                list.start
+            });
         if let Some(slot) = counters.get_mut(level) {
-            *slot = value;
+            *slot = Some(value);
         }
         // A deeper level restarts when a shallower level advances.
         for deeper in (level + 1)..counters.len() {
             if let Some(slot) = counters.get_mut(deeper) {
-                *slot = 0;
+                *slot = None;
             }
         }
         // A bullet level paints its bullet character.
@@ -615,31 +778,38 @@ impl<'a, S: Shaper> Flow<'a, S> {
         // Build the label from the level text: `%1` is level 1, `%2` is level 2, and so on.
         let mut out = String::new();
         let mut chars = list.text.chars().peekable();
-        let format = if list.is_legal {
-            "decimal"
-        } else {
-            list.format.as_str()
-        };
+        let format = list.format.as_str();
         while let Some(c) = chars.next() {
             if c == '%' {
                 if let Some(d) = chars.peek().and_then(|c| c.to_digit(10)) {
                     chars.next();
                     let idx = (d as usize).saturating_sub(1);
-                    let n = counters
-                        .get(idx)
-                        .copied()
-                        .filter(|n| *n > 0)
-                        .unwrap_or(list.start);
-                    out.push_str(&edgedoc_style::format_counter(n, format, list.is_legal));
+                    let n = counters.get(idx).copied().flatten().unwrap_or(list.start);
+                    let referenced = list.level_formats.get(idx).map_or(format, String::as_str);
+                    let number_format = if list.is_legal && referenced != "decimalZero" {
+                        "decimal"
+                    } else {
+                        referenced
+                    };
+                    out.push_str(&edgedoc_style::format_counter(
+                        n,
+                        number_format,
+                        list.is_legal,
+                    ));
                     continue;
                 }
             }
             out.push(c);
         }
-        if out.is_empty() {
+        let label = if out.is_empty() {
             edgedoc_style::format_counter(value, format, list.is_legal)
         } else {
             out
+        };
+        if list.caps {
+            label.to_uppercase()
+        } else {
+            label
         }
     }
 
@@ -659,436 +829,478 @@ impl<'a, S: Shaper> Flow<'a, S> {
         self.diagnostics.push(FlowDiagnostic { code, page, detail });
     }
 
-    /// Lay out the whole document. See `DP-L-51`.
+    /// Lay out one block range. Use `layout_groups` for explicit section ranges.
     pub fn layout(&mut self, body: &[FlowBlock], sections: &[FlowSection]) -> DocLayout {
-        let mut passes = 0usize;
-        let mut totals = Totals::first_guess(sections.len());
-        loop {
-            passes += 1;
-            let mut run = self.run_pass(body, sections, &totals, passes > 1);
-            // A page total changes the layout only when the document shows one.
-            let needs_totals = self.uses_total_field(body, sections);
-            if needs_totals && run.pages.len() as u32 != totals.pages && passes < MAX_TOTAL_PASSES {
-                totals = Totals {
-                    pages: run.pages.len() as u32,
-                };
-                self.totals = totals.clone();
-                continue;
-            }
-            self.totals = totals;
-            run.passes = passes;
-            return run;
-        }
+        self.layout_groups(&[SectionGroup {
+            blocks: body.to_vec(),
+            section: sections.first().cloned().unwrap_or_default(),
+        }])
     }
 
-    /// True when any story shows a page total, including a header or a footer.
-    fn uses_total_field(&mut self, body: &[FlowBlock], sections: &[FlowSection]) -> bool {
-        fn walk(blocks: &[FlowBlock]) -> bool {
-            for b in blocks {
-                match b {
-                    FlowBlock::Paragraph(p) => {
-                        if p.has_total_field {
-                            return true;
+    /// Fill section ranges with a persistent page builder. A continuation carries its line and
+    /// row cursors to the next page; a continuous section retains the current physical page.
+    pub fn layout_groups(&mut self, groups: &[SectionGroup]) -> DocLayout {
+        let mode = groups
+            .first()
+            .map_or(15, |group| group.section.compatibility_mode);
+        if self.compatibility_mode != mode {
+            self.cache.clear();
+            self.compatibility_mode = mode;
+        }
+        let page_limit = self.max_pages.clamp(1, MAX_PAGES);
+        let mut totals = Totals::first_guess(groups.len());
+        let needs_totals = groups.iter().any(|g| {
+            walk_parts(&g.blocks)
+                || [
+                    &g.section.header,
+                    &g.section.footer,
+                    &g.section.header_first,
+                    &g.section.footer_first,
+                    &g.section.header_even,
+                    &g.section.footer_even,
+                ]
+                .into_iter()
+                .flatten()
+                .any(|part| walk_parts(part))
+        });
+        for pass in 1..=MAX_TOTAL_PASSES {
+            self.counters.clear();
+            self.diagnostics.clear();
+            self.totals = totals.clone();
+            let mut pages = Vec::new();
+            let mut index = BTreeMap::new();
+            let mut membership = vec![std::collections::BTreeSet::new(); groups.len()];
+            let mut current: Option<PageBuilder> = None;
+            let mut note_carry: Vec<NoteBox> = Vec::new();
+            let mut next_number = 1u32;
+            let mut limit_hit = false;
+            for (gi, group) in groups.iter().enumerate() {
+                let section = &group.section;
+                let continuous = matches!(
+                    section.start,
+                    SectionStart::Continuous | SectionStart::NextColumn
+                );
+                let compatible = current.as_ref().is_some_and(|p| {
+                    (p.section.page_w - section.page_w).abs() < 0.01
+                        && (p.section.page_h - section.page_h).abs() < 0.01
+                });
+                if gi > 0 && (!continuous || !compatible) {
+                    if let Some(page) = current.take() {
+                        next_number = page.number.saturating_add(1);
+                        let old_section = page.section.clone();
+                        let old_index = page.section_index;
+                        pages.push(page.finish(self, &mut note_carry));
+                        if !self.drain_note_pages(
+                            &mut pages,
+                            &mut note_carry,
+                            (&old_section, old_index),
+                            &mut next_number,
+                            &mut membership,
+                            page_limit,
+                        ) {
+                            limit_hit = true;
+                            break;
                         }
                     }
-                    FlowBlock::Table(t) => {
-                        for row in &t.rows {
-                            for cell in &row.cells {
-                                if walk(&cell.blocks) {
-                                    return true;
-                                }
+                }
+                if let Some(page) = current.as_mut() {
+                    page.continue_section(section, gi);
+                    if section.start == SectionStart::NextColumn && !page.next_column() {
+                        if let Some(page) = current.take() {
+                            next_number = page.number.saturating_add(1);
+                            let old_section = page.section.clone();
+                            let old_index = page.section_index;
+                            pages.push(page.finish(self, &mut note_carry));
+                            if !self.drain_note_pages(
+                                &mut pages,
+                                &mut note_carry,
+                                (&old_section, old_index),
+                                &mut next_number,
+                                &mut membership,
+                                page_limit,
+                            ) {
+                                limit_hit = true;
+                                break;
                             }
                         }
                     }
-                    _ => {}
                 }
-            }
-            false
-        }
-        if walk(body) {
-            return true;
-        }
-        for section in sections {
-            for part in [
-                section.header.as_ref(),
-                section.footer.as_ref(),
-                section.header_first.as_ref(),
-                section.footer_first.as_ref(),
-                section.header_even.as_ref(),
-                section.footer_even.as_ref(),
-            ]
-            .into_iter()
-            .flatten()
-            {
-                if walk(part) {
-                    return true;
-                }
-            }
-        }
-        false
-    }
-
-    fn run_pass(
-        &mut self,
-        body: &[FlowBlock],
-        sections: &[FlowSection],
-        totals: &Totals,
-        _second: bool,
-    ) -> DocLayout {
-        let mut pages: Vec<PageGeometry> = Vec::new();
-        let mut index: BTreeMap<String, u32> = BTreeMap::new();
-        let mut block_index = 0usize;
-        let mut section_index = 0usize;
-        let mut section = sections.first().cloned().unwrap_or_default();
-        let mut page_number: u32 = section.page_start.unwrap_or(1);
-        let mut current: Option<PageBuilder> = None;
-        let mut pending_break = true;
-        // The blocks that belong to the current section.
-        let mut guard = 0usize;
-        while block_index < body.len() {
-            guard += 1;
-            if guard > body.len() * 4 + 8 {
-                break;
-            }
-            if pending_break {
-                if let Some(page) = current.take() {
-                    pages.push(page.finish(self));
-                }
-                if pages.len() as u32 >= MAX_PAGES {
-                    self.report(
-                        "display.page_limit",
-                        pages.len() as u32,
-                        format!("{MAX_PAGES} pages"),
-                    );
-                    break;
-                }
-                let even = (page_number % 2) == 0;
-                let mut builder = PageBuilder::new(
-                    pages.len() as u32,
-                    page_number,
-                    section.clone(),
-                    section_index,
-                    even,
-                );
-                builder.begin(self, &section, even, pages.is_empty());
-                page_number += 1;
-                current = Some(builder);
-                pending_break = false;
-            }
-            let block = body.get(block_index).cloned();
-            let Some(block) = block else { break };
-            let mut placed = false;
-            if let Some(page) = current.as_mut() {
-                placed = page.push_block(self, &block, totals);
-            }
-            if placed {
-                index.insert(
-                    block.path().to_string(),
-                    current.as_ref().map_or(0, |p| p.index),
-                );
-                block_index += 1;
-                // A section break ends the section after this block.
-                if self.block_ends_section(&block, sections, section_index) {
-                    if let Some(page) = current.take() {
-                        pages.push(page.finish(self));
-                    }
-                    section_index += 1;
-                    if let Some(next) = sections.get(section_index) {
-                        let next = next.clone();
-                        let continuous = next.start == SectionStart::Continuous;
-                        if continuous {
-                            // A continuous break keeps the page and changes the columns.
-                            let even = ((page_number.saturating_sub(1)) % 2) == 0;
-                            let mut builder = PageBuilder::new(
-                                pages.len() as u32,
-                                page_number,
-                                next.clone(),
-                                section_index,
-                                even,
-                            );
-                            builder.begin(self, &next, even, false);
-                            page_number += 1;
-                            current = Some(builder);
-                            pending_break = false;
-                        } else {
-                            pending_break = true;
-                        }
-                        section = next;
-                        if let Some(start) = section.page_start {
-                            page_number = start;
-                        }
-                    } else {
+                if current.is_none() {
+                    if pages.len() as u32 >= page_limit {
+                        limit_hit = true;
                         break;
                     }
-                }
-            } else {
-                // The page is full: flush it and start another in the same section.
-                if let Some(page) = current.take() {
-                    pages.push(page.finish(self));
-                }
-                if pages.len() as u32 >= MAX_PAGES {
-                    self.report(
-                        "display.page_limit",
-                        pages.len() as u32,
-                        format!("{MAX_PAGES} pages"),
-                    );
-                    break;
-                }
-                let even = (page_number % 2) == 0;
-                let mut builder = PageBuilder::new(
-                    pages.len() as u32,
-                    page_number,
-                    section.clone(),
-                    section_index,
-                    even,
-                );
-                builder.begin_continued(self, &section, even);
-                page_number += 1;
-                current = Some(builder);
-            }
-        }
-        if let Some(page) = current.take() {
-            pages.push(page.finish(self));
-        }
-        if pages.is_empty() {
-            // An empty document still shows one page. See DP-X-11.
-            let even = false;
-            let mut builder =
-                PageBuilder::new(0, section.page_start.unwrap_or(1), section.clone(), 0, even);
-            builder.begin(self, &section, even, true);
-            pages.push(builder.finish(self));
-        }
-        DocLayout {
-            pages,
-            index,
-            passes: 1,
-            diagnostics: std::mem::take(&mut self.diagnostics),
-        }
-    }
-
-    fn block_ends_section(
-        &self,
-        block: &FlowBlock,
-        sections: &[FlowSection],
-        index: usize,
-    ) -> bool {
-        // A section mark sits at the end of the last paragraph of a section, so the section
-        // changes when the next section exists and this block is the last of its range.
-        let _ = (block, sections, index);
-        // The caller passes one block list per section, so a section ends at the block that
-        // carries the mark. The facade flattens the sections, so version 1 changes a section
-        // only at an explicit marker block.
-        false
-    }
-
-    /// Lay out a document that holds several sections. Each group starts where its break type
-    /// says: a new page, a new column, or a page of a given parity. See `DP-L-08` and `DP-L-09`.
-    pub fn layout_groups(&mut self, groups: &[SectionGroup]) -> DocLayout {
-        let mut pages: Vec<PageGeometry> = Vec::new();
-        let mut index: BTreeMap<String, u32> = BTreeMap::new();
-        let mut diagnostics: Vec<FlowDiagnostic> = Vec::new();
-        // The page totals that a second pass reads. See `DP-L-52`.
-        let mut totals = Totals {
-            pages: groups.len().max(1) as u32,
-        };
-        let mut passes = 0usize;
-        loop {
-            passes += 1;
-            pages.clear();
-            index.clear();
-            diagnostics.clear();
-            // A pass numbers every list from the start. See `DP-S-14`.
-            self.counters.clear();
-            // Publish the totals, so a footer field reads them. See `DP-L-12`.
-            self.totals = totals.clone();
-            let mut page_number: u32 = 1;
-            let mut pending: Option<u32> = None;
-            for (gi, group) in groups.iter().enumerate() {
-                let start = group.section.start;
-                // Where this section begins.
-                let begin_new_page = gi == 0
-                    || !matches!(start, SectionStart::Continuous | SectionStart::NextColumn);
-                if begin_new_page {
-                    page_number = match group.section.page_start {
-                        Some(n) => n,
-                        None => pending.unwrap_or(page_number),
-                    };
-                    // An odd or even page break adds one blank page when the parity is wrong.
-                    if matches!(start, SectionStart::OddPage | SectionStart::EvenPage)
-                        && !pages.is_empty()
+                    if let Some(n) = section.page_start {
+                        next_number = n;
+                    }
+                    if gi > 0
+                        && matches!(
+                            section.start,
+                            SectionStart::OddPage | SectionStart::EvenPage
+                        )
                     {
-                        let want_odd = start == SectionStart::OddPage;
-                        let next_odd = page_number % 2 == 1;
-                        if want_odd != next_odd {
-                            let blank_even = page_number % 2 == 0;
+                        let want_odd = section.start == SectionStart::OddPage;
+                        if (next_number % 2 == 1) != want_odd {
                             let mut blank = PageBuilder::new(
                                 pages.len() as u32,
-                                page_number,
-                                group.section.clone(),
+                                next_number,
+                                section.clone(),
                                 gi,
-                                blank_even,
+                                next_number % 2 == 0,
                             );
-                            blank.begin(self, &group.section, blank_even, false);
-                            pages.push(blank.finish(self));
-                            page_number += 1;
+                            blank.begin(self, section, next_number % 2 == 0, false);
+                            // The parity page belongs to the preceding section's page count.
+                            if let Some(prev) = membership.get_mut(gi.saturating_sub(1)) {
+                                prev.insert(pages.len() as u32);
+                            }
+                            pages.push(blank.finish(self, &mut note_carry));
+                            next_number = next_number.saturating_add(1);
                         }
                     }
-                    self.run_group(
-                        &group.blocks,
-                        &group.section,
-                        gi,
-                        &mut page_number,
-                        &mut pages,
-                        &mut index,
-                        &mut diagnostics,
-                        &totals,
-                    );
-                    pending = Some(page_number);
-                } else {
-                    // A continuous break keeps the page. Version 1 starts a new column set on a
-                    // fresh page when the column count changes, and reports it. See DP-X-26.
-                    if groups
-                        .get(gi.wrapping_sub(1))
-                        .is_some_and(|p| p.section.columns != group.section.columns)
-                    {
-                        diagnostics.push(FlowDiagnostic {
-                            code: "display.continuous_layout",
-                            page: pages.len() as u32,
-                            detail: format!("column count changes at section {gi}"),
-                        });
+                    if pages.len() as u32 >= page_limit {
+                        limit_hit = true;
+                        break;
                     }
-                    let page_number_copy = page_number;
-                    self.run_group(
-                        &group.blocks,
-                        &group.section,
+                    let mut page = PageBuilder::new(
+                        pages.len() as u32,
+                        next_number,
+                        section.clone(),
                         gi,
-                        &mut page_number,
-                        &mut pages,
-                        &mut index,
-                        &mut diagnostics,
-                        &totals,
+                        next_number % 2 == 0,
                     );
-                    if page_number == page_number_copy && pages.last().is_some() {
-                        // The group continued on the page that the previous section ended on.
+                    page.begin(self, section, next_number % 2 == 0, true);
+                    page.receive_notes(&mut note_carry);
+                    current = Some(page);
+                }
+                if pages.len() as u32 >= page_limit {
+                    limit_hit = true;
+                    break;
+                }
+                // Even an empty section owns the physical page on which it starts.
+                if let Some(page) = current.as_ref() {
+                    membership[gi].insert(page.index);
+                }
+                let mut block_index = 0;
+                let mut balance_from = 0;
+                let mut balance_snapshot = current.clone();
+                let mut balance_counters = self.counters.clone();
+                while let Some(block) = group.blocks.get(block_index) {
+                    let Some(page) = current.as_mut() else { break };
+                    membership[gi].insert(page.index);
+                    let placed = self.push_kept_block(page, &group.blocks[block_index..], &totals);
+                    index.entry(block.path().to_string()).or_insert(page.index);
+                    if placed {
+                        block_index += 1;
+                        continue;
                     }
-                    pending = Some(page_number);
+                    let Some(mut previous) = current.take() else {
+                        break;
+                    };
+                    let break_origin = previous.next_break;
+                    let previous_gap = previous.prev_after.clone();
+                    let lines = std::mem::take(&mut previous.line_cursors);
+                    let rows = std::mem::take(&mut previous.table_cursors);
+                    let labels = std::mem::take(&mut previous.list_labels);
+                    next_number = previous.number.saturating_add(1);
+                    pages.push(previous.finish(self, &mut note_carry));
+                    if pages.len() as u32 >= page_limit {
+                        limit_hit = true;
+                        break;
+                    }
+                    let mut next = PageBuilder::new(
+                        pages.len() as u32,
+                        next_number,
+                        section.clone(),
+                        gi,
+                        next_number % 2 == 0,
+                    );
+                    next.list_labels = labels;
+                    next.begin(self, section, next_number % 2 == 0, false);
+                    next.receive_notes(&mut note_carry);
+                    next.starts_after = break_origin;
+                    next.prev_after = previous_gap;
+                    next.line_cursors = lines;
+                    next.table_cursors = rows;
+                    balance_from = block_index;
+                    balance_snapshot = Some(next.clone());
+                    balance_counters = self.counters.clone();
+                    current = Some(next);
+                }
+                if !limit_hit
+                    && section.columns > 1
+                    && section.v_align == VAlign::Top
+                    && groups
+                        .get(gi + 1)
+                        .is_some_and(|g| g.section.start == SectionStart::Continuous)
+                {
+                    if let Some(snapshot) = balance_snapshot {
+                        if let Some((balanced, counters)) = self.balance_columns(
+                            &snapshot,
+                            &balance_counters,
+                            &group.blocks[balance_from..],
+                            &totals,
+                        ) {
+                            current = Some(balanced);
+                            self.counters = counters;
+                        }
+                    }
+                }
+                if limit_hit {
+                    break;
                 }
             }
-            let found = pages.len() as u32;
-            let needs_totals = groups.iter().any(|g| {
-                let blocks = |bs: &[FlowBlock]| {
-                    fn walk(b: &[FlowBlock]) -> bool {
-                        b.iter().any(|x| match x {
-                            FlowBlock::Paragraph(p) => p.has_total_field,
-                            _ => false,
-                        })
-                    }
-                    walk(bs)
-                };
-                blocks(&g.blocks)
-                    || [
-                        g.section.header.as_ref(),
-                        g.section.footer.as_ref(),
-                        g.section.header_first.as_ref(),
-                        g.section.footer_first.as_ref(),
-                    ]
-                    .into_iter()
-                    .flatten()
-                    .any(|part| walk_parts(part))
-            });
-            if needs_totals && found != totals.pages && passes < MAX_TOTAL_PASSES {
-                totals = Totals { pages: found };
+            if let Some(page) = current.take() {
+                let section = page.section.clone();
+                let section_index = page.section_index;
+                next_number = page.number.saturating_add(1);
+                pages.push(page.finish(self, &mut note_carry));
+                if !self.drain_note_pages(
+                    &mut pages,
+                    &mut note_carry,
+                    (&section, section_index),
+                    &mut next_number,
+                    &mut membership,
+                    page_limit,
+                ) {
+                    limit_hit = true;
+                }
+            }
+            if pages.is_empty() {
+                let section = FlowSection::default();
+                let mut page = PageBuilder::new(0, 1, section.clone(), 0, false);
+                page.begin(self, &section, false, true);
+                pages.push(page.finish(self, &mut note_carry));
+            }
+            if limit_hit {
+                self.report(
+                    "display.page_limit",
+                    pages.len() as u32,
+                    format!("{page_limit} pages"),
+                );
+            }
+            let found = Totals {
+                pages: pages.len() as u32,
+                section_pages: membership.iter().map(|p| p.len() as u32).collect(),
+            };
+            if needs_totals && found != totals && pass < MAX_TOTAL_PASSES {
+                totals = found;
                 continue;
             }
-            self.totals = totals;
+            if needs_totals && found != totals {
+                self.report(
+                    "display.field_totals_unstable",
+                    0,
+                    "Page totals did not converge".into(),
+                );
+            }
+            self.totals = found;
+            if groups
+                .iter()
+                .any(|group| section_has_numbered_story(&group.section))
+            {
+                for page in &mut pages {
+                    let Some(group) = groups.get(page.decoration_section) else {
+                        continue;
+                    };
+                    let section = &group.section;
+                    let mut decoration = PageBuilder::new(
+                        page.index,
+                        page.number,
+                        section.clone(),
+                        page.decoration_section,
+                        page.even,
+                    );
+                    decoration.final_decorations = true;
+                    decoration.begin(self, section, page.even, page.decoration_first);
+                    let count = page.decoration_count.min(page.fragments.len());
+                    page.decoration_count = decoration.decorations.len();
+                    page.fragments.splice(..count, decoration.decorations);
+                }
+            }
             return DocLayout {
                 pages,
                 index,
-                passes,
-                diagnostics,
+                passes: pass,
+                diagnostics: std::mem::take(&mut self.diagnostics),
             };
+        }
+        // The bounded pass loop always returns a layout.
+        DocLayout {
+            pages: Vec::new(),
+            index: BTreeMap::new(),
+            passes: 0,
+            diagnostics: Vec::new(),
         }
     }
 
-    /// Lay out one section's blocks into the page list.
-    #[allow(clippy::too_many_arguments)]
-    fn run_group(
+    fn drain_note_pages(
         &mut self,
-        body: &[FlowBlock],
-        section: &FlowSection,
-        section_index: usize,
-        page_number: &mut u32,
         pages: &mut Vec<PageGeometry>,
-        index: &mut BTreeMap<String, u32>,
-        diagnostics: &mut Vec<FlowDiagnostic>,
-        totals: &Totals,
-    ) {
-        let mut even = *page_number % 2 == 0;
-        let mut first_page = true;
-        let mut builder = PageBuilder::new(
-            pages.len() as u32,
-            *page_number,
-            section.clone(),
-            section_index,
-            even,
-        );
-        builder.begin(self, section, even, first_page);
-        let mut current: Option<PageBuilder> = Some(builder);
-        let mut block_index = 0usize;
-        let mut guard = 0usize;
-        while block_index < body.len() {
-            guard += 1;
-            if guard > body.len() * 4 + 8 {
-                break;
+        carry: &mut Vec<NoteBox>,
+        section: (&FlowSection, usize),
+        next_number: &mut u32,
+        membership: &mut [std::collections::BTreeSet<u32>],
+        page_limit: u32,
+    ) -> bool {
+        let (section, section_index) = section;
+        while !carry.is_empty() {
+            if pages.len() as u32 >= page_limit {
+                return false;
             }
-            let Some(block) = body.get(block_index) else {
-                break;
-            };
-            let placed = current
-                .as_mut()
-                .is_some_and(|p| p.push_block(self, block, totals));
-            if placed {
-                if let Some(p) = current.as_ref() {
-                    index.insert(block.path().to_string(), p.index);
-                }
-                block_index += 1;
-                continue;
-            }
-            // The page is full: flush it and start another in the same section.
-            if let Some(page) = current.take() {
-                pages.push(page.finish(self));
-            }
-            if pages.len() as u32 >= MAX_PAGES {
-                diagnostics.push(FlowDiagnostic {
-                    code: "display.page_limit",
-                    page: pages.len() as u32,
-                    detail: format!("{MAX_PAGES} pages"),
-                });
-                return;
-            }
-            *page_number += 1;
-            even = *page_number % 2 == 0;
-            first_page = false;
-            let mut next = PageBuilder::new(
+            let number = *next_number;
+            let mut page = PageBuilder::new(
                 pages.len() as u32,
-                *page_number,
+                number,
                 section.clone(),
                 section_index,
-                even,
+                number % 2 == 0,
             );
-            next.begin(self, section, even, first_page);
-            current = Some(next);
+            page.begin(self, section, number % 2 == 0, false);
+            page.receive_notes(carry);
+            if let Some(member) = membership.get_mut(section_index) {
+                member.insert(page.index);
+            }
+            pages.push(page.finish(self, carry));
+            *next_number = number.saturating_add(1);
         }
-        if let Some(page) = current.take() {
-            let empty = page.fragments.is_empty() && page.decorations.is_empty();
-            let page = page.finish(self);
-            // A page with no body fragment and no header is not worth a page. A section that the
-            // document ends with, or one that holds no block, adds nothing. See DP-X-11.
-            if !empty || pages.is_empty() || !page.fragments.is_empty() {
-                pages.push(page);
-                *page_number += 1;
+        true
+    }
+
+    fn push_kept_block(
+        &mut self,
+        page: &mut PageBuilder,
+        blocks: &[FlowBlock],
+        totals: &Totals,
+    ) -> bool {
+        let Some(block) = blocks.first() else {
+            return true;
+        };
+        loop {
+            let column = page.current_column();
+            let keep_height = self.keep_chain_height(blocks, column.w);
+            if !page.line_cursors.contains_key(block.path())
+                && page.y > column.y + 0.5
+                && keep_height > page.bottom - page.y
+                && keep_height <= column.h
+            {
+                if page.next_column() {
+                    page.starts_after = BreakOrigin::ConsumedBefore;
+                    continue;
+                }
+                page.next_break = BreakOrigin::ConsumedBefore;
+                return false;
+            }
+            return page.push_block(self, block, totals);
+        }
+    }
+
+    /// As in WordCraft's balance_columns: retry only the final page at successively shorter
+    /// column heights, restoring list state on every probe. Explicit breaks keep their positions.
+    fn balance_columns(
+        &mut self,
+        snapshot: &PageBuilder,
+        counters: &ListCounters,
+        blocks: &[FlowBlock],
+        totals: &Totals,
+    ) -> Option<(PageBuilder, ListCounters)> {
+        if blocks.iter().any(
+            |b| matches!(b, FlowBlock::Paragraph(p) if p.text.contains(['\u{000C}', '\u{000E}'])),
+        ) {
+            return None;
+        }
+        let full = snapshot.current_column().h;
+        let mut probe = |height: f32| {
+            let saved_counters = std::mem::replace(&mut self.counters, counters.clone());
+            let saved_diagnostics = std::mem::take(&mut self.diagnostics);
+            let mut page = snapshot.clone();
+            for column in &mut page.columns {
+                column.h = height;
+            }
+            page.bottom = page.current_column().bottom();
+            let mut fits = true;
+            for i in 0..blocks.len() {
+                if !self.push_kept_block(&mut page, &blocks[i..], totals) {
+                    fits = false;
+                    break;
+                }
+            }
+            let bottom = page.current_column().bottom();
+            fits &= fragments_rect(&page.fragments[snapshot.fragments.len()..]).bottom()
+                <= bottom + 0.01;
+            let result = fits.then(|| (page, self.counters.clone()));
+            self.counters = saved_counters;
+            self.diagnostics = saved_diagnostics;
+            result
+        };
+        let mut best = probe(full)?;
+        let mut low = 1.0;
+        let mut high = full;
+        for _ in 0..12 {
+            if high - low <= 0.25 {
+                break;
+            }
+            let mid = (low + high) / 2.0;
+            if let Some(result) = probe(mid) {
+                high = mid;
+                best = result;
+            } else {
+                low = mid;
             }
         }
+        Some(best)
+    }
+
+    fn keep_chain_height(&mut self, blocks: &[FlowBlock], width: f32) -> f32 {
+        if !matches!(blocks.first(), Some(FlowBlock::Paragraph(p)) if p.para.keep_next) {
+            return 0.0;
+        }
+        let mut height = 0.0;
+        let mut after = 0.0f32;
+        for block in blocks {
+            match block {
+                FlowBlock::Paragraph(p) => {
+                    let layout = self.paragraph_layout(
+                        p,
+                        (width - p.para.indent_left - p.para.indent_right).max(1.0),
+                        &[],
+                        p.para.indent_first,
+                    );
+                    // Wordcraft's keep-with-next lookahead reserves each paragraph's
+                    // before and after spacing. Actual placement still collapses gaps.
+                    height += after + p.para.space_before;
+                    if p.para.keep_next || p.para.keep_lines {
+                        height += layout.height;
+                    } else {
+                        height += layout
+                            .lines
+                            .iter()
+                            .take(if p.para.widow_control { 2 } else { 1 })
+                            .map(|l| l.height)
+                            .sum::<f32>();
+                    }
+                    if !p.para.keep_next {
+                        break;
+                    }
+                    after = p.para.space_after;
+                }
+                FlowBlock::Table(t) => {
+                    height += table_row_heights(self, t, width, &BTreeMap::new())
+                        .first()
+                        .copied()
+                        .unwrap_or(0.0);
+                    break;
+                }
+                FlowBlock::EndnoteSeparator { .. } => {
+                    height += 20.0;
+                    break;
+                }
+                FlowBlock::Picture { height: h, .. } | FlowBlock::Placeholder { height: h, .. } => {
+                    height += h;
+                    break;
+                }
+            }
+        }
+        height
     }
 
     /// Shape a paragraph, or take it from the cache. See `DP-E-21`.
@@ -1107,32 +1319,114 @@ impl<'a, S: Shaper> Flow<'a, S> {
         let hits_exclusions = !exclusions.is_empty() || first_indent.abs() > 0.001;
         if !hits_exclusions {
             if let Some(cached) = self.cache.get(&key) {
-                return cached.layout.clone();
+                if cached.width == width
+                    && cached.source.text == para.text
+                    && cached.source.runs == para.runs
+                    && cached.source.run_styles == para.run_styles
+                    && cached.source.mark_style == para.mark_style
+                    && cached.source.para == para.para
+                    && cached.source.objects == para.objects
+                {
+                    return cached.layout.clone();
+                }
             }
+        }
+        // Paragraph text is laid out relative to its left indent, whereas DOCX tab
+        // positions are relative to the column margin. Convert into local coordinates.
+        let mut tabs: Vec<_> = para
+            .para
+            .tabs
+            .iter()
+            .map(|tab| edgedoc_text::TabStop {
+                pos: tab.pos - para.para.indent_left,
+                ..*tab
+            })
+            .collect();
+        // A hanging indent supplies an implicit left tab at the text indent. The
+        // explicit stop wins when both occupy the same position, as in Wordcraft.
+        if para.para.indent_first < 0.0 {
+            tabs.push(edgedoc_text::TabStop {
+                pos: 0.0,
+                align: edgedoc_text::TabAlign::Left,
+                leader: None,
+            });
         }
         let input = BreakInput {
             text: &para.text,
             runs: &para.runs,
             styles: &para.run_styles,
+            mark_style: para.mark_style,
             width,
+            tab_margins: Some((-para.para.indent_left, width + para.para.indent_right)),
             indent_left: 0.0,
             indent_right: 0.0,
             indent_first: first_indent,
             align: para.para.align,
+            shrink_justified_spaces: self.compatibility_mode >= 15,
             bidi: para.para.bidi,
-            tabs: &para.para.tabs,
+            tabs: &tabs,
             default_tab: para.para.default_tab,
             exclusions,
-            word_wrap_off: false,
-            kinsoku: true,
+            word_wrap_off: !para.para.word_wrap,
+            kinsoku: para.para.kinsoku,
             objects: &para.objects,
             hyphen_after: &[],
         };
-        let layout = std::sync::Arc::new(layout_paragraph(self.shaper, &input));
+        let mut shaped = layout_paragraph(self.shaper, &input);
+        // Word adds only a label's excess ascent to automatic line spacing;
+        // the label's descent does not enlarge the text line. Symbol and
+        // Wingdings have Word-specific metrics when absent or one em tall.
+        let label_extra = if !para.para.line_exact && !para.para.line_at_least {
+            para.list
+                .as_ref()
+                .and_then(|list| {
+                    let font = list.font.as_deref().unwrap_or("");
+                    let size = para.para.label_size.unwrap_or_else(|| {
+                        para.run_styles.first().map_or(11.0, |style| style.size)
+                    });
+                    let face = para.para.label_face;
+                    let (asc, desc, gap) = self
+                        .shaper
+                        .line_metrics(face.unwrap_or(para.para.label_fallback_face), size);
+                    let one_em = size > 0.0 && ((asc + desc + gap) / size - 1.0).abs() < 0.02;
+                    let symbol_ascent = match font.trim().to_ascii_lowercase().as_str() {
+                        "symbol" | "symbol (pcl6)" => Some(1.005 * size),
+                        "wingdings" => Some(0.899 * size),
+                        _ => None,
+                    };
+                    let label_ascent = if (face.is_none() && !font.is_empty()) || one_em {
+                        symbol_ascent.unwrap_or(asc + gap.max(0.0))
+                    } else {
+                        asc + gap.max(0.0)
+                    };
+                    shaped
+                        .lines
+                        .first()
+                        .map(|line| (label_ascent - (line.baseline - line.top)).max(0.0))
+                })
+                .unwrap_or(0.0)
+        } else {
+            0.0
+        };
+        apply_line_spacing(&mut shaped, &para.para, self.shaper, &para.run_styles);
+        if label_extra > 0.0 {
+            if let Some(first) = shaped.lines.first_mut() {
+                first.height += label_extra;
+                first.baseline += label_extra;
+            }
+            for line in shaped.lines.iter_mut().skip(1) {
+                line.top += label_extra;
+                line.baseline += label_extra;
+            }
+            shaped.height += label_extra;
+        }
+        let layout = std::sync::Arc::new(shaped);
         if !hits_exclusions {
             self.cache.insert(
                 key,
                 ShapedParagraph {
+                    width,
+                    source: para.clone(),
                     layout: layout.clone(),
                 },
             );
@@ -1142,6 +1436,69 @@ impl<'a, S: Shaper> Flow<'a, S> {
 }
 
 /// True when a header or footer part shows a page total.
+fn apply_line_spacing<S: Shaper>(
+    layout: &mut ParagraphLayout,
+    para: &ComputedPara,
+    shaper: &S,
+    styles: &[RunStyle],
+) {
+    if para.line_height <= 0.0 || !para.line_height.is_finite() {
+        return;
+    }
+    let mut top = 0.0;
+    for line in &mut layout.lines {
+        let natural = line.height;
+        let picture_height = layout
+            .clusters
+            .get(line.c0..line.c1)
+            .unwrap_or(&[])
+            .iter()
+            .filter(|cluster| matches!(cluster.kind, edgedoc_text::ClusterKind::Object(_)))
+            .map(|cluster| cluster.obj_h)
+            .fold(0.0f32, f32::max);
+        let mut text_ascent = 0.0f32;
+        let mut text_descent = 0.0f32;
+        let mut ascent_with_gap = 0.0f32;
+        if picture_height > 0.0 {
+            for cluster in layout.clusters.get(line.c0..line.c1).unwrap_or(&[]) {
+                if let Some(style) = styles.get(cluster.style as usize) {
+                    let (asc, desc, gap) = shaper.line_metrics(style.face, style.line_size);
+                    text_ascent = text_ascent.max(asc + style.line_shift.max(0.0));
+                    text_descent = text_descent.max(desc + (-style.line_shift).max(0.0));
+                    ascent_with_gap =
+                        ascent_with_gap.max(asc + gap.max(0.0) + style.line_shift.max(0.0));
+                }
+            }
+        }
+        let height = if para.line_exact {
+            para.line_height.max(1.0)
+        } else if para.line_at_least {
+            natural.max(para.line_height)
+        } else {
+            // w:line is in 240ths of a line for auto, stored by the cascade in twips/20.
+            if picture_height > text_ascent {
+                ((ascent_with_gap.max(text_ascent) + text_descent) * para.line_height / 12.0)
+                    .max(picture_height + text_descent)
+                    .max(1.0)
+            } else {
+                (natural * para.line_height / 12.0).max(1.0)
+            }
+        };
+        let ascent = line.baseline - line.top;
+        line.top = top;
+        // Wordcraft para::lines::baseline_offset: fixed/minimum spacing keeps the font's
+        // descent below the baseline; multiple spacing above single adds leading below it.
+        line.baseline = if para.line_exact || para.line_at_least {
+            top + height - line.text_desc
+        } else {
+            top + ascent * (para.line_height / 12.0).min(1.0)
+        };
+        line.height = height;
+        top += height;
+    }
+    layout.height = top;
+}
+
 fn walk_parts(blocks: &[FlowBlock]) -> bool {
     blocks.iter().any(|b| match b {
         FlowBlock::Paragraph(p) => p.has_total_field,
@@ -1183,13 +1540,20 @@ fn hash_styles(styles: &[RunStyle]) -> u64 {
 }
 
 /// A page being filled.
+#[derive(Clone)]
 struct PageBuilder {
+    starts_after: BreakOrigin,
+    next_break: BreakOrigin,
     index: u32,
     number: u32,
     section: FlowSection,
     section_index: usize,
+    decoration_section: usize,
+    decoration_first: bool,
+    final_decorations: bool,
     even: bool,
     fragments: Vec<Fragment>,
+    page_pictures_behind: Vec<Fragment>,
     /// The y where the next block starts, in page coordinates.
     y: f32,
     /// The bottom of the body area.
@@ -1201,6 +1565,8 @@ struct PageBuilder {
     columns: Vec<Rect>,
     /// Notes waiting for the page bottom.
     notes: Vec<NoteBox>,
+    note_separator: Vec<Fragment>,
+    note_separator_height: f32,
     /// The header and footer fragments, already placed.
     decorations: Vec<Fragment>,
     /// The page totals that a field shows.
@@ -1214,12 +1580,168 @@ struct PageBuilder {
     /// The space after the last paragraph on the page, its style, and whether the paragraph is a
     /// list item. The gap to the next paragraph is the larger of this value and the next
     /// paragraph's space before, which is what Word does. See `DP-L-43`.
-    prev_after: Option<(f32, String, bool)>,
+    prev_after: Option<(f32, String, bool, bool)>,
+    list_labels: BTreeMap<String, String>,
+    pending_break: Option<edgedoc_text::LineEnd>,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
+enum BreakOrigin {
+    #[default]
+    Automatic,
+    /// The paragraph's leading gap was already considered before an automatic break.
+    ConsumedBefore,
+    Inline,
+    Paragraph,
+}
+
+#[derive(Clone)]
 struct NoteBox {
-    text: String,
+    id: i32,
+    fragments: Vec<Fragment>,
     height: f32,
+    separator: Vec<Fragment>,
+    separator_height: f32,
+    continuation_separator: Vec<Fragment>,
+    continuation_separator_height: f32,
+    continuation_notice: Vec<Fragment>,
+    continuation_notice_height: f32,
+    continued: bool,
+}
+
+impl NoteBox {
+    /// Find line bottoms that can split the note without cutting an unsplittable object.
+    fn cuts(&self) -> Vec<f32> {
+        let mut cuts = Vec::new();
+        let mut last_top = f32::MIN;
+        let blocked = self
+            .fragments
+            .iter()
+            .filter_map(|fragment| match fragment {
+                Fragment::Paragraph(_) | Fragment::Rule { .. } => None,
+                Fragment::Table(table) => Some(table.rect),
+                Fragment::Picture { rect, .. } | Fragment::Placeholder { rect, .. } => Some(*rect),
+            })
+            .collect::<Vec<_>>();
+        for fragment in &self.fragments {
+            if let Fragment::Paragraph(para) = fragment {
+                if let Some(first) = para.layout.lines.get(para.l0) {
+                    for line in para.layout.lines.iter().take(para.l1).skip(para.l0) {
+                        let top = para.rect.y + line.top - first.top;
+                        last_top = last_top.max(top);
+                        cuts.push(top + line.height);
+                    }
+                }
+            }
+        }
+        cuts.retain(|cut| {
+            *cut > 0.01
+                && *cut <= last_top + 0.01
+                && !blocked
+                    .iter()
+                    .any(|rect| rect.y < *cut - 0.01 && rect.bottom() > *cut + 0.01)
+        });
+        cuts.sort_by(f32::total_cmp);
+        cuts.dedup_by(|a, b| (*a - *b).abs() < 0.01);
+        cuts
+    }
+
+    fn first_piece(&self) -> f32 {
+        self.cuts()
+            .first()
+            .copied()
+            .unwrap_or(self.height)
+            .min(self.height)
+    }
+
+    fn split(self, cut: f32) -> (Self, Self) {
+        let mut head = Vec::new();
+        let mut tail = Vec::new();
+        for fragment in self.fragments {
+            let rect = fragments_rect(std::slice::from_ref(&fragment));
+            if rect.bottom() <= cut + 0.01 {
+                head.push(fragment);
+            } else if rect.y >= cut - 0.01 {
+                tail.push(fragment);
+            } else if let Fragment::Paragraph(para) = fragment {
+                let first_top = para.layout.lines.get(para.l0).map_or(0.0, |line| line.top);
+                let split = (para.l0..para.l1)
+                    .find(|index| {
+                        para.layout.lines.get(*index).map_or(true, |line| {
+                            para.rect.y + line.top - first_top + line.height > cut + 0.01
+                        })
+                    })
+                    .unwrap_or(para.l1);
+                let tail_y = para
+                    .layout
+                    .lines
+                    .get(split)
+                    .map_or(para.rect.bottom(), |line| {
+                        para.rect.y + line.top - first_top
+                    });
+                if split > para.l0 {
+                    let mut part = para.clone();
+                    part.l1 = split;
+                    part.rect.h = (tail_y - para.rect.y).max(0.0);
+                    part.continues_after = true;
+                    part.links.retain(|(rect, _)| rect.y < tail_y - 0.01);
+                    head.push(Fragment::Paragraph(part));
+                }
+                if split < para.l1 {
+                    let mut part = para;
+                    part.l0 = split;
+                    part.rect.h = (part.rect.bottom() - tail_y).max(0.0);
+                    part.rect.y = tail_y;
+                    part.label = None;
+                    part.continues_before = true;
+                    part.links.retain(|(rect, _)| rect.bottom() > tail_y + 0.01);
+                    tail.push(Fragment::Paragraph(part));
+                }
+            } else {
+                head.push(fragment);
+            }
+        }
+        let start = tail
+            .iter()
+            .filter_map(|fragment| match fragment {
+                Fragment::Paragraph(para) => Some(para.rect.y),
+                _ => None,
+            })
+            .fold(f32::MAX, f32::min);
+        let start = if start == f32::MAX {
+            cut
+        } else {
+            start.max(cut)
+        };
+        for fragment in &mut tail {
+            shift_fragment(fragment, 0.0, -start);
+        }
+        let head_note = Self {
+            id: self.id,
+            fragments: head,
+            height: cut,
+            separator: self.separator.clone(),
+            separator_height: self.separator_height,
+            continuation_separator: self.continuation_separator.clone(),
+            continuation_separator_height: self.continuation_separator_height,
+            continuation_notice: self.continuation_notice.clone(),
+            continuation_notice_height: self.continuation_notice_height,
+            continued: self.continued,
+        };
+        let tail_note = Self {
+            id: self.id,
+            fragments: tail,
+            height: (self.height - start).max(0.0),
+            separator: self.separator,
+            separator_height: self.separator_height,
+            continuation_separator: self.continuation_separator,
+            continuation_separator_height: self.continuation_separator_height,
+            continuation_notice: self.continuation_notice,
+            continuation_notice_height: self.continuation_notice_height,
+            continued: true,
+        };
+        (head_note, tail_note)
+    }
 }
 
 impl PageBuilder {
@@ -1231,24 +1753,34 @@ impl PageBuilder {
         even: bool,
     ) -> Self {
         Self {
+            starts_after: BreakOrigin::Automatic,
+            next_break: BreakOrigin::Automatic,
             index,
             number,
             section,
             section_index,
+            decoration_section: section_index,
+            decoration_first: false,
+            final_decorations: false,
             even,
             fragments: Vec::new(),
+            page_pictures_behind: Vec::new(),
             y: 0.0,
             bottom: 0.0,
             body: Rect::default(),
             column: 0,
             columns: Vec::new(),
             notes: Vec::new(),
+            note_separator: Vec::new(),
+            note_separator_height: 0.0,
             decorations: Vec::new(),
             totals: Totals::default(),
             body_fragments: Vec::new(),
             table_cursors: BTreeMap::new(),
             line_cursors: BTreeMap::new(),
             prev_after: None,
+            list_labels: BTreeMap::new(),
+            pending_break: None,
         }
     }
 
@@ -1259,52 +1791,70 @@ impl PageBuilder {
         even: bool,
         first_page: bool,
     ) {
+        self.decoration_first = first_page;
         self.totals = flow.totals.clone();
-        let body = section.body_rect();
+        let body = section.body_rect_on(even);
         self.body = body;
         self.columns = column_rects(section, body);
         self.column = 0;
         self.y = self.columns.first().map_or(body.y, |c| c.y);
         self.bottom = self.columns.first().map_or(body.bottom(), |c| c.bottom());
         self.decorations = self.build_decorations(flow, section, even, first_page);
-        // A tall header moves the body down. See DP-L-19.
-        let mut header_bottom = body.y;
-        for fragment in &self.decorations {
-            if let Fragment::Paragraph(p) = fragment {
-                if p.rect.y < body.y {
-                    header_bottom = header_bottom.max(p.rect.bottom());
-                }
-            }
-        }
-        if header_bottom > body.y {
-            let delta = header_bottom - body.y + 2.0;
-            if delta > body.h * 0.5 {
-                flow.report(
-                    "display.header_overflow",
-                    self.index,
-                    format!("header takes {delta:.1} pt"),
-                );
-                self.bottom = body.bottom();
-            } else {
-                self.y += delta;
-                self.body = Rect::new(body.x, body.y + delta, body.w, (body.h - delta).max(1.0));
-                self.columns = column_rects(section, self.body);
-                self.bottom = self
-                    .columns
-                    .first()
-                    .map_or(self.body.bottom(), |c| c.bottom());
-                self.y = self.columns.first().map_or(self.body.y, |c| c.y);
-            }
+        // Decorations reserve their measured height before the first body block is placed.
+        self.columns = column_rects(section, self.body);
+        self.y = self.columns.first().map_or(self.body.y, |c| c.y);
+        self.bottom = self
+            .columns
+            .first()
+            .map_or(self.body.bottom(), |c| c.bottom());
+    }
+
+    fn continue_section(&mut self, section: &FlowSection, section_index: usize) {
+        let columns_changed = self.section.columns != section.columns
+            || self.section.column_space != section.column_space;
+        self.section_index = section_index;
+        self.section = section.clone();
+        if columns_changed || section.columns > 1 {
+            let bottom = (fragments_rect(&self.fragments).bottom()
+                + trailing_space(&self.fragments))
+            .max(self.y);
+            let region = Rect::new(
+                self.body.x,
+                bottom,
+                self.body.w,
+                (self.body.bottom() - bottom).max(1.0),
+            );
+            self.columns = column_rects(section, region);
+            self.column = 0;
+            self.y = region.y;
+            self.prev_after = None;
         }
     }
 
-    fn begin_continued<S: Shaper>(
-        &mut self,
-        flow: &mut Flow<'_, S>,
-        section: &FlowSection,
-        even: bool,
-    ) {
-        self.begin(flow, section, even, false);
+    fn resolve(&self, p: &FlowParagraph) -> FlowParagraph {
+        with_fields(
+            p,
+            self.number,
+            self.section_index,
+            &self.section.page_fmt,
+            &self.totals,
+        )
+    }
+
+    fn resolve_table(&self, t: &FlowTable) -> FlowTable {
+        let mut table = t.clone();
+        for row in &mut table.rows {
+            for cell in &mut row.cells {
+                for block in &mut cell.blocks {
+                    match block {
+                        FlowBlock::Paragraph(p) => *p = self.resolve(p),
+                        FlowBlock::Table(t) => *t = self.resolve_table(t),
+                        _ => {}
+                    }
+                }
+            }
+        }
+        table
     }
 
     fn build_decorations<S: Shaper>(
@@ -1316,39 +1866,73 @@ impl PageBuilder {
     ) -> Vec<Fragment> {
         let mut out = Vec::new();
         // Header: first page, then even, then default. See DP-L-17.
-        let header = if first_page && section.header_first.is_some() {
+        let header = if first_page && section.title_page {
             section.header_first.as_ref()
-        } else if even && section.header_even.is_some() {
-            section.header_even.as_ref()
+        } else if even && section.even_and_odd {
+            section.header_even.as_ref().or(section.header.as_ref())
         } else {
             section.header.as_ref()
         };
         if let Some(blocks) = header {
             let band = Rect::new(
-                section.margin_left + section.gutter,
-                (section.margin_top - section.header_dist).max(2.0),
+                self.body.x,
+                section.header_dist.max(0.0),
                 (section.page_w - section.margin_left - section.margin_right - section.gutter)
                     .max(1.0),
-                section.header_dist.max(8.0),
+                section.page_h,
             );
-            out.extend(self.blocks_in_band(flow, blocks, band, false));
+            let fragments = self.blocks_in_band(flow, blocks, band);
+            let bottom = fragments_rect(&fragments).bottom() + trailing_space(&fragments);
+            if !fragments.is_empty() && bottom > self.body.y {
+                let end = self.body.bottom();
+                self.body.y = bottom;
+                self.body.h = (end - bottom).max(1.0);
+            }
+            out.extend(fragments);
         }
-        let footer = if first_page && section.footer_first.is_some() {
+        let footer = if first_page && section.title_page {
             section.footer_first.as_ref()
-        } else if even && section.footer_even.is_some() {
-            section.footer_even.as_ref()
+        } else if even && section.even_and_odd {
+            section.footer_even.as_ref().or(section.footer.as_ref())
         } else {
             section.footer.as_ref()
         };
         if let Some(blocks) = footer {
             let band = Rect::new(
-                section.margin_left + section.gutter,
-                section.page_h - section.margin_bottom + 2.0,
+                self.body.x,
+                0.0,
                 (section.page_w - section.margin_left - section.margin_right - section.gutter)
                     .max(1.0),
-                (section.margin_bottom - 2.0).max(8.0),
+                section.page_h,
             );
-            out.extend(self.blocks_in_band(flow, blocks, band, false));
+            if self.final_decorations && blocks_have_numbering(blocks) {
+                let labels = std::mem::take(&mut self.list_labels);
+                self.blocks_in_band(flow, blocks, band);
+                self.list_labels = labels;
+            }
+            let mut fragments = self.blocks_in_band(flow, blocks, band);
+            if !fragments.is_empty() {
+                let ink = fragments_rect(&fragments);
+                let shift = section.page_h
+                    - section.footer_dist
+                    - ink.bottom()
+                    - trailing_space(&fragments);
+                for fragment in &mut fragments {
+                    shift_fragment(fragment, 0.0, shift);
+                }
+                let top = ink.y + shift;
+                if top < self.body.bottom() {
+                    self.body.h = (top - self.body.y).max(1.0);
+                }
+                if top < self.body.y {
+                    flow.report(
+                        "display.header_overflow",
+                        self.index,
+                        "Headers and footers leave no body area".into(),
+                    );
+                }
+            }
+            out.extend(fragments);
         }
         out
     }
@@ -1359,21 +1943,66 @@ impl PageBuilder {
         flow: &mut Flow<'_, S>,
         blocks: &[FlowBlock],
         band: Rect,
-        collect_notes: bool,
     ) -> Vec<Fragment> {
         let mut out = Vec::new();
         let mut y = band.y;
-        let limit = band.bottom();
         for block in blocks {
             match block {
+                FlowBlock::EndnoteSeparator { .. } => {
+                    out.push(endnote_separator(band.x, y, band.w));
+                    y += 20.0;
+                }
                 FlowBlock::Paragraph(p) => {
                     let resolved;
-                    let p = if p.text.contains(PAGE_MARKER) || p.text.contains(TOTAL_MARKER) {
-                        resolved = with_fields(p, self.number, &self.totals);
+                    let p = if has_fields(&p.text) {
+                        resolved = self.resolve(p);
                         &resolved
                     } else {
                         p
                     };
+                    if let (true, Some(list)) = (p.path.starts_with("part["), p.list.as_ref()) {
+                        let label = self
+                            .list_labels
+                            .entry(p.path.clone())
+                            .or_insert_with(|| flow.next_label(list))
+                            .clone();
+                        if !p.para.footer_page_frame {
+                            y += p.para.space_before;
+                        }
+                        let (layout, left, label_rect) =
+                            cell_paragraph_layout(flow, p, band.w, Some(&label));
+                        let height = layout.height;
+                        let rect = Rect::new(
+                            band.x + left,
+                            y,
+                            (band.w - left - p.para.indent_right).max(1.0),
+                            height,
+                        );
+                        let pictures =
+                            inline_picture_fragments(p, &layout, rect, 0, layout.lines.len());
+                        out.push(Fragment::Paragraph(ParagraphFragment {
+                            path: p.path.clone(),
+                            text: std::sync::Arc::from(p.text.as_str()),
+                            label: label_rect
+                                .map(|(x, w)| (label, Rect::new(band.x + x, y, w, height))),
+                            rect,
+                            l0: 0,
+                            l1: layout.lines.len(),
+                            para: p.para.clone(),
+                            run_styles: p.run_styles.clone(),
+                            layout,
+                            continues_before: false,
+                            continues_after: false,
+                            rtl: p.para.bidi,
+                            revision: p.revision,
+                            links: Vec::new(),
+                        }));
+                        out.extend(pictures);
+                        if !p.para.footer_page_frame {
+                            y += height + p.para.space_after;
+                        }
+                        continue;
+                    }
                     let label = p.label.as_deref().unwrap_or("");
                     let label_w = if label.is_empty() {
                         0.0
@@ -1388,17 +2017,21 @@ impl PageBuilder {
                             .len() as f32
                             * 5.0
                     };
-                    let width = (band.w - label_w).max(1.0);
-                    let layout = flow.paragraph_layout(p, width, &[], 0.0);
-                    let height = layout.height;
-                    if y + height > limit && y > band.y {
-                        break;
+                    let width =
+                        (band.w - label_w - p.para.indent_left - p.para.indent_right).max(1.0);
+                    if !p.para.footer_page_frame {
+                        y += p.para.space_before;
                     }
+                    let layout = flow.paragraph_layout(p, width, &[], p.para.indent_first);
+                    let height = layout.height;
+                    let rect = Rect::new(band.x + label_w + p.para.indent_left, y, width, height);
+                    let pictures =
+                        inline_picture_fragments(p, &layout, rect, 0, layout.lines.len());
                     out.push(Fragment::Paragraph(ParagraphFragment {
                         path: p.path.clone(),
                         text: std::sync::Arc::from(p.text.as_str()),
                         label: None,
-                        rect: Rect::new(band.x + label_w, y, width, height),
+                        rect,
                         l0: 0,
                         l1: layout.lines.len(),
                         para: p.para.clone(),
@@ -1410,16 +2043,33 @@ impl PageBuilder {
                         revision: p.revision,
                         links: Vec::new(),
                     }));
-                    y += height + p.para.space_after;
+                    out.extend(pictures);
+                    if !p.para.footer_page_frame {
+                        y += height + p.para.space_after;
+                    }
                 }
                 FlowBlock::Table(t) => {
+                    let resolved = self.resolve_table(t);
+                    let t = &resolved;
+                    assign_table_list_labels(flow, t, &mut self.list_labels);
+                    let width = if t.preferred_width.is_some() {
+                        table_width(t, band.w)
+                    } else {
+                        table_width(t, band.w).min(band.w)
+                    };
+                    let x = match t.align {
+                        Align::Center => band.x + (band.w - width) / 2.0,
+                        Align::Right => band.right() - width,
+                        _ => band.x + t.indent,
+                    };
                     let (fragment, height) = build_table_fragment(
                         flow,
                         t,
-                        Rect::new(band.x, y, band.w, 0.0),
+                        Rect::new(x, y, width, 0.0),
                         0,
                         t.rows.len(),
                         false,
+                        &self.list_labels,
                     );
                     out.push(Fragment::Table(fragment));
                     y += height;
@@ -1430,6 +2080,7 @@ impl PageBuilder {
                     height,
                     alt,
                     resource,
+                    src,
                     align,
                 } => {
                     let x = match align {
@@ -1440,6 +2091,7 @@ impl PageBuilder {
                     out.push(Fragment::Picture {
                         rect: Rect::new(x, y, *width, *height),
                         resource: *resource,
+                        src: *src,
                         alt: alt.clone(),
                     });
                     let _ = path;
@@ -1465,16 +2117,6 @@ impl PageBuilder {
                     y += height;
                 }
             }
-            if collect_notes {
-                if let FlowBlock::Paragraph(p) = block {
-                    for note in &p.notes {
-                        self.notes.push(NoteBox {
-                            text: note.clone(),
-                            height: 12.0,
-                        });
-                    }
-                }
-            }
         }
         out
     }
@@ -1487,24 +2129,59 @@ impl PageBuilder {
         totals: &Totals,
     ) -> bool {
         self.totals = totals.clone();
+        if let Some(kind) = self.pending_break.take() {
+            self.next_break = BreakOrigin::Inline;
+            if kind == edgedoc_text::LineEnd::PageBreak || !self.next_column() {
+                return false;
+            }
+            self.starts_after = BreakOrigin::Inline;
+        }
         match block {
             FlowBlock::Paragraph(p) => self.push_paragraph(flow, p),
-            FlowBlock::Table(t) => self.push_table(flow, t),
+            FlowBlock::Table(t) => self.push_table(flow, &self.resolve_table(t)),
+            FlowBlock::EndnoteSeparator { blocks, .. } => {
+                let column = self.current_column();
+                self.y += self.prev_after.take().map_or(0.0, |(after, _, _, _)| after);
+                if blocks.is_empty() {
+                    self.fragments
+                        .push(endnote_separator(column.x, self.y, column.w));
+                    self.y += 20.0;
+                } else {
+                    let (mut fragments, height) =
+                        self.layout_note_separator(flow, blocks, false, column);
+                    for fragment in &mut fragments {
+                        shift_fragment(fragment, 0.0, self.y);
+                    }
+                    self.fragments.extend(fragments);
+                    self.y += height;
+                }
+                true
+            }
             FlowBlock::Picture {
                 width,
                 height,
                 alt,
                 resource,
+                src,
                 align,
                 ..
             } => {
                 let column = self.current_column();
-                if self.y + height > self.bottom && self.y > column.y {
+                let gap = if self.y > column.y + 0.5 {
+                    self.prev_after
+                        .as_ref()
+                        .map_or(0.0, |(after, _, _, _)| *after)
+                } else {
+                    0.0
+                };
+                if self.y + gap + height > self.bottom && self.y > column.y {
                     if self.next_column() {
                         return self.push_block(flow, block, totals);
                     }
                     return false;
                 }
+                self.y += gap;
+                self.prev_after = None;
                 let x = match align {
                     Align::Center => column.x + (column.w - width) / 2.0,
                     Align::Right => column.right() - width,
@@ -1517,6 +2194,7 @@ impl PageBuilder {
                 self.fragments.push(Fragment::Picture {
                     rect,
                     resource: *resource,
+                    src: *src,
                     alt: alt.clone(),
                 });
                 self.y += height;
@@ -1561,7 +2239,12 @@ impl PageBuilder {
             self.column += 1;
             let c = self.current_column();
             self.y = c.y;
-            self.bottom = c.bottom();
+            let reserved = if self.notes.is_empty() {
+                0.0
+            } else {
+                self.note_separator_height + self.notes.iter().map(|note| note.height).sum::<f32>()
+            };
+            self.bottom = c.bottom() - reserved;
             return true;
         }
         false
@@ -1570,21 +2253,30 @@ impl PageBuilder {
     fn push_paragraph<S: Shaper>(&mut self, flow: &mut Flow<'_, S>, p: &FlowParagraph) -> bool {
         // A page field shows this page's number, so the paragraph is resolved per page.
         let resolved;
-        let p = if p.text.contains(PAGE_MARKER) || p.text.contains(TOTAL_MARKER) {
-            resolved = with_fields(p, self.number, &self.totals);
+        let p = if has_fields(&p.text) {
+            resolved = self.resolve(p);
             &resolved
         } else {
             p
         };
         let column = self.current_column();
-        if p.para.page_break_before && self.y > column.y + 0.5 {
+        if p.para.page_break_before
+            && !self.line_cursors.contains_key(&p.path)
+            && self.y > column.y + 0.5
+        {
+            self.next_break = BreakOrigin::Paragraph;
             return false;
         }
         // A paragraph that continues from an earlier page starts at the line cursor.
         let start_line = self.line_cursors.get(&p.path).copied().unwrap_or(0);
         // A list item takes its number from the running counter, once, on its first line.
         let numbered = if start_line == 0 {
-            p.list.as_ref().map(|l| flow.next_label(l))
+            p.list.as_ref().map(|l| {
+                self.list_labels
+                    .entry(p.path.clone())
+                    .or_insert_with(|| flow.next_label(l))
+                    .clone()
+            })
         } else {
             None
         };
@@ -1593,23 +2285,98 @@ impl PageBuilder {
         } else {
             numbered.or_else(|| p.label.clone()).unwrap_or_default()
         };
-        let label_w = if label.is_empty() {
+        let measure_label = self
+            .list_labels
+            .get(&p.path)
+            .map(String::as_str)
+            .unwrap_or(&label);
+        let label_w = if measure_label.is_empty() {
             0.0
         } else {
-            let size = p.run_styles.first().map_or(11.0, |s| s.size);
+            let size = p
+                .para
+                .label_size
+                .unwrap_or_else(|| p.run_styles.first().map_or(11.0, |s| s.size));
+            let face = p.para.label_face.unwrap_or(p.para.label_fallback_face);
             flow.shaper
-                .shape_run(0, &label, size, false)
+                .shape_run_kerning(face, measure_label, size, false, p.para.label_kerning)
                 .iter()
-                .map(|g| flow.shaper.advance(0, g.gid, size))
+                .map(|g| g.advance)
                 .sum::<f32>()
                 + 6.0
         };
-        let width = (column.w - label_w - p.para.indent_left - p.para.indent_right).max(1.0);
-        // The first-line indent applies to the first line of the paragraph only. See DP-F-39.
-        let first_indent = if start_line == 0 {
-            p.para.indent_first
-        } else {
+        // A left-aligned bullet with a tab suffix occupies the hanging indent;
+        // the text itself begins at the paragraph's left indent.
+        let hanging_bullet = p.list.as_ref().is_some_and(|list| {
+            list.format == "bullet"
+                && (list.suffix.is_empty() || list.suffix == "tab")
+                && (list.justification.is_empty() || list.justification == "left")
+        }) && p.para.indent_first < 0.0
+            && label_w - 6.0 <= -p.para.indent_first
+            && !measure_label.is_empty();
+        // Wordcraft positions a numeric label at the first-line indent, then places text at
+        // the next list or paragraph tab (or after the label for a space/nothing suffix).
+        let numeric_label = p
+            .list
+            .as_ref()
+            .filter(|list| list.format != "bullet" && !measure_label.is_empty())
+            .map(|list| {
+                let at = p.para.indent_left + p.para.indent_first;
+                let glyph_width = (label_w - 6.0).max(0.0);
+                let label_x = match list.justification.as_str() {
+                    "right" | "end" => at - glyph_width,
+                    "center" => at - glyph_width / 2.0,
+                    _ => at,
+                };
+                let end = label_x + glyph_width;
+                let text_x = match list.suffix.as_str() {
+                    "nothing" => end,
+                    "space" => {
+                        end + p
+                            .para
+                            .label_size
+                            .unwrap_or_else(|| p.run_styles.first().map_or(11.0, |s| s.size))
+                            * 0.25
+                    }
+                    _ => {
+                        let step = if p.para.default_tab > 0.0 {
+                            p.para.default_tab
+                        } else {
+                            36.0
+                        };
+                        let default = ((end + 0.01) / step).floor().mul_add(step, step);
+                        let explicit = p
+                            .para
+                            .tabs
+                            .iter()
+                            .filter(|tab| tab.pos > end + 0.01)
+                            .map(|tab| tab.pos)
+                            .chain(
+                                (p.para.indent_first < 0.0 && p.para.indent_left > end + 0.01)
+                                    .then_some(p.para.indent_left),
+                            )
+                            .reduce(f32::min)
+                            .unwrap_or(default);
+                        list.tab
+                            .filter(|pos| *pos > end + 0.01)
+                            .map_or(explicit, |pos| pos.min(explicit))
+                    }
+                };
+                (label_x, text_x)
+            });
+        let label_reserve = if hanging_bullet || numeric_label.is_some() {
             0.0
+        } else {
+            label_w
+        };
+        let width = (column.w - label_reserve - p.para.indent_left - p.para.indent_right).max(1.0);
+        // A hanging bullet uses the first-line indent for the label rather than the text.
+        let first_indent = if let Some((_, text_x)) = numeric_label {
+            text_x - p.para.indent_left
+        } else if hanging_bullet {
+            0.0
+        } else {
+            p.para.indent_first
         };
         let layout = flow.paragraph_layout(p, width, &[], first_indent);
         let line_count = layout.lines.len();
@@ -1621,24 +2388,69 @@ impl PageBuilder {
         // above is the larger of its space after and this space before, not the sum. Word drops
         // the space at the top of a page, and a continuation has none. See `DP-L-43`.
         let mut space_before = p.para.space_before;
-        if self.y <= column.y + 0.5 || start_line > 0 {
+        let at_top = self.y <= column.y + 0.5;
+        if start_line > 0
+            || (at_top
+                && (self.starts_after == BreakOrigin::ConsumedBefore
+                    || self.starts_after == BreakOrigin::Inline
+                    || (self.starts_after == BreakOrigin::Paragraph
+                        && self.section.compatibility_mode >= 15)))
+        {
             space_before = 0.0;
-        } else if let Some((after, prev_style, prev_listed)) = self.prev_after.clone() {
+        } else if at_top {
+            if let Some((after, _, _, _)) = &self.prev_after {
+                space_before = (space_before - after.max(0.0)).max(0.0);
+            }
+        } else if let Some((after, prev_style, prev_listed, prev_auto)) = self.prev_after.clone() {
             let same_style = prev_style == p.para.style_id;
             let contextual = p.para.contextual_spacing && same_style;
             if contextual {
                 // Contextual spacing drops the gap between two paragraphs of one style.
                 space_before = 0.0;
             } else if prev_listed && p.list.is_some() {
-                // Two list items of one list sit closer than the paragraph spacing asks.
-                space_before = space_before.min(after);
+                if prev_auto || p.para.space_before_auto {
+                    let before = if p.para.space_before_auto {
+                        0.0
+                    } else {
+                        space_before
+                    };
+                    let after = if prev_auto { 0.0 } else { after };
+                    space_before = before.max(after);
+                } else {
+                    space_before = space_before.max(after);
+                }
             } else {
                 space_before = space_before.max(after);
             }
         }
+        if self.index == 0 && p.path == "body[0]" && p.para.space_before_auto {
+            space_before = 0.0;
+        }
+        self.starts_after = BreakOrigin::Automatic;
+        let border_room = |border: Option<Border>| {
+            border.filter(|b| b.style.is_visible()).map_or(0.0, |b| {
+                b.space
+                    + b.width.max(if b.style == BorderStyle::Thick {
+                        1.5
+                    } else {
+                        0.25
+                    })
+            })
+        };
+        let top_room = if start_line == 0 && !p.border_join_above {
+            border_room(p.para.borders.top)
+        } else {
+            0.0
+        };
+        let bottom_room = if p.border_join_below {
+            0.0
+        } else {
+            border_room(p.para.borders.bottom)
+        };
         let available = self.bottom - self.y - space_before;
         // Keep-lines and keep-next move the paragraph whole when it can fit a page.
-        let full_height = layout.height + space_before + p.para.space_after;
+        let full_height =
+            layout.height + space_before + p.para.space_after + top_room + bottom_room;
         // A kept-together paragraph that does not fit this page moves on whole, unless it cannot
         // fit any page. See `DP-L-05`.
         if p.para.keep_lines
@@ -1646,17 +2458,76 @@ impl PageBuilder {
             && full_height <= column.h
             && self.y > column.y + 0.5
         {
+            if self.next_column() {
+                return self.push_paragraph(flow, p);
+            }
             return false;
         }
-        let mut top = self.y + space_before;
+        let mut top = self.y + space_before + top_room;
         let mut line_index = start_line;
         let mut any = false;
+        let mut pending_notes: Vec<(usize, NoteBox)> = Vec::new();
+        let mut pending_height = 0.0f32;
         while line_index < line_count {
             let line = match layout.lines.get(line_index) {
                 Some(l) => l,
                 None => break,
             };
-            if top + line.height > self.bottom + 0.001 {
+            let ending_room = if line_index + 1 == line_count {
+                bottom_room
+            } else {
+                0.0
+            };
+            // At the page's bottom margin, Word lets the extra leading from
+            // multiple spacing extend below the margin as long as the text
+            // itself fits. Notes and footer-reduced areas need the full line.
+            let at_margin = self.bottom >= self.section.page_h - self.section.margin_bottom - 0.01;
+            let extra_leading = !p.para.line_exact
+                && !p.para.line_at_least
+                && p.para.line_height > 12.0
+                && at_margin
+                && self.notes.is_empty()
+                && p.notes.is_empty();
+            let fit_height = if extra_leading {
+                (line.baseline - line.top + line.text_desc).clamp(0.0, line.height)
+            } else {
+                line.height
+            };
+            let mut line_notes = Vec::new();
+            for note in &p.notes {
+                if note.offset >= line.start
+                    && note.offset < line.stop
+                    && !self.notes.iter().any(|placed| placed.id == note.id)
+                    && !pending_notes.iter().any(|(_, placed)| placed.id == note.id)
+                    && !line_notes
+                        .iter()
+                        .any(|(_, placed): &(usize, NoteBox)| placed.id == note.id)
+                {
+                    line_notes.push((note.offset, self.layout_note(flow, note)));
+                }
+            }
+            let line_notes_height = line_notes.iter().map(|(_, note)| note.height).sum::<f32>();
+            let separator =
+                if self.notes.is_empty() && pending_notes.is_empty() && !line_notes.is_empty() {
+                    line_notes[0].1.separator_height
+                } else {
+                    0.0
+                };
+            let required = top + fit_height + ending_room;
+            let fits_full =
+                required <= self.bottom - pending_height - line_notes_height - separator + 0.001;
+            let fits_first_piece = line_notes.split_last().is_some_and(|((_, last), prior)| {
+                let before = prior.iter().map(|(_, note)| note.height).sum::<f32>();
+                required
+                    <= self.bottom
+                        - pending_height
+                        - separator
+                        - before
+                        - last.first_piece()
+                        - last.continuation_notice_height
+                        + 0.001
+            });
+            if !fits_full && !fits_first_piece {
                 // The first line of a fragment must fit on this page when the page already holds
                 // content. Otherwise the page is full. See DP-L-05.
                 if !any && self.y > column.y + 0.5 {
@@ -1666,30 +2537,48 @@ impl PageBuilder {
                     break;
                 }
             }
+            pending_height += line_notes_height + separator;
+            pending_notes.extend(line_notes);
             top += line.height;
             line_index += 1;
             any = true;
+            if matches!(
+                line.end,
+                edgedoc_text::LineEnd::PageBreak | edgedoc_text::LineEnd::ColumnBreak
+            ) {
+                break;
+            }
         }
         if !any {
             // Not one line fits. When the column already holds something, the page is full and
             // the caller starts another page. See DP-L-05.
             if self.y > column.y + 0.5 {
                 if self.next_column() {
+                    self.starts_after = BreakOrigin::ConsumedBefore;
                     return self.push_paragraph(flow, p);
                 }
+                self.next_break = BreakOrigin::ConsumedBefore;
                 return false;
             }
             // A paragraph alone taller than the page splits here. See DP-F-40.
             flow.report("display.page_overflow", self.index, p.path.clone());
-            let line = match layout.lines.first() {
-                Some(l) => l,
-                None => return true,
-            };
-            top = self.y + line.height;
+            if layout.lines.get(start_line).is_none() {
+                return true;
+            }
             line_index = start_line + 1;
         }
         // Widow and orphan control: a split leaves at least two lines on each page. See DP-F-26.
-        if p.para.widow_control && line_index < line_count {
+        let hard_break = layout
+            .lines
+            .get(line_index.saturating_sub(1))
+            .map(|l| l.end);
+        if p.para.widow_control
+            && line_index < line_count
+            && !matches!(
+                hard_break,
+                Some(edgedoc_text::LineEnd::PageBreak | edgedoc_text::LineEnd::ColumnBreak)
+            )
+        {
             // One line alone on a page is an orphan, which Word refuses.
             if line_index - start_line == 1
                 && line_count - start_line > 2
@@ -1704,9 +2593,35 @@ impl PageBuilder {
                 line_index = line_index.saturating_sub(1).max(start_line + 1);
             }
         }
-        let fragment_top = self.y + space_before;
+        let placed_end = layout
+            .lines
+            .get(line_index.saturating_sub(1))
+            .map_or(0, |line| line.stop);
+        pending_notes.retain(|(offset, _)| *offset < placed_end);
+        if !pending_notes.is_empty() {
+            if self.notes.is_empty() {
+                self.note_separator_height = pending_notes[0].1.separator_height;
+                self.note_separator = pending_notes[0].1.separator.clone();
+                self.bottom -= self.note_separator_height;
+            }
+            for (_, note) in pending_notes {
+                self.bottom -= note.height;
+                self.notes.push(note);
+            }
+        }
+        top = self.y
+            + space_before
+            + top_room
+            + layout
+                .lines
+                .iter()
+                .skip(start_line)
+                .take(line_index - start_line)
+                .map(|l| l.height)
+                .sum::<f32>();
+        let fragment_top = self.y + space_before + top_room;
         let rect = Rect::new(
-            column.x + label_w + p.para.indent_left,
+            column.x + label_reserve + p.para.indent_left,
             fragment_top,
             width,
             (top - fragment_top).max(0.0),
@@ -1717,9 +2632,32 @@ impl PageBuilder {
         } else {
             Some((
                 label.clone(),
-                Rect::new(column.x, fragment_top, label_w.max(1.0), top - fragment_top),
+                Rect::new(
+                    if let Some((label_x, _)) = numeric_label {
+                        let shift = layout
+                            .lines
+                            .first()
+                            .and_then(|line| line.xs.first())
+                            .map_or(0.0, |x| x - first_indent);
+                        column.x + label_x + shift
+                    } else if hanging_bullet {
+                        column.x + p.para.indent_left + p.para.indent_first
+                    } else {
+                        column.x
+                    },
+                    fragment_top,
+                    label_w.max(1.0),
+                    top - fragment_top,
+                ),
             ))
         };
+        let mut fragment_para = p.para.clone();
+        if p.border_join_above {
+            fragment_para.borders.top = None;
+        }
+        if p.border_join_below {
+            fragment_para.borders.bottom = None;
+        }
         self.fragments.push(Fragment::Paragraph(ParagraphFragment {
             path: p.path.clone(),
             text: std::sync::Arc::from(p.text.as_str()),
@@ -1727,7 +2665,7 @@ impl PageBuilder {
             rect,
             l0: start_line,
             l1: line_index,
-            para: p.para.clone(),
+            para: fragment_para,
             run_styles: p.run_styles.clone(),
             layout: layout.clone(),
             continues_before: start_line > 0,
@@ -1736,37 +2674,115 @@ impl PageBuilder {
             revision: p.revision,
             links: link_rects(&layout, &p.links, rect),
         }));
+        self.fragments.extend(inline_picture_fragments(
+            p, &layout, rect, start_line, line_index,
+        ));
+        for line in layout.lines.iter().take(line_index).skip(start_line) {
+            for cluster in &layout.clusters[line.c0..line.c1] {
+                if let edgedoc_text::ClusterKind::Object(index) = cluster.kind {
+                    if let Some((_, picture)) =
+                        p.page_pictures.iter().find(|(object, _)| *object == index)
+                    {
+                        self.page_pictures_behind.push(Fragment::Picture {
+                            rect: Rect::new(
+                                picture.x.position(self.section.page_w, picture.width),
+                                picture.y.position(self.section.page_h, picture.height),
+                                picture.width,
+                                picture.height,
+                            ),
+                            resource: picture.resource,
+                            src: picture.src,
+                            alt: picture.alt.clone(),
+                        });
+                    }
+                }
+            }
+        }
         // The gap between two paragraphs belongs to the pair, and the next paragraph decides it
         // from `prev_after` as the larger of the two spaces. Adding the space after here would
         // count it twice. See `DP-L-43`.
-        self.y = top;
-        if !continues_after && !p.notes.is_empty() {
-            for note in &p.notes {
-                self.notes.push(NoteBox {
-                    text: note.clone(),
-                    height: 12.0,
-                });
-            }
-        }
+        self.y = top + if continues_after { 0.0 } else { bottom_room };
         if continues_after {
             // The rest of the paragraph continues on the next page or column.
             self.line_cursors.insert(p.path.clone(), line_index);
-            if self.next_column() {
+            if hard_break.is_some_and(|kind| {
+                matches!(
+                    kind,
+                    edgedoc_text::LineEnd::PageBreak | edgedoc_text::LineEnd::ColumnBreak
+                )
+            }) {
+                self.next_break = BreakOrigin::Inline;
+            }
+            if !matches!(hard_break, Some(edgedoc_text::LineEnd::PageBreak)) && self.next_column() {
                 return self.push_paragraph(flow, p);
             }
             return false;
         }
         self.line_cursors.remove(&p.path);
+        self.list_labels.remove(&p.path);
+        if matches!(
+            hard_break,
+            Some(edgedoc_text::LineEnd::PageBreak | edgedoc_text::LineEnd::ColumnBreak)
+        ) {
+            self.pending_break = hard_break;
+        }
         self.prev_after = Some((
             p.para.space_after,
             p.para.style_id.clone(),
             p.list.is_some(),
+            p.para.space_after_auto,
         ));
         true
     }
 
     fn push_table<S: Shaper>(&mut self, flow: &mut Flow<'_, S>, t: &FlowTable) -> bool {
+        // An empty table has no remaining rows. Retrying it on each page cannot make progress.
+        if t.rows.is_empty() {
+            return true;
+        }
+        // An automatic table follows its contents even when a preferred grid is present.
+        // Restrict this path to simple cells whose measured widths fit in the column.
+        if t.auto_width && !t.layout_fixed && t.rows.iter().all(|row| row.grid_before == 0 && row.grid_after == 0 && row.cells.iter().all(|cell|
+            cell.span == 1 && cell.width.is_none() && cell.blocks.iter().all(|block|
+                matches!(block, FlowBlock::Paragraph(p) if !p.text.contains('\t') && p.para.align == Align::Left))))
+        {
+            let columns = t.rows.iter().map(|row| row.cells.len()).max().unwrap_or(0);
+            if columns > 0 {
+                let mut widths = vec![4.0f32; columns];
+                let mut has_content = false;
+                for row in &t.rows {
+                    for (col, cell) in row.cells.iter().enumerate() {
+                        let mut content = 0.0f32;
+                        for block in &cell.blocks {
+                            if let FlowBlock::Paragraph(p) = block {
+                                has_content |= !p.text.is_empty();
+                                let layout = flow.paragraph_layout(p, self.current_column().w, &[], p.para.indent_first);
+                                content = content.max(layout.max_width + p.para.indent_left + p.para.indent_right);
+                            }
+                        }
+                        widths[col] = widths[col].max(content + cell.margins[1] + cell.margins[3]);
+                    }
+                }
+                if has_content && widths.iter().sum::<f32>() <= self.current_column().w {
+                    let mut measured = t.clone();
+                    measured.widths = widths;
+                    measured.auto_width = false;
+                    return self.push_table(flow, &measured);
+                }
+            }
+        }
         let column = self.current_column();
+        assign_table_list_labels(flow, t, &mut self.list_labels);
+        // A paragraph's trailing spacing precedes the following table. Do not defer it
+        // until the next paragraph, which shifts the table while leaving later text fixed.
+        if self.table_row_cursor(&t.path) == 0 {
+            let after = self.prev_after.take().map_or(0.0, |(after, _, _, _)| after);
+            // A page or column starts with a fresh y position. The preceding paragraph's
+            // after-spacing was left on its previous page and must not move this table.
+            if self.y > column.y + 0.5 {
+                self.y += after;
+            }
+        }
         if t.floating {
             // A floating table takes its own space in version 1, at the current position.
             let (fragment, height) = build_table_fragment(
@@ -1776,31 +2792,61 @@ impl PageBuilder {
                 0,
                 t.rows.len(),
                 false,
+                &self.list_labels,
             );
             self.fragments.push(Fragment::Table(fragment));
             self.y += height;
             return true;
         }
-        let width = column.w.min(table_width(t, column.w));
+        let grid_width: f32 = t.widths.iter().sum();
+        // Wordcraft retains a modestly wider preferred grid when the automatic table's
+        // cells request widths. A bare grid without cell widths remains content-fitted.
+        let keep_grid = t.auto_width
+            && grid_width.is_finite()
+            && grid_width > 0.0
+            && (t.layout_fixed
+                || (grid_width > column.w
+                    && grid_width <= column.w * 1.5
+                    && t.rows
+                        .iter()
+                        .any(|row| row.cells.iter().any(|cell| cell.width.is_some()))));
+        let width = if t.preferred_width.is_some() {
+            table_width(t, column.w)
+        } else if keep_grid {
+            grid_width.min(100_000.0)
+        } else {
+            column.w.min(table_width(t, column.w))
+        };
         let x = match t.align {
             Align::Center => column.x + (column.w - width) / 2.0,
             Align::Right => column.right() - width,
             _ => column.x + t.indent,
         };
+        let row_heights = table_row_heights(flow, t, width, &self.list_labels);
         let start_row = self.table_row_cursor(&t.path);
         let mut rows_placed = 0usize;
-        let mut height_total = 0.0f32;
+        let repeated = start_row > 0 && t.rows.iter().take(start_row).any(|row| row.header);
+        let mut height_total = if repeated {
+            t.rows
+                .iter()
+                .enumerate()
+                .take(start_row)
+                .filter(|(_, row)| row.header)
+                .map(|(i, _)| row_heights.get(i).copied().unwrap_or(0.0))
+                .sum()
+        } else {
+            0.0
+        };
         // Measure row by row, and stop when the page is full.
         let mut r = start_row;
         while r < t.rows.len() {
-            let row_h = row_height(flow, t, r, width);
+            let row_h = row_heights.get(r).copied().unwrap_or(0.0);
             if self.y + height_total + row_h > self.bottom + 0.001 && rows_placed > 0 {
                 break;
             }
             // A first row that cannot fit moves on whole, unless it may split. See `DP-L-38`.
             if self.y + height_total + row_h > self.bottom + 0.001
                 && rows_placed == 0
-                && !t.rows.get(r).is_some_and(|row| row.cant_split)
                 && self.y > column.y + 0.5
             {
                 break;
@@ -1810,9 +2856,11 @@ impl PageBuilder {
             r += 1;
         }
         if rows_placed == 0 {
+            if self.next_column() {
+                return self.push_table(flow, t);
+            }
             return false;
         }
-        let repeated = start_row > 0 && t.rows.iter().any(|row| row.header);
         let (fragment, height) = build_table_fragment(
             flow,
             t,
@@ -1820,12 +2868,16 @@ impl PageBuilder {
             start_row,
             start_row + rows_placed,
             repeated,
+            &self.list_labels,
         );
         self.fragments.push(Fragment::Table(fragment));
         self.y += height;
         if start_row + rows_placed < t.rows.len() {
             // The table continues on the next page.
             self.set_table_row_cursor(&t.path, start_row + rows_placed);
+            if self.next_column() {
+                return self.push_table(flow, t);
+            }
             return false;
         }
         self.clear_table_row_cursor(&t.path);
@@ -1844,10 +2896,129 @@ impl PageBuilder {
         self.table_cursors.remove(path);
     }
 
-    fn finish<S: Shaper>(mut self, flow: &mut Flow<'_, S>) -> PageGeometry {
+    fn layout_note<S: Shaper>(&mut self, flow: &mut Flow<'_, S>, note: &FlowNote) -> NoteBox {
+        let band = Rect::new(self.body.x, 0.0, self.body.w, self.body.h);
+        let fragments = self.blocks_in_band(flow, &note.blocks, band);
+        let height = if fragments.is_empty() {
+            0.0
+        } else {
+            fragments_rect(&fragments).bottom() + trailing_space(&fragments)
+        };
+        let (separator, separator_height) =
+            self.layout_note_separator(flow, &note.separator, false, self.body);
+        let (continuation_separator, continuation_separator_height) =
+            self.layout_note_separator(flow, &note.continuation_separator, true, self.body);
+        let continuation_notice = self.blocks_in_band(flow, &note.continuation_notice, band);
+        let continuation_notice_height = if continuation_notice.is_empty() {
+            0.0
+        } else {
+            fragments_rect(&continuation_notice).bottom() + trailing_space(&continuation_notice)
+        };
+        NoteBox {
+            id: note.id,
+            fragments,
+            height,
+            separator,
+            separator_height,
+            continuation_separator,
+            continuation_separator_height,
+            continuation_notice,
+            continuation_notice_height,
+            continued: false,
+        }
+    }
+
+    fn layout_note_separator<S: Shaper>(
+        &mut self,
+        flow: &mut Flow<'_, S>,
+        blocks: &[FlowBlock],
+        continuation: bool,
+        area: Rect,
+    ) -> (Vec<Fragment>, f32) {
+        let band = Rect::new(area.x, 0.0, area.w, area.h);
+        let mut separator = self.blocks_in_band(flow, blocks, band);
+        let separator_height = if separator.is_empty() {
+            separator.push(Fragment::Rule {
+                rect: Rect::new(
+                    area.x,
+                    5.75,
+                    if continuation {
+                        area.w
+                    } else {
+                        144.0_f32.min(area.w)
+                    },
+                    0.5,
+                ),
+                border: Border {
+                    width: 0.5,
+                    color: Rgba::BLACK,
+                    style: BorderStyle::Single,
+                    space: 0.0,
+                },
+            });
+            12.0
+        } else {
+            let extent = fragments_rect(&separator).bottom() + trailing_space(&separator);
+            let mut rules = Vec::new();
+            for fragment in &separator {
+                if let Fragment::Paragraph(para) = fragment {
+                    if para.path.starts_with("footnote-separator[")
+                        || para.path.starts_with("footnote-continuation-separator[")
+                    {
+                        if let Some(line) = para.layout.lines.first() {
+                            rules.push(Fragment::Rule {
+                                rect: Rect::new(
+                                    para.rect.x,
+                                    para.rect.y + line.height / 2.0 - 0.25,
+                                    if continuation {
+                                        para.rect.w
+                                    } else {
+                                        144.0_f32.min(para.rect.w)
+                                    },
+                                    0.5,
+                                ),
+                                border: Border {
+                                    width: 0.5,
+                                    color: Rgba::BLACK,
+                                    style: BorderStyle::Single,
+                                    space: 0.0,
+                                },
+                            });
+                        }
+                    }
+                }
+            }
+            separator.extend(rules);
+            extent
+        };
+        (separator, separator_height)
+    }
+
+    fn receive_notes(&mut self, carry: &mut Vec<NoteBox>) {
+        if carry.is_empty() {
+            return;
+        }
+        self.notes = std::mem::take(carry);
+        if self.notes[0].continued {
+            self.note_separator_height = self.notes[0].continuation_separator_height;
+            self.note_separator = self.notes[0].continuation_separator.clone();
+        } else {
+            self.note_separator_height = self.notes[0].separator_height;
+            self.note_separator = self.notes[0].separator.clone();
+        }
+        self.bottom -=
+            self.note_separator_height + self.notes.iter().map(|note| note.height).sum::<f32>();
+    }
+
+    fn finish<S: Shaper>(
+        mut self,
+        flow: &mut Flow<'_, S>,
+        carry: &mut Vec<NoteBox>,
+    ) -> PageGeometry {
+        let footnote_ids = self.notes.iter().map(|note| note.id).collect();
         // Place the notes at the bottom of the body, after the body fragments.
         if !self.notes.is_empty() {
-            self.place_notes(flow);
+            carry.extend(self.place_notes(flow));
         }
         // Vertical alignment moves the body. See DP-L-03.
         if matches!(self.section.v_align, VAlign::Center | VAlign::Bottom)
@@ -1855,10 +3026,17 @@ impl PageBuilder {
         {
             self.body_fragments = std::mem::take(&mut self.fragments);
         }
-        if matches!(self.section.v_align, VAlign::Center) && !self.body_fragments.is_empty() {
+        if matches!(self.section.v_align, VAlign::Center | VAlign::Bottom)
+            && !self.body_fragments.is_empty()
+        {
             let ink = fragments_rect(&self.body_fragments);
-            let free = (self.body.bottom() - ink.bottom()).max(0.0);
-            let shift = free / 2.0;
+            let free =
+                (self.body.bottom() - ink.bottom() - trailing_space(&self.body_fragments)).max(0.0);
+            let shift = if self.section.v_align == VAlign::Bottom {
+                free
+            } else {
+                free / 2.0
+            };
             if shift > 0.5 {
                 for f in &mut self.body_fragments {
                     shift_fragment(f, 0.0, shift);
@@ -1866,13 +3044,14 @@ impl PageBuilder {
             }
         }
         let mut fragments = std::mem::take(&mut self.decorations);
+        let decoration_count = fragments.len();
         let ordered = if self.body_fragments.is_empty() {
             std::mem::take(&mut self.fragments)
         } else {
             std::mem::take(&mut self.body_fragments)
         };
         // A behind-text float paints before the body, and everything else after.
-        let mut behind: Vec<Fragment> = Vec::new();
+        let mut behind = std::mem::take(&mut self.page_pictures_behind);
         let mut front: Vec<Fragment> = Vec::new();
         for f in ordered {
             front.push(f);
@@ -1895,93 +3074,105 @@ impl PageBuilder {
             section: self.section_index,
             even: self.even,
             fragments,
+            footnote_ids,
             body: self.body,
+            decoration_count,
+            decoration_section: self.decoration_section,
+            decoration_first: self.decoration_first,
         }
     }
 
-    fn place_notes<S: Shaper>(&mut self, flow: &mut Flow<'_, S>) {
-        let mut y = self.bottom;
-        let mut total = 0.0f32;
-        for note in &self.notes {
-            total += note.height + 2.0;
+    fn place_notes<S: Shaper>(&mut self, flow: &mut Flow<'_, S>) -> Vec<NoteBox> {
+        let total = self.notes.iter().map(|note| note.height).sum::<f32>();
+        let original_bottom = self.bottom + self.note_separator_height + total;
+        let floor = fragments_rect(&self.fragments)
+            .bottom()
+            .max(fragments_rect(&self.body_fragments).bottom())
+            .max(self.body.y);
+        let top = self.bottom.max(floor);
+        let mut y = top + self.note_separator_height;
+        for mut fragment in std::mem::take(&mut self.note_separator) {
+            shift_fragment(&mut fragment, 0.0, top);
+            self.fragments.push(fragment);
         }
-        if total > (self.body.h * 0.4) {
-            flow.report(
-                "display.note_area_full",
-                self.index,
-                format!("{total:.0} pt of notes"),
-            );
-        }
-        y -= total;
-        // The separator, at one third of the column width.
-        let column = self.current_column();
-        let sep = Rect::new(column.x, y - 6.0, column.w / 3.0, 0.5);
-        self.fragments.push(Fragment::Rule {
-            rect: sep,
-            border: Border {
-                width: 0.5,
-                color: Rgba::BLACK,
-                style: BorderStyle::Single,
-                space: 0.0,
-            },
-        });
-        let notes: Vec<NoteBox> = self.notes.drain(..).collect();
-        for (i, note) in notes.iter().enumerate() {
-            let para = FlowParagraph {
-                path: format!("note:{}", i),
-                text: note.text.clone(),
-                runs: vec![(0, note.text.len(), 0)],
-                run_styles: vec![RunStyle {
-                    face: 0,
-                    size: 8.0,
-                    color: edgedoc_geom::Rgba::BLACK,
-                    underline: false,
-                    strike: false,
-                    double_strike: false,
-                    highlight: None,
-                    shading: None,
-                    x_scale: 1.0,
-                    letter_spacing: 0.0,
-                    baseline_shift: 0.0,
-                    hidden: false,
-                    rtl: false,
-                    caps: edgedoc_text::CapsMode::None,
-                    symbol: None,
-                    synth_bold: false,
-                    synth_italic: false,
-                }],
-                para: ComputedPara::default(),
-                label: Some(format!("{} ", i + 1)),
-                list: None,
-                page_break_before: false,
-                has_page_field: false,
-                has_total_field: false,
-                objects: Vec::new(),
-                links: Vec::new(),
-                outline: None,
-                notes: Vec::new(),
-                revision: None,
+        let mut carry = Vec::new();
+        let mut placed = 0usize;
+        let mut remaining = std::mem::take(&mut self.notes).into_iter();
+        while let Some(note) = remaining.next() {
+            let room = original_bottom - y;
+            let mut notice = None;
+            let note = if note.height <= room + 0.01 {
+                note
+            } else {
+                let cuts = note.cuts();
+                let cut = cuts
+                    .iter()
+                    .rev()
+                    .find(|cut| **cut <= room - note.continuation_notice_height + 0.01)
+                    .copied();
+                if let Some(cut) = cut {
+                    let (head, tail) = note.split(cut);
+                    notice = Some(head.continuation_notice.clone());
+                    carry.push(tail);
+                    carry.extend(&mut remaining);
+                    head
+                } else if placed == 0 {
+                    flow.report(
+                        "display.note_area_full",
+                        self.index,
+                        format!("A note cannot split within {room:.0} pt"),
+                    );
+                    note
+                } else {
+                    carry.push(note);
+                    carry.extend(&mut remaining);
+                    break;
+                }
             };
-            let layout = flow.paragraph_layout(&para, column.w, &[], 0.0);
-            self.fragments.push(Fragment::Paragraph(ParagraphFragment {
-                path: para.path.clone(),
-                text: std::sync::Arc::from(para.text.as_str()),
-                label: None,
-                rect: Rect::new(column.x, y, column.w, layout.height),
-                l0: 0,
-                l1: layout.lines.len(),
-                para: para.para.clone(),
-                run_styles: para.run_styles.clone(),
-                layout,
-                continues_before: i > 0,
-                continues_after: false,
-                rtl: false,
-                revision: None,
-                links: Vec::new(),
-            }));
-            y += note.height + 2.0;
+            for mut fragment in note.fragments {
+                shift_fragment(&mut fragment, 0.0, y);
+                self.fragments.push(fragment);
+            }
+            y += note.height;
+            if let Some(notice) = notice {
+                for mut fragment in notice {
+                    shift_fragment(&mut fragment, 0.0, y);
+                    self.fragments.push(fragment);
+                }
+            }
+            placed += 1;
+            if !carry.is_empty() {
+                break;
+            }
         }
+        carry
     }
+}
+
+fn trailing_space(fragments: &[Fragment]) -> f32 {
+    let bottom = fragments_rect(fragments).bottom();
+    fragments
+        .iter()
+        .filter_map(|f| match f {
+            Fragment::Paragraph(p)
+                if !p.continues_after && (p.rect.bottom() - bottom).abs() < 0.01 =>
+            {
+                let border = p.para.borders.bottom.filter(|b| b.style.is_visible());
+                Some(
+                    p.para.space_after
+                        + border.map_or(0.0, |b| {
+                            b.space
+                                + b.width.max(if b.style == BorderStyle::Thick {
+                                    1.5
+                                } else {
+                                    0.25
+                                })
+                        }),
+                )
+            }
+            _ => None,
+        })
+        .fold(0.0, f32::max)
 }
 
 fn fragments_rect(fragments: &[Fragment]) -> Rect {
@@ -2009,7 +3200,15 @@ fn fragments_rect(fragments: &[Fragment]) -> Rect {
 
 fn shift_fragment(f: &mut Fragment, dx: f32, dy: f32) {
     match f {
-        Fragment::Paragraph(p) => p.rect = p.rect.translate(dx, dy),
+        Fragment::Paragraph(p) => {
+            p.rect = p.rect.translate(dx, dy);
+            if let Some((_, rect)) = &mut p.label {
+                *rect = rect.translate(dx, dy);
+            }
+            for (rect, _) in &mut p.links {
+                *rect = rect.translate(dx, dy);
+            }
+        }
         Fragment::Table(t) => {
             t.rect = t.rect.translate(dx, dy);
             for c in &mut t.cells {
@@ -2135,6 +3334,13 @@ fn letter(mut value: u32) -> String {
 
 /// The width a table takes. See `DP-L-34` and `DP-L-59`.
 pub fn table_width(t: &FlowTable, available: f32) -> f32 {
+    if let Some(width) = t.preferred_width {
+        return match width {
+            TableWidth::Points(points) => points,
+            TableWidth::Fraction(fraction) => available * fraction,
+        }
+        .max(1.0);
+    }
     if t.layout_fixed {
         let sum: f32 = t.widths.iter().sum();
         if sum > 0.0 {
@@ -2175,60 +3381,445 @@ fn column_extents(t: &FlowTable, available: f32) -> (Vec<f32>, Vec<f32>) {
         return (mins, maxes);
     }
     let share = available / n as f32;
-    for m in &mut mins {
-        *m = share * 0.3;
-    }
-    for m in &mut maxes {
-        *m = share;
-    }
+    mins.fill(share * 0.3);
+    maxes.fill(share);
     (mins, maxes)
 }
 
-fn row_height<S: Shaper>(flow: &mut Flow<'_, S>, t: &FlowTable, row: usize, width: f32) -> f32 {
+/// Space the reference reserves around cell text for the effective horizontal borders.
+fn cell_border_bands(t: &FlowTable, row: usize, col: usize, cell: &FlowCell) -> (f32, f32) {
+    let band = |border: Option<Border>| {
+        border
+            .filter(|b| b.style.is_visible())
+            .map_or(0.0, |b| b.width.clamp(0.0, 12.0))
+    };
+    let row_exception = t.rows.get(row).map(|r| &r.exception_borders);
+    let exception_top = row_exception.and_then(|b| b[if row == 0 { SIDE_TOP } else { 4 }]);
+    let table_top = if row == 0 {
+        t.borders[SIDE_TOP]
+    } else {
+        t.inside_h
+    };
+    let mut top = band(cell.borders[SIDE_TOP].or(exception_top).or(table_top));
+    if top == 0.0 && row > 0 && !cell.v_merge_continue {
+        if let Some(previous) = t.rows.get(row - 1) {
+            let mut prior_col = previous.grid_before;
+            for above in &previous.cells {
+                let next = prior_col + above.span.max(1);
+                if prior_col < col + cell.span.max(1) && col < next {
+                    top = top.max(band(
+                        above.borders[SIDE_BOTTOM].or(previous.exception_borders[4]),
+                    ));
+                }
+                prior_col = next;
+            }
+        }
+    }
+    let bottom = if row + 1 == t.rows.len() {
+        band(
+            cell.borders[SIDE_BOTTOM]
+                .or(row_exception.and_then(|b| b[SIDE_BOTTOM]))
+                .or(t.borders[SIDE_BOTTOM]),
+        )
+    } else {
+        0.0
+    };
+    (top, bottom)
+}
+
+fn endnote_separator(x: f32, y: f32, width: f32) -> Fragment {
+    Fragment::Rule {
+        rect: Rect::new(x, y + 11.75, 144.0_f32.min(width), 0.5),
+        border: Border {
+            width: 0.5,
+            color: Rgba::BLACK,
+            style: BorderStyle::Single,
+            space: 0.0,
+        },
+    }
+}
+
+#[derive(Default)]
+struct CellSpacing {
+    previous_after: f32,
+    previous_auto: bool,
+    previous_listed: bool,
+    previous_style: Option<(String, bool)>,
+}
+
+impl CellSpacing {
+    fn before(&mut self, paragraph: &FlowParagraph, first: bool) -> f32 {
+        let p = &paragraph.para;
+        let mut before = p.space_before;
+        let mut adjust = 0.0;
+        if let Some((style, contextual)) = &self.previous_style {
+            if style == &p.style_id {
+                if *contextual {
+                    adjust -= self.previous_after;
+                    before = (before - self.previous_after).max(0.0);
+                    self.previous_after = 0.0;
+                }
+                if p.contextual_spacing {
+                    before = 0.0;
+                }
+            }
+        }
+        if !first && self.previous_listed && paragraph.list.is_some() {
+            if self.previous_auto {
+                adjust -= self.previous_after;
+                self.previous_after = 0.0;
+            }
+            if p.space_before_auto {
+                before = 0.0;
+            }
+        }
+        if first && p.space_before_auto {
+            before = 0.0;
+        } else if !first && before > 0.0 && self.previous_after > 0.0 {
+            before = (before - self.previous_after).max(0.0);
+        }
+        adjust + before
+    }
+
+    fn after(&mut self, paragraph: &FlowParagraph, last: bool) -> f32 {
+        let p = &paragraph.para;
+        let after = if last && p.space_after_auto {
+            0.0
+        } else {
+            p.space_after
+        };
+        self.previous_after = after;
+        self.previous_auto = p.space_after_auto;
+        self.previous_listed = paragraph.list.is_some();
+        self.previous_style = Some((p.style_id.clone(), p.contextual_spacing));
+        after
+    }
+}
+
+/// Assign table labels once, including rows that will be laid out on later pages. Repeated
+/// headers reuse the cached label rather than advancing the document counters again.
+fn inline_picture_fragments(
+    paragraph: &FlowParagraph,
+    layout: &ParagraphLayout,
+    rect: Rect,
+    first_line: usize,
+    end_line: usize,
+) -> Vec<Fragment> {
+    let mut out = Vec::new();
+    let first_top = layout.lines.get(first_line).map_or(0.0, |line| line.top);
+    for line in layout.lines.iter().take(end_line).skip(first_line) {
+        for index in line.c0..line.c1 {
+            let Some(cluster) = layout.clusters.get(index) else {
+                continue;
+            };
+            let edgedoc_text::ClusterKind::Object(object) = cluster.kind else {
+                continue;
+            };
+            let Some(Some(picture)) = paragraph.inline_pictures.get(object) else {
+                continue;
+            };
+            let x = rect.x + line.xs.get(index - line.c0).copied().unwrap_or(0.0);
+            let baseline = rect.y + line.baseline - first_top;
+            out.push(Fragment::Picture {
+                rect: Rect::new(
+                    x + picture.effect_left,
+                    baseline - picture.height - picture.effect_bottom,
+                    picture.width,
+                    picture.height,
+                ),
+                resource: picture.resource,
+                src: picture.src,
+                alt: picture.alt.clone(),
+            });
+        }
+    }
+    out
+}
+
+fn blocks_have_numbering(blocks: &[FlowBlock]) -> bool {
+    blocks.iter().any(|block| match block {
+        FlowBlock::Paragraph(p) => p.list.is_some(),
+        FlowBlock::Table(table) => table.rows.iter().any(|row| {
+            row.cells
+                .iter()
+                .any(|cell| blocks_have_numbering(&cell.blocks))
+        }),
+        _ => false,
+    })
+}
+
+fn section_has_numbered_story(section: &FlowSection) -> bool {
+    [
+        &section.header,
+        &section.footer,
+        &section.header_first,
+        &section.footer_first,
+        &section.header_even,
+        &section.footer_even,
+    ]
+    .into_iter()
+    .flatten()
+    .any(|blocks| blocks_have_numbering(blocks))
+}
+
+fn assign_table_list_labels<S: Shaper>(
+    flow: &mut Flow<'_, S>,
+    table: &FlowTable,
+    labels: &mut BTreeMap<String, String>,
+) {
+    for row in &table.rows {
+        for cell in &row.cells {
+            for block in &cell.blocks {
+                match block {
+                    FlowBlock::Paragraph(p) => {
+                        if let Some(list) = &p.list {
+                            labels
+                                .entry(p.path.clone())
+                                .or_insert_with(|| flow.next_label(list));
+                        }
+                    }
+                    FlowBlock::Table(inner) => assign_table_list_labels(flow, inner, labels),
+                    _ => {}
+                }
+            }
+        }
+    }
+}
+
+/// Shape a cell paragraph with the same list-label geometry used in the body.
+fn cell_paragraph_layout<S: Shaper>(
+    flow: &mut Flow<'_, S>,
+    p: &FlowParagraph,
+    width: f32,
+    label: Option<&str>,
+) -> (std::sync::Arc<ParagraphLayout>, f32, Option<(f32, f32)>) {
+    let Some((list, label)) = p
+        .list
+        .as_ref()
+        .zip(label)
+        .filter(|(_, label)| !label.is_empty())
+    else {
+        let left = p.para.indent_left;
+        let text_width = (width - left - p.para.indent_right).max(1.0);
+        return (
+            flow.paragraph_layout(p, text_width, &[], p.para.indent_first),
+            left,
+            None,
+        );
+    };
+    let size = p
+        .para
+        .label_size
+        .unwrap_or_else(|| p.run_styles.first().map_or(11.0, |s| s.size));
+    let face = p.para.label_face.unwrap_or(p.para.label_fallback_face);
+    let glyph_width: f32 = flow
+        .shaper
+        .shape_run_kerning(face, label, size, false, p.para.label_kerning)
+        .iter()
+        .map(|g| g.advance)
+        .sum();
+    let at = p.para.indent_left + p.para.indent_first;
+    let label_x = match list.justification.as_str() {
+        "right" | "end" => at - glyph_width,
+        "center" => at - glyph_width / 2.0,
+        _ => at,
+    };
+    let end = label_x + glyph_width;
+    let text_x = match list.suffix.as_str() {
+        "nothing" => end,
+        "space" => end + size * 0.25,
+        _ => {
+            let step = if p.para.default_tab > 0.0 {
+                p.para.default_tab
+            } else {
+                36.0
+            };
+            let default = ((end + 0.01) / step).floor().mul_add(step, step);
+            let next = p
+                .para
+                .tabs
+                .iter()
+                .filter(|tab| tab.pos > end + 0.01)
+                .map(|tab| tab.pos)
+                .chain(
+                    (p.para.indent_first < 0.0 && p.para.indent_left > end + 0.01)
+                        .then_some(p.para.indent_left),
+                )
+                .reduce(f32::min)
+                .unwrap_or(default);
+            list.tab
+                .filter(|pos| *pos > end + 0.01)
+                .map_or(next, |pos| pos.min(next))
+        }
+    };
+    let left = p.para.indent_left;
+    let text_width = (width - left - p.para.indent_right).max(1.0);
+    let first_indent = text_x - left;
+    let layout = flow.paragraph_layout(p, text_width, &[], first_indent);
+    let shift = layout
+        .lines
+        .first()
+        .and_then(|line| line.xs.first())
+        .map_or(0.0, |x| x - first_indent);
+    (layout, left, Some((label_x + shift, glyph_width + 6.0)))
+}
+
+fn row_height<S: Shaper>(
+    flow: &mut Flow<'_, S>,
+    t: &FlowTable,
+    row: usize,
+    width: f32,
+    labels: &BTreeMap<String, String>,
+) -> f32 {
     let Some(r) = t.rows.get(row) else {
         return 0.0;
     };
     let mut tallest = 0.0f32;
+    let mut row_insets = 0.0f32;
+    let row_top = r
+        .cells
+        .iter()
+        .map(|cell| cell.margins[0])
+        .fold(0.0f32, f32::max);
+    let row_bottom = r
+        .cells
+        .iter()
+        .map(|cell| cell.margins[2])
+        .fold(0.0f32, f32::max);
     let widths = column_widths(t, width);
-    let mut col = 0usize;
+    let mut col = r.grid_before;
     for cell in &r.cells {
         let span = cell.span.max(1);
-        let cell_w: f32 =
-            widths.iter().skip(col).take(span).sum::<f32>() - cell.margins[1] - cell.margins[3];
-        let cell_w = cell_w.max(1.0);
-        let mut h = cell.margins[0] + cell.margins[2];
-        for block in &cell.blocks {
-            match block {
-                FlowBlock::Paragraph(p) => {
-                    let layout = flow.paragraph_layout(p, cell_w, &[], 0.0);
-                    h += layout.height + p.para.space_after;
-                }
-                FlowBlock::Picture { height, .. } => h += height,
-                FlowBlock::Placeholder { height, .. } => h += height,
-                FlowBlock::Table(inner) => {
-                    let inner_w = cell_w;
-                    h += table_height(flow, inner, inner_w);
-                }
-            }
+        let (border_top, border_bottom) = cell_border_bands(t, row, col, cell);
+        let insets = row_top + row_bottom + border_top + border_bottom;
+        row_insets = row_insets.max(insets);
+        let cell_w =
+            (widths.iter().skip(col).take(span).sum::<f32>() - cell.margins[1] - cell.margins[3])
+                .max(1.0);
+        let h = cell_content_height(flow, cell, cell_w, insets, labels);
+        if !cell.v_merge_start {
+            tallest = tallest.max(h);
         }
-        tallest = tallest.max(h);
         col += span;
     }
     if let Some(h) = r.height {
-        if r.height_exact {
-            return h;
+        if h > 0.0 {
+            if r.height_exact {
+                return h + row_bottom;
+            }
+            tallest = tallest.max(h + row_insets);
         }
-        tallest = tallest.max(h);
     }
     tallest.max(1.0)
 }
 
-fn table_height<S: Shaper>(flow: &mut Flow<'_, S>, t: &FlowTable, width: f32) -> f32 {
-    let mut sum = 0.0;
-    for r in 0..t.rows.len() {
-        sum += row_height(flow, t, r, width);
+fn cell_content_height<S: Shaper>(
+    flow: &mut Flow<'_, S>,
+    cell: &FlowCell,
+    width: f32,
+    insets: f32,
+    labels: &BTreeMap<String, String>,
+) -> f32 {
+    if cell.v_merge_continue {
+        return insets;
     }
-    sum
+    let mut h = insets;
+    let mut spacing = CellSpacing::default();
+    for (index, block) in cell.blocks.iter().enumerate() {
+        if !matches!(block, FlowBlock::Paragraph(_)) {
+            spacing = CellSpacing::default();
+        }
+        match block {
+            FlowBlock::EndnoteSeparator { .. } => h += 20.0,
+            FlowBlock::Paragraph(p) => {
+                let (layout, _, _) =
+                    cell_paragraph_layout(flow, p, width, labels.get(&p.path).map(String::as_str));
+                h += spacing.before(p, index == 0)
+                    + layout.height
+                    + spacing.after(p, index + 1 == cell.blocks.len());
+            }
+            FlowBlock::Picture { height, .. } | FlowBlock::Placeholder { height, .. } => {
+                h += height
+            }
+            FlowBlock::Table(inner) => {
+                let nested_width = if inner.preferred_width.is_some() {
+                    table_width(inner, width)
+                } else {
+                    width
+                };
+                h += table_height(flow, inner, nested_width, labels);
+            }
+        }
+    }
+    h
+}
+
+fn table_row_heights<S: Shaper>(
+    flow: &mut Flow<'_, S>,
+    t: &FlowTable,
+    width: f32,
+    labels: &BTreeMap<String, String>,
+) -> Vec<f32> {
+    let mut heights: Vec<f32> = (0..t.rows.len())
+        .map(|r| row_height(flow, t, r, width, labels))
+        .collect();
+    let widths = column_widths(t, width);
+    for (row_index, row) in t.rows.iter().enumerate() {
+        let top = row
+            .cells
+            .iter()
+            .map(|c| c.margins[0])
+            .fold(0.0f32, f32::max);
+        let bottom = row
+            .cells
+            .iter()
+            .map(|c| c.margins[2])
+            .fold(0.0f32, f32::max);
+        let mut col = row.grid_before;
+        for cell in &row.cells {
+            let span = cell.span.max(1);
+            if cell.v_merge_start {
+                let mut end = row_index;
+                while t.rows.get(end + 1).is_some_and(|next| {
+                    let mut start = next.grid_before;
+                    next.cells.iter().any(|c| {
+                        let found = start == col && c.v_merge_continue;
+                        start += c.span.max(1);
+                        found
+                    })
+                }) {
+                    end += 1;
+                }
+                let (border_top, border_bottom) = cell_border_bands(t, row_index, col, cell);
+                let cell_width = (widths.iter().skip(col).take(span).sum::<f32>()
+                    - cell.margins[1]
+                    - cell.margins[3])
+                    .max(1.0);
+                let needed = cell_content_height(
+                    flow,
+                    cell,
+                    cell_width,
+                    top + bottom + border_top + border_bottom,
+                    labels,
+                );
+                let available: f32 = heights[row_index..=end].iter().sum();
+                if needed > available {
+                    heights[end] += needed - available;
+                }
+            }
+            col += span;
+        }
+    }
+    heights
+}
+
+fn table_height<S: Shaper>(
+    flow: &mut Flow<'_, S>,
+    t: &FlowTable,
+    width: f32,
+    labels: &BTreeMap<String, String>,
+) -> f32 {
+    table_row_heights(flow, t, width, labels).into_iter().sum()
 }
 
 fn column_widths(t: &FlowTable, width: f32) -> Vec<f32> {
@@ -2239,7 +3830,15 @@ fn column_widths(t: &FlowTable, width: f32) -> Vec<f32> {
             return t.widths.iter().map(|w| w * k).collect();
         }
     }
-    let n = t.rows.first().map_or(1, |r| r.cells.len()).max(1);
+    let n = t
+        .rows
+        .iter()
+        .map(|r| {
+            r.grid_before + r.cells.iter().map(|c| c.span.max(1)).sum::<usize>() + r.grid_after
+        })
+        .max()
+        .unwrap_or(1)
+        .max(1);
     vec![width / n as f32; n]
 }
 
@@ -2250,12 +3849,18 @@ fn build_table_fragment<S: Shaper>(
     r0: usize,
     r1: usize,
     repeated_header: bool,
+    labels: &BTreeMap<String, String>,
 ) -> (TableFragment, f32) {
     let width = origin.w.max(1.0);
     let widths = column_widths(t, width);
+    let row_heights = table_row_heights(flow, t, width, labels);
     let mut cells = Vec::new();
     let mut content = Vec::new();
     let mut borders = Vec::new();
+    let mut seen_cell_edges: BTreeMap<(bool, i64, i64, i64), Vec<Border>> = BTreeMap::new();
+    // A vertical-merge continuation has no top edge at its row boundary.
+    let mut merge_holes: Vec<(f32, f32, f32)> = Vec::new();
+    let mut cell_edges = Vec::new();
     let mut y = origin.y;
     // A repeated header paints the header rows again before the body rows.
     let mut drawn_rows: Vec<usize> = Vec::new();
@@ -2271,36 +3876,96 @@ fn build_table_fragment<S: Shaper>(
     }
     for &r in &drawn_rows {
         let Some(row) = t.rows.get(r) else { continue };
-        let h = row_height(flow, t, r, width);
-        let mut x = origin.x;
-        let mut col = 0usize;
+        let h = row_heights.get(r).copied().unwrap_or(0.0);
+        let row_top = row
+            .cells
+            .iter()
+            .map(|cell| cell.margins[0])
+            .fold(0.0f32, f32::max);
+        let row_bottom = row
+            .cells
+            .iter()
+            .map(|cell| cell.margins[2])
+            .fold(0.0f32, f32::max);
+        let mut x = origin.x + widths.iter().take(row.grid_before).sum::<f32>();
+        let mut col = row.grid_before;
         for cell in &row.cells {
             let span = cell.span.max(1);
             let w: f32 = widths.iter().skip(col).take(span).sum();
-            let rect = Rect::new(x, y, w.max(1.0), h);
+            let row_rect = Rect::new(x, y, w.max(1.0), h);
+            let mut span_height = h;
+            if cell.v_merge_start {
+                let mut next_row = r + 1;
+                while next_row < t.rows.len()
+                    && t.rows.get(next_row).is_some_and(|next| {
+                        let mut start = next.grid_before;
+                        next.cells.iter().any(|c| {
+                            let found = start == col && c.v_merge_continue;
+                            start += c.span.max(1);
+                            found
+                        })
+                    })
+                {
+                    span_height += row_heights.get(next_row).copied().unwrap_or(0.0);
+                    next_row += 1;
+                }
+            }
+            let rect = Rect::new(x, y, w.max(1.0), span_height);
+            cell_edges.push((r, col, span, row_rect, cell));
+            if cell.v_merge_continue {
+                merge_holes.push((row_rect.y, row_rect.x, row_rect.right()));
+            }
             cells.push(CellRect {
                 rect,
                 row: r,
                 col,
                 span,
-                shading: cell.shading,
+                shading: if cell.v_merge_continue {
+                    None
+                } else {
+                    cell.shading
+                },
             });
             // Cell content: one paragraph fragment per block, measured at the cell width and
             // placed inside the cell margins.
             let inner_x = rect.x + cell.margins[1];
             let inner_w = (rect.w - cell.margins[1] - cell.margins[3]).max(1.0);
-            let mut cy = rect.y + cell.margins[0];
+            let (border_top, border_bottom) = cell_border_bands(t, r, col, cell);
+            let mut cy = rect.y + row_top + border_top;
+            let content_top = cy;
             let content_start = content.len();
-            for block in &cell.blocks {
+            let mut spacing = CellSpacing::default();
+            for (index, block) in cell
+                .blocks
+                .iter()
+                .enumerate()
+                .filter(|_| !cell.v_merge_continue)
+            {
+                if !matches!(block, FlowBlock::Paragraph(_)) {
+                    spacing = CellSpacing::default();
+                }
                 match block {
+                    FlowBlock::EndnoteSeparator { .. } => {
+                        content.push(endnote_separator(inner_x, cy, inner_w));
+                        cy += 20.0;
+                    }
                     FlowBlock::Paragraph(p) => {
-                        let layout = flow.paragraph_layout(p, inner_w, &[], 0.0);
+                        cy += spacing.before(p, index == 0);
+                        let label = labels.get(&p.path);
+                        let (layout, left, label_rect) =
+                            cell_paragraph_layout(flow, p, inner_w, label.map(String::as_str));
                         let hh = layout.height;
+                        let text_width = (inner_w - left - p.para.indent_right).max(1.0);
+                        let text_rect = Rect::new(inner_x + left, cy, text_width, hh);
+                        let pictures =
+                            inline_picture_fragments(p, &layout, text_rect, 0, layout.lines.len());
                         content.push(Fragment::Paragraph(ParagraphFragment {
                             path: p.path.clone(),
                             text: std::sync::Arc::from(p.text.as_str()),
-                            label: None,
-                            rect: Rect::new(inner_x, cy, inner_w, hh),
+                            label: label.zip(label_rect).map(|(text, (x, w))| {
+                                (text.clone(), Rect::new(inner_x + x, cy, w, hh))
+                            }),
+                            rect: text_rect,
                             l0: 0,
                             l1: layout.lines.len(),
                             para: p.para.clone(),
@@ -2312,18 +3977,21 @@ fn build_table_fragment<S: Shaper>(
                             revision: p.revision,
                             links: Vec::new(),
                         }));
-                        cy += hh + p.para.space_after;
+                        content.extend(pictures);
+                        cy += hh + spacing.after(p, index + 1 == cell.blocks.len());
                     }
                     FlowBlock::Picture {
                         height,
                         width: pw,
                         alt,
                         resource,
+                        src,
                         ..
                     } => {
                         content.push(Fragment::Picture {
                             rect: Rect::new(inner_x, cy, (*pw).min(inner_w), *height),
                             resource: *resource,
+                            src: *src,
                             alt: alt.clone(),
                         });
                         cy += height;
@@ -2343,13 +4011,28 @@ fn build_table_fragment<S: Shaper>(
                         cy += height;
                     }
                     FlowBlock::Table(inner) => {
+                        let nested_width = if inner.preferred_width.is_some() {
+                            table_width(inner, inner_w)
+                        } else {
+                            inner_w
+                        };
+                        let nested_x = if inner.preferred_width.is_some() {
+                            match inner.align {
+                                Align::Center => inner_x + (inner_w - nested_width) / 2.0,
+                                Align::Right => inner_x + inner_w - nested_width,
+                                _ => inner_x + inner.indent,
+                            }
+                        } else {
+                            inner_x
+                        };
                         let (fragment, ih) = build_table_fragment(
                             flow,
                             inner,
-                            Rect::new(inner_x, cy, inner_w, 0.0),
+                            Rect::new(nested_x, cy, nested_width, 0.0),
                             0,
                             inner.rows.len(),
                             false,
+                            labels,
                         );
                         content.push(Fragment::Table(fragment));
                         cy += ih;
@@ -2357,8 +4040,8 @@ fn build_table_fragment<S: Shaper>(
                 }
             }
             // A cell vertical alignment moves its content inside the cell. See `DP-L-40`.
-            let used = cy - (rect.y + cell.margins[0]);
-            let free = (rect.h - cell.margins[0] - cell.margins[2] - used).max(0.0);
+            let used = cy - content_top;
+            let free = (rect.h - row_top - row_bottom - border_top - border_bottom - used).max(0.0);
             let shift = match cell.v_align {
                 VAlign::Center => free / 2.0,
                 VAlign::Bottom => free,
@@ -2369,11 +4052,11 @@ fn build_table_fragment<S: Shaper>(
                     shift_fragment(fragment, 0.0, shift);
                 }
             }
-            // A cell border paints at an outer table edge only. Between two cells, the table's
-            // inside rules paint once, so a shared edge is not drawn twice at double width. This
-            // is the WordCraft `region_borders` rule. See `DP-L-39`.
-            let first_col = col == 0;
-            let last_col = col + span >= widths.len();
+            // Cell-specific rules also define shared edges when a table does not provide an
+            // inside rule. Retain only one coincident rule when both neighboring cells specify
+            // the same side; a table inside rule continues to own the shared edge for now.
+            let first_col = col == row.grid_before;
+            let last_col = col + span >= widths.len().saturating_sub(row.grid_after);
             let first_row = r == 0;
             let last_row = r + 1 >= t.rows.len();
             for (side, border) in cell.borders.iter().enumerate() {
@@ -2384,8 +4067,30 @@ fn build_table_fragment<S: Shaper>(
                     SIDE_LEFT => first_col,
                     _ => last_col,
                 };
-                if outer {
-                    borders.push(border_segment(rect, side, *b));
+                let inside_rule = match side {
+                    SIDE_TOP | SIDE_BOTTOM => t.inside_h,
+                    _ => t.inside_v,
+                };
+                if outer || inside_rule.is_none() {
+                    let horizontal = matches!(side, SIDE_TOP | SIDE_BOTTOM);
+                    let (axis, start, length) = match side {
+                        SIDE_TOP => (rect.y, rect.x, rect.w),
+                        SIDE_BOTTOM => (rect.bottom(), rect.x, rect.w),
+                        SIDE_LEFT => (rect.x, rect.y, rect.h),
+                        _ => (rect.right(), rect.y, rect.h),
+                    };
+                    let quantize = |point: f32| (point * 100.0).round() as i64;
+                    let key = (
+                        horizontal,
+                        quantize(axis),
+                        quantize(start),
+                        quantize(length),
+                    );
+                    let previous = seen_cell_edges.entry(key).or_default();
+                    if !previous.contains(b) {
+                        previous.push(*b);
+                        borders.push(cell_border_segment(rect, side, *b, &cell.borders));
+                    }
                 }
             }
             x += w;
@@ -2413,13 +4118,48 @@ fn build_table_fragment<S: Shaper>(
         row_bottoms.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
         row_bottoms.pop();
         for b in row_bottoms {
+            let mut holes = merge_holes
+                .iter()
+                .filter(|(y, _, _)| (*y - b).abs() < 0.01)
+                .map(|(_, left, right)| (*left, *right))
+                .collect::<Vec<_>>();
+            holes.sort_by(|a, b| a.0.total_cmp(&b.0));
+            let mut cursor = origin.x;
+            for (left, right) in holes
+                .into_iter()
+                .chain(std::iter::once((origin.x + width, origin.x + width)))
+            {
+                let end = left.clamp(origin.x, origin.x + width);
+                if end > cursor + 0.01 {
+                    borders.push(BorderSegment {
+                        rect: Rect::new(
+                            cursor,
+                            b - inside.width.max(0.5) / 2.0,
+                            end - cursor,
+                            inside.width.max(0.5),
+                        ),
+                        border: Border {
+                            width: inside.width.max(0.5),
+                            color: inside.color,
+                            style: inside.style,
+                            space: 0.0,
+                        },
+                    });
+                }
+                cursor = cursor.max(right.min(origin.x + width));
+            }
+        }
+    }
+    if let Some(inside) = t.inside_v {
+        // A grid boundary only paints where an actual cell ends; a grid-spanning cell has
+        // no vertical edge through its interior.
+        for cell in &cells {
+            let x = cell.rect.right();
+            if x >= origin.x + width - 0.01 {
+                continue;
+            }
             borders.push(BorderSegment {
-                rect: Rect::new(
-                    origin.x,
-                    b - inside.width.max(0.5) / 2.0,
-                    width,
-                    inside.width.max(0.5),
-                ),
+                rect: Rect::new(x, cell.rect.y, inside.width.max(0.5), cell.rect.h),
                 border: Border {
                     width: inside.width.max(0.5),
                     color: inside.color,
@@ -2429,25 +4169,115 @@ fn build_table_fragment<S: Shaper>(
             });
         }
     }
-    if let Some(inside) = t.inside_v {
-        let mut xs: Vec<f32> = widths
+    if (t.inside_h.is_some() || t.inside_v.is_some())
+        || cell_edges
             .iter()
-            .scan(origin.x, |acc, w| {
-                *acc += *w;
-                Some(*acc)
-            })
-            .collect();
-        xs.pop();
-        for x in xs {
-            borders.push(BorderSegment {
-                rect: Rect::new(x, origin.y, inside.width.max(0.5), (y - origin.y).max(1.0)),
-                border: Border {
-                    width: inside.width.max(0.5),
-                    color: inside.color,
-                    style: inside.style,
-                    space: 0.0,
+            .any(|(_, _, span, _, cell)| *span > 1 || cell.v_merge_start || cell.v_merge_continue)
+        || t.rows.iter().any(|row| {
+            row.grid_before > 0
+                || row.grid_after > 0
+                || row.exception_borders.iter().any(Option::is_some)
+        })
+    {
+        // Resolve each cell edge separately when table rules are present or cells are merged. Shared edges are
+        // painted by both adjoining cells, as Wordcraft does, and merge continuations have
+        // no horizontal edge through the merged area.
+        borders.clear();
+        for &(row, col, span, rect, cell) in &cell_edges {
+            let exceptions = t
+                .rows
+                .get(row)
+                .map(|r| r.exception_borders)
+                .unwrap_or([None; 6]);
+            let first_col = t.rows.get(row).is_some_and(|r| col == r.grid_before);
+            let last_col = t
+                .rows
+                .get(row)
+                .is_some_and(|r| col + span >= widths.len().saturating_sub(r.grid_after));
+            let edge = |side: usize, row_border: Option<Border>, fallback: Option<Border>| {
+                cell.borders[side]
+                    .or(row_border)
+                    .or(fallback)
+                    .filter(|border| border.style.is_visible())
+            };
+            let left = edge(
+                SIDE_LEFT,
+                exceptions[if first_col { SIDE_LEFT } else { 5 }],
+                if first_col {
+                    t.borders[SIDE_LEFT]
+                } else {
+                    t.inside_v
                 },
+            );
+            let right = edge(
+                SIDE_RIGHT,
+                exceptions[if last_col { SIDE_RIGHT } else { 5 }],
+                if last_col {
+                    t.borders[SIDE_RIGHT]
+                } else {
+                    t.inside_v
+                },
+            );
+            let top = edge(
+                SIDE_TOP,
+                exceptions[if row == 0 { SIDE_TOP } else { 4 }],
+                if row == 0 {
+                    t.borders[SIDE_TOP]
+                } else {
+                    t.inside_h
+                },
+            );
+            let bottom = edge(
+                SIDE_BOTTOM,
+                exceptions[if row + 1 == t.rows.len() {
+                    SIDE_BOTTOM
+                } else {
+                    4
+                }],
+                if row + 1 == t.rows.len() {
+                    t.borders[SIDE_BOTTOM]
+                } else {
+                    t.inside_h
+                },
+            );
+            let continued_below = t.rows.get(row + 1).is_some_and(|next| {
+                let mut start = next.grid_before;
+                next.cells.iter().any(|c| {
+                    let matches = start == col && c.v_merge_continue;
+                    start += c.span.max(1);
+                    matches
+                })
             });
+            let half = |b: Option<Border>| b.map_or(0.0, |b| b.width.max(0.3) / 2.0);
+            let hleft = rect.x - half(left);
+            let hwidth = rect.w + half(left) + half(right);
+            if !cell.v_merge_continue {
+                if let Some(b) = top {
+                    let w = b.width.max(0.3);
+                    borders.push(BorderSegment {
+                        rect: Rect::new(hleft, rect.y - w / 2.0, hwidth, w),
+                        border: b,
+                    });
+                }
+            }
+            if !continued_below {
+                if let Some(b) = bottom {
+                    let w = b.width.max(0.3);
+                    borders.push(BorderSegment {
+                        rect: Rect::new(hleft, rect.bottom() - w / 2.0, hwidth, w),
+                        border: b,
+                    });
+                }
+            }
+            for (x, b) in [(rect.x, left), (rect.right(), right)] {
+                if let Some(b) = b {
+                    let w = b.width.max(0.3);
+                    borders.push(BorderSegment {
+                        rect: Rect::new(x - w / 2.0, rect.y, w, rect.h),
+                        border: b,
+                    });
+                }
+            }
         }
     }
     let height = (y - origin.y).max(1.0);
@@ -2466,11 +4296,44 @@ fn build_table_fragment<S: Shaper>(
     )
 }
 
+/// Cell borders are centered on the grid line. Horizontal rules extend across the
+/// adjacent vertical strokes so that the corners remain joined.
+fn cell_border_segment(
+    rect: Rect,
+    side: usize,
+    border: Border,
+    sides: &[Option<Border>; 4],
+) -> BorderSegment {
+    let w = border.width.max(0.3);
+    let half_edge = |side: usize| {
+        sides[side]
+            .filter(|border| border.style.is_visible())
+            .map_or(0.0, |border| border.width.max(0.3) / 2.0)
+    };
+    let left = half_edge(SIDE_LEFT);
+    let right = half_edge(SIDE_RIGHT);
+    let segment = match side {
+        SIDE_TOP => Rect::new(rect.x - left, rect.y - w / 2.0, rect.w + left + right, w),
+        SIDE_BOTTOM => Rect::new(
+            rect.x - left,
+            rect.bottom() - w / 2.0,
+            rect.w + left + right,
+            w,
+        ),
+        SIDE_LEFT => Rect::new(rect.x - w / 2.0, rect.y, w, rect.h),
+        _ => Rect::new(rect.right() - w / 2.0, rect.y, w, rect.h),
+    };
+    BorderSegment {
+        rect: segment,
+        border,
+    }
+}
+
 fn border_segment(rect: Rect, side: usize, border: Border) -> BorderSegment {
     let w = border.width.max(0.3);
     let segment = match side {
-        SIDE_TOP => Rect::new(rect.x, rect.y, rect.w, w),
-        SIDE_BOTTOM => Rect::new(rect.x, rect.bottom() - w, rect.w, w),
+        SIDE_TOP => Rect::new(rect.x, rect.y - w / 2.0, rect.w, w),
+        SIDE_BOTTOM => Rect::new(rect.x, rect.bottom() - w / 2.0, rect.w, w),
         SIDE_LEFT => Rect::new(rect.x, rect.y, w, rect.h),
         _ => Rect::new(rect.right() - w, rect.y, w, rect.h),
     };
@@ -2493,12 +4356,74 @@ mod tests {
         db
     }
 
+    #[test]
+    fn shared_abstract_list_counters_apply_instance_restarts_once() {
+        let fonts = db();
+        let shaper = DbShaper { db: &fonts };
+        let mut flow = Flow::new(&shaper);
+        let base = edgedoc_style::ListRef {
+            num_id: 19,
+            abstract_id: 9,
+            text: "%1".into(),
+            format: "decimal".into(),
+            start: 1,
+            ..Default::default()
+        };
+        let restarted = edgedoc_style::ListRef {
+            num_id: 22,
+            start_override: Some(1),
+            ..base.clone()
+        };
+        assert_eq!(flow.next_label(&base), "1");
+        assert_eq!(flow.next_label(&restarted), "1");
+        assert_eq!(flow.next_label(&restarted), "2");
+        assert_eq!(flow.next_label(&base), "3");
+        let zero = edgedoc_style::ListRef {
+            num_id: 23,
+            start_override: Some(0),
+            ..base
+        };
+        assert_eq!(flow.next_label(&zero), "0");
+        assert_eq!(flow.next_label(&zero), "1");
+    }
+
+    #[test]
+    fn legal_multilevel_labels_preserve_zero_padded_decimal_levels() {
+        let fonts = db();
+        let shaper = DbShaper { db: &fonts };
+        let mut flow = Flow::new(&shaper);
+        let parent = edgedoc_style::ListRef {
+            num_id: 1,
+            abstract_id: 2,
+            level: 0,
+            text: "%1".into(),
+            format: "upperRoman".into(),
+            start: 1,
+            level_formats: vec!["upperRoman".into(), "decimalZero".into()],
+            ..Default::default()
+        };
+        assert_eq!(flow.next_label(&parent), "I");
+        let child = edgedoc_style::ListRef {
+            level: 1,
+            text: "%1.%2".into(),
+            format: "decimalZero".into(),
+            is_legal: true,
+            ..parent
+        };
+        assert_eq!(flow.next_label(&child), "1.01");
+    }
+
     fn run_style() -> RunStyle {
         RunStyle {
             face: 0,
             size: 11.0,
+            line_size: 11.0,
+            kerning: true,
+            positional_tab: None,
             color: edgedoc_geom::Rgba::BLACK,
             underline: false,
+            double_underline: false,
+            underline_color: None,
             strike: false,
             double_strike: false,
             highlight: None,
@@ -2506,6 +4431,7 @@ mod tests {
             x_scale: 1.0,
             letter_spacing: 0.0,
             baseline_shift: 0.0,
+            line_shift: 0.0,
             hidden: false,
             rtl: false,
             caps: edgedoc_text::CapsMode::None,
@@ -2521,6 +4447,7 @@ mod tests {
             text: text.to_string(),
             runs: vec![(0, text.len(), 0)],
             run_styles: vec![run_style()],
+            mark_style: 0,
             para: ComputedPara::default(),
             label: None,
             list: None,
@@ -2528,6 +4455,11 @@ mod tests {
             has_page_field: false,
             has_total_field: false,
             objects: Vec::new(),
+            inline_pictures: Vec::new(),
+            page_pictures: Vec::new(),
+            border_group_safe: false,
+            border_join_above: false,
+            border_join_below: false,
             links: Vec::new(),
             outline: None,
             notes: Vec::new(),
@@ -2701,12 +4633,17 @@ mod tests {
                         v_merge_start: false,
                     },
                 ],
+                grid_before: 0,
+                grid_after: 0,
+                exception_borders: [None; 6],
                 header: false,
                 height: None,
                 height_exact: false,
                 cant_split: false,
             }],
             widths: vec![200.0, 200.0],
+            auto_width: true,
+            preferred_width: None,
             align: Align::Left,
             indent: 0.0,
             layout_fixed: true,
@@ -2724,6 +4661,18 @@ mod tests {
             for f in &page.fragments {
                 if let Fragment::Table(t) = f {
                     borders += t.borders.len();
+                    let shared_x = t.cells[0].rect.right();
+                    assert_eq!(
+                        t.borders
+                            .iter()
+                            .filter(|segment| {
+                                (segment.rect.x + segment.rect.w / 2.0 - shared_x).abs() < 0.01
+                                    && (segment.rect.h - t.cells[0].rect.h).abs() < 0.01
+                            })
+                            .count(),
+                        2,
+                        "both cells paint the centered shared edge"
+                    );
                     assert_eq!(t.cells.len(), 2);
                     assert_eq!(t.content.len(), 2, "each cell paints one paragraph");
                 }
@@ -2780,6 +4729,38 @@ mod tests {
             })
             .expect("header fragment");
         assert!(header.y < body_top + 1.0);
+    }
+
+    #[test]
+    fn numbered_header_is_laid_out_after_the_body() {
+        let fonts = db();
+        let shaper = DbShaper { db: &fonts };
+        let list = edgedoc_style::ListRef {
+            num_id: 1,
+            abstract_id: 1,
+            text: "%1.".into(),
+            format: "decimal".into(),
+            start: 1,
+            ..Default::default()
+        };
+        let mut section = a4();
+        let mut header = paragraph("Header");
+        header.path = "part[1]/block[0]".into();
+        header.list = Some(list.clone());
+        section.header = Some(vec![FlowBlock::Paragraph(header)]);
+        let mut body = paragraph("Body");
+        body.list = Some(list);
+        let mut flow = Flow::new(&shaper);
+        let layout = flow.layout(&[FlowBlock::Paragraph(body)], &[section]);
+        let labels = layout.pages[0]
+            .fragments
+            .iter()
+            .filter_map(|fragment| match fragment {
+                Fragment::Paragraph(p) => p.label.as_ref().map(|(text, _)| text.as_str()),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(labels, ["3.", "2."]);
     }
 
     #[test]
@@ -2858,6 +4839,7 @@ mod tests {
             height: 50.0,
             alt: "A logo".into(),
             resource: 1,
+            src: [0.0, 0.0, 1.0, 1.0],
             align: Align::Left,
         }];
         let out = flow.layout(&body, &[a4()]);
@@ -2866,6 +4848,41 @@ mod tests {
             .iter()
             .any(|f| matches!(f, Fragment::Picture { alt, .. } if alt == "A logo"));
         assert!(found);
+    }
+
+    #[test]
+    fn a_picture_follows_the_preceding_paragraph_spacing() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let mut flow = Flow::new(&shaper);
+        let mut before = paragraph("Before picture");
+        before.para.space_after = 10.0;
+        let body = vec![
+            FlowBlock::Paragraph(before),
+            FlowBlock::Picture {
+                path: "picture".into(),
+                width: 100.0,
+                height: 50.0,
+                alt: String::new(),
+                resource: 1,
+                src: [0.0, 0.0, 1.0, 1.0],
+                align: Align::Left,
+            },
+        ];
+        let layout = flow.layout(&body, &[a4()]);
+        let mut paragraph_bottom = None;
+        let mut picture_top = None;
+        for fragment in &layout.pages[0].fragments {
+            match fragment {
+                Fragment::Paragraph(p) => paragraph_bottom = Some(p.rect.bottom()),
+                Fragment::Picture { rect, .. } => picture_top = Some(rect.y),
+                _ => {}
+            }
+        }
+        assert!(
+            (picture_top.unwrap_or_default() - paragraph_bottom.unwrap_or_default() - 10.0).abs()
+                < 0.01
+        );
     }
 
     #[test]

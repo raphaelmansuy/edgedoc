@@ -8,6 +8,7 @@ proprietary, so the library substitutes a metric-compatible open face and tells 
 | `Carlito-Regular.ttf`, `Carlito-Bold.ttf`, `Carlito-Italic.ttf`, `Carlito-BoldItalic.ttf` | Carlito | Calibri, Aptos, Calibri Light | SIL Open Font License 1.1 |
 | `Arimo-*.ttf` | Arimo | Arial, Helvetica, Segoe UI, Tahoma, Verdana, Trebuchet MS | SIL Open Font License 1.1 |
 | `Tinos-*.ttf` | Tinos | Times New Roman, Times, Georgia, Garamond, Palatino | SIL Open Font License 1.1 |
+| `SourceSans3-Regular.ttf` | Source Sans 3 | Nonbreaking-hyphen fallback | SIL Open Font License 1.1 (`OFL-SourceSans3.txt`) |
 
 `Carlito-LICENSE.txt` is the licence for Carlito. Arimo and Tinos use the same SIL Open Font
 License 1.1.
@@ -34,6 +35,8 @@ The faces came from the TeX Live 2024 distribution:
 
 Each family is a Google Font. The upstream project is
 [google/fonts](https://github.com/google/fonts), under the SIL Open Font License 1.1.
+Source Sans 3 and its licence were copied from the Wordcraft checkout for the same fallback
+face used by its renderer.
 
 ## Two builds
 

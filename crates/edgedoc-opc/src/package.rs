@@ -66,6 +66,30 @@ pub fn normalize(name: &str) -> String {
         .to_ascii_lowercase()
 }
 
+/// Info-ZIP Unicode Path (0x7075) overrides the legacy name only when its CRC matches.
+fn unicode_path<'a>(raw_name: &[u8], extra: &'a [u8]) -> Option<&'a str> {
+    let mut remaining = extra;
+    while remaining.len() >= 4 {
+        let tag = u16::from_le_bytes([remaining[0], remaining[1]]);
+        let len = u16::from_le_bytes([remaining[2], remaining[3]]) as usize;
+        remaining = &remaining[4..];
+        if len > remaining.len() {
+            break;
+        }
+        let field = &remaining[..len];
+        if tag == 0x7075 && field.len() >= 5 && field[0] == 1 {
+            let expected = u32::from_le_bytes([field[1], field[2], field[3], field[4]]);
+            if crc32fast::hash(raw_name) == expected {
+                if let Ok(name) = std::str::from_utf8(&field[5..]) {
+                    return Some(name);
+                }
+            }
+        }
+        remaining = &remaining[len..];
+    }
+    None
+}
+
 pub fn read_zip(bytes: &[u8], budget: &Budget) -> OpcResult<Package> {
     let mut archive = ZipArchive::new(Cursor::new(bytes)).map_err(|err| {
         OpcError::new(
@@ -80,7 +104,9 @@ pub fn read_zip(bytes: &[u8], budget: &Budget) -> OpcResult<Package> {
         let mut file = archive
             .by_index(index)
             .map_err(|err| OpcError::new("package.not_zip", err.to_string()))?;
-        let name = file.name().to_string();
+        let name = unicode_path(file.name_raw(), file.extra_data())
+            .unwrap_or_else(|| file.name())
+            .to_string();
         if name.ends_with('/') {
             continue;
         }
@@ -230,4 +256,35 @@ fn encode_utf16_bytes(text: &str) -> Vec<u8> {
     text.encode_utf16()
         .flat_map(|unit| unit.to_le_bytes())
         .collect()
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod unicode_path_tests {
+    use super::{read_zip, unicode_path};
+
+    #[test]
+    fn unicode_path_requires_matching_name_crc() {
+        let original = b"legacy.xml";
+        let name = "document-é.xml".as_bytes();
+        let mut field = vec![0x75, 0x70];
+        field.extend_from_slice(&((name.len() + 5) as u16).to_le_bytes());
+        field.push(1);
+        field.extend_from_slice(&crc32fast::hash(original).to_le_bytes());
+        field.extend_from_slice(name);
+        assert_eq!(unicode_path(original, &field), Some("document-é.xml"));
+        assert_eq!(unicode_path(b"different.xml", &field), None);
+        assert_eq!(unicode_path(original, &field[..field.len() - 1]), None);
+    }
+
+    #[test]
+    fn unicode_path_selects_the_document_named_by_the_extra_field() {
+        // Apache POI unicode-path.docx, pinned in tests/corpus/external-expanded-manifest.json.
+        let bytes = include_bytes!("../tests/fixtures/unicode-path.docx");
+        let package = read_zip(bytes, &edgedoc_limit::Budget::default()).unwrap();
+        let document = &package.parts["word/document.xml"].bytes;
+        assert!(std::str::from_utf8(document)
+            .unwrap()
+            .contains("<w:t>2</w:t>"));
+    }
 }

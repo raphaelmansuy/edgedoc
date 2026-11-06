@@ -1,0 +1,9 @@
+# Kept flow, hanging tabs, and table borders
+
+The pinned aviation document `4b030510c8` exposed several differences from Wordcraft. EdgeDoc now reserves the same combined paragraph spacing when looking ahead through a keep-with-next chain, drops consumed space before a heading moved to a new page or column, honors a right or decimal tab just beyond the column boundary, preserves the specified grid for fixed-layout tables with automatic width, and adds the implicit hanging-indent tab before later explicit stops. Focused regression tests cover each rule.
+
+The final difference was a table whose shared rules were painted once as aggregate table lines. Wordcraft resolves the cell edges and paints shared edges from both adjoining cells, centered on the grid. EdgeDoc now uses per-cell border resolution for tables with inside rules as it already did for merged tables. The strict gate's glyph and pixel thresholds were not changed.
+
+The document now passes the strict seven-page Wordcraft comparison with the installed font profile. Its supplied Word-exported PDF has six pages, so this result does not establish parity with Word pagination. Wordcraft and EdgeDoc page images and the Word PDF were inspected; the source is identified by `tests/corpus/word-benchmark-manifest.json`. The Wordcraft SVG adapter does not expose every drawing feature, and unsupported-feature diagnostics continue to block a pass.
+
+With this implementation, the exact-source benchmark passed 10 of 48 documents and failed 38, with no blocked cases. All 209 selected previously passing cases passed again. Summaries with fingerprints and per-case outcomes are in `word-benchmark-48-cell-edges-summary.json` and `cell-edges-regression-209-summary.json`. The Rust workspace passed 401 tests and strict Clippy, and the rebuilt browser passed 18 interaction checks plus 134 checks on 33 documents. These are scoped results, not proof of complete parity.

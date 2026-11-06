@@ -1,0 +1,1059 @@
+{
+  "schema": 1,
+  "scope": "75 pinned upstream DOCX documents, including long guides and feature regressions; not exhaustive rendering parity",
+  "documents": [
+    {
+      "id": "poi-01-complexnumberedlists",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/ComplexNumberedLists.docx",
+      "git_blob_sha1": "b4409c9d1595df7001e18a5bccf783fb20d73611",
+      "bytes": 14458,
+      "features": [
+        "numbering",
+        "multilevel"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/ComplexNumberedLists.docx",
+      "sha256": "297a085a7d433af2eeee7661e8db21539452cb585096484774a1e9f5f258b0b6"
+    },
+    {
+      "id": "poi-02-numbering",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Numbering.docx",
+      "git_blob_sha1": "d5605c9f7861be2e225c74eec41c68012a233ee1",
+      "bytes": 13808,
+      "features": [
+        "numbering"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Numbering.docx",
+      "sha256": "776a59dcf0e290f1988602e6305e2d9cb2e31f631dc4aa751593c23cddbaad4d"
+    },
+    {
+      "id": "poi-03-numberingwoverrides",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/NumberingWOverrides.docx",
+      "git_blob_sha1": "48a7e2c251916ee8482891728283dc3f6e723fe4",
+      "bytes": 15190,
+      "features": [
+        "numbering",
+        "start-overrides"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/NumberingWOverrides.docx",
+      "sha256": "3754dee43880ce4c9e962eca41ac78c353999888282c9ada528efbb826e2bee6"
+    },
+    {
+      "id": "poi-04-numberingwithoutoforderid",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/NumberingWithOutOfOrderId.docx",
+      "git_blob_sha1": "6c471c43bd17fb57c51929d1408d3070be9d92bc",
+      "bytes": 12978,
+      "features": [
+        "numbering",
+        "relationships"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/NumberingWithOutOfOrderId.docx",
+      "sha256": "fa2843a6297bb3e874f9c6dc8aac944704fba4d0d631b94627be7dbeaf12ed0f"
+    },
+    {
+      "id": "poi-05-difffirstpageheadfoot",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/DiffFirstPageHeadFoot.docx",
+      "git_blob_sha1": "d631c77e5543e45eb5027a2e808b46995118fe08",
+      "bytes": 14204,
+      "features": [
+        "headers",
+        "first-page"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/DiffFirstPageHeadFoot.docx",
+      "sha256": "e94332c7b86b1bbce960f93fec90078486ab8abc3913a024a24be391a0b42151"
+    },
+    {
+      "id": "poi-06-fancyfoot",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/FancyFoot.docx",
+      "git_blob_sha1": "3e571b39df56a0b07387a2e4e1d2031b3e906233",
+      "bytes": 12876,
+      "features": [
+        "footers"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/FancyFoot.docx",
+      "sha256": "1cfd2b4fb1f7233062671b0f58789e1b0b437fbf79deb7d62167cffb85191f7a"
+    },
+    {
+      "id": "poi-07-fieldcodes",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/FieldCodes.docx",
+      "git_blob_sha1": "3db97f5ce76768ab5c530fc78ff7d31c26703d2d",
+      "bytes": 17034,
+      "features": [
+        "fields"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/FieldCodes.docx",
+      "sha256": "9247f85ab90b15f11d0cf14d0070fdcb5cdf47c65d6bc77cc32cb7ee682aad24"
+    },
+    {
+      "id": "poi-08-fldsimple",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/FldSimple.docx",
+      "git_blob_sha1": "029016ce07d8058f146efb40a25c67f04e04c2ad",
+      "bytes": 12837,
+      "features": [
+        "fields"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/FldSimple.docx",
+      "sha256": "6cf7364676d465e702cbbac44ca92331c525476e36a29c26f780cb9d7643b631"
+    },
+    {
+      "id": "poi-09-headerfooterunicode",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/HeaderFooterUnicode.docx",
+      "git_blob_sha1": "643967c5e5cbbeee83aac70db610cbe0d93c0b75",
+      "bytes": 15079,
+      "features": [
+        "headers",
+        "unicode"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/HeaderFooterUnicode.docx",
+      "sha256": "ec439ac0643294e1e2961b381983304e044444f3a8f0dc465a98adf9ebee0e67"
+    },
+    {
+      "id": "poi-10-headers",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Headers.docx",
+      "git_blob_sha1": "ab1ec0288ddf03a1b303d88a7e93c953298674b3",
+      "bytes": 13076,
+      "features": [
+        "headers"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Headers.docx",
+      "sha256": "bdf91038f9a5454355e6393b7b74fd819a4adc480b4a7011a86e878403952b5b"
+    },
+    {
+      "id": "poi-11-illustrativecases",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/IllustrativeCases.docx",
+      "git_blob_sha1": "29dacb652e78512edd47dd05db4ac1bc42072b39",
+      "bytes": 22858,
+      "features": [
+        "mixed-formatting"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/IllustrativeCases.docx",
+      "sha256": "4c2407d338f02a6ae107eac0b3e925ffb3d37921942ebe88db8660dea0891a00"
+    },
+    {
+      "id": "poi-12-pagespecificheadfoot",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/PageSpecificHeadFoot.docx",
+      "git_blob_sha1": "13097b9901f947e6ae14fc108db23a1e04dc365f",
+      "bytes": 22994,
+      "features": [
+        "headers",
+        "sections"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/PageSpecificHeadFoot.docx",
+      "sha256": "90bb8251b18c9f94e0b8fb91192413922a09dbe418a4a210116221054378eaad"
+    },
+    {
+      "id": "poi-13-sampledoc",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/SampleDoc.docx",
+      "git_blob_sha1": "a43c77ae236716a4cc5e4b22ea486a00cc81fbd6",
+      "bytes": 11611,
+      "features": [
+        "paragraphs"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/SampleDoc.docx",
+      "sha256": "ea2c517bd7be4628887eb97f630334b93b894f4522d2c0adae263e602d76df92"
+    },
+    {
+      "id": "poi-14-simpleheadthreecolfoot",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/SimpleHeadThreeColFoot.docx",
+      "git_blob_sha1": "fb17df23a4b277f1bcda418e4d6cb5c19b2496c6",
+      "bytes": 13112,
+      "features": [
+        "headers",
+        "footers",
+        "tables"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/SimpleHeadThreeColFoot.docx",
+      "sha256": "c682ea30e50785784969ee00b4d6ed8da31e725a64e0251a4f21077f02f19d8e"
+    },
+    {
+      "id": "poi-15-styles",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Styles.docx",
+      "git_blob_sha1": "27f66f48bff955494065233a3980fb65793b2e2f",
+      "bytes": 10905,
+      "features": [
+        "styles"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Styles.docx",
+      "sha256": "63f3fe4c3b4fbdc211eca8fa7fd31a799ff4438afbf4ca6e771b3aef107c732e"
+    },
+    {
+      "id": "poi-16-testtablecellalign",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/TestTableCellAlign.docx",
+      "git_blob_sha1": "cf40dd2213a44972cce7f1bccdfd6f9db8933386",
+      "bytes": 11712,
+      "features": [
+        "tables",
+        "cell-alignment"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/TestTableCellAlign.docx",
+      "sha256": "2968d4a5d5de21dce1cbeae3235e545cdf4bfd7ae508fe0eed3a9b032773ce17"
+    },
+    {
+      "id": "poi-17-testtablecolumns",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/TestTableColumns.docx",
+      "git_blob_sha1": "a474a694777608ba8fdfc873431fab7eccd3077d",
+      "bytes": 12672,
+      "features": [
+        "tables",
+        "column-widths"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/TestTableColumns.docx",
+      "sha256": "3b1965a295c4a5c24573a6d5f2ded93f7de3e7a46ffe26b881456f1c4ddd6335"
+    },
+    {
+      "id": "poi-18-threecolfoot",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/ThreeColFoot.docx",
+      "git_blob_sha1": "b01e35636c3fbaec92ddf47552e1ce521a4b40ee",
+      "bytes": 13061,
+      "features": [
+        "footers",
+        "tables"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/ThreeColFoot.docx",
+      "sha256": "584ef284e9b106fd7f1d283e918bdb6b579f5c73162d075acba921c10c63930b"
+    },
+    {
+      "id": "poi-19-threecolhead",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/ThreeColHead.docx",
+      "git_blob_sha1": "448d046d3265ec4a221c424a4f7676404249374b",
+      "bytes": 12508,
+      "features": [
+        "headers",
+        "tables"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/ThreeColHead.docx",
+      "sha256": "304656fd791bd829f5cabebf8e7ec058260b669e9f572e500f69ff176387e090"
+    },
+    {
+      "id": "poi-20-threecolheadfoot",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/ThreeColHeadFoot.docx",
+      "git_blob_sha1": "51602ccfe3404bc9aa93be7d7bc274259f1c913e",
+      "bytes": 13123,
+      "features": [
+        "headers",
+        "footers",
+        "tables"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/ThreeColHeadFoot.docx",
+      "sha256": "c2d16e89c23a8c1f7366f3b65ab33c6e14fcf00f916dfecfd8af1a3e7797f73d"
+    },
+    {
+      "id": "poi-21-withtabs",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/WithTabs.docx",
+      "git_blob_sha1": "e9b3a7a1dc4476b82808567a491e4a576ac2e8f7",
+      "bytes": 14190,
+      "features": [
+        "tabs",
+        "leaders"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/WithTabs.docx",
+      "sha256": "c6460c33b3343b0656189d5cba344fadafea821f8982ea01619c5324fa87a266"
+    },
+    {
+      "id": "poi-22-deep-table-cell",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/deep-table-cell.docx",
+      "git_blob_sha1": "6bb54e6c6d91f95bfd39049fa3121b777255e657",
+      "bytes": 17198,
+      "features": [
+        "tables",
+        "nesting"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/deep-table-cell.docx",
+      "sha256": "31c5bfe1f68c98699cb356891de2e02fe223f633706d666c430ca79fd2cdf6bb"
+    },
+    {
+      "id": "poi-23-footnotes",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/footnotes.docx",
+      "git_blob_sha1": "db4386c09c85279519fc0d1c086d9189cd2b2b19",
+      "bytes": 12823,
+      "features": [
+        "footnotes"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/footnotes.docx",
+      "sha256": "9070094b27ff5201477f4de4b2c027730c66cb889106a1609c5adeed207a59c1"
+    },
+    {
+      "id": "poi-24-form_footnotes",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/form_footnotes.docx",
+      "git_blob_sha1": "70abb60c9a8f1676e5a2669e32fa1811385b248d",
+      "bytes": 27824,
+      "features": [
+        "footnotes",
+        "forms"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/form_footnotes.docx",
+      "sha256": "a890294bfbdc63f6d03eab61efc1e98cb51d59f0920541150dd7082f9bdf31f1"
+    },
+    {
+      "id": "poi-25-endnotes",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/endnotes.docx",
+      "git_blob_sha1": "a5db3492c3f16398daff0065fdfd7b87cd9a5727",
+      "bytes": 13553,
+      "features": [
+        "endnotes"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/endnotes.docx",
+      "sha256": "6e2e1b2dabb0ae6b9b26ddd613dca446ba0710ecc8b4008722abc4ed592934e3"
+    },
+    {
+      "id": "poi-26-headerfooter",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/headerFooter.docx",
+      "git_blob_sha1": "87a86c302f3b9c1dc08dc9670a7135ab66491a31",
+      "bytes": 28423,
+      "features": [
+        "headers",
+        "footers"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/headerFooter.docx",
+      "sha256": "0ad90c6ee8ec8b9fab1ae8219387eca8d934b739580918d76a1b6c911bc41913"
+    },
+    {
+      "id": "poi-27-headerpic",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/headerPic.docx",
+      "git_blob_sha1": "01072e547e44e8dc1b7364ecae20d888a116ad3f",
+      "bytes": 16206,
+      "features": [
+        "headers",
+        "images"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/headerPic.docx",
+      "sha256": "50d9b17f7575c8a91129fd8a3e6a70feec886480ab9f089e29a7f8ac7e5ed51a"
+    },
+    {
+      "id": "poi-28-heading123",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/heading123.docx",
+      "git_blob_sha1": "cf6118339989d4c6e31921ba4bc854c52cf6be7f",
+      "bytes": 74810,
+      "features": [
+        "styles",
+        "headings"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/heading123.docx",
+      "sha256": "dac67500b907811030ab2bdd5b1c65cda97a15651d6ec0d33592ef70d34a5550"
+    },
+    {
+      "id": "poi-29-sample",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/sample.docx",
+      "git_blob_sha1": "8dd04bcdb8113195a9624878de641fbc0ad044fa",
+      "bytes": 14860,
+      "features": [
+        "paragraphs",
+        "formatting"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/sample.docx",
+      "sha256": "be4fc1bf778ad8183f714e09b9df40669de34e9ecbc3adecfc8953f00749036f"
+    },
+    {
+      "id": "poi-30-table-alignment",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/table-alignment.docx",
+      "git_blob_sha1": "76fd85c338a1515c2ba2736953ba8424a9bc9367",
+      "bytes": 15519,
+      "features": [
+        "tables",
+        "alignment"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/table-alignment.docx",
+      "sha256": "ee36729e0d050e529fea0b444006a194bea72b35cf8958ae58c6624c26156b41"
+    },
+    {
+      "id": "poi-31-table-indent",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/table-indent.docx",
+      "git_blob_sha1": "c4306aa9370f1d998ebb7da90816f1db2a31320d",
+      "bytes": 7639,
+      "features": [
+        "tables",
+        "indentation"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/table-indent.docx",
+      "sha256": "aaa3fd6a1c0d6ac222ccacad213257b9061be7d706396a36b3ffedacb3a56c9b"
+    },
+    {
+      "id": "poi-32-table_footnotes",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/table_footnotes.docx",
+      "git_blob_sha1": "f4d0b2bd03c86490b831d5c7977917e00f9b88a8",
+      "bytes": 13177,
+      "features": [
+        "tables",
+        "footnotes"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/table_footnotes.docx",
+      "sha256": "69666500a7dd00600da64cc7676f8939c84df8804967ec2fc75567fad41f21a9"
+    },
+    {
+      "id": "poi-33-rtl",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/rtl.docx",
+      "git_blob_sha1": "6a60dce72c69f11f9289992e10fe8ccc6ce64f48",
+      "bytes": 6838,
+      "features": [
+        "bidi",
+        "arabic"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/rtl.docx",
+      "sha256": "d159b6ac6734f14a9ecf8e97ca5029bdcddbfae2d33ba0128aa774924e0b190d"
+    },
+    {
+      "id": "poi-34-bug-paragraph-alignment",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug-paragraph-alignment.docx",
+      "git_blob_sha1": "de4a468552ff002cc6519843489416f6c730abeb",
+      "bytes": 11916,
+      "features": [
+        "paragraph-alignment"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug-paragraph-alignment.docx",
+      "sha256": "0a7a19175b8fb5fdce4755a51489a29109b358447dc99a2125642964be48e6ad"
+    },
+    {
+      "id": "poi-35-bug56075-changetracking_on",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug56075-changeTracking_on.docx",
+      "git_blob_sha1": "401af507f781471b4725164c5e55151d00992811",
+      "bytes": 12606,
+      "features": [
+        "revisions"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug56075-changeTracking_on.docx",
+      "sha256": "9c837e12aaf3deac10ac20ac1bc08dc6bebdec14b553698063742b9bc12f8920"
+    },
+    {
+      "id": "poi-36-comment",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/comment.docx",
+      "git_blob_sha1": "dc4bebbf06a1bd6a75257cecb94fddb0dddc64ea",
+      "bytes": 4926,
+      "features": [
+        "comments"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/comment.docx",
+      "sha256": "23bbfe33e1acf7073253bd87552cbee5be0a07cbd08a479a4bf139f09b1dd6dc"
+    },
+    {
+      "id": "poi-37-bookmarks",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bookmarks.docx",
+      "git_blob_sha1": "b7816e70c24bfed7c66b69c6294c7ca40404b057",
+      "bytes": 10405,
+      "features": [
+        "bookmarks"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bookmarks.docx",
+      "sha256": "9b93eef9e2ce1ad0e28dc65beab73a896d5d1631a0b7fc73ec6ac279cf36b218"
+    },
+    {
+      "id": "poi-38-saut_page",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/saut_page.docx",
+      "git_blob_sha1": "859f035d9a1bc61d97cde2e7b45259932fbc4690",
+      "bytes": 2959626,
+      "features": [
+        "page-breaks",
+        "long-document"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/saut_page.docx",
+      "sha256": "748f34f3dc285f4d48474930758b2c37382d17965545a1729cb7400cada793da"
+    },
+    {
+      "id": "poi-39-variouspictures",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/VariousPictures.docx",
+      "git_blob_sha1": "2ab9a1645a5c10ea86a691c8bbdc245581d1007f",
+      "bytes": 103677,
+      "features": [
+        "images"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/VariousPictures.docx",
+      "sha256": "c1eecbca7de9f99e21c677e1d5b045eaa1d5a442eff4c82f0cbe9af93726a070"
+    },
+    {
+      "id": "poi-40-shapes-with-text",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/shapes-with-text.docx",
+      "git_blob_sha1": "87ecf6dcec8a827d7ad1f29fd91b3cba5a0639bc",
+      "bytes": 27520,
+      "features": [
+        "drawings",
+        "text-boxes"
+      ],
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/shapes-with-text.docx",
+      "sha256": "1ef4d8cbfd5e2333897ab3193b58ce445cee7e45476d39e5626a4c7097f72d95"
+    },
+    {
+      "id": "docx4j-01-docx4j_gettingstarted",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/Docx4j_GettingStarted.docx",
+      "git_blob_sha1": "ddb00f882ccbf8daa38f5be56b62365d64ca3c71",
+      "bytes": 443680,
+      "features": [
+        "long-document",
+        "headings",
+        "lists",
+        "tables",
+        "images",
+        "links"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/Docx4j_GettingStarted.docx",
+      "sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97"
+    },
+    {
+      "id": "docx4j-02-headers_footers",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/headers_footers.docx",
+      "git_blob_sha1": "835d9d30df561aad00273ac54f7d9efd6d328545",
+      "bytes": 406287,
+      "features": [
+        "long-document",
+        "headers",
+        "footers",
+        "sections"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/headers_footers.docx",
+      "sha256": "621014619dbaebb287543f123d448059e6a1675a288c20a9ce82af12cbe9a607"
+    },
+    {
+      "id": "docx4j-03-bookmark_crossrefs",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/Bookmark_crossrefs.docx",
+      "git_blob_sha1": "763e0ef5b8505860a54d22ee0ac50d86593a6906",
+      "bytes": 15903,
+      "features": [
+        "bookmarks",
+        "fields"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/Bookmark_crossrefs.docx",
+      "sha256": "e42406910e1a87959c5782bec05405973a8793ac616f00d8ed25bae39828d2f5"
+    },
+    {
+      "id": "docx4j-04-docx4j_russian",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/Docx4j_Russian.docx",
+      "git_blob_sha1": "cdf6184e14c41f72bb3418aed6c8f80d26fe6ba7",
+      "bytes": 750576,
+      "features": [
+        "long-document",
+        "cyrillic",
+        "images"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/Docx4j_Russian.docx",
+      "sha256": "c00b5434abdcc37487cb35f9525ffed974e3dc81670a060a72edc9a397cbc135"
+    },
+    {
+      "id": "docx4j-05-compatsetting",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/compatSetting.docx",
+      "git_blob_sha1": "3071498430b57dc2b246d0697b3c191df0a657af",
+      "bytes": 133635,
+      "features": [
+        "long-document",
+        "compatibility",
+        "tables"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/compatSetting.docx",
+      "sha256": "1a3a601569043457589da0f617a302f0520fcab201865589954e2402d01f0a5f"
+    },
+    {
+      "id": "docx4j-06-rfonts",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/rFonts.docx",
+      "git_blob_sha1": "62b79761951164d753b11bf53c52b3fd906ec59c",
+      "bytes": 96416,
+      "features": [
+        "font-resolution",
+        "styles"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/rFonts.docx",
+      "sha256": "d3a9fd32e4766ef88bb0276baffa6a4c4bab97a115a06e9c631550bc9a114203"
+    },
+    {
+      "id": "docx4j-07-locale-styles",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/Locale-Styles.docx",
+      "git_blob_sha1": "64146943ca5d0de455f4a3fb0dadd992b81a87cd",
+      "bytes": 31610,
+      "features": [
+        "styles",
+        "localization"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/Locale-Styles.docx",
+      "sha256": "de8d73569771b4ff0c872629462ce839a8925f4af82290f760da783c460c472f"
+    },
+    {
+      "id": "docx4j-08-eastern-arabic-numbering",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/Eastern Arabic numbering.docx",
+      "git_blob_sha1": "52526728d69e685806ecd6be11cae6d8197b462f",
+      "bytes": 37012,
+      "features": [
+        "numbering",
+        "arabic"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/Eastern%20Arabic%20numbering.docx",
+      "sha256": "eef8571d73be3f628429dfd1e8c6e971c4a63631d2a2d5b7e9a7e6d099870d82"
+    },
+    {
+      "id": "docx4j-09-invoice",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/OpenDoPE/invoice.docx",
+      "git_blob_sha1": "99140ef02c90dc9b5bd9047f3665134420f2f81d",
+      "bytes": 22964,
+      "features": [
+        "invoice",
+        "tables",
+        "content-controls"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/OpenDoPE/invoice.docx",
+      "sha256": "37d38fc35e7df3a73688587369b01a8c5005df3e64cdf69b6e40503715d328c2"
+    },
+    {
+      "id": "docx4j-10-different_first_page",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/different_first_page.docx",
+      "git_blob_sha1": "b033b9fe4ce5844e68f210e3d67116c802bb4fbd",
+      "bytes": 19659,
+      "features": [
+        "headers",
+        "first-page"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/different_first_page.docx",
+      "sha256": "6a98e04e00c63381c066d821c03652d9e72d00332956bf32f3cf73d4d08e212b"
+    },
+    {
+      "id": "docx4j-11-odd_even",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/odd_even.docx",
+      "git_blob_sha1": "aa655074baefb07a2072775372fb61ec3b84ca28",
+      "bytes": 18548,
+      "features": [
+        "headers",
+        "odd-even"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/odd_even.docx",
+      "sha256": "ae1f4ec515269e8a738fa8bb7940dbbafc062e106eb3e1f65975813cf2b937e6"
+    },
+    {
+      "id": "docx4j-12-odd_even_different_first_page",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/odd_even_different_first_page.docx",
+      "git_blob_sha1": "189682b534b55fb07859606271192f4e70fe9ac2",
+      "bytes": 19029,
+      "features": [
+        "headers",
+        "first-page",
+        "odd-even"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/odd_even_different_first_page.docx",
+      "sha256": "a79ad8e70c80f6ae790d35fcb0f502dd24909b50aa8b9aacdc6390b2693e6c46"
+    },
+    {
+      "id": "docx4j-13-same_as_previous_numbering",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/same_as_previous_numbering.docx",
+      "git_blob_sha1": "d1e5d3c4b91bda9c051dc41ac7d1060802bfaa67",
+      "bytes": 36390,
+      "features": [
+        "headers",
+        "section-numbering"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/same_as_previous_numbering.docx",
+      "sha256": "1e349e20294885bfc8b460649f7ab97e160bc7f35ce2512b5fb7d0dc6da9a6f8"
+    },
+    {
+      "id": "docx4j-14-sections_multiple",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/sections_multiple.docx",
+      "git_blob_sha1": "9ca5b6d43fc2e08fc3c116b4f9b86f97c2a4b521",
+      "bytes": 20525,
+      "features": [
+        "headers",
+        "sections"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/sections_multiple.docx",
+      "sha256": "e013190a084877201988dcdc3eac953e24fc97cb1efed1a0bef7891cac21034e"
+    },
+    {
+      "id": "docx4j-15-simple_hf_long",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/simple_hf_long.docx",
+      "git_blob_sha1": "2bd3b24cfe4d4108bf582e769323c427e55a2b83",
+      "bytes": 20383,
+      "features": [
+        "headers",
+        "footers",
+        "long-document"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/simple_hf_long.docx",
+      "sha256": "73e9253544f5e04b1dc785599a8a1b36f58f116a3e7904b6dc6d286124da9f94"
+    },
+    {
+      "id": "docx4j-16-simple_hf_margin",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/simple_hf_margin.docx",
+      "git_blob_sha1": "d2725526ed615cfebf2fd27480b69199e311c176",
+      "bytes": 17807,
+      "features": [
+        "headers",
+        "margins"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/simple_hf_margin.docx",
+      "sha256": "c693e100265f201235ea821f6172bef460cadc14f1cb244528b18e25d4abc069"
+    },
+    {
+      "id": "docx4j-17-simple_hf_negative",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/simple_hf_negative.docx",
+      "git_blob_sha1": "30702d3333e002d82ebda04036e651210bd0c52e",
+      "bytes": 17685,
+      "features": [
+        "headers",
+        "negative-distance"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/simple_hf_negative.docx",
+      "sha256": "aad6d28f67a7a4073b6bda666fdcd2cd836c679d6cb53e3a47891b2771ab4b3a"
+    },
+    {
+      "id": "docx4j-18-indentation_firstline",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/indentation_firstline.docx",
+      "git_blob_sha1": "f39764c1be8a5f933064b0b25242062f9edb1e01",
+      "bytes": 19471,
+      "features": [
+        "indents",
+        "paragraphs"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/indentation_firstline.docx",
+      "sha256": "513c4f729e36131664c8287fa5dfd07a7347564a297909486b5c84e19ec28f46"
+    },
+    {
+      "id": "docx4j-19-indentation_hanging",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/indentation_hanging.docx",
+      "git_blob_sha1": "d377121dc185459f9f0b84f8af9a65da4b6bcf37",
+      "bytes": 18206,
+      "features": [
+        "indents",
+        "paragraphs"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/indentation_hanging.docx",
+      "sha256": "9a051c88eab5f6b985f2d07ab5c856396f766f7ae3a31f28e35089a7e165b249"
+    },
+    {
+      "id": "docx4j-20-numbering_indentation",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/numbering_indentation.docx",
+      "git_blob_sha1": "381ccaab3368c9ebbc247e3964345ee7c00381ee",
+      "bytes": 18923,
+      "features": [
+        "numbering",
+        "indents"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/numbering_indentation.docx",
+      "sha256": "22ccfcaf4d6db90b10b6276ac2b9e0a30d4e4239b6f54638df87dadacdbf3c0a"
+    },
+    {
+      "id": "docx4j-21-numbering_indentation_firstline",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/numbering_indentation_firstline.docx",
+      "git_blob_sha1": "dab90be315a119d4244ed053161c6ea9e9e9fc46",
+      "bytes": 20259,
+      "features": [
+        "numbering",
+        "indents"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/numbering_indentation_firstline.docx",
+      "sha256": "7a2307943052016271a1397853156123fa82c7ed2410dbfcfa984dcdd0c6f697"
+    },
+    {
+      "id": "docx4j-22-numberingimplicitnumid",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/NumberingImplicitNumId.docx",
+      "git_blob_sha1": "1a4bf87c4500dd4e77a0ebc9c116b5a3c2ecd2b4",
+      "bytes": 26135,
+      "features": [
+        "numbering",
+        "styles"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/NumberingImplicitNumId.docx",
+      "sha256": "bacc7e588563ef49f0f5ba6c602901e64d9dae6ff0bf043d9ab4acbe94b59891"
+    },
+    {
+      "id": "docx4j-23-startoverride",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/startOverride.docx",
+      "git_blob_sha1": "c5aa2a39ea42aead04cc3d19ec991f49f0966f42",
+      "bytes": 14376,
+      "features": [
+        "numbering",
+        "start-overrides"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/startOverride.docx",
+      "sha256": "c667a4b291adbfe1868d38b0a43c9d127a7fd4aea020afa89a4835af595942b0"
+    },
+    {
+      "id": "docx4j-24-article-section-islgl",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/article-section-isLgl.docx",
+      "git_blob_sha1": "adbafb696be51bf25b993b76332a9965f4c663b9",
+      "bytes": 14383,
+      "features": [
+        "numbering",
+        "legal"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/article-section-isLgl.docx",
+      "sha256": "7bdf5d99badb2aaa29179ce2d4e4ab8fd015f0e4f2ac5c3df6151142df803dc7"
+    },
+    {
+      "id": "docx4j-25-arabic_align",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/multilingual/arabic/arabic_align.docx",
+      "git_blob_sha1": "eeffb83e54089ab47307f8b091482e7197fba5f0",
+      "bytes": 31832,
+      "features": [
+        "arabic",
+        "bidi",
+        "alignment"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/multilingual/arabic/arabic_align.docx",
+      "sha256": "198f98953c82f1be499c98dd39e1ad0b27cb8c9ec64bafdcda65d4198201e516"
+    },
+    {
+      "id": "docx4j-26-arabic_numbering",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/multilingual/arabic/arabic_numbering.docx",
+      "git_blob_sha1": "53f9ce48fbf8cf77a7f5e90b5577af6679d17352",
+      "bytes": 16976,
+      "features": [
+        "arabic",
+        "bidi",
+        "numbering"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/multilingual/arabic/arabic_numbering.docx",
+      "sha256": "15d77d6eec68ee3f6e40ba37cfee73ea517d775a1a83b3bed2dfeb236847d65d"
+    },
+    {
+      "id": "docx4j-27-textbox",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/vml/textbox.docx",
+      "git_blob_sha1": "d1997607985e2e2dd8f4069c4cab5267d1247cf5",
+      "bytes": 58948,
+      "features": [
+        "text-boxes",
+        "vml"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/vml/textbox.docx",
+      "sha256": "11e16acb10335f770bf0beb3596837c1df8cbbaa5ed5855bdf4132202f664569"
+    },
+    {
+      "id": "docx4j-28-tblheadertestone",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-export-fo-tests/src/test/resources/tables/tblHeaderTestOne.docx",
+      "git_blob_sha1": "3e0a2d5d76004f78834c8197a84f31f8dd266a59",
+      "bytes": 19981,
+      "features": [
+        "tables",
+        "repeated-headers"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-export-fo-tests/src/test/resources/tables/tblHeaderTestOne.docx",
+      "sha256": "fc5a4d709ae885e68b4a64072825d94237b3c3246e868ecff4cddd6d2e144ea2"
+    },
+    {
+      "id": "docx4j-29-tblheadertesttwo",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-export-fo-tests/src/test/resources/tables/tblHeaderTestTwo.docx",
+      "git_blob_sha1": "9fd1a8e1d533a573f0fa9da35bc30cbe277308f7",
+      "bytes": 21421,
+      "features": [
+        "tables",
+        "repeated-headers"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-export-fo-tests/src/test/resources/tables/tblHeaderTestTwo.docx",
+      "sha256": "768171fc2d7dfbb1aaacdf0c2203f2d8137052511727ddb36a757349f283ce20"
+    },
+    {
+      "id": "docx4j-30-tables",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/tables.docx",
+      "git_blob_sha1": "cbdfd4ede24746ff92490a84e48034958f7a9e74",
+      "bytes": 433587,
+      "features": [
+        "tables",
+        "merges",
+        "nesting",
+        "long-document"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/tables.docx",
+      "sha256": "50ea2fd62761aedc66e307c30ca1191a4e6baf8fa9d8d849ba1d9c20eb5921f4"
+    },
+    {
+      "id": "docx4j-31-sample-docx",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/sample-docx.docx",
+      "git_blob_sha1": "56ed2754bc3c13fa50350f06e1c679c9b3551694",
+      "bytes": 142893,
+      "features": [
+        "mixed-formatting",
+        "images",
+        "tables"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/sample-docx.docx",
+      "sha256": "f527fe32f4bf9e152d86a8e7f1971033e7404929c624e3bdc26853c6a0cfa25e"
+    },
+    {
+      "id": "docx4j-32-toc",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/toc.docx",
+      "git_blob_sha1": "0a0f961cfb6997c216b179329cfa9060cfca97e7",
+      "bytes": 34793,
+      "features": [
+        "fields",
+        "toc"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/toc.docx",
+      "sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49"
+    },
+    {
+      "id": "docx4j-33-hyperlinks-internal",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/hyperlinks-internal.docx",
+      "git_blob_sha1": "516d1b5c7b46063c912219a57fdc9e39934e789f",
+      "bytes": 13972,
+      "features": [
+        "hyperlinks",
+        "bookmarks"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/hyperlinks-internal.docx",
+      "sha256": "e06670ede7135c32ef404ae63ee072bdf466476608002def811f6d2c0b66181e"
+    },
+    {
+      "id": "docx4j-34-2010-mcalternatecontent-in-header",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/2010-mcAlternateContent-in-header.docx",
+      "git_blob_sha1": "0fbb50a476f9489dabb42ece5a81942e546bae29",
+      "bytes": 22550,
+      "features": [
+        "headers",
+        "alternate-content"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/2010-mcAlternateContent-in-header.docx",
+      "sha256": "8153ad9348f89f0adc28d3613cd1f3fd404625663a847e8d707f34235e1c643e"
+    },
+    {
+      "id": "docx4j-35-inheritance",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/xhtml/inheritance.docx",
+      "git_blob_sha1": "7014c6d3b91178498fff8f877c6e065414ecd833",
+      "bytes": 10201,
+      "features": [
+        "styles",
+        "inheritance"
+      ],
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/xhtml/inheritance.docx",
+      "sha256": "c05804faa4bb343894e85902173eee5546188ff6cd6f49a239d8bd8b29d22a97"
+    }
+  ]
+}

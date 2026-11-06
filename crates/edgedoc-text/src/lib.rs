@@ -1,8 +1,8 @@
 //! Line breaking, bidi, justification, and tabs.
 //!
-//! A paragraph becomes a list of [`Cluster`] values, one per grapheme, then a list of [`Line`]
-//! values. The model follows WordCraft's measured behavior: a cluster owns its glyph range, so a
-//! ligature is one cluster of several glyphs, and the breaker is first-fit, not a global optimum.
+//! A paragraph becomes a list of [`Cluster`] values, then a list of [`Line`] values. Contextual
+//! shaping may join graphemes into a ligature cluster. Each cluster owns its actual glyphs and
+//! advances, and the breaker uses first fit.
 //! See `DP-F-08` to `DP-F-52`.
 
 #![forbid(unsafe_code)]
@@ -43,6 +43,7 @@ pub enum ClusterKind {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Glyph {
     pub gid: u16,
+    pub advance: f32,
     /// Offset from the cluster x, in points.
     pub dx: f32,
     pub dy: f32,
@@ -61,6 +62,8 @@ pub struct Cluster {
     pub style: u32,
     pub g0: u32,
     pub g1: u32,
+    /// The shaping result used by both line layout and paint, relative to this cluster.
+    pub glyphs: Vec<Glyph>,
     /// True when a line may break after this cluster.
     pub break_after: bool,
     /// Height above the baseline for an inline object.
@@ -163,6 +166,13 @@ pub struct TabStop {
     pub leader: Option<char>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PositionalTab {
+    pub align: TabAlign,
+    pub margin_relative: bool,
+    pub leader: Option<char>,
+}
+
 /// One line of a paragraph.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Line {
@@ -212,11 +222,19 @@ impl Line {
 pub struct RunStyle {
     pub face: u32,
     pub size: f32,
+    /// Font size used to measure the line; super/subscript glyphs draw smaller.
+    pub line_size: f32,
+    pub kerning: bool,
+    pub positional_tab: Option<PositionalTab>,
     /// The text colour, resolved through the cascade. Word's default is black, not a theme
     /// colour, so a run with no `w:color` paints black.
     pub color: edgedoc_geom::Rgba,
     /// True when the run shows an underline.
     pub underline: bool,
+    /// Draw two underline strokes when the document requests a double underline.
+    pub double_underline: bool,
+    /// Explicit underline colour; absent uses the text colour.
+    pub underline_color: Option<edgedoc_geom::Rgba>,
     /// True when the run shows a single strikethrough.
     pub strike: bool,
     /// True when the run shows a double strikethrough.
@@ -231,6 +249,8 @@ pub struct RunStyle {
     pub letter_spacing: f32,
     /// Baseline offset from `w:position`, in points.
     pub baseline_shift: f32,
+    /// The explicit position shift used for line extents, excluding super/subscript alignment.
+    pub line_shift: f32,
     /// True when the run is hidden text.
     pub hidden: bool,
     /// True when the run reads right to left.
@@ -250,8 +270,13 @@ fn default_style() -> RunStyle {
     RunStyle {
         face: 0,
         size: 11.0,
+        line_size: 11.0,
+        kerning: true,
+        positional_tab: None,
         color: edgedoc_geom::Rgba::BLACK,
         underline: false,
+        double_underline: false,
+        underline_color: None,
         strike: false,
         double_strike: false,
         highlight: None,
@@ -259,6 +284,7 @@ fn default_style() -> RunStyle {
         x_scale: 1.0,
         letter_spacing: 0.0,
         baseline_shift: 0.0,
+        line_shift: 0.0,
         hidden: false,
         rtl: false,
         caps: CapsMode::None,
@@ -286,8 +312,12 @@ pub struct BreakInput<'a> {
     pub runs: &'a [(usize, usize, u32)],
     /// The style table.
     pub styles: &'a [RunStyle],
+    /// Style of the paragraph mark, used when a line has only spaces and tabs.
+    pub mark_style: u32,
     /// Available width in points.
     pub width: f32,
+    /// Page-margin edges relative to the paragraph origin. None uses the paragraph edges.
+    pub tab_margins: Option<(f32, f32)>,
     /// Left indent, in points.
     pub indent_left: f32,
     /// Right indent, in points, which reduces the width.
@@ -296,6 +326,8 @@ pub struct BreakInput<'a> {
     pub indent_first: f32,
     /// Alignment.
     pub align: Align,
+    /// Word 2013 and newer may fit another word by slightly shrinking spaces.
+    pub shrink_justified_spaces: bool,
     /// True when the paragraph reads right to left.
     pub bidi: bool,
     /// Tab stops.
@@ -343,7 +375,7 @@ pub fn is_east_asian(c: char) -> bool {
 }
 
 /// Characters a line may not start with. See `DP-F-23`.
-const NO_START: &str = "、。，．・：；？！゛゜ヽヾゝゞ々〻〉》」』】〕〗〙〛〞〟）］｝｠｡｣､･ﾞﾟ％￠";
+const NO_START: &str = "ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿｧｨｩｪｫｬｭｮｯーｰ゛゜ヽヾゝゞ々〻ﾞﾟ、。，．・：；？！〉》」』】〕〗〙〛〞〟）］｝｠｡｣､･％￠";
 
 /// Characters a line may not end with.
 const NO_END: &str = "〈《「『【〔〖〘〚〝（［｛｟｢＄￡￥";
@@ -398,16 +430,17 @@ fn style_at(runs: &[(usize, usize, u32)], offset: usize) -> u32 {
 /// Shape a grapheme into glyphs at its style. See `DP-F-09` and `DP-F-10`.
 fn shape_grapheme<S: Shaper>(shaper: &S, style: &RunStyle, grapheme: &str) -> (Vec<Glyph>, f32) {
     let text = caps_text(grapheme, style.caps);
-    let shaped = shaper.shape_run(style.face, &text, style.size, style.rtl);
+    let shaped = shaper.shape_run_kerning(style.face, &text, style.size, style.rtl, style.kerning);
     let mut glyphs = Vec::with_capacity(shaped.len());
     let mut adv = 0.0f32;
     for g in &shaped {
         glyphs.push(Glyph {
             gid: g.gid,
-            dx: g.dx,
-            dy: g.dy + style.baseline_shift,
+            advance: g.advance * style.x_scale,
+            dx: g.dx * style.x_scale,
+            dy: g.dy,
         });
-        adv += shaper.advance(style.face, g.gid, style.size) + g.dx;
+        adv += g.advance;
     }
     if glyphs.is_empty() {
         // A missing glyph still takes room, so the line does not collapse.
@@ -415,6 +448,103 @@ fn shape_grapheme<S: Shaper>(shaper: &S, style: &RunStyle, grapheme: &str) -> (V
     }
     adv = adv * style.x_scale + style.letter_spacing;
     (glyphs, adv.max(0.0))
+}
+
+/// Shape adjacent text together so kerning, ligatures and joining survive grapheme boundaries.
+/// Control characters, bidi levels and style changes remain shaping boundaries.
+fn contextual_shape<S: Shaper>(shaper: &S, input: &BreakInput<'_>, clusters: &mut Vec<Cluster>) {
+    let mut out = Vec::with_capacity(clusters.len());
+    let mut i = 0;
+    while i < clusters.len() {
+        let first = &clusters[i];
+        let Some(style) = input.styles.get(first.style as usize) else {
+            break;
+        };
+        if style.caps != CapsMode::None
+            || !matches!(first.kind, ClusterKind::Text | ClusterKind::Space)
+        {
+            out.push(first.clone());
+            i += 1;
+            continue;
+        }
+        let mut j = i + 1;
+        while j < clusters.len()
+            && input.styles.get(clusters[j].style as usize) == Some(style)
+            && clusters[j].level == first.level
+            && matches!(clusters[j].kind, ClusterKind::Text | ClusterKind::Space)
+        {
+            j += 1;
+        }
+        let start = first.start;
+        let stop = clusters[j - 1].end;
+        let shaped = shaper.shape_run_kerning(
+            style.face,
+            &input.text[start..stop],
+            style.size,
+            style.rtl || first.level % 2 == 1,
+            style.kerning,
+        );
+        let mut groups: std::collections::BTreeMap<usize, Vec<edgedoc_fonts::ShapedGlyph>> =
+            std::collections::BTreeMap::new();
+        for g in shaped {
+            let source = start + g.cluster as usize;
+            let boundary = clusters[i..j].partition_point(|c| c.start <= source);
+            if let Some(c) = boundary
+                .checked_sub(1)
+                .and_then(|index| clusters[i..j].get(index))
+            {
+                groups.entry(c.start).or_default().push(g);
+            }
+        }
+        if groups.is_empty() {
+            for source in &clusters[i..j] {
+                let mut c = source.clone();
+                let (glyphs, advance) = shape_grapheme(shaper, style, &input.text[c.start..c.end]);
+                c.glyphs = glyphs;
+                c.adv = advance;
+                out.push(c);
+            }
+            i = j;
+            continue;
+        }
+        let boundaries: Vec<_> = groups
+            .keys()
+            .copied()
+            .chain(std::iter::once(stop))
+            .collect();
+        for (k, (source, glyphs)) in groups.into_iter().enumerate() {
+            let Some(template) = clusters[i..j]
+                .binary_search_by_key(&source, |c| c.start)
+                .ok()
+                .and_then(|index| clusters[i..j].get(index))
+            else {
+                continue;
+            };
+            let mut c = template.clone();
+            c.end = boundaries[k + 1];
+            c.adv = (glyphs.iter().map(|g| g.advance).sum::<f32>() * style.x_scale
+                + style.letter_spacing)
+                .max(0.0);
+            c.glyphs = glyphs
+                .into_iter()
+                .map(|g| Glyph {
+                    gid: g.gid,
+                    advance: g.advance * style.x_scale,
+                    dx: g.dx * style.x_scale,
+                    dy: g.dy,
+                })
+                .collect();
+            out.push(c);
+        }
+        i = j;
+    }
+    let mut g0 = 0;
+    for c in &mut out {
+        c.g0 = g0;
+        g0 += c.glyphs.len() as u32;
+        c.g1 = g0;
+    }
+    *clusters = out;
 }
 
 /// Build the cluster list for a paragraph.
@@ -433,6 +563,8 @@ pub fn build_clusters<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Vec<Clus
         let first = slice.chars().next();
         let kind = if slice.contains('\u{000C}') {
             ClusterKind::PageBreak
+        } else if slice.contains('\u{000E}') {
+            ClusterKind::ColumnBreak
         } else if slice.contains('\n') || slice.contains('\u{000B}') {
             ClusterKind::LineBreak
         } else if slice.contains('\t') {
@@ -459,13 +591,22 @@ pub fn build_clusters<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Vec<Clus
             || slice.starts_with('\u{200B}')
             || matches!(
                 kind,
-                ClusterKind::PageBreak | ClusterKind::LineBreak | ClusterKind::SoftHyphen
+                ClusterKind::PageBreak
+                    | ClusterKind::ColumnBreak
+                    | ClusterKind::LineBreak
+                    | ClusterKind::SoftHyphen
             ) {
             // Hidden text, a marker, and a break take no room and draw nothing.
             (Vec::new(), 0.0)
         } else if matches!(kind, ClusterKind::Object(_)) {
             // The object paints itself; the cluster only takes its advance.
             (Vec::new(), object_extent.0)
+        } else if style.caps == CapsMode::None
+            && matches!(kind, ClusterKind::Text | ClusterKind::Space)
+        {
+            // The contextual pass shapes the whole segment once, rather than parsing and
+            // shaping the same font again for every grapheme.
+            (Vec::new(), 0.0)
         } else {
             shape_grapheme(shaper, style, slice)
         };
@@ -482,15 +623,17 @@ pub fn build_clusters<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Vec<Clus
             style: style_index,
             g0,
             g1: g0 + glyph_count,
+            glyphs,
             break_after: false,
-            obj_h: object_extent.0,
-            obj_d: object_extent.1,
+            obj_h: object_extent.1,
+            obj_d: 0.0,
             dot: matches!(first, Some('.')) || matches!(first, Some(',')),
             level: levels.get(start).copied().unwrap_or(0),
         };
         g0 += glyph_count;
         clusters.push(cluster);
     }
+    contextual_shape(shaper, input, &mut clusters);
     // Break opportunities from UAX #14, then the Word exceptions.
     let mut break_points: Vec<usize> = unicode_linebreak::linebreaks(input.text)
         .map(|(i, _)| i)
@@ -518,43 +661,57 @@ pub fn build_clusters<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Vec<Clus
                 }
             }
         }
-        // A CJK pair breaks anywhere when the paragraph allows it.
-        if !breakable && input.word_wrap_off {
+        // With kinsoku disabled, Wordcraft permits breaks between any two East Asian
+        // characters, including punctuation.
+        if !breakable && !input.kinsoku {
             if let Some(next) = clusters.get(index + 1) {
                 let cur_char = input.text.get(cluster.start..cluster.end).unwrap_or("");
                 let next_char = input.text.get(next.start..next.end).unwrap_or("");
-                if cur_char
-                    .chars()
-                    .next()
-                    .is_some_and(|c| is_east_asian(c) && !NO_END.contains(c))
-                    && next_char
-                        .chars()
-                        .next()
-                        .is_some_and(|c| is_east_asian(c) && !NO_START.contains(c))
+                if cur_char.chars().next().is_some_and(is_east_asian)
+                    && next_char.chars().next().is_some_and(is_east_asian)
                 {
                     breakable = true;
                 }
             }
         }
-        // A space is always a break opportunity, and the space stays on the previous line.
-        if matches!(cluster.kind, ClusterKind::Space) {
+        // Word's wordWrap=0 additionally allows breaks inside Latin words.
+        if !breakable && input.word_wrap_off {
+            if let Some(next) = clusters.get(index + 1) {
+                let latin = |s: &str| {
+                    s.chars()
+                        .next()
+                        .is_some_and(|c| c.is_alphanumeric() && !is_east_asian(c))
+                };
+                if latin(input.text.get(cluster.start..cluster.end).unwrap_or(""))
+                    && latin(input.text.get(next.start..next.end).unwrap_or(""))
+                {
+                    breakable = true;
+                }
+            }
+        }
+        // UAX #14 determines which spaces are break opportunities. In particular, it keeps
+        // punctuation following a space with the preceding word rather than starting a line
+        // with the punctuation.
+        // Word keeps a slash joined to a following word, while preserving a
+        // break before a slash that starts a word after ordinary whitespace.
+        let cur = input.text.get(cluster.start..cluster.end).unwrap_or("");
+        let next = clusters
+            .get(index + 1)
+            .and_then(|next| input.text.get(next.start..next.end))
+            .and_then(|s| s.chars().next());
+        if cur == "/" && next.is_some_and(char::is_alphanumeric) {
+            breakable = false;
+        }
+        if cur == "-" && next.is_some_and(|c| c.is_ascii_digit()) {
             breakable = true;
         }
-        // Word's exceptions, measured in WordCraft: a break does not follow a slash, and a break
-        // does follow a hyphen that comes before a digit. See `DP-F-23`.
-        if breakable {
-            let cur_char = input.text.get(cluster.start..cluster.end).unwrap_or("");
-            let cur = cur_char.chars().next();
-            if cur == Some('/') {
-                breakable = false;
-            }
-            if cur == Some('-') {
-                if let Some(next) = clusters.get(index + 1) {
-                    let next_char = input.text.get(next.start..next.end).unwrap_or("");
-                    if !next_char.chars().next().is_some_and(|c| c.is_ascii_digit()) {
-                        breakable = false;
-                    }
-                }
+        if matches!(cluster.kind, ClusterKind::Space) && next == Some('/') {
+            let after_slash = clusters
+                .get(index + 2)
+                .and_then(|next| input.text.get(next.start..next.end))
+                .and_then(|s| s.chars().next());
+            if after_slash.is_some_and(char::is_alphanumeric) {
+                breakable = true;
             }
         }
         // A soft hyphen is a break opportunity of its own.
@@ -611,7 +768,7 @@ fn band_at(exclusions: &[Rect], y: f32, height: f32, left: f32, right: f32) -> V
 
 /// The line height of a cluster, from its face metrics and its style.
 fn cluster_metrics<S: Shaper>(shaper: &S, style: &RunStyle) -> (f32, f32) {
-    let (asc, desc, _) = shaper.line_metrics(style.face, style.size);
+    let (asc, desc, _) = shaper.line_metrics(style.face, style.line_size);
     (asc, desc)
 }
 
@@ -626,33 +783,43 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
     let count = clusters.len();
     if count == 0 {
         // An empty paragraph still takes one line, which holds the paragraph mark.
-        let style = input.styles.first().cloned().unwrap_or(RunStyle {
-            face: 0,
-            size: 11.0,
-            color: edgedoc_geom::Rgba::BLACK,
-            underline: false,
-            strike: false,
-            double_strike: false,
-            highlight: None,
-            shading: None,
-            x_scale: 1.0,
-            letter_spacing: 0.0,
-            baseline_shift: 0.0,
-            hidden: false,
-            rtl: false,
-            caps: CapsMode::None,
-            symbol: None,
-            synth_bold: false,
-            synth_italic: false,
-        });
+        let style = input
+            .styles
+            .get(input.mark_style as usize)
+            .cloned()
+            .unwrap_or(RunStyle {
+                face: 0,
+                size: 11.0,
+                line_size: 11.0,
+                kerning: true,
+                positional_tab: None,
+                color: edgedoc_geom::Rgba::BLACK,
+                underline: false,
+                double_underline: false,
+                underline_color: None,
+                strike: false,
+                double_strike: false,
+                highlight: None,
+                shading: None,
+                x_scale: 1.0,
+                letter_spacing: 0.0,
+                baseline_shift: 0.0,
+                line_shift: 0.0,
+                hidden: false,
+                rtl: false,
+                caps: CapsMode::None,
+                symbol: None,
+                synth_bold: false,
+                synth_italic: false,
+            });
         let (asc, desc) = cluster_metrics(shaper, &style);
-        let (ascent, descent, gap) = shaper.line_metrics(style.face, style.size);
+        let (ascent, descent, gap) = shaper.line_metrics(style.face, style.line_size);
         let height = ascent + descent + gap;
         let _ = (asc, desc);
         lines.push(Line {
             top: y,
             height,
-            baseline: y + ascent,
+            baseline: y + ascent + gap.max(0.0),
             text_asc: ascent,
             text_desc: descent,
             c0: 0,
@@ -689,13 +856,13 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         let line_right = input.indent_left + content_width;
         // The band is the full width unless an exclusion crosses the line.
         let bands = band_at(input.exclusions, y, 1.0, line_left, line_right);
-        let (band_left, band_right) = bands.first().copied().unwrap_or((line_left, line_right));
+        let (band_left, mut band_right) = bands.first().copied().unwrap_or((line_left, line_right));
         let mut xs: Vec<f32> = Vec::new();
         let mut pen = band_left;
         let mut used = 0.0f32;
         let mut ascent = 0.0f32;
         let mut descent = 0.0f32;
-        let mut line_gap = 0.0f32;
+        let mut ascent_with_gap = 0.0f32;
         let mut leaders: Vec<(usize, char, u32)> = Vec::new();
         let mut last_fit = index;
         let mut end_kind = LineEnd::Wrap;
@@ -703,6 +870,9 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         let start_index = index;
         let mut cursor = band_left;
         let mut j = index;
+        let mut space_width = 0.0f32;
+        let mut word_from = cursor;
+        let mut has_tab = false;
         while j < count {
             let Some(cluster) = clusters.get(j) else {
                 break;
@@ -712,22 +882,34 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 .get(cluster.style as usize)
                 .cloned()
                 .unwrap_or_else(default_style);
-            let (asc, desc, gap) = shaper.line_metrics(style.face, style.size);
-            ascent = ascent.max(asc + style.baseline_shift.abs());
-            descent = descent.max(desc + style.baseline_shift.abs());
-            line_gap = line_gap.max(gap);
+            // Spaces and tabs do not enlarge a line. When they are its only content,
+            // the paragraph mark supplies the line's font metrics instead.
+            if !(matches!(cluster.kind, ClusterKind::Space | ClusterKind::Tab)
+                || matches!(cluster.kind, ClusterKind::Object(_))
+                    && cluster.adv == 0.0
+                    && cluster.obj_h == 0.0)
+            {
+                let (asc, desc, gap) = shaper.line_metrics(style.face, style.line_size);
+                ascent = ascent.max(asc + style.line_shift.max(0.0));
+                descent = descent.max(desc + (-style.line_shift).max(0.0));
+                ascent_with_gap =
+                    ascent_with_gap.max(asc + gap.max(0.0) + style.line_shift.max(0.0));
+            }
             match cluster.kind {
                 ClusterKind::PageBreak => {
+                    xs.push(cursor);
                     end_kind = LineEnd::PageBreak;
                     j += 1;
                     break;
                 }
                 ClusterKind::ColumnBreak => {
+                    xs.push(cursor);
                     end_kind = LineEnd::ColumnBreak;
                     j += 1;
                     break;
                 }
                 ClusterKind::LineBreak => {
+                    xs.push(cursor);
                     end_kind = LineEnd::LineBreak;
                     j += 1;
                     break;
@@ -739,7 +921,26 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                     continue;
                 }
                 ClusterKind::Tab => {
-                    let (target, leader) = next_tab(input, cursor);
+                    has_tab = true;
+                    if style.positional_tab.is_some_and(|tab| tab.margin_relative) {
+                        band_right = band_right
+                            .max(input.tab_margins.map_or(input.width, |(_, right)| right));
+                    } else if style.positional_tab.is_none() {
+                        // A right or decimal tab can anchor text at a stop beyond the
+                        // paragraph's right edge; Wordcraft grows the segment leftward.
+                        if let Some(tab) = input
+                            .tabs
+                            .iter()
+                            .filter(|tab| tab.pos > cursor + 0.01 && tab.align != TabAlign::Bar)
+                            .min_by(|a, b| a.pos.total_cmp(&b.pos))
+                        {
+                            if matches!(tab.align, TabAlign::Right | TabAlign::Decimal) {
+                                band_right = band_right.max(tab.pos);
+                            }
+                        }
+                    }
+                    let (target, leader) =
+                        aligned_tab(input, &clusters, j, cursor, style.positional_tab);
                     let gap_adv = (target - cursor).max(0.0);
                     if cursor + gap_adv > band_right + 0.001 && j > start_index {
                         end_kind = LineEnd::Wrap;
@@ -761,7 +962,7 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                     continue;
                 }
                 ClusterKind::Object(_) => {
-                    let (oh, od) = input
+                    let (_, oh) = input
                         .objects
                         .get(match cluster.kind {
                             ClusterKind::Object(i) => i,
@@ -770,11 +971,16 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                         .copied()
                         .unwrap_or((0.0, 0.0));
                     ascent = ascent.max(oh);
-                    descent = descent.max(od);
                 }
                 _ => {}
             }
-            if cursor + cluster.adv > band_right + 0.001 && j > start_index {
+            let shrink_room =
+                if input.shrink_justified_spaces && input.align == Align::Justify && !has_tab {
+                    (space_width * 0.25).min((cursor + cluster.adv - word_from).max(0.0) * 0.355)
+                } else {
+                    0.0
+                };
+            if cursor + cluster.adv > band_right + shrink_room + 0.01 && j > start_index {
                 // The cluster does not fit. A space hangs past the edge in Word. Any other
                 // cluster ends the line at the last break opportunity, so a line never splits a
                 // word. See DP-F-23 and DP-F-27.
@@ -801,13 +1007,32 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
             }
             xs.push(cursor);
             cursor += cluster.adv;
+            if matches!(cluster.kind, ClusterKind::Space) {
+                space_width += cluster.adv;
+            }
+            if cluster.break_after {
+                word_from = if matches!(cluster.kind, ClusterKind::Space) {
+                    cursor - cluster.adv
+                } else {
+                    cursor
+                };
+            }
             pen = cursor;
             used = cursor - band_left;
             j += 1;
             last_fit = j;
         }
+        let shrink_line =
+            input.shrink_justified_spaces && input.align == Align::Justify && !has_tab;
+        if shrink_line && j < last_fit {
+            xs.truncate(j - start_index);
+            cursor = xs.last().copied().unwrap_or(band_left)
+                + clusters.get(j.saturating_sub(1)).map_or(0.0, |c| c.adv);
+            pen = cursor;
+            used = cursor - band_left;
+        }
         // If the line overran, fall back to the last break opportunity that fits.
-        if used > (band_right - band_left) + 0.001 {
+        if !shrink_line && used > (band_right - band_left) + 0.001 {
             let mut best = None;
             for k in start_index..last_fit {
                 if let Some(c) = clusters.get(k) {
@@ -886,7 +1111,29 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
             Align::Right => shift = free.max(0.0),
             _ => {}
         }
-        if is_justified {
+        if shrink_line && free < -0.001 {
+            let total: f32 = clusters[start_index..visible_end]
+                .iter()
+                .filter(|c| matches!(c.kind, ClusterKind::Space))
+                .map(|c| c.adv)
+                .sum();
+            if total > 0.0 {
+                let ratio = (-free / total).clamp(0.0, 0.25);
+                let mut taken = 0.0;
+                for (i, x) in xs.iter_mut().enumerate() {
+                    *x -= taken;
+                    if let Some(c) = clusters
+                        .get(start_index + i)
+                        .filter(|c| matches!(c.kind, ClusterKind::Space))
+                    {
+                        if start_index + i < visible_end {
+                            taken += c.adv * ratio;
+                        }
+                    }
+                }
+                pen -= taken;
+            }
+        } else if is_justified {
             // Stretch spaces and tabs. See DP-F-28 and DP-F-31.
             let stretchable: Vec<usize> = clusters
                 .get(start_index..visible_end)
@@ -896,15 +1143,10 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 .filter(|(_, c)| c.is_stretchable())
                 .map(|(i, _)| i)
                 .collect();
-            let mut extra = free;
-            let max_stretch = 3.0 * stretchable.len() as f32;
-            if max_stretch > 0.0 && extra > max_stretch {
-                extra = max_stretch;
-            }
             let per = if stretchable.is_empty() {
                 0.0
             } else {
-                extra / stretchable.len() as f32
+                free / stretchable.len() as f32
             };
             let mut out: Vec<f32> = Vec::with_capacity(xs.len() + 1);
             let mut added = 0.0f32;
@@ -926,7 +1168,15 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
             cursor += added;
             pen = cursor;
         } else if shift > 0.0 {
-            for x in &mut xs {
+            // A tab anchors everything through it. Wordcraft applies paragraph alignment
+            // only to the segment after the last tab on this line.
+            let align_from = clusters
+                .get(start_index..j)
+                .unwrap_or(&[])
+                .iter()
+                .rposition(|cluster| matches!(cluster.kind, ClusterKind::Tab))
+                .map_or(0, |index| index + 1);
+            for x in xs.iter_mut().skip(align_from) {
                 *x += shift;
             }
             cursor += shift;
@@ -943,10 +1193,22 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
             xs = vec![band_left, band_left];
         }
         let _ = cursor;
+        // Each font's gap belongs to its own ascent. Combining the largest ascent from one
+        // face with the largest gap from another makes mixed-font lines too tall.
+        if ascent == 0.0 && descent == 0.0 {
+            if let Some(style) = input.styles.get(input.mark_style as usize) {
+                let (asc, desc, gap) = shaper.line_metrics(style.face, style.line_size);
+                ascent = asc + style.line_shift.max(0.0);
+                descent = desc + (-style.line_shift).max(0.0);
+                ascent_with_gap = ascent + gap.max(0.0);
+            }
+        }
         let text_asc = ascent.max(1.0);
+        let line_gap = (ascent_with_gap - text_asc).max(0.0);
         let text_desc = descent.max(0.0);
         let height = text_asc + text_desc + line_gap;
-        let baseline = y + text_asc + line_gap / 2.0;
+        // Wordcraft fonts::word::line_metrics places hhea lineGap above the ascent.
+        let baseline = y + text_asc + line_gap.max(0.0);
         let start_byte = clusters.get(start_index).map_or(0, |c| c.start);
         let stop_byte = clusters
             .get(visible_end.saturating_sub(1))
@@ -973,9 +1235,40 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         y += height;
         index = j;
         first_line = false;
-        if matches!(end, LineEnd::PageBreak | LineEnd::ColumnBreak) {
-            break;
-        }
+    }
+    // A final hard line break starts an empty line before the paragraph mark.
+    // Page and column breaks are handled by pagination and do not do this.
+    if let Some(last) = clusters
+        .last()
+        .filter(|c| matches!(c.kind, ClusterKind::LineBreak))
+    {
+        let style = input
+            .styles
+            .get(last.style as usize)
+            .cloned()
+            .unwrap_or_else(default_style);
+        let (asc, desc, gap) = shaper.line_metrics(style.face, style.size);
+        let height = asc + desc + gap;
+        let left = input.indent_left;
+        lines.push(Line {
+            top: y,
+            height,
+            baseline: y + asc + gap.max(0.0),
+            text_asc: asc,
+            text_desc: desc,
+            c0: count,
+            c1: count,
+            xs: vec![left],
+            end: LineEnd::Para,
+            start: input.text.len(),
+            stop: input.text.len(),
+            left,
+            right: input.indent_left + content_width,
+            hyphen: None,
+            beside: false,
+            leaders: Vec::new(),
+        });
+        y += height;
     }
     let max_width = lines.iter().map(|l| l.ink_width()).fold(0.0f32, f32::max);
     ParagraphLayout {
@@ -987,12 +1280,69 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
 }
 
 /// The next tab stop after `x`, with the leader character of that stop. See `DP-F-33`.
+fn aligned_tab(
+    input: &BreakInput<'_>,
+    clusters: &[Cluster],
+    index: usize,
+    x: f32,
+    positional: Option<PositionalTab>,
+) -> (f32, Option<char>) {
+    let (stop, align, leader) = if let Some(tab) = positional {
+        let (left, right) = if tab.margin_relative {
+            input.tab_margins.unwrap_or((0.0, input.width))
+        } else {
+            (0.0, input.width)
+        };
+        let stop = match tab.align {
+            TabAlign::Center => (left + right) / 2.0,
+            TabAlign::Right => right,
+            _ => left,
+        };
+        (stop, tab.align, tab.leader)
+    } else if let Some(tab) = input
+        .tabs
+        .iter()
+        .filter(|tab| tab.pos > x + 0.01 && tab.align != TabAlign::Bar)
+        .min_by(|a, b| a.pos.total_cmp(&b.pos))
+    {
+        (tab.pos, tab.align, tab.leader)
+    } else {
+        return next_tab(input, x);
+    };
+    let following: Vec<_> = clusters
+        .iter()
+        .skip(index + 1)
+        .take_while(|c| {
+            !matches!(
+                c.kind,
+                ClusterKind::Tab
+                    | ClusterKind::LineBreak
+                    | ClusterKind::PageBreak
+                    | ClusterKind::ColumnBreak
+            )
+        })
+        .collect();
+    let count = following
+        .iter()
+        .rposition(|c| c.kind != ClusterKind::Space)
+        .map_or(0, |i| i + 1);
+    let length: f32 = following.iter().take(count).map(|c| c.adv).sum();
+    let decimal: f32 = following.iter().take_while(|c| !c.dot).map(|c| c.adv).sum();
+    let offset = match align {
+        TabAlign::Right => length,
+        TabAlign::Center => length / 2.0,
+        TabAlign::Decimal => decimal.min(length),
+        _ => 0.0,
+    };
+    ((stop - offset).max(x), leader)
+}
+
 pub fn next_tab(input: &BreakInput<'_>, x: f32) -> (f32, Option<char>) {
     let mut best: Option<(f32, Option<char>)> = None;
-    for stop in input.tabs {
+    for stop in input.tabs.iter().filter(|stop| stop.align != TabAlign::Bar) {
         if stop.pos > x + 0.01 {
             best = Some(match best {
-                Some((b, _)) if b <= stop.pos => (b, None),
+                Some((b, leader)) if b <= stop.pos => (b, leader),
                 _ => (stop.pos, stop.leader),
             });
         }
@@ -1005,7 +1355,17 @@ pub fn next_tab(input: &BreakInput<'_>, x: f32) -> (f32, Option<char>) {
     } else {
         36.0
     };
-    (((x / step).floor() + 1.0) * step, None)
+    // Default stops are on the column-margin grid, even when the current
+    // paragraph is indented. For positions left of the margin Word truncates
+    // toward zero and permits a tab to stay on an existing negative stop.
+    let origin = input.tab_margins.map_or(0.0, |(left, _)| left);
+    let relative = x - origin;
+    let n = if relative < -0.01 {
+        ((relative - 0.01) / step).ceil()
+    } else {
+        ((relative + 0.01) / step).floor() + 1.0
+    };
+    (n * step + origin, None)
 }
 
 /// The next tab stop after `x`.
@@ -1037,8 +1397,13 @@ mod tests {
         RunStyle {
             face: 0,
             size,
+            line_size: size,
+            kerning: true,
+            positional_tab: None,
             color: edgedoc_geom::Rgba::BLACK,
             underline: false,
+            double_underline: false,
+            underline_color: None,
             strike: false,
             double_strike: false,
             highlight: None,
@@ -1046,6 +1411,7 @@ mod tests {
             x_scale: 1.0,
             letter_spacing: 0.0,
             baseline_shift: 0.0,
+            line_shift: 0.0,
             hidden: false,
             rtl: false,
             caps: CapsMode::None,
@@ -1064,11 +1430,14 @@ mod tests {
             text,
             runs,
             styles,
+            mark_style: 0,
             width: 300.0,
+            tab_margins: None,
             indent_left: 0.0,
             indent_right: 0.0,
             indent_first: 0.0,
             align: Align::Left,
+            shrink_justified_spaces: false,
             bidi: false,
             tabs: &[],
             default_tab: 36.0,
@@ -1078,6 +1447,72 @@ mod tests {
             objects: &[],
             hyphen_after: &[],
         }
+    }
+
+    #[test]
+    fn modern_justification_can_fit_a_word_by_shrinking_spaces() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "one two three four";
+        let runs = [(0, text.len(), 0)];
+        let mut paragraph = input(text, &styles, &runs);
+        paragraph.align = Align::Justify;
+        let clusters = build_clusters(&shaper, &paragraph);
+        let through_three: f32 = clusters
+            .iter()
+            .take_while(|c| c.end <= "one two three".len())
+            .map(|c| c.adv)
+            .sum();
+        let spaces: f32 = clusters
+            .iter()
+            .take_while(|c| c.end <= "one two three".len())
+            .filter(|c| matches!(c.kind, ClusterKind::Space))
+            .map(|c| c.adv)
+            .sum();
+        paragraph.width = through_three - spaces * 0.1;
+        let legacy = layout_paragraph(&shaper, &paragraph);
+        paragraph.shrink_justified_spaces = true;
+        let modern = layout_paragraph(&shaper, &paragraph);
+        assert!(legacy.lines[0].stop < "one two three".len());
+        assert!(modern.lines[0].stop >= "one two three".len());
+        let line = &modern.lines[0];
+        assert!((line.xs.last().unwrap() - paragraph.width).abs() < 0.02);
+    }
+
+    #[test]
+    fn modern_justification_does_not_shrink_a_tabbed_line() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "one\ttwo three four five";
+        let runs = [(0, text.len(), 0)];
+        let mut paragraph = input(text, &styles, &runs);
+        paragraph.align = Align::Justify;
+        paragraph.width = 65.0;
+        let legacy = layout_paragraph(&shaper, &paragraph);
+        paragraph.shrink_justified_spaces = true;
+        let modern = layout_paragraph(&shaper, &paragraph);
+        assert_eq!(legacy.lines[0], modern.lines[0]);
+    }
+
+    #[test]
+    fn paragraph_wrap_options_change_break_opportunities() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let runs = [(0, "abcde".len(), 0)];
+        let mut latin = input("abcde", &styles, &runs);
+        assert!(!build_clusters(&shaper, &latin)[0].break_after);
+        latin.word_wrap_off = true;
+        assert!(build_clusters(&shaper, &latin)[0].break_after);
+
+        let text = "漢（字";
+        let runs = [(0, text.len(), 0)];
+        let mut asian = input(text, &styles, &runs);
+        assert!(!build_clusters(&shaper, &asian)[1].break_after);
+        asian.kinsoku = false;
+        assert!(build_clusters(&shaper, &asian)[1].break_after);
     }
 
     #[test]
@@ -1116,6 +1551,18 @@ mod tests {
         let clusters = build_clusters(&shaper, &inp);
         let space_index = 3;
         assert!(clusters[space_index].break_after);
+    }
+
+    #[test]
+    fn a_space_before_closing_punctuation_does_not_start_a_line() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "word, . next";
+        let runs = [(0usize, text.len(), 0u32)];
+        let clusters = build_clusters(&shaper, &input(text, &styles, &runs));
+        assert!(!clusters[5].break_after);
+        assert!(clusters[7].break_after);
     }
 
     #[test]
@@ -1268,6 +1715,40 @@ mod tests {
     }
 
     #[test]
+    fn a_trailing_hard_line_break_keeps_an_empty_final_line() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "Hello\n";
+        let runs = [(0, text.len(), 0)];
+        let layout = layout_paragraph(&shaper, &input(text, &styles, &runs));
+        assert_eq!(layout.lines.len(), 2);
+        assert_eq!(layout.lines[1].start, text.len());
+        assert_eq!(layout.lines[1].stop, text.len());
+        assert!(layout.lines[1].height > 0.0);
+    }
+
+    #[test]
+    fn hyphens_and_slashes_keep_wordcraft_break_opportunities() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "co-operation 2016-2022 and/or /word";
+        let runs = [(0, text.len(), 0)];
+        let clusters = build_clusters(&shaper, &input(text, &styles, &runs));
+        let at = |index: usize| {
+            clusters
+                .iter()
+                .find(|c| c.start == index)
+                .map(|c| c.break_after)
+        };
+        assert_eq!(at(text.find('-').unwrap()), Some(true));
+        assert_eq!(at(text.find("2016-").unwrap() + 4), Some(true));
+        assert_eq!(at(text.find('/').unwrap()), Some(false));
+        assert_eq!(at(text.rfind(" /word").unwrap()), Some(true));
+    }
+
+    #[test]
     fn a_decimal_separator_is_marked() {
         let db = db();
         let shaper = DbShaper { db: &db };
@@ -1277,6 +1758,26 @@ mod tests {
         let inp = input(text, &styles, &runs);
         let clusters = build_clusters(&shaper, &inp);
         assert!(clusters[2].dot);
+    }
+
+    #[test]
+    fn right_tab_just_beyond_margin_keeps_its_segment_on_one_line() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "\tPage 1 of 7 pages";
+        let runs = [(0usize, text.len(), 0u32)];
+        let stops = [TabStop {
+            pos: 300.05,
+            align: TabAlign::Right,
+            leader: None,
+        }];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 300.0;
+        inp.tabs = &stops;
+        let layout = layout_paragraph(&shaper, &inp);
+        assert_eq!(layout.lines.len(), 1);
+        assert_eq!(line_text(text, &layout.lines[0]), text);
     }
 
     #[test]

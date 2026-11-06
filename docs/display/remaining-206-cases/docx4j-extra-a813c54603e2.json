@@ -1,0 +1,592 @@
+{
+  "id": "docx4j-extra-a813c54603e2",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Conditional table styles"
+    },
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Extended paragraph properties"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Consolas"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 3.0517578125e-05,
+      "unmatched_ink_fraction": 0.00015001750204190489,
+      "mean_ink_color_error": 0.008848394267261028,
+      "errors": [
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 371.62274169921875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 54.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 371.62274169921875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 54.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 386.9061279296875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 54.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 386.9061279296875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 54.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 402.18951416015625,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 54.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 402.18951416015625,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 54.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 659.0559692382812,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 8.0,
+              "text": "•",
+              "x": 54.0
+            },
+            {
+              "advance": 3.984375,
+              "baseline": 659.0559692382812,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 8.0,
+              "text": "•",
+              "x": 54.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.4058926339726182,
+      "mean_ink_color_error": 0.0474512092769146,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "CoverPageSectPrMover.process(ret);",
+              "}",
+              "if (features.contains(PP_COMMON_CONTAINERIZATION)) {",
+              "Containerization.process(ret);",
+              "}",
+              "if (features.contains(PP_PDF_APACHEFOP_DISABLE_PAGEBREAK_FIRST_PARAGRAPH)) {",
+              "FopWorkaroundDisablePageBreakOnFirstParagraph.process(ret);",
+              "}",
+              "if (features.contains(PP_PDF_APACHEFOP_DISABLE_PAGEBREAK_LIST_ITEM)) {",
+              "FopWorkaroundReplacePageBreakInEachList.process(ret);",
+              "}",
+              "if (features.contains(PP_COMMON_TABLE_PARAGRAPH_STYLE_FIX)) {",
+              "ParagraphStylesInTableFix.process(ret);",
+              "}",
+              "•createWrappers(conversionSettings, preprocessedPackage);",
+              "This creates Section containers to facilitate hierarchical processing better that sectPr point tags.",
+              "AbstractWmlExporter does this (for WordprocessingMLPackage only), ",
+              "by calling CreateWrappers.process, ",
+              "which in turn calls ConversionSectionWrapperFactory class.",
+              "•createContext(conversionSettings, preprocessedPackage, sectionWrappers);",
+              "AbstractFOExporter creates an FOConversionContext",
+              "AbstractHTMLExporter3 creates an HTMLConversionContext",
+              "•createIntermediateOutputStream(outputStream);",
+              "AbstractFOExporter just creates a ByteArrayOutputStream, which will ultimately contain FO",
+              "•process(conversionSettings, conversionContext, intermediateOutputStream);",
+              "public abstract class AbstractWmlExporter<CS .. extends AbstractExporter<CS, CC, ",
+              "WordprocessingMLPackage> contains the process method:",
+              "exporterDelegate.process(conversionSettings, conversionContext, outputStream)",
+              "AbstractWmlExporter gets its exporterDelegate object via its constructor which takes a ",
+              "AbstractExporterDelegate object.  That declares a single method process, which does the core ",
+              "conversion. The method is abstract though; the class is extended by:",
+              "oAbstractXSLTExporterDelegate (contains the process method which performs the XSLT ",
+              "transform), and is extended by WmlXsltExporterDelegate, which is in turn a field of: ",
+              "FOExporterXslt",
+              "HTMLExporterXslt",
+              "oAbstractVisitorExporterDelegate (non XSLT) , which contains the process method,",
+              "and is extended by:",
+              "FOExporterVisitorDelegate",
+              "HTMLExporterVisitorDelegate",
+              "Those invoke superconstructor with a FO|HTMLExporterVisitorGenerator, which extends ",
+              "AbstractVisitorExporterGenerator.  See both of those classes, but mainly ",
+              "AbstractVisitorExporterGenerator ",
+              "•postprocess(conversionSettings, conversionContext, intermediateOutputStream, outputStream); ",
+              "AbstractFOExporter calls the FO renderer to perform the render step here (ie FO to PDF or whatever).  ",
+              "FO renderer (FORenderer is an interface, which FOP or other renderer sits behind).",
+              "Headers/Footers generally, and LayoutMasterSetBuilder",
+              "See /docs/headers_footers.docx – read that first!",
+              "Word versus XSL FO"
+            ],
+            "edgedoc": [
+              "CoverPageSectPrMover.process(ret);",
+              "}",
+              "if (features.contains(PP_COMMON_CONTAINERIZATION)) {",
+              "Containerization.process(ret);",
+              "}",
+              "if (features.contains(PP_PDF_APACHEFOP_DISABLE_PAGEBREAK_FIRST_PARAGRAPH)) {",
+              "FopWorkaroundDisablePageBreakOnFirstParagraph.process(ret);",
+              "}",
+              "if (features.contains(PP_PDF_APACHEFOP_DISABLE_PAGEBREAK_LIST_ITEM)) {",
+              "FopWorkaroundReplacePageBreakInEachList.process(ret);",
+              "}",
+              "if (features.contains(PP_COMMON_TABLE_PARAGRAPH_STYLE_FIX)) {",
+              "ParagraphStylesInTableFix.process(ret);",
+              "}",
+              "•createWrappers(conversionSettings, preprocessedPackage);",
+              "This creates Section containers to facilitate hierarchical processing better that sectPr point tags.",
+              "AbstractWmlExporter does this (for WordprocessingMLPackage only), ",
+              "by calling CreateWrappers.process, ",
+              "which in turn calls ConversionSectionWrapperFactory class.",
+              "•createContext(conversionSettings, preprocessedPackage, sectionWrappers);",
+              "AbstractFOExporter creates an FOConversionContext",
+              "AbstractHTMLExporter3 creates an HTMLConversionContext",
+              "•createIntermediateOutputStream(outputStream);",
+              "AbstractFOExporter just creates a ByteArrayOutputStream, which will ultimately contain FO",
+              "•process(conversionSettings, conversionContext, intermediateOutputStream);",
+              "public abstract class AbstractWmlExporter<CS .. extends AbstractExporter<CS, CC, ",
+              "WordprocessingMLPackage> contains the process method:",
+              "exporterDelegate.process(conversionSettings, conversionContext, outputStream)",
+              "AbstractWmlExporter gets its exporterDelegate object via its constructor which takes a ",
+              "AbstractExporterDelegate object.  That declares a single method process, which does the core ",
+              "conversion. The method is abstract though; the class is extended by:",
+              "oAbstractXSLTExporterDelegate (contains the process method which performs the XSLT ",
+              "transform), and is extended by WmlXsltExporterDelegate, which is in turn a field of: ",
+              "▪FOExporterXslt",
+              "▪HTMLExporterXslt",
+              "oAbstractVisitorExporterDelegate (non XSLT) , which contains the process method,",
+              "and is extended by:",
+              "▪FOExporterVisitorDelegate",
+              "▪HTMLExporterVisitorDelegate",
+              "Those invoke superconstructor with a FO|HTMLExporterVisitorGenerator, which extends ",
+              "AbstractVisitorExporterGenerator.  See both of those classes, but mainly ",
+              "AbstractVisitorExporterGenerator ",
+              "•postprocess(conversionSettings, conversionContext, intermediateOutputStream, outputStream); ",
+              "AbstractFOExporter calls the FO renderer to perform the render step here (ie FO to PDF or whatever).  ",
+              "FO renderer (FORenderer is an interface, which FOP or other renderer sits behind).",
+              "Headers/Footers generally, and LayoutMasterSetBuilder",
+              "See /docs/headers_footers.docx – read that first!",
+              "Word versus XSL FO"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.4058926339726182,
+          "mean_ink_color_error": 0.0474512092769146
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.018781762789375947,
+      "mean_ink_color_error": 0.0,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "If there are different even and odd headers/footers you can do it the fo-way (calling them even/odd) or the winword-",
+              "way (calling them even/default). But there is a small problem if the LayoutMasterSetBuilder outputs the stuff with the ",
+              "fo-naming but the xslt uses the winword-naming (the \"odd\" part is commented out). I have changed everything to use ",
+              "the winword-conventions.",
+              "If there are even/default headers but only default footers, then the HeaderFooterPolicy will now let the even footer ",
+              "reference the default footer (and the other way around). In Word headers and footers are independent but in the fo ",
+              "structure it is an even/odd page, that includes headers and footers. If the HeaderFooterPolicy wouldn't act this way, ",
+              "then on the even page the footer (or header) would be missing.",
+              "Different count of sections",
+              "if the count of the sections in the document model and the xslt/non-xslt are different(\"continuous\"-sections), then the ",
+              "section index will access the wrong section.",
+              "For this reason I made a subclass of the SectionWrapper (ConversionSectionWrapper) that corresponds to the ",
+              "sections in the xslt (i.e. without continuous sections). These sections are now used throughout the conversion ",
+              "process. Obviously any settings of the continous SectPr are lost. As a nice side effect, the handling of sections in the ",
+              "XSLFOExporterNonXSLT is simplified.",
+              "Concepts",
+              "Static entry points",
+              "With “static entry points” I’m referring to the static methods that get called from the XSL documents for a ",
+              "transformation. These are the places where the transformation calls back into the Java code.",
+              "-Design principle: All entry points should be within a class in the convert.out-packages. If it is a ",
+              "common entry point, i.e. it get’s called from more than one XSLT then it goes into the Converter ",
+              "class. ",
+              "-The first parameter is always the ConversionContext.",
+              "I didn’t move the entry points of the WordXmlPictureE10 and WordXmlPictureE20 because I expect them to ",
+              "be replaced with ModelConverter (all the code is there, it only needs to be rewrapped).",
+              "Rationale:",
+              "-The XSLT depend on these entry points, by moving them into the convert.out-packages they are ",
+              "nearer to the place they get used.",
+              "-This reduces the clutter in those classes that represent the model. ",
+              "-By having the ConversionContext as a parameter it would increase the dependencies in those ",
+              "model classes and this can be avoided by keeping the methods out of the model classes.",
+              "-These functions are “technical” functions for the output, again there is no need to have them in the ",
+              "model.   ",
+              "ConversionContext and ConversionSettings",
+              "-The ConversionContext is a private class in the conversion process.",
+              "-The ConversionSettings are a class the user passes to the conversion process.",
+              "Design principle: the user is the owner of ConversionSettings and therefore the conversion process ",
+              "shouldn’t change this instance. "
+            ],
+            "edgedoc": [
+              "If there are different even and odd headers/footers you can do it the fo-way (calling them even/odd) or the winword-",
+              "way (calling them even/default). But there is a small problem if the LayoutMasterSetBuilder outputs the stuff with the ",
+              "fo-naming but the xslt uses the winword-naming (the \"odd\" part is commented out). I have changed everything to use ",
+              "the winword-conventions.",
+              "If there are even/default headers but only default footers, then the HeaderFooterPolicy will now let the even footer ",
+              "reference the default footer (and the other way around). In Word headers and footers are independent but in the fo ",
+              "structure it is an even/odd page, that includes headers and footers. If the HeaderFooterPolicy wouldn't act this way, ",
+              "then on the even page the footer (or header) would be missing.",
+              "Different count of sections",
+              "if the count of the sections in the document model and the xslt/non-xslt are different(\"continuous\"-sections), then the ",
+              "section index will access the wrong section.",
+              "For this reason I made a subclass of the SectionWrapper (ConversionSectionWrapper) that corresponds to the ",
+              "sections in the xslt (i.e. without continuous sections). These sections are now used throughout the conversion ",
+              "process. Obviously any settings of the continous SectPr are lost. As a nice side effect, the handling of sections in the ",
+              "XSLFOExporterNonXSLT is simplified.",
+              "Concepts",
+              "Static entry points",
+              "With “static entry points” I’m referring to the static methods that get called from the XSL documents for a ",
+              "transformation. These are the places where the transformation calls back into the Java code.",
+              "-Design principle: All entry points should be within a class in the convert.out-packages. If it is a ",
+              "common entry point, i.e. it get’s called from more than one XSLT then it goes into the Converter ",
+              "class. ",
+              "-The first parameter is always the ConversionContext.",
+              "I didn’t move the entry points of the WordXmlPictureE10 and WordXmlPictureE20 because I expect them to ",
+              "be replaced with ModelConverter (all the code is there, it only needs to be rewrapped).",
+              "Rationale:",
+              "-The XSLT depend on these entry points, by moving them into the convert.out-packages they are ",
+              "nearer to the place they get used.",
+              "-This reduces the clutter in those classes that represent the model. ",
+              "-By having the ConversionContext as a parameter it would increase the dependencies in those ",
+              "model classes and this can be avoided by keeping the methods out of the model classes.",
+              "-These functions are “technical” functions for the output, again there is no need to have them in the ",
+              "model.   ",
+              "ConversionContext and ConversionSettings",
+              "-The ConversionContext is a private class in the conversion process.",
+              "-The ConversionSettings are a class the user passes to the conversion process.",
+              "Design principle: the user is the owner of ConversionSettings and therefore the conversion process ",
+              "shouldn’t change this instance. ",
+              "For this reason some of the information of the ConversionSettings is copied into the ConversionContext "
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.018781762789375947,
+          "mean_ink_color_error": 0.0
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.5530925692993783,
+      "mean_ink_color_error": 0.2541011571884155,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "For this reason some of the information of the ConversionSettings is copied into the ConversionContext ",
+              "and then changed there, and this is also the reason why the ConversionContext has a method ",
+              "getXSLTParameters. ",
+              "Data in ConversionContext and TransformState",
+              "The Map with the TransformState(s) and the ConversionContext are two ways of passing data around. The ",
+              "advantage I see with the ConversionContext, is that it makes explicit, what data it has. In the IDE you can ",
+              "check anytime the references to a getter, you can’t do that with a map value.",
+              "Design principle: if the data is private data of a ModelConverter, i.e. it’s a 1:1 relation, it goes is done as a ",
+              "TransformState. If the data get’s used in several ModelConverter or anywhere else it goes into the ",
+              "ConversionContext.  ",
+              "Design principle: There is only one instance of the Writer, it should never keep a reference to a ",
+              "WordprocessingMLPackage, as it would cause issues in a multithreading environment. Instead it should ",
+              "use the WMLPackage, which gets passed as part of the ConversionContext.",
+              "Apart from build, the ModelConverter has now two new methods: getID and createTransformState. Having ",
+              "a getID ensures that the Writer is managed under it’s own type (w:sym, w:tbl,…) and createTransformState ",
+              "ensures that it gets the TransformState  it expects.",
+              "org.docx4j.convert.out.AbstractConversionContext",
+              "-Root of the different ConversionContext",
+              "-Contains references to the OpcPackage, ImageHandler and MessageWriter",
+              "org.docx4j.convert.out.AbstractMessageWriter",
+              "-Root of the different MessageWriter",
+              "-The corresponding MessageWriter implementation adds it’s dialect (html, fo)",
+              "-One instance per output type (html, fo)",
+              "-The implementations are done as anonymous classes in the corresponding ConversionContext",
+              "org.docx4j.convert.out.AbstractModelRegistry",
+              "-Root for the different ModelRegistry",
+              "-The corresponding ModelRegistry implementation register their ModelConverter (html, fo)",
+              "-One instance per output type (html, fo)",
+              "-The implementations are done as anonymous classes in the corresponding ConversionContext",
+              "org.docx4j.convert.out.AbstractSymbolWriter",
+              "-Superclass for the (fo)SymbolWriter and (html)SymbolWriter.",
+              "-Implementation of getID, createTransformState and SymbolModelTransformState",
+              "-Question: Why not remove the SymbolModelTransformState if it doesn’t get used? If somebody ",
+              "needs an example he can look at the TableModelTransformState.",
+              "org.docx4j.convert.out.AbstractTableWriter",
+              "-Implementation of the new interface",
+              "-Use of ConversionContext",
+              "-Moved TableModelTransformState here",
+              "org.docx4j.convert.out.AbstractWmlConversionContext",
+              "-ConversionContext to process WordprocessingMLPackage.",
+              "-Adds methods for the ModelRegistry and TransformStates",
+              "-Implements the PartTracker, footnote and endnote numbering",
+              "org.docx4j.convert.out.Converter",
+              "-Moved the management of the Models to the ModelRegistry",
+              "-Moved common static functions, that get called from the xslt transformations into this class."
+            ],
+            "edgedoc": [
+              "and then changed there, and this is also the reason why the ConversionContext has a method ",
+              "getXSLTParameters. ",
+              "Data in ConversionContext and TransformState",
+              "The Map with the TransformState(s) and the ConversionContext are two ways of passing data around. The ",
+              "advantage I see with the ConversionContext, is that it makes explicit, what data it has. In the IDE you can ",
+              "check anytime the references to a getter, you can’t do that with a map value.",
+              "Design principle: if the data is private data of a ModelConverter, i.e. it’s a 1:1 relation, it goes is done as a ",
+              "TransformState. If the data get’s used in several ModelConverter or anywhere else it goes into the ",
+              "ConversionContext.  ",
+              "Design principle: There is only one instance of the Writer, it should never keep a reference to a ",
+              "WordprocessingMLPackage, as it would cause issues in a multithreading environment. Instead it should ",
+              "use the WMLPackage, which gets passed as part of the ConversionContext.",
+              "Apart from build, the ModelConverter has now two new methods: getID and createTransformState. Having ",
+              "a getID ensures that the Writer is managed under it’s own type (w:sym, w:tbl,…) and createTransformState ",
+              "ensures that it gets the TransformState  it expects.",
+              "org.docx4j.convert.out.AbstractConversionContext",
+              "-Root of the different ConversionContext",
+              "-Contains references to the OpcPackage, ImageHandler and MessageWriter",
+              "org.docx4j.convert.out.AbstractMessageWriter",
+              "-Root of the different MessageWriter",
+              "-The corresponding MessageWriter implementation adds it’s dialect (html, fo)",
+              "-One instance per output type (html, fo)",
+              "-The implementations are done as anonymous classes in the corresponding ConversionContext",
+              "org.docx4j.convert.out.AbstractModelRegistry",
+              "-Root for the different ModelRegistry",
+              "-The corresponding ModelRegistry implementation register their ModelConverter (html, fo)",
+              "-One instance per output type (html, fo)",
+              "-The implementations are done as anonymous classes in the corresponding ConversionContext",
+              "org.docx4j.convert.out.AbstractSymbolWriter",
+              "-Superclass for the (fo)SymbolWriter and (html)SymbolWriter.",
+              "-Implementation of getID, createTransformState and SymbolModelTransformState",
+              "-Question: Why not remove the SymbolModelTransformState if it doesn’t get used? If somebody ",
+              "needs an example he can look at the TableModelTransformState.",
+              "org.docx4j.convert.out.AbstractTableWriter",
+              "-Implementation of the new interface",
+              "-Use of ConversionContext",
+              "-Moved TableModelTransformState here",
+              "org.docx4j.convert.out.AbstractWmlConversionContext",
+              "-ConversionContext to process WordprocessingMLPackage.",
+              "-Adds methods for the ModelRegistry and TransformStates",
+              "-Implements the PartTracker, footnote and endnote numbering",
+              "org.docx4j.convert.out.Converter",
+              "-Moved the management of the Models to the ModelRegistry",
+              "-Moved common static functions, that get called from the xslt transformations into this class."
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.5530925692993783,
+          "mean_ink_color_error": 0.2541011571884155
+        }
+      ]
+    },
+    {
+      "page": 5,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.0012000569299244384,
+      "mean_ink_color_error": 0.0033289799466729164,
+      "errors": [
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 552.705810546875,
+              "bold": false,
+              "font": "Arial",
+              "font_sha256": "ce1d2f1ab89db45f9796100eee960f5702a40e84c225c2b48c3ec3e81d153f98",
+              "gid": 16,
+              "italic": true,
+              "size": 11.0,
+              "text": "-",
+              "x": 54.0
+            },
+            {
+              "advance": 3.6630859375,
+              "baseline": 552.705810546875,
+              "bold": false,
+              "font": "Arial",
+              "font_path": "/System/Library/Fonts/Supplemental/Arial.ttf",
+              "gid": 16,
+              "italic": false,
+              "size": 11.0,
+              "text": "-",
+              "x": 54.0,
+              "font_sha256": "525979822591a3447cfc49d943d6f7683508e25543407871c0ed8fed05fd2bd9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "passed": true,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.0026699615127888316,
+      "mean_ink_color_error": 0.007302033714950085,
+      "errors": []
+    }
+  ],
+  "errors": [
+    {
+      "edgedoc_diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Extended paragraph properties"
+        }
+      ]
+    },
+    {
+      "reference_adapter_limit": [
+        "Reference glyph has no verified source text mapping",
+        "Reference glyph has no verified source text mapping",
+        "Reference glyph has no verified source text mapping",
+        "Reference glyph has no verified source text mapping"
+      ]
+    },
+    {
+      "reference_used_other_font_data": [
+        {
+          "family": "Arial",
+          "sha256": "374b0190a9844343110d8f8ed1818117a4591803d022bbb2bd189d63a681e731",
+          "style": "Bold Italic"
+        },
+        {
+          "family": "Symbol",
+          "sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+          "style": "Regular"
+        },
+        {
+          "family": "Courier New",
+          "sha256": "500df4e46b554ae7d646e8727952fd8c7e60e94423481f6b82325cfddba2ee6a",
+          "style": "Bold"
+        },
+        {
+          "family": "Arial",
+          "sha256": "525979822591a3447cfc49d943d6f7683508e25543407871c0ed8fed05fd2bd9",
+          "style": "Regular"
+        },
+        {
+          "family": "Wingdings",
+          "sha256": "709d5848799239f0c51c0544c471c8d02bcbf9f2bcdc49702ebca1691a4c760e",
+          "style": "Regular"
+        },
+        {
+          "family": "Courier New",
+          "sha256": "b5c6d453f16fb1693652671fa2e11d8c8ad1cd0046c3f38ae2608d165838ecf1",
+          "style": "Italic"
+        },
+        {
+          "family": "Courier New",
+          "sha256": "c886ca3172d8ce9189976992d145ec090500a4ff516ecb9d4df56b1a78336247",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial",
+          "sha256": "ce1d2f1ab89db45f9796100eee960f5702a40e84c225c2b48c3ec3e81d153f98",
+          "style": "Italic"
+        },
+        {
+          "family": "Arial",
+          "sha256": "d72db21f9242aedd6b917d8549ad5921766b24d5f8d0becfda2ff4c620b3c2e0",
+          "style": "Bold"
+        }
+      ]
+    }
+  ]
+}

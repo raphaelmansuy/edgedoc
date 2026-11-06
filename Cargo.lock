@@ -92,11 +92,13 @@ dependencies = [
  "edgedoc-fonts",
  "edgedoc-geom",
  "edgedoc-model",
+ "edgedoc-opc",
  "edgedoc-paint",
  "edgedoc-style",
  "edgedoc-text",
  "serde",
  "serde_json",
+ "zip",
 ]
 
 [[package]]
@@ -129,6 +131,7 @@ dependencies = [
  "edgedoc-geom",
  "rustybuzz",
  "ttf-parser",
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -160,6 +163,7 @@ dependencies = [
 name = "edgedoc-opc"
 version = "0.1.0"
 dependencies = [
+ "crc32fast",
  "edgedoc-limit",
  "quick-xml",
  "zip",

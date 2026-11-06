@@ -1,0 +1,34 @@
+{
+  "docx4j-30-tables:3": {
+    "case": "docx4j-30-tables",
+    "page": 3,
+    "source_sha256": "50ea2fd62761aedc66e307c30ca1191a4e6baf8fa9d8d849ba1d9c20eb5921f4",
+    "edgedoc_build_inputs_sha256": "a25bbb744f8558d7340aea2b9d2c9f805cae283f44667ccbda10f5ff08ea54d0",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 3,
+      "wordcraft": 3
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/grid-offset-real-image-inspection.json/docx4j-30-tables/wordcraft-page-003.png",
+        "svg_sha256": "0b737daed8afced5059e653056aa36abaeb30fcd9a408ff8093f8b4b98ac5f8d",
+        "png_sha256": "92f5400914e50691d80392d38351eb3665f7f361eb6690d98a95d6e8018ce9b7"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/grid-offset-real-image-inspection.json/docx4j-30-tables/edgedoc-page-003.png",
+        "svg_sha256": "5f4c2608a3afa70d879b48d89b2658864494803a39027857fa9922d26ec1bbfd",
+        "png_sha256": "96673f78818e4b667c9fe200e686a527147c96745b0d79368eb56455d6cd257f"
+      }
+    }
+  }
+}

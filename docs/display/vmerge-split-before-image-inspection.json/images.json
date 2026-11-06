@@ -1,0 +1,66 @@
+{
+  "vmerge-split-rows:1": {
+    "case": "vmerge-split-rows",
+    "page": 1,
+    "source_sha256": "17d7ab69b4b6b7e5cb390edb694a1990b895c238359206ba1605fdbd3d765a32",
+    "edgedoc_build_inputs_sha256": "ae889e5315a2c1011c7cc12067f5ad4a582f4e72d98247bf9d3f0578b1d3143e",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 3,
+      "wordcraft": 3
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/vmerge-split-before-image-inspection.json/vmerge-split-rows/wordcraft-page-001.png",
+        "svg_sha256": "024c8279ede8a8ff8b9e6ef5aee8d3402e37b12079feea4d539cb0a106796ef5",
+        "png_sha256": "ed6f6c9bb470dd26f2ba2351eaabd0d6357f0f55d975834d6b690f5960dae727"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/vmerge-split-before-image-inspection.json/vmerge-split-rows/edgedoc-page-001.png",
+        "svg_sha256": "1a513fa6a13f46a6684a163fa9763ecb1e574fcbdaa4b00737f2abe4b292e9b7",
+        "png_sha256": "ff3e8267380b00ee5dbe0009ec9cbfde3f65f526577a098515cbfb6d302c4869"
+      }
+    }
+  },
+  "vmerge-split-rows:2": {
+    "case": "vmerge-split-rows",
+    "page": 2,
+    "source_sha256": "17d7ab69b4b6b7e5cb390edb694a1990b895c238359206ba1605fdbd3d765a32",
+    "edgedoc_build_inputs_sha256": "ae889e5315a2c1011c7cc12067f5ad4a582f4e72d98247bf9d3f0578b1d3143e",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 3,
+      "wordcraft": 3
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/vmerge-split-before-image-inspection.json/vmerge-split-rows/wordcraft-page-002.png",
+        "svg_sha256": "16e13f8a3a94db1a31c1144ab36d7985b432638e286ae3df87262c2e009f7fd7",
+        "png_sha256": "bbe6a65d0b063184bd3be60b1fa07df256f1be7eacd808eb070d914a229f8b97"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/vmerge-split-before-image-inspection.json/vmerge-split-rows/edgedoc-page-002.png",
+        "svg_sha256": "f05999588e1fa612913e99b5993a8d7a0f1201259e1555b0dc07495b8b5474bb",
+        "png_sha256": "bbe6a65d0b063184bd3be60b1fa07df256f1be7eacd808eb070d914a229f8b97"
+      }
+    }
+  }
+}

@@ -15,8 +15,8 @@ pub use edgedoc_unit::Twips;
 pub use error::{ModelError, ModelResult};
 pub use fields::{placeholder, quote_name, Field, FormField, FormKind, Instruction};
 pub use para::{
-    Anchor, InlineObject, Paragraph, Picture, Run, RunBuilder, SectionBreak, LINE_BREAK, OBJ,
-    PAGE_BREAK, TAB,
+    Anchor, InlineObject, Paragraph, Picture, Run, RunBuilder, SectionBreak, COLUMN_BREAK,
+    LINE_BREAK, OBJ, PAGE_BREAK, TAB,
 };
 
 pub use props::{
@@ -27,10 +27,10 @@ pub use section::{
     DocGrid, FootnotePr, HeaderRefs, LineNumbering, Part, PartKind, PartMeta, SectionProps,
     SectionStart, StoryRef,
 };
-pub use style::{heading_level, Style, StyleKind, StyleSheet};
+pub use style::{heading_level, Style, StyleKind, StyleSheet, TableStyleRegion};
 pub use table::{
     clamp_span, Block, Borders, Cell, CellMargins, ContentControl, ContentItem, LineBorder, Row,
-    Table, TablePosition,
+    Table, TableLookOptions, TablePosition,
 };
 
 #[cfg(test)]

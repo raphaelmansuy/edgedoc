@@ -9,6 +9,8 @@ use crate::table::Borders;
 
 pub const OBJ: char = '\u{FFFC}';
 pub const PAGE_BREAK: char = '\u{000C}';
+/// A column break, serialized as `w:br w:type="column"`.
+pub const COLUMN_BREAK: char = '\u{000E}';
 
 static REV: AtomicU64 = AtomicU64::new(1);
 
@@ -42,15 +44,29 @@ pub struct Picture {
     pub height: Option<Emu>,
     pub alt: Option<String>,
     pub anchor: Option<Anchor>,
+    /// Cropped fractions of the image, in OOXML hundred-thousandths: left, top, right, bottom.
+    pub crop: [i32; 4],
+    /// Inline effect extents in left, top, right, bottom order.
+    pub effect_extent: Option<[Emu; 4]>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[allow(clippy::large_enum_variant)]
 pub enum InlineObject {
     Field(Field),
+    /// The beginning of a field whose cached result contains independently styled content.
+    FieldStart {
+        instr: String,
+        dirty: bool,
+        locked: bool,
+    },
+    /// The end of a field range, potentially in a later paragraph.
+    FieldEnd,
     Orphan,
     Picture(Picture),
     Opaque(String),
+    /// Opening or closing markup around an inline content control's visible runs.
+    InlineControlBoundary(String),
     Hyperlink {
         target: String,
     },
@@ -58,10 +74,20 @@ pub enum InlineObject {
         name: String,
         start: bool,
     },
-    /// A note or comment mark: the story it points to stays a part of the document.
+    /// A note or comment reference, or the number marker within a note story.
     Note {
         kind: String,
         id: i32,
+    },
+    /// The separator line in a note separator story.
+    NoteSeparator {
+        continuation: bool,
+    },
+    /// An inline tab aligned to the page margins or paragraph indents (`w:ptab`).
+    PositionalTab {
+        alignment: String,
+        relative_to: String,
+        leader: Option<String>,
     },
 }
 
@@ -245,6 +271,7 @@ impl Paragraph {
 
     pub fn borders(mut self, borders: Borders) -> Self {
         self.props.borders = borders;
+        self.props.borders_present = true;
         self
     }
 
@@ -392,6 +419,7 @@ impl Paragraph {
                 match objects.next() {
                     Some(InlineObject::Field(field)) => out.push_str(&field.result),
                     Some(InlineObject::Hyperlink { .. }) => {}
+                    Some(InlineObject::PositionalTab { .. }) => out.push('\t'),
                     _ => {}
                 }
             } else {
@@ -607,6 +635,8 @@ impl Picture {
             height: None,
             alt: None,
             anchor: None,
+            crop: [0; 4],
+            effect_extent: None,
         }
     }
 

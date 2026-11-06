@@ -1,0 +1,363 @@
+{
+  "id": "docx4j-extra-3ce52aaa7857",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Conditional table styles"
+    },
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Extended paragraph properties"
+    },
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Fields other than page and section counters use cached results"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Calibri"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Consolas"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.2972261447352577,
+      "mean_ink_color_error": 0.10059387981891632,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Field nameField codeContent Part details",
+              "control",
+              "AbstractThis CoverPageProperties[1]/ns0:Abstract",
+              "document ",
+              "is about ",
+              "document ",
+              "properties",
+              "AuthorjharropjharropcoreProperties[1]/ns0:creator",
+              "Bytes11501",
+              "Category[Category]coreProperties[1]/ns1:category",
+              "Characters257extended",
+              "CharactersWithSpa260",
+              "ces",
+              "Comments[CommentcoreProperties[1]/ns0:description",
+              "s]",
+              "COmpany[Companyextended-properties' \" ",
+              "]w:xpath=\"/ns0:Properties[1]/ns0:Compa",
+              "ny",
+              "[Company CoverPageProperties[1]/ns0:CompanyAd",
+              "Address]dress",
+              "[Company CoverPageProperties[1]/ns0:CompanyE",
+              "E-mail]mail",
+              "[Company CoverPageProperties[1]/ns0:CompanyFa",
+              "Fax]x",
+              "[Company CoverPageProperties[1]/ns0:CompanyPh",
+              "Phone]one",
+              "CreateTime6/04/2013 10:20 AMcoreProperties",
+              "HyerlinkBase",
+              "Keywrrds[KeywordscoreProperties[1]/ns1:keywords",
+              "]",
+              "LastPrintedcoreProperties",
+              "LastSavedBycoreProperties",
+              "LastSavedTimecoreProperties",
+              "Lines80extended",
+              "Manager[Manager]xtended-properties' \" ",
+              "w:xpath=\"/ns0:Properties[1]/ns0:Manag",
+              "er[1",
+              "NameOfApplicationMicrosoft Office Wordextended",
+              "ODMADocId",
+              "Pages1extended",
+              "Paragraphs35extended",
+              "[Publish CoverPageProperties[1]/ns0:PublishDate",
+              "Date]",
+              "RevisionNumber1coreProperties",
+              "Security0extended",
+              "[Status]coreProperties[1]/ns1:contentStatus",
+              "Subject[Subject]oreProperties[1]/ns0:subject",
+              "TemplateNormal.dotmextended",
+              "Title[Title]coreProperties[1]/ns0:title",
+              "TotalEditingTime13extended"
+            ],
+            "edgedoc": [
+              "Field nameField codeContent Part details",
+              "control",
+              "AbstractThis CoverPageProperties[1]/ns0:Abstract",
+              "document ",
+              "is about ",
+              "document ",
+              "properties",
+              "AuthorjharropjharropcoreProperties[1]/ns0:creator",
+              "Bytes11501",
+              "Category [Category]coreProperties[1]/ns1:category",
+              "Characters257extended",
+              "CharactersWithSpac260",
+              "es",
+              "Comments [CommentcoreProperties[1]/ns0:description",
+              "s]",
+              "COmpany [Company]extended-properties' \" ",
+              "w:xpath=\"/ns0:Properties[1]/ns0:Company",
+              "[Company CoverPageProperties[1]/ns0:CompanyAddr",
+              "Address]ess",
+              "[Company CoverPageProperties[1]/ns0:CompanyEmai",
+              "E-mail]l",
+              "[Company CoverPageProperties[1]/ns0:CompanyFax",
+              "Fax]",
+              "[Company CoverPageProperties[1]/ns0:CompanyPhon",
+              "Phone]e",
+              "CreateTime6/04/2013 coreProperties",
+              "10:20 AM",
+              "HyerlinkBase ",
+              "Keywrrds [Keywords]coreProperties[1]/ns1:keywords",
+              "LastPrinted coreProperties",
+              "LastSavedBy coreProperties",
+              "LastSavedTime coreProperties",
+              "Lines80extended",
+              "Manager [Manager]xtended-properties' \" ",
+              "w:xpath=\"/ns0:Properties[1]/ns0:Manager[",
+              "1",
+              "NameOfApplicationMicrosoft extended",
+              "Office Word",
+              "ODMADocId",
+              "Pages1extended",
+              "Paragraphs35extended",
+              "[Publish CoverPageProperties[1]/ns0:PublishDate",
+              "Date]",
+              "RevisionNumber1coreProperties",
+              "Security0extended",
+              "[Status]coreProperties[1]/ns1:contentStatus",
+              "Subject [Subject]oreProperties[1]/ns0:subject",
+              "TemplateNormal.dotextended",
+              "m",
+              "Title [Title]coreProperties[1]/ns0:title"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.2972261447352577,
+          "mean_ink_color_error": 0.10059387981891632
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.9340065424548428,
+      "mean_ink_color_error": 0.101552315056324,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Words52extended"
+            ],
+            "edgedoc": [
+              "TotalEditingTime13extended",
+              "Words52extended"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.9340065424548428,
+          "mean_ink_color_error": 0.101552315056324
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.7817231622105445,
+      "mean_ink_color_error": 0.2952103316783905,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "<Properties ",
+              "xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-",
+              "properties\" ",
+              "xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\"",
+              ">",
+              "  <Template>Normal.dotm</Template>",
+              "  <TotalTime>21</TotalTime>",
+              "  <Pages>2</Pages>",
+              "  <Words>272</Words>",
+              "  <Characters>1551</Characters>",
+              "  <Application>Microsoft Office Word</Application>",
+              "  <DocSecurity>0</DocSecurity>",
+              "  <Lines>12</Lines>",
+              "  <Paragraphs>3</Paragraphs>",
+              "  <ScaleCrop>false</ScaleCrop>",
+              "  <HeadingPairs>",
+              "    <vt:vector size=\"2\" baseType=\"variant\">",
+              "      <vt:variant>",
+              "        <vt:lpstr>Title</vt:lpstr>",
+              "      </vt:variant>",
+              "      <vt:variant>",
+              "        <vt:i4>1</vt:i4>",
+              "      </vt:variant>",
+              "    </vt:vector>",
+              "  </HeadingPairs>",
+              "  <TitlesOfParts>",
+              "    <vt:vector size=\"1\" baseType=\"lpstr\">",
+              "      <vt:lpstr></vt:lpstr>",
+              "    </vt:vector>",
+              "  </TitlesOfParts>",
+              "  <Company></Company>",
+              "  <LinksUpToDate>false</LinksUpToDate>",
+              "  <CharactersWithSpaces>1820</CharactersWithSpaces>",
+              "  <SharedDoc>false</SharedDoc>",
+              "  <HyperlinksChanged>false</HyperlinksChanged>",
+              "  <AppVersion>14.0000</AppVersion>",
+              "</Properties>",
+              "<cp:coreProperties ",
+              "xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-",
+              "properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" ",
+              "xmlns:dcterms=\"http://purl.org/dc/terms/\" ",
+              "xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" ",
+              "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">",
+              "  <dc:creator>jharrop</dc:creator>",
+              "  <cp:lastModifiedBy>jharrop</cp:lastModifiedBy>",
+              "  <cp:revision>4</cp:revision>",
+              "  <dcterms:created xsi:type=\"dcterms:W3CDTF\">2013-04-",
+              "05T23:20:00Z</dcterms:created>",
+              "  <dcterms:modified xsi:type=\"dcterms:W3CDTF\">2013-04-",
+              "05T23:51:00Z</dcterms:modified>",
+              "</cp:coreProperties>",
+              "<CoverPageProperties ",
+              "xmlns=\"http://schemas.microsoft.com/office/2006/coverPageProps\">",
+              "  <PublishDate/>",
+              "  <Abstract>This document is about document properties</Abstract>",
+              "  <CompanyAddress/>",
+              "  <CompanyPhone/>"
+            ],
+            "edgedoc": [
+              "<Properties ",
+              "xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.7817231622105445,
+          "mean_ink_color_error": 0.2952103316783905
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.978584229390681,
+      "mean_ink_color_error": 0.3010469377040863,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "  <CompanyFax/>",
+              "  <CompanyEmail/>",
+              "</CoverPageProperties>"
+            ],
+            "edgedoc": [
+              "properties\" ",
+              "xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\"",
+              ">",
+              "  <Template>Normal.dotm</Template>",
+              "  <TotalTime>21</TotalTime>",
+              "  <Pages>2</Pages>",
+              "  <Words>272</Words>",
+              "  <Characters>1551</Characters>",
+              "  <Application>Microsoft Office Word</Application>",
+              "  <DocSecurity>0</DocSecurity>",
+              "  <Lines>12</Lines>",
+              "  <Paragraphs>3</Paragraphs>",
+              "  <ScaleCrop>false</ScaleCrop>",
+              "  <HeadingPairs>",
+              "    <vt:vector size=\"2\" baseType=\"variant\">",
+              "      <vt:variant>",
+              "        <vt:lpstr>Title</vt:lpstr>",
+              "      </vt:variant>",
+              "      <vt:variant>",
+              "        <vt:i4>1</vt:i4>",
+              "      </vt:variant>",
+              "    </vt:vector>",
+              "  </HeadingPairs>",
+              "  <TitlesOfParts>",
+              "    <vt:vector size=\"1\" baseType=\"lpstr\">",
+              "      <vt:lpstr></vt:lpstr>",
+              "    </vt:vector>",
+              "  </TitlesOfParts>",
+              "  <Company></Company>",
+              "  <LinksUpToDate>false</LinksUpToDate>",
+              "  <CharactersWithSpaces>1820</CharactersWithSpaces>",
+              "  <SharedDoc>false</SharedDoc>",
+              "  <HyperlinksChanged>false</HyperlinksChanged>",
+              "  <AppVersion>14.0000</AppVersion>",
+              "</Properties>",
+              "<cp:coreProperties ",
+              "xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-",
+              "properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" ",
+              "xmlns:dcterms=\"http://purl.org/dc/terms/\" ",
+              "xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" ",
+              "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">",
+              "  <dc:creator>jharrop</dc:creator>",
+              "  <cp:lastModifiedBy>jharrop</cp:lastModifiedBy>",
+              "  <cp:revision>4</cp:revision>",
+              "  <dcterms:created xsi:type=\"dcterms:W3CDTF\">2013-04-",
+              "05T23:20:00Z</dcterms:created>",
+              "  <dcterms:modified xsi:type=\"dcterms:W3CDTF\">2013-04-",
+              "05T23:51:00Z</dcterms:modified>",
+              "</cp:coreProperties>",
+              "<CoverPageProperties ",
+              "xmlns=\"http://schemas.microsoft.com/office/2006/coverPageProps\">",
+              "  <PublishDate/>",
+              "  <Abstract>This document is about document properties</Abstract>",
+              "  <CompanyAddress/>",
+              "  <CompanyPhone/>",
+              "  <CompanyFax/>",
+              "  <CompanyEmail/>",
+              "</CoverPageProperties>"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.978584229390681,
+          "mean_ink_color_error": 0.3010469377040863
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "edgedoc_diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Extended paragraph properties"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Fields other than page and section counters use cached results"
+        }
+      ]
+    }
+  ]
+}

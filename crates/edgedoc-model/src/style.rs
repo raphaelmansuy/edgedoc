@@ -30,6 +30,19 @@ impl StyleKind {
     }
 }
 
+/// Conditional formatting applied to a table region.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TableStyleRegion {
+    pub kind: String,
+    pub char_props: CharProps,
+    pub para_props: ParaProps,
+    pub shading: Option<String>,
+    pub borders: crate::table::Borders,
+    /// Table borders supplied by the `wholeTable` region.
+    pub table_borders: crate::table::Borders,
+    pub v_align: Option<String>,
+}
+
 /// One `w:style` entry.
 ///
 /// `raw_xml` holds the original element. The writer emits it when the style has no
@@ -47,6 +60,9 @@ pub struct Style {
     pub priority: Option<i32>,
     pub char_props: CharProps,
     pub para_props: ParaProps,
+    /// Table-level properties supplied by a table style.
+    pub table_props: Option<crate::table::Table>,
+    pub table_regions: Vec<TableStyleRegion>,
     pub raw_xml: Option<String>,
 }
 
@@ -80,6 +96,8 @@ impl Style {
             priority: None,
             char_props: CharProps::default(),
             para_props,
+            table_props: None,
+            table_regions: Vec::new(),
             raw_xml: None,
         }
     }

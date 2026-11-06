@@ -44,7 +44,7 @@ pub fn summary_for(code: &str) -> &'static str {
             "A character is missing from every available font, so it paints as a box."
         }
         "display.object_placeholder" => {
-            "An object that this version does not model paints as a marked box. The page around it is complete."
+            "An object cannot be rendered fully. Its appearance and the surrounding layout can differ."
         }
         "display.image_unsupported" => "An image format has no decoder, so it paints as a box.",
         "display.image_denied" => "A remote image was refused by the resource policy.",
@@ -58,7 +58,10 @@ pub fn summary_for(code: &str) -> &'static str {
         }
         "display.header_overflow" => "A header or footer is taller than its margin.",
         "display.note_area_full" => "The notes on a page take most of the page area.",
-        _ => "The page shows every content item that the document holds.",
+        "display.unsupported_layout" => "A document feature is not fully rendered. See the details for the affected feature.",
+        "display.page_limit" => "Rendering stopped at the configured page limit. Later content is omitted.",
+        "display.field_totals_unstable" => "Page totals did not converge within the layout pass limit.",
+        _ => "See the diagnostic details for the effect on rendering.",
     }
 }
 

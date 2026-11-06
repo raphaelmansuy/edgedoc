@@ -1,0 +1,7 @@
+# Inherited paragraph on/off settings
+
+EdgeDoc now retains whether the source explicitly supplied paragraph on/off controls. That allows direct formatting to turn off inherited `keepNext`, `keepLines`, `pageBreakBefore`, and `contextualSpacing`, and to turn widow control back on when a style turns it off. Explicit values, including `suppressLineNumbers`, are preserved through an edited save.
+
+The focused page-break example previously rendered two pages in EdgeDoc and one in Wordcraft; it now renders one matching page (`paragraph-override-before-result.json`, `paragraph-override-focused-result.json`, `paragraph-override-image-inspection/`). An inherited-on control still produces two matching pages (`paragraph-inherited-on-result.json`). A separate keep-with-next override places the heading on the first page in both engines and passes (`keep-override-focused-result.json`, `keep-override-image-inspection.json`).
+
+The selected current-source run passed 212/212; the two independently checked examples bring the distinct selected evidence to 214 cases under matching engine fingerprints (`paragraph-override-214-result.json`). Tests cover style inheritance, direct on/off overrides, and edited-save preservation. Workspace tests, strict clippy and formatting checks, and 16 comparison-gate tests passed. The rebuilt viewer passed 18/18 interaction checks and 134/134 checks over 33 corpus documents. The latest full 394-case result before this change recorded 211 passed, 165 failed, and 18 blocked (`image-evidence-final-394-result.json`).

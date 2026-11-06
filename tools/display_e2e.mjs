@@ -19,7 +19,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const SITE = join(ROOT, "site");
-const OUT = join(ROOT, "docs/display/e2e");
+const OUT = resolve(process.env.DISPLAY_E2E_OUT || join(ROOT, "docs/display/e2e"));
 const PORT = 8901;
 
 const PUPPETEER =
@@ -243,6 +243,50 @@ async function main() {
   await page.setViewport({ width: 430, height: 900, deviceScaleFactor: 2 });
   await new Promise((r) => setTimeout(r, 900));
   await shot("08-narrow");
+
+  // Optional differential fixture: the visible Canvas must match the engine's outline SVG.
+  if (process.env.DISPLAY_PARITY_FIXTURE) {
+    await page.setViewport({ width: 1360, height: 1000, deviceScaleFactor: 1 });
+    const parityInput = await page.$("#file");
+    await parityInput.uploadFile(resolve(process.env.DISPLAY_PARITY_FIXTURE));
+    await page.waitForFunction(() => window.__edgedoc.viewer.texts.join(" ").includes("office AVATAR"));
+    const pixels = await page.evaluate(async () => {
+      const v = window.__edgedoc.viewer;
+      v.setZoom(1);
+      const actual = document.querySelector(".edv-canvas");
+      const expected = document.createElement("canvas");
+      expected.width = actual.width;
+      expected.height = actual.height;
+      const image = new Image();
+      const url = URL.createObjectURL(new Blob([v.viewer.svg(0)], { type: "image/svg+xml" }));
+      try {
+        image.src = url;
+        await image.decode();
+        expected.getContext("2d").drawImage(image, 0, 0, expected.width, expected.height);
+      } finally { URL.revokeObjectURL(url); }
+      const a = actual.getContext("2d").getImageData(0, 0, actual.width, actual.height).data;
+      const b = expected.getContext("2d").getImageData(0, 0, expected.width, expected.height).data;
+      const dark = (data, pixel) => Math.min(data[pixel * 4], data[pixel * 4 + 1], data[pixel * 4 + 2]) < 200;
+      const near = (data, pixel) => {
+        const x = pixel % actual.width, y = Math.floor(pixel / actual.width);
+        for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+          if (x + dx >= 0 && x + dx < actual.width && y + dy >= 0 && y + dy < actual.height && dark(data, pixel + dy * actual.width + dx)) return true;
+        }
+        return false;
+      };
+      let ink = 0, unmatched = 0, common = 0, error = 0;
+      for (let p = 0; p < a.length / 4; p += 1) {
+        const ad = dark(a, p), bd = dark(b, p);
+        if (ad) { ink += 1; if (!near(b, p)) unmatched += 1; }
+        if (bd) { ink += 1; if (!near(a, p)) unmatched += 1; }
+        if (ad && bd) { common += 1; for (let c = 0; c < 3; c += 1) error += Math.abs(a[p * 4 + c] - b[p * 4 + c]); }
+      }
+      return { paths: v.glyphPaths.size, ink, unmatched: unmatched / Math.max(1, ink), colorError: error / Math.max(1, common * 3 * 255) };
+    });
+    check("the viewer paints loaded glyph outlines", pixels.paths > 0 && pixels.ink > 100, JSON.stringify(pixels));
+    check("Canvas matches the outline SVG", pixels.unmatched <= 0.01 && pixels.colorError <= 0.05, JSON.stringify(pixels));
+    await shot("09-glyph-parity");
+  }
 
   check("the browser reported no error", errors.length === 0, errors.slice(0, 2).join(" | "));
 

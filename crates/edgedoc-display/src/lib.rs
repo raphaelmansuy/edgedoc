@@ -100,7 +100,7 @@ impl Default for LayoutOptions {
 #[derive(Debug, Clone, PartialEq)]
 pub struct LayoutReport {
     pub pages: u32,
-    /// The passes the flow needed, which a `NUMPAGES` field raises. See `DP-L-52`.
+    /// The total layout passes, including page fields and per-page footnote numbering.
     pub passes: usize,
     pub elapsed_ms: f64,
     pub diagnostics: Vec<Diagnostic>,
@@ -183,6 +183,15 @@ impl DisplayDocument {
         &self.fonts
     }
 
+    /// Register caller-supplied fonts before layout. Mutating the database invalidates the
+    /// previous pages; call `layout` again before reading geometry or painted output.
+    pub fn fonts_mut(&mut self) -> &mut FontDb {
+        self.pages.clear();
+        self.encoded.clear();
+        self.report = None;
+        &mut self.fonts
+    }
+
     /// The pages from the last layout.
     pub fn pages(&self) -> &[PageGeometry] {
         &self.pages
@@ -207,14 +216,72 @@ impl DisplayDocument {
     pub fn layout_with(&mut self, options: &LayoutOptions) -> Result<LayoutReport> {
         // The step counter guards a layout that grows without bound. See `DP-A-25`.
         let started = instant_ms();
+        self.diagnostics.clear();
+        if options.hyphenation {
+            self.diagnostics.push(Diagnostic {
+                code: "display.unsupported_layout",
+                severity: Severity::Warning,
+                page: None,
+                detail: "Automatic hyphenation dictionaries".into(),
+            });
+        }
         // Publish the face ids before a build, and clear the picture registry, so a run resolves
         // to the face that the document asked for. See `DP-F-02`.
         build::set_face_hints(&self.fonts);
-        build::clear_resources();
         let shaper = DbShaper { db: &self.fonts };
-        let prepared = build::prepare(&self.inner, &self.fonts, &mut self.diagnostics)?;
-        let mut flow = edgedoc_flow::Flow::new(&shaper);
-        let doc_layout = flow.layout_groups(&prepared.sections);
+        let base_diagnostics = self.diagnostics.clone();
+        let mut note_pages = std::collections::BTreeMap::new();
+        let mut doc_layout = None;
+        let mut layout_passes = 0usize;
+        for pass in 0..3 {
+            self.diagnostics.clone_from(&base_diagnostics);
+            build::clear_resources();
+            let mut prepared =
+                build::prepare(&self.inner, &self.fonts, &mut self.diagnostics, &note_pages)?;
+            for group in &mut prepared.sections {
+                apply_layout_options(&mut group.blocks, options, self.options.show_hidden_text);
+                for part in [
+                    &mut group.section.header,
+                    &mut group.section.footer,
+                    &mut group.section.header_first,
+                    &mut group.section.footer_first,
+                    &mut group.section.header_even,
+                    &mut group.section.footer_even,
+                ]
+                .into_iter()
+                .flatten()
+                {
+                    apply_layout_options(part, options, self.options.show_hidden_text);
+                }
+            }
+            let mut flow = edgedoc_flow::Flow::new(&shaper);
+            flow.max_pages = self.options.max_pages;
+            let layout = flow.layout_groups(&prepared.sections);
+            layout_passes = layout_passes.saturating_add(layout.passes);
+            let mut observed = std::collections::BTreeMap::new();
+            for page in &layout.pages {
+                for id in &page.footnote_ids {
+                    observed.entry(*id).or_insert(page.index);
+                }
+            }
+            let stable = !prepared.footnotes_each_page || observed == note_pages;
+            doc_layout = Some(layout);
+            if stable {
+                break;
+            }
+            if pass == 2 {
+                self.diagnostics.push(Diagnostic {
+                    code: "display.unsupported_layout",
+                    severity: Severity::Warning,
+                    page: None,
+                    detail: "Per-page footnote numbers did not converge".into(),
+                });
+                break;
+            }
+            note_pages = observed;
+        }
+        let doc_layout = doc_layout
+            .ok_or_else(|| Error::new("display.layout_failed", "No layout pass completed"))?;
         self.diagnostics
             .extend(doc_layout.diagnostics.iter().map(|d| Diagnostic {
                 code: d.code,
@@ -235,13 +302,16 @@ impl DisplayDocument {
                 &lower_options,
             ));
         }
+        let mut collector = diagnose::Collector::new();
+        collector.extend(std::mem::take(&mut self.diagnostics));
+        self.diagnostics = collector.into_vec();
         let pages = doc_layout.pages.len() as u32;
         self.pages = doc_layout.pages;
         self.encoded = encoded;
         self.outline = build::outline_of(&self.inner);
         let report = LayoutReport {
             pages,
-            passes: doc_layout.passes,
+            passes: layout_passes,
             elapsed_ms: instant_ms() - started,
             diagnostics: self.diagnostics.clone(),
         };
@@ -254,21 +324,19 @@ impl DisplayDocument {
         self.encoded.get(index).map(codec::encode)
     }
 
+    /// A glyph outline as `[unitsPerEm, svgPath]`, for a canvas to paint without reshaping text.
+    pub fn glyph_outline_json(&self, face: u32, glyph: u16) -> Option<String> {
+        let face = self.fonts.face(face)?;
+        if glyph >= face.glyph_count() {
+            return None;
+        }
+        let path = edgedoc_paint::svg::glyph_path(face, glyph);
+        Some(format!("[{},\"{}\"]", face.units_per_em, path))
+    }
+
     /// Every page as one SVG document, which a screenshot test reads.
     pub fn to_svg(&self, index: usize) -> Option<String> {
         let page = self.encoded.get(index)?;
-        // The face table carries the weight and the slant, so a run drawn from the bold face
-        // paints bold. See `DP-F-02`.
-        let faces: Vec<edgedoc_paint::svg::FaceStyle> = self
-            .fonts
-            .faces()
-            .iter()
-            .map(|f| edgedoc_paint::svg::FaceStyle {
-                family: f.family.clone(),
-                bold: f.bold,
-                italic: f.italic,
-            })
-            .collect();
         let images: Vec<edgedoc_paint::svg::ImageResource> = build::resources()
             .into_iter()
             .filter_map(|(id, _name, bytes)| {
@@ -281,7 +349,11 @@ impl DisplayDocument {
                 })
             })
             .collect();
-        Some(edgedoc_paint::svg::paint_page_styled(page, &faces, &images))
+        Some(edgedoc_paint::svg::paint_page_fonts(
+            page,
+            &self.fonts,
+            &images,
+        ))
     }
 
     /// Every page as SVG, joined into one document with a page break between pages.
@@ -476,6 +548,35 @@ pub enum Hit {
     Page {
         page: u32,
     },
+}
+
+fn apply_layout_options(
+    blocks: &mut [edgedoc_flow::FlowBlock],
+    options: &LayoutOptions,
+    show_hidden: bool,
+) {
+    for block in blocks {
+        match block {
+            edgedoc_flow::FlowBlock::Paragraph(p) => {
+                if !options.widow_control {
+                    p.para.widow_control = false;
+                }
+                if show_hidden {
+                    for style in &mut p.run_styles {
+                        style.hidden = false;
+                    }
+                }
+            }
+            edgedoc_flow::FlowBlock::Table(t) => {
+                for row in &mut t.rows {
+                    for cell in &mut row.cells {
+                        apply_layout_options(&mut cell.blocks, options, show_hidden);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 fn severity_of(code: &str) -> Severity {

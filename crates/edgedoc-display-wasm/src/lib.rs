@@ -122,6 +122,12 @@ mod bind {
                 .map(|(w, h)| Box::new([w, h]) as Box<[f32]>)
         }
 
+        /// The actual font outline, used by the viewer for shaped glyph IDs.
+        #[wasm_bindgen(js_name = glyphOutline)]
+        pub fn glyph_outline(&self, face: u32, glyph: u16) -> Option<String> {
+            self.inner.glyph_outline_json(face, glyph)
+        }
+
         /// Every image, as a JSON list of `{ id, mime, length }` in the order of `images()`.
         #[wasm_bindgen(js_name = imageIndex)]
         pub fn image_index(&self) -> String {

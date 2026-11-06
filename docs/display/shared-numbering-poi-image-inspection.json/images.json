@@ -1,0 +1,34 @@
+{
+  "poi-03-numberingwoverrides:1": {
+    "case": "poi-03-numberingwoverrides",
+    "page": 1,
+    "source_sha256": "3754dee43880ce4c9e962eca41ac78c353999888282c9ada528efbb826e2bee6",
+    "edgedoc_build_inputs_sha256": "111948d5980e306cf02a321cff562c597dd3aca12f3e16d9bbb1ccb54ef451a3",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 1,
+      "wordcraft": 1
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/shared-numbering-poi-image-inspection.json/poi-03-numberingwoverrides/wordcraft-page-001.png",
+        "svg_sha256": "9867c42dfbcd0eee7c6b501d9598fc9032976c0f4b9151a8e8e17a4865e370d3",
+        "png_sha256": "2e917d418053a01b4a38cb2cb300366c7bcca7bf636daf43b2f6683e544de767"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/shared-numbering-poi-image-inspection.json/poi-03-numberingwoverrides/edgedoc-page-001.png",
+        "svg_sha256": "f342ce916321ddc1739fade81954409e2d614b9d42a97cb92e3acb985d802f81",
+        "png_sha256": "700bce4b3c55474abdcc5fdddebce1831bff026d8626d80ed29755fb21e1a6e7"
+      }
+    }
+  }
+}

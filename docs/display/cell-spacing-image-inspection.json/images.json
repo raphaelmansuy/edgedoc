@@ -1,0 +1,34 @@
+{
+  "regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf:1": {
+    "case": "regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf",
+    "page": 1,
+    "source_sha256": "8939d415339750e30c9b19122c7c29b12641219b5f5c30ac6b180324f043f9de",
+    "edgedoc_build_inputs_sha256": "48d7b32a64df355f07ec9a43866f12462d7a29a099f399d6d20c766152132046",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 1,
+      "wordcraft": 1
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/cell-spacing-image-inspection.json/regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf/wordcraft-page-001.png",
+        "svg_sha256": "9bc45ec313101ad3c3cd05dd806e38f54c26799c5da42fc398b80189ba2d3e90",
+        "png_sha256": "abd2237ac0faaafb04ee08721c18482bcf92f2e9d0ebf0505be67cc730f316a7"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/cell-spacing-image-inspection.json/regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf/edgedoc-page-001.png",
+        "svg_sha256": "11c633bc7455c2e0a9b916e9b1803c47d8618afdfd9a5daf511b65f8db0cbdd1",
+        "png_sha256": "abd2237ac0faaafb04ee08721c18482bcf92f2e9d0ebf0505be67cc730f316a7"
+      }
+    }
+  }
+}

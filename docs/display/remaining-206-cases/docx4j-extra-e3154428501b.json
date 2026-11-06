@@ -1,0 +1,143 @@
+{
+  "id": "docx4j-extra-e3154428501b",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Conditional table styles"
+    },
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Table cell spacing"
+    },
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Vertically merged table cells"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Arial Narrow"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.5859375,
+      "unmatched_ink_fraction": 0.024897860815277267,
+      "mean_ink_color_error": 0.03735584020614624,
+      "errors": [
+        "Glyph clustering differs",
+        {
+          "glyph_origin_error_pt": 0.5859375
+        },
+        {
+          "unmatched_ink_fraction": 0.024897860815277267,
+          "mean_ink_color_error": 0.03735584020614624
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "passed": true,
+      "max_glyph_origin_error_pt": 3.0517578125e-05,
+      "unmatched_ink_fraction": 0.0,
+      "mean_ink_color_error": 0.0018461613217368722,
+      "errors": []
+    },
+    {
+      "page": 3,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.7160110473632812,
+      "unmatched_ink_fraction": 0.025105757866949425,
+      "mean_ink_color_error": 0.03448862582445145,
+      "errors": [
+        {
+          "glyph_origin_error_pt": 0.7160110473632812
+        },
+        {
+          "unmatched_ink_fraction": 0.025105757866949425,
+          "mean_ink_color_error": 0.03448862582445145
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "edgedoc_diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Table cell spacing"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Vertically merged table cells"
+        }
+      ]
+    },
+    {
+      "reference_adapter_limit": [
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes",
+        "Reference adapter does not render patterned strokes"
+      ]
+    },
+    {
+      "reference_used_other_font_data": [
+        {
+          "family": "Arial",
+          "sha256": "525979822591a3447cfc49d943d6f7683508e25543407871c0ed8fed05fd2bd9",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial Narrow",
+          "sha256": "9e1d881c4e43b51868f5e235ea5a12c838e23cc8df6277df1a3c94e158999826",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial",
+          "sha256": "d72db21f9242aedd6b917d8549ad5921766b24d5f8d0becfda2ff4c620b3c2e0",
+          "style": "Bold"
+        }
+      ]
+    }
+  ]
+}

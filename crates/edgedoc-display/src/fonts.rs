@@ -24,38 +24,74 @@ pub const FONT_FAMILIES: &[(&str, &[u8])] = &[
         "Carlito-BoldItalic",
         include_bytes!("../../../assets/fonts/subset/Carlito-BoldItalic.ttf"),
     ),
+    (
+        "Arimo",
+        include_bytes!("../../../assets/fonts/subset/Arimo-Regular.ttf"),
+    ),
+    (
+        "Arimo-Bold",
+        include_bytes!("../../../assets/fonts/subset/Arimo-Bold.ttf"),
+    ),
+    (
+        "Arimo-Italic",
+        include_bytes!("../../../assets/fonts/subset/Arimo-Italic.ttf"),
+    ),
+    (
+        "Arimo-BoldItalic",
+        include_bytes!("../../../assets/fonts/subset/Arimo-BoldItalic.ttf"),
+    ),
+    (
+        "Tinos",
+        include_bytes!("../../../assets/fonts/subset/Tinos-Regular.ttf"),
+    ),
+    (
+        "Tinos-Bold",
+        include_bytes!("../../../assets/fonts/subset/Tinos-Bold.ttf"),
+    ),
+    (
+        "Tinos-Italic",
+        include_bytes!("../../../assets/fonts/subset/Tinos-Italic.ttf"),
+    ),
+    (
+        "Tinos-BoldItalic",
+        include_bytes!("../../../assets/fonts/subset/Tinos-BoldItalic.ttf"),
+    ),
+    (
+        "Source Sans 3",
+        include_bytes!("../../../assets/fonts/SourceSans3-Regular.ttf"),
+    ),
 ];
 
 /// Load the built-in faces. Each face answers to the Word names that it substitutes, so a
 /// document that asks for Calibri paints with Carlito and reports one diagnostic.
 pub fn load_builtin_fonts(db: &mut FontDb) {
-    // One face per style, registered under Carlito and under every Word name that maps to it.
-    let requests = [
-        "Calibri",
-        "Aptos",
-        "Aptos Display",
-        "Calibri Light",
-        "Carlito",
-    ];
-    for (i, (label, bytes)) in FONT_FAMILIES.iter().enumerate() {
+    for (label, bytes) in FONT_FAMILIES {
         let bold = label.contains("Bold");
         let italic = label.contains("Italic");
-        let primary = requests
-            .get(i.min(requests.len() - 1))
-            .copied()
-            .unwrap_or("Calibri");
-        db.load(
+        let requests: &[&str] = if label.starts_with("Arimo") {
+            &["Arial", "Helvetica", "Helvetica Neue", "Arimo"]
+        } else if label.starts_with("Tinos") {
+            &["Times New Roman", "Times", "Tinos"]
+        } else if label.starts_with("Source Sans") {
+            &["Source Sans 3"]
+        } else {
+            &[
+                "Calibri",
+                "Aptos",
+                "Aptos Display",
+                "Calibri Light",
+                "Carlito",
+            ]
+        };
+        if let Some(id) = db.load(
             bytes.to_vec(),
-            Some(primary),
+            Some(requests[0]),
             bold,
             italic,
-            primary != "Carlito",
-        );
-        // Register the other Word names on the same face, so a document that asks for one of
-        // them finds it with no second diagnostic.
-        for name in requests {
-            if name != primary {
-                db.alias(name, bold, italic, (i) as u32);
+            !label.starts_with("Source Sans"),
+        ) {
+            for name in requests {
+                db.alias(name, bold, italic, id);
             }
         }
     }
@@ -84,7 +120,8 @@ mod tests {
     fn the_builtin_faces_load() {
         let mut db = FontDb::new();
         load_builtin_fonts(&mut db);
-        assert!(db.len() >= 4, "faces {}", db.len());
+        assert_eq!(db.len(), 13, "faces {}", db.len());
+        assert!(db.resolve("Source Sans 3", false, false).is_some());
         assert!(db.bytes_loaded() > 100_000);
     }
 
@@ -108,9 +145,52 @@ mod tests {
     }
 
     #[test]
+    fn serif_and_sans_substitutes_keep_each_family_and_style() {
+        let mut db = FontDb::new();
+        load_builtin_fonts(&mut db);
+        for (requested, actual) in [
+            ("Arial", "Arimo"),
+            ("Times New Roman", "Tinos"),
+            ("Cambria", "Tinos"),
+        ] {
+            for (bold, italic) in [(false, false), (true, false), (false, true), (true, true)] {
+                let face = db
+                    .face(db.resolve(requested, bold, italic).expect("face ID"))
+                    .expect("face");
+                assert_eq!(face.family, actual);
+                assert_eq!((face.bold, face.italic), (bold, italic));
+            }
+        }
+    }
+
+    #[test]
     fn the_embedded_names_include_every_style() {
         let names = embedded_face_names();
-        assert_eq!(names.len(), 4);
+        assert_eq!(names.len(), 13);
+        assert!(names.contains(&"Source Sans 3".to_string()));
+    }
+
+    #[test]
+    fn supplied_metric_faces_take_precedence_over_builtin_substitutes() {
+        let mut db = FontDb::new();
+        load_builtin_fonts(&mut db);
+        // Use open font bytes to exercise application-supplied font registrations.
+        for (request, substitute, bytes) in [
+            (
+                "Arial",
+                "Liberation Sans",
+                include_bytes!("../../../assets/fonts/subset/Arimo-Regular.ttf").as_slice(),
+            ),
+            (
+                "Times New Roman",
+                "Liberation Serif",
+                include_bytes!("../../../assets/fonts/subset/Tinos-Regular.ttf").as_slice(),
+            ),
+        ] {
+            let supplied = db.load(bytes.to_vec(), Some(request), false, false, false);
+            assert!(supplied.is_some());
+            assert_eq!(db.resolve(substitute, false, false), supplied);
+        }
     }
 
     #[test]

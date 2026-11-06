@@ -1,0 +1,20 @@
+[
+  {
+    "case": "poi-27-headerpic",
+    "page": 1,
+    "visually_inspected": true,
+    "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/image-only-focused/poi-27-headerpic/wordcraft/page-001.png",
+    "wordcraft_sha256": "e368ff01fdda29e49076969c7f90001b5fabcaea92fe172c4fbfda9a25d39369",
+    "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/image-only-focused/poi-27-headerpic/edgedoc/page-001.png",
+    "edgedoc_sha256": "f85042241b60c15eaca2d40cbcbffeff549ad927f457ceaecbd74cdbb9df5394"
+  },
+  {
+    "case": "poi-extra-a6b2fc152435",
+    "page": 1,
+    "visually_inspected": true,
+    "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/image-only-focused/poi-extra-a6b2fc152435/wordcraft/page-001.png",
+    "wordcraft_sha256": "e7588b640da9cb34637ef6ac2c9dbec2fe9857ce8f71559e9524bdf085a5b3ad",
+    "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/image-only-focused/poi-extra-a6b2fc152435/edgedoc/page-001.png",
+    "edgedoc_sha256": "a5d823394b3ac91e12cbd75e16ba0bb2fffe379c0b49eb9820baa63a7bb41a6b"
+  }
+]

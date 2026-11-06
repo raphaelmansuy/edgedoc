@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "inspected_at": "2026-11-05T08:44:27.192798+00:00",
+  "method": "Inspected both engines at 144 dpi without alignment or cropping.",
+  "records": [
+    {
+      "case": "docx4j-32-toc",
+      "page": 1,
+      "source_sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49",
+      "edgedoc_build_inputs_sha256": "5944ae0596067590b50342c9862667052da682b2d8d7c372f9418181f374d9e3",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 4,
+        "wordcraft": 4
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/style-spacing-inspection/docx4j-32-toc/wordcraft-page-001.png",
+          "svg_sha256": "caa4eba36de11be4e06dffbbd12c5142c821f8ac35429e29e51ced4131233a61",
+          "png_sha256": "7f0cf16f8f36d3ea17e1a8a04fa9fef6c0f0b7fc94c097c02b804bdac7e7405a"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/style-spacing-inspection/docx4j-32-toc/edgedoc-page-001.png",
+          "svg_sha256": "45eb9191b1e9cd4afc7e6fe61e3339799d3965538810f45bdb7349d21d2ba40f",
+          "png_sha256": "4ec6eaad87eb31a99d0f0553fd5357b993e567ce4e01ff14db16051c023b32d3"
+        }
+      },
+      "observations": "The TOC heading, body line breaks and paragraph baselines match the reference after explicit-off, automatic-spacing and hyphen fixes. The footer page number is at the left in EdgeDoc and at the right in Wordcraft because it uses an unsupported paragraph frame.",
+      "visual_result": "not visually matched"
+    }
+  ]
+}

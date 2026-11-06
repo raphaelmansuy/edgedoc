@@ -1,0 +1,489 @@
+{
+  "source_report_sha256": "cd3e4dc6bec721f4f5fd9cc7ce36a6a832d1e35e4cd7000d8e2b37923707cfcb",
+  "source_manifest_sha256": "383a1dac6017837c3ed817f1b78f4fb2e3d272365c214746e8f7fa80b800b575",
+  "font_profile_sha256": "534d9b077d0fbf2363f0cde37b449505be50ba2a2ec8b6ff9cb8816f69fc9923",
+  "comparison_tool_sha256": "20dba900a13a67c46f47d21dbaba878b169925ba7580cbc70a4a58778ed777a6",
+  "edgedoc_build_inputs_sha256": "c2fbf9990beb64402cbb09d9aca9f2366de08abb687669ccf9f3f34927b4ad72",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "counts": {
+    "failed": 41,
+    "passed": 7
+  },
+  "cases": [
+    {
+      "id": "wordbench-0048ba31dd",
+      "status": "failed",
+      "diagnostics": [
+        "Extended paragraph properties",
+        "Vertically merged table cells"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-0048ba31dd/wordcraft"
+    },
+    {
+      "id": "wordbench-00afa1113a",
+      "status": "failed",
+      "diagnostics": [
+        "Tahoma"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-00afa1113a/wordcraft"
+    },
+    {
+      "id": "wordbench-00b4bc7784",
+      "status": "failed",
+      "diagnostics": [
+        "Table cell text direction and fitting"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-00b4bc7784/wordcraft"
+    },
+    {
+      "id": "wordbench-00b4bca293",
+      "status": "failed",
+      "diagnostics": [
+        "Extended paragraph properties"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-00b4bca293/wordcraft"
+    },
+    {
+      "id": "wordbench-014f5b166b",
+      "status": "failed",
+      "diagnostics": [
+        "Document grid",
+        "Table cell text direction and fitting",
+        "\u6e38\u660e\u671d"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-014f5b166b/wordcraft"
+    },
+    {
+      "id": "wordbench-01dfe66768",
+      "status": "failed",
+      "diagnostics": [
+        "Conditional table styles",
+        "Document grid",
+        "Line numbering",
+        "\u7b49\u7ebf"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-01dfe66768/wordcraft"
+    },
+    {
+      "id": "wordbench-030c864b67",
+      "status": "failed",
+      "diagnostics": [
+        "Extended paragraph properties"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-030c864b67/wordcraft"
+    },
+    {
+      "id": "wordbench-036dd6afba",
+      "status": "failed",
+      "diagnostics": [
+        "Conditional table styles",
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "Fields other than page and section counters use cached results",
+        "Floating picture positioning and text wrap",
+        "Roboto Light",
+        "Roboto Medium"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-036dd6afba/wordcraft"
+    },
+    {
+      "id": "wordbench-03fc85a4cc",
+      "status": "failed",
+      "diagnostics": [
+        "BigMisterC"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-03fc85a4cc/wordcraft"
+    },
+    {
+      "id": "wordbench-04dafefc52",
+      "status": "failed",
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251657728\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658752\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\"><wp:simplePos x=\"0\" y=\"0\"/",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251656704\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "Embedded drawings, equations, and text boxes",
+        "Paragraph frames and drop caps"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-04dafefc52/wordcraft"
+    },
+    {
+      "id": "wordbench-051e6da4f6",
+      "status": "failed",
+      "diagnostics": [
+        "Vertically merged table cells",
+        "Ebrima"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-051e6da4f6/wordcraft"
+    },
+    {
+      "id": "wordbench-055277a98a",
+      "status": "failed",
+      "diagnostics": [
+        "Extended character typography",
+        "Extended paragraph properties"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-055277a98a/wordcraft"
+    },
+    {
+      "id": "wordbench-056bfeba7c",
+      "status": "failed",
+      "diagnostics": [
+        "Extended paragraph properties",
+        "Floating picture positioning and text wrap",
+        "Floating table positioning and text wrap",
+        "Paragraph frames and drop caps",
+        "Helvetica"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-056bfeba7c/wordcraft"
+    },
+    {
+      "id": "wordbench-07ffc3f5af",
+      "status": "failed",
+      "diagnostics": [
+        "Conditional table styles",
+        "Floating picture positioning and text wrap",
+        "Arial Bold"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-07ffc3f5af/wordcraft"
+    },
+    {
+      "id": "wordbench-0800162a66",
+      "status": "failed",
+      "diagnostics": [
+        "Floating picture positioning and text wrap"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-0800162a66/wordcraft"
+    },
+    {
+      "id": "wordbench-09321ae5d1",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-09321ae5d1/wordcraft"
+    },
+    {
+      "id": "wordbench-0d421d4956",
+      "status": "failed",
+      "diagnostics": [
+        "Complex-script and bidirectional layout",
+        "Vertically merged table cells"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-0d421d4956/wordcraft"
+    },
+    {
+      "id": "wordbench-0e6f813e69",
+      "status": "failed",
+      "diagnostics": [
+        "Document grid",
+        "\u7b49\u7ebf"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-0e6f813e69/wordcraft"
+    },
+    {
+      "id": "wordbench-115c721277",
+      "status": "failed",
+      "diagnostics": [
+        "Floating picture positioning and text wrap"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-115c721277/wordcraft"
+    },
+    {
+      "id": "wordbench-132172576b",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-132172576b/wordcraft"
+    },
+    {
+      "id": "wordbench-153475ecc3",
+      "status": "failed",
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251662336\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251660288\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "Calibri-Bold",
+        "Helvetica"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-153475ecc3/wordcraft"
+    },
+    {
+      "id": "wordbench-153b511c02",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-153b511c02/wordcraft"
+    },
+    {
+      "id": "wordbench-164e42c955",
+      "status": "failed",
+      "diagnostics": [
+        "Conditional table styles",
+        "Floating picture positioning and text wrap",
+        "Poppins"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-164e42c955/wordcraft"
+    },
+    {
+      "id": "wordbench-19891583af",
+      "status": "failed",
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"metricconverter\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"110 l\"/></w:smartTagPr><w:r><w:t>110 l</w:t></w:r></w:smart",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"metricconverter\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"1100 l\"/></w:smartTagPr><w:r><w:t>1100 l</w:t></w:r></w:sma"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-19891583af/wordcraft"
+    },
+    {
+      "id": "wordbench-19d3b7b481",
+      "status": "failed",
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"45720\" distB=\"45720\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658242\" behindDoc=\"0\" locked=\"0\" layou",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"45720\" distB=\"45720\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658243\" behindDoc=\"0\" locked=\"0\" layou",
+        "Character effects and borders",
+        "Embedded drawings, equations, and text boxes",
+        "Floating picture positioning and text wrap",
+        "Avenir Book",
+        "Helvetica"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-19d3b7b481/wordcraft"
+    },
+    {
+      "id": "wordbench-1ec984c384",
+      "status": "failed",
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wpc\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"1\" locked=\"0\" layoutInCell=",
+        "Georgia",
+        "MS Gothic"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-1ec984c384/wordcraft"
+    },
+    {
+      "id": "wordbench-204a1912be",
+      "status": "failed",
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "Floating picture positioning and text wrap",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251666432\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251665408\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251661312\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251663360\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell="
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-204a1912be/wordcraft"
+    },
+    {
+      "id": "wordbench-21a93ae017",
+      "status": "failed",
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowO",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"251660288\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowO",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowO",
+        "Conditional table styles",
+        "Embedded drawings, equations, and text boxes",
+        "Floating table positioning and text wrap"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-21a93ae017/wordcraft"
+    },
+    {
+      "id": "wordbench-2227979ecd",
+      "status": "failed",
+      "diagnostics": [
+        "Floating picture positioning and text wrap",
+        "Floating table positioning and text wrap"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-2227979ecd/wordcraft"
+    },
+    {
+      "id": "wordbench-2559791938",
+      "status": "failed",
+      "diagnostics": [
+        "Conditional table styles"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-2559791938/wordcraft"
+    },
+    {
+      "id": "wordbench-2949680ea3",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-2949680ea3/wordcraft"
+    },
+    {
+      "id": "wordbench-2c41d57dce",
+      "status": "failed",
+      "diagnostics": [
+        "Conditional table styles",
+        "Table cell text direction and fitting",
+        "Vertically merged table cells"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-2c41d57dce/wordcraft"
+    },
+    {
+      "id": "wordbench-30dde38655",
+      "status": "failed",
+      "diagnostics": [
+        "Extended paragraph properties"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-30dde38655/wordcraft"
+    },
+    {
+      "id": "wordbench-38366ba69f",
+      "status": "failed",
+      "diagnostics": [
+        "Vertically merged table cells",
+        "Verdana"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-38366ba69f/wordcraft"
+    },
+    {
+      "id": "wordbench-418b154e5c",
+      "status": "failed",
+      "diagnostics": [
+        "Fields other than page and section counters use cached results",
+        "Floating picture positioning and text wrap"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-418b154e5c/wordcraft"
+    },
+    {
+      "id": "wordbench-4351ae2564",
+      "status": "failed",
+      "diagnostics": [
+        "Document grid",
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <w:object w:dxaOrig=\"9855\" w:dyaOrig=\"12963\"><v:shapetype id=\"_x0000_t75\" coordsize=\"21600,21600\" o:spt=\"75\" o:preferrelative=\"t\" path=\"m@4@5l@4@11@9@11@9@5xe\" filled=\"f\" stroked=\"f\"><v:stroke joins",
+        "\u6a19\u6977\u9ad4",
+        "\u65b0\u7d30\u660e\u9ad4"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-4351ae2564/wordcraft"
+    },
+    {
+      "id": "wordbench-46860b290e",
+      "status": "failed",
+      "diagnostics": [
+        "Extended paragraph properties",
+        "Floating picture positioning and text wrap",
+        "Impact"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-46860b290e/wordcraft"
+    },
+    {
+      "id": "wordbench-4b030510c8",
+      "status": "failed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-4b030510c8/wordcraft"
+    },
+    {
+      "id": "wordbench-5aa03735ce",
+      "status": "failed",
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"PersonName\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"la Sezione Provinciale\"/></w:smartTagPr><w:r w:rsidRPr=\"00511569",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251660800\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251661824\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659776\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"4294967295\" distB=\"4294967295\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658752\" behindDoc=\"0\" locked",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"4294967295\" distB=\"4294967295\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251657728\" behindDoc=\"0\" locked",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"4294967295\" distB=\"4294967295\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251656704\" behindDoc=\"0\" locked",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251652608\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251654656\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251655680\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251653632\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251651584\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251650560\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wpc\"><w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"5574665\" cy=\"2646045\"/><wp:effectExtent l=\"24765\" t=\"17780\" r=\"20320\" b=\"2",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251663872\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251662848\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <w:sym w:font=\"Symbol\" w:char=\"F07F\"/> object paints as a placeholder",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"PersonName\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"LA PISCINA\"/></w:smartTagPr><w:r><w:rPr><w:rFonts w:ascii=\"Arial"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-5aa03735ce/wordcraft"
+    },
+    {
+      "id": "wordbench-636ef078e7",
+      "status": "failed",
+      "diagnostics": [
+        "Footnote, endnote, and comment stories"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-636ef078e7/wordcraft"
+    },
+    {
+      "id": "wordbench-6b651ce4d7",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-6b651ce4d7/wordcraft"
+    },
+    {
+      "id": "wordbench-7e4c9416aa",
+      "status": "failed",
+      "diagnostics": [
+        "Floating picture positioning and text wrap",
+        "Vertically merged table cells"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-7e4c9416aa/wordcraft"
+    },
+    {
+      "id": "wordbench-81f7cad226",
+      "status": "failed",
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658241\" behindDoc=\"0\" locked=\"1\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"1\" layoutInCell=",
+        "Embedded drawings, equations, and text boxes",
+        "Floating picture positioning and text wrap",
+        "Paragraph frames and drop caps",
+        "Verdana"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-81f7cad226/wordcraft"
+    },
+    {
+      "id": "wordbench-9861e3ad38",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-9861e3ad38/wordcraft"
+    },
+    {
+      "id": "wordbench-a05bc8ec1e",
+      "status": "failed",
+      "diagnostics": [
+        "Footnote, endnote, and comment stories"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-a05bc8ec1e/wordcraft"
+    },
+    {
+      "id": "wordbench-b3ff2c3238",
+      "status": "passed",
+      "diagnostics": [],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-b3ff2c3238/wordcraft"
+    },
+    {
+      "id": "wordbench-d91010d592",
+      "status": "failed",
+      "diagnostics": [
+        "Complex-script and bidirectional layout",
+        "SECNaskhArabicUI"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-d91010d592/wordcraft"
+    },
+    {
+      "id": "wordbench-fe882784bb",
+      "status": "failed",
+      "diagnostics": [
+        "A <w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"1\" layoutInCell=\"1\" allowOverlap=\"1\" wp14:anchorId=\"0FBC4B57\" w",
+        "Embedded drawings, equations, and text boxes",
+        "Footnote, endnote, and comment stories"
+      ],
+      "reference_reused_from": "target/wordcraft-parity/word-benchmark-48-word-fonts/wordbench-fe882784bb/wordcraft"
+    }
+  ]
+}

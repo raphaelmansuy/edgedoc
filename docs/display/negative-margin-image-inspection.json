@@ -1,0 +1,9 @@
+{
+  "case": "docx4j-17-simple_hf_negative",
+  "page": 1,
+  "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/negative-margin-focused/docx4j-17-simple_hf_negative/wordcraft/page-001.png",
+  "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/negative-margin-focused/docx4j-17-simple_hf_negative/edgedoc/page-001.png",
+  "wordcraft_sha256": "a30db2cb82de49c5e55900655f7a44083c3da7cbc2242d2250d0beb9fba6b2fb",
+  "edgedoc_sha256": "a30db2cb82de49c5e55900655f7a44083c3da7cbc2242d2250d0beb9fba6b2fb",
+  "visually_inspected": true
+}

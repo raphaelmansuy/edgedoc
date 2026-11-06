@@ -107,6 +107,11 @@ impl DisplayHandle {
         doc.pages().get(index).map(|p| (p.w, p.h))
     }
 
+    /// A loaded glyph outline for the browser canvas.
+    pub fn glyph_outline_json(&self, face: u32, glyph: u16) -> Option<String> {
+        self.doc.as_ref()?.glyph_outline_json(face, glyph)
+    }
+
     /// One page as an SVG document.
     pub fn svg(&self, index: usize) -> Option<String> {
         self.doc.as_ref()?.to_svg(index)
@@ -351,6 +356,19 @@ mod tests {
         let bytes = h.page_bytes(0).expect("page");
         let page = edgedoc_paint::decode(&bytes).expect("decode");
         assert_eq!(page.index, 0);
+        let run = page
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_paint::Op::Glyphs(run) => Some(run),
+                _ => None,
+            })
+            .expect("glyph run");
+        let outline = h
+            .glyph_outline_json(run.face, run.glyphs[0])
+            .expect("loaded font outline");
+        assert!(outline.contains(",\"M"), "{outline}");
+        assert!(h.glyph_outline_json(u32::MAX, 0).is_none());
     }
 
     #[test]

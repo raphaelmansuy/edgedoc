@@ -1,0 +1,9 @@
+{
+  "case": "docx4j-11-odd_even",
+  "page": 2,
+  "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/even-footer-focused/docx4j-11-odd_even/wordcraft/page-002.png",
+  "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/even-footer-focused/docx4j-11-odd_even/edgedoc/page-002.png",
+  "wordcraft_sha256": "9a0775946b57bc5997f0fa447f60575a8d9bd0f05a4a98e12e2cbf6ffcd4be43",
+  "edgedoc_sha256": "9a0775946b57bc5997f0fa447f60575a8d9bd0f05a4a98e12e2cbf6ffcd4be43",
+  "visually_inspected": true
+}

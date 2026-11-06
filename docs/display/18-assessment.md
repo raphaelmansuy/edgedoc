@@ -2,6 +2,9 @@
 
 Date: 2026-11-04. Part of the EdgeDoc Display specification. See [README.md](README.md).
 
+Historical assessment. The current implementation status is in
+[20-rendering-parity.md](20-rendering-parity.md); the counts below are not a current parity claim.
+
 This chapter answers one question: for every layout, style, and font behavior that WordCraft
 measured against Word, what does EdgeDoc Display do today?
 

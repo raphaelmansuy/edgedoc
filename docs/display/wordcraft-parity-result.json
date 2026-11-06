@@ -1,0 +1,1238 @@
+{
+  "schema": 1,
+  "checked_at": "2026-11-05T02:06:20.384143+00:00",
+  "scope": "Bounded synthetic fixture evidence; complete Wordcraft feature parity is not established.",
+  "passed": false,
+  "counts": {
+    "passed": 39,
+    "failed": 3
+  },
+  "distinct_docx_inputs": 40,
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+    "adapter_sha256": "78f1e89ab318cb1dba0a44bf337a2f4868b7aea5c4c220d1ec00760efd1fec8a",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "edgedoc_build_inputs_sha256": "d2fa16c181f7acc36ec75906d246e74b8d54ce69627d1a0f398cf70fd7cba17c",
+  "comparison_tool_sha256": "f3527c741381414500b768b37c7883ed2ba09609fe9e4d72b70823da03d36404",
+  "comparison_report_sha256": "b34b737346346f983d158e7a31c0df7aa329352a5a2e85d7daf6917d32315ef1",
+  "manifest_sha256": "cf7ac5a3af67b30ed97182d2279c70253a1fbae9b82f33ed1d8aa9b3538108d2",
+  "thresholds": {
+    "position_pt": 0.5,
+    "font_size_pt": 0.05,
+    "unmatched_ink_fraction": 0.01,
+    "mean_ink_color_error": 0.05,
+    "dpi": 144,
+    "pixel_neighborhood": 1
+  },
+  "validation": {
+    "rust_tests_passed": 280,
+    "clippy": "passed with warnings denied",
+    "format": "passed",
+    "gate_negative_tests": 8,
+    "browser_checks_passed": 20,
+    "corpus_checks_passed": 128,
+    "corpus_docx_files": 33
+  },
+  "cases": [
+    {
+      "id": "core-layout",
+      "input_sha256": "6935636ed144021d2d79dd5b5da233cf4ac3967c804abd86321abd0866c8b673",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": []
+    },
+    {
+      "id": "notes-dropcap",
+      "input_sha256": "1938a2eb6c6f63f24469036a918cb9eb987057840d8739e9ddfdda6f81b5f541",
+      "status": "failed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.315112921726061,
+          "mean_ink_color_error": 0.06737414002418518,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "NOTE AND DROP CAP COVERAGE - ORIGINAL SYNTHETIC INPUT",
+                  "1",
+                  "Body reference",
+                  "rop cap paragraph with several original words to flow beside the initial letter.",
+                  "D",
+                  "Original footnote text that must appear below the body."
+                ],
+                "edgedoc": [
+                  "NOTE AND DROP CAP COVERAGE - ORIGINAL SYNTHETIC INPUT",
+                  "Body reference1",
+                  "Drop cap paragraph with several original words to flow beside the initial letter."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.315112921726061,
+              "mean_ink_color_error": 0.06737414002418518
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Footnote, endnote, and comment stories"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Paragraph frames and drop caps"
+            }
+          ]
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Footnote, endnote, and comment stories"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Paragraph frames and drop caps"
+        }
+      ]
+    },
+    {
+      "id": "a_column_break_survives_an_edited_save-0f6df3fc921617f1",
+      "input_sha256": "f75fd527f8c4c0b1633c502e9fcacaa78e7146a81641d904478aa69bdc52a7dc",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "a_long_paragraph_continues_without_repeating_or_dropping_lines-8ad99c4c125c4545",
+      "input_sha256": "5f30ef070e7965bd65d4d461de55a191084d59fe9d9a170b608b3c3b17fc57c0",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "a_multi_page_table_keeps_each_row_once_and_repeats_its_header-392f8516a232609c",
+      "input_sha256": "08ab9b550df5f5ea3de00b3b565fab95b073152de7f08ca7e7e332b5df72f6ee",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 4,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "balancing_the_last_page_preserves_a_paragraph_continued_from_an_earlier_page-08362fd45718e7b9",
+      "input_sha256": "1eb23d2f7ce40870d5762646effdf56210c14e8d9f56a0775ea8178eaec20e27",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "bottom_vertical_alignment_reaches_the_bottom_margin-f569de52225d6067",
+      "input_sha256": "e8b84d829ae0ebb79842a3cc90dc34f6e12f87fe713e0c68da80d640046edac7",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "changing_fonts_invalidates_previous_layout-7621e5a46e342c81",
+      "input_sha256": "6158da7c8bd49acb1b454752aa3293a0c57097d2535c6fc709e5927edec436de",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "continuous_column_changes_start_below_the_previous_column_set-a55edd1dac74210e",
+      "input_sha256": "7f445c877c980a4979969699586d28413e2c5789f76daeffabe9b202b312e1d0",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "continuous_sections_keep_the_current_page-cdd50cbbc843d683",
+      "input_sha256": "87f2de15527b8041d0f80af235688334ddcd0d4338fb3dca11dd862316929282",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "final_columns_balance_before_a_continuous_section-a55edd1dac74210e",
+      "input_sha256": "7f445c877c980a4979969699586d28413e2c5789f76daeffabe9b202b312e1d0",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-3f215bb4aa1275f0",
+      "input_sha256": "c0d0945372d56e8743a9ab65299fd4967f8eb56d5db7997a3c7cb87a2a1ddef2",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-b3b5a094580df065",
+      "input_sha256": "634e9343820059daac206d0bf8604a833b69eed4bd49a77a41831ee72578a0f1",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-b62b11dbab321b12",
+      "input_sha256": "5844436755d1f7d61a54dca5cb1fa14027141eca0d9a56e484a3cba01d74d79e",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-f13fabc411d03322",
+      "input_sha256": "e47e943acd7c779f65576aec4f1e85019de96b68eb96d29046c1f792912beb03",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "header_and_footer_distances_are_measured_from_the_page_edges-df611536eddfc950",
+      "input_sha256": "5073686e8f7fe3d7bca7b0e08564fc44a9e027a089b259a15f2f182770ecfce4",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "header_references_choose_variants_by_id_and_link_to_previous-6f70d2a973a67e34",
+      "input_sha256": "112cd01686e3528c99cecfd03eb35bf44cd4c33d983986e56f49cb28823b2b14",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "identical_text_with_different_alignment_does_not_share_the_wrong_layout-b124d1abf40d0188",
+      "input_sha256": "a280d748f03fdc91a61bbf73a98ae1cf7ec2caa81722749d87a9bc6190ce2420",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "inline_page_and_column_breaks_change_the_flow-0f6df3fc921617f1",
+      "input_sha256": "f75fd527f8c4c0b1633c502e9fcacaa78e7146a81641d904478aa69bdc52a7dc",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "inline_page_and_column_breaks_change_the_flow-648cb50776287869",
+      "input_sha256": "d4ffe898a01d3523db6b2a543988a20d412aaef0253b0892f09916e8a524d0ae",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "keep_with_next_moves_the_heading_with_its_following_paragraph-28021ee5d8b11fd8",
+      "input_sha256": "88bb5667220a119d9c4dee12d426e1c80c34f79d379041a06ad975c262d009e4",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "known_fidelity_gaps_are_reported_and_relayout_does_not_duplicate_diagnostics-1b7931ef3d33db86",
+      "input_sha256": "d0a570c7e4f2c81c5a31ce4305ec59fd4177958b1590204c5453787d35f55c17",
+      "status": "failed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.8632478632478633,
+          "mean_ink_color_error": 0.28405797481536865,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "rop cap",
+                  "D"
+                ],
+                "edgedoc": [
+                  "Drop cap"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.8632478632478633,
+              "mean_ink_color_error": 0.28405797481536865
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Paragraph frames and drop caps"
+            }
+          ]
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Paragraph frames and drop caps"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "ligatures_and_kerning_survive_layout_and_paint-185f3dca73c2301b",
+      "input_sha256": "137b4eb33456b8499d73a9b1545365aa45aaa9d6f49c81676625553248764167",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-817f20ba56cad56f",
+      "input_sha256": "aa66f7044a2c68ef0fc245ea2cb26f97bdb87a14ec519d9c7803a8b6b66e1432",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-bf96f3099e4c6a3b",
+      "input_sha256": "5ce3a54299faad3148dbea27faae475904b905b0016123bd5a5443c1da278ee6",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-d00df35b4648c335",
+      "input_sha256": "9f152e64188a7ee4c65397f3ef8d2184f07227d91892b5bba92d6a6398f2f025",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-fa16a42b8388c59e",
+      "input_sha256": "6166c34592da07f5473e6bff4c1ae862631fa6ee045d14601dceaad35d00511b",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-fd63cb0a011c777f",
+      "input_sha256": "8f9d8fd909656de82351eb5b82eaab44bddac7fbe587198c65df19697f576100",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "mirror_margins_move_the_inside_gutter_on_even_pages-0fe7037a055c498a",
+      "input_sha256": "3cadb7f6895f452224706a67ae20c8ea9da92e313f295a2c4857179539fc917c",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "mirror_margins_move_the_inside_gutter_on_even_pages-d8054e17a6d7f053",
+      "input_sha256": "d877b4c5bac1044c45e21ef35f778b426ff75c6b44cf3501409d036885df9824",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "omitted_import_properties_follow_wordcraft_defaults-7eae5c39be2b8c3e",
+      "input_sha256": "3c718ef171d091092c6735f3314f744aa94e70dcfdc074fcf3492cc95f8c9cae",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "page_budget_is_enforced_and_hidden_text_can_be_shown-357232373f590274",
+      "input_sha256": "49e788afb8777f9149f53b09a528a7114a224351efb9b41bcd2eb81f970b713e",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "page_budget_is_enforced_and_hidden_text_can_be_shown-d3870bae2e8374b4",
+      "input_sha256": "e62276ebaaf494e26373390516188839de63f40794649702809eb5de8bec3e5d",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "page_limit_also_applies_between_sections-a4d3f69ddf27c6b2",
+      "input_sha256": "2cbb985339e86e04fb8adc3ae60cadbfa71884354c7cc1e136ebdbd60f3c25de",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "painted_baselines_use_one_line_offset_and_respect_justified_positions-adc9ceac6ece36bd",
+      "input_sha256": "cd5d32d0ab66445bbf6fc1e80487263068f19d4568b1133a3bcafc9b021118ac",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "section_fields_count_their_own_section_and_page_uses_its_format-7d75666c82b6724e",
+      "input_sha256": "0df43b147d69e357f53b1b5326d0cfc25cdec29c2381a6578c17dc59e7144612",
+      "status": "failed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.08868778280542987,
+          "mean_ink_color_error": 0.01744159124791622,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "Section 1: 1 pages; page 3 of 3"
+                ],
+                "edgedoc": [
+                  "Section 1: 1 pages; page III of 3"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.08868778280542987,
+              "mean_ink_color_error": 0.01744159124791622
+            }
+          ]
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "section_properties_apply_to_the_section_they_end-2c5984a696f0ed99",
+      "input_sha256": "f4ac5aba6368ccf91e3848200eda4f5d5236144431bba0c3fc404457b222fe0d",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "sections_sharing_a_page_each_count_that_page-46d4eaaf7de0d606",
+      "input_sha256": "d3dc503801d4ff2bb0b503ce709610a71ecf309ca4cfc72201d5eeb52d779f98",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "separate_clipped_paragraphs_have_distinct_svg_clip_paths-fa6222773c8d3bf8",
+      "input_sha256": "30f6b53e8feb86db25f4046c4488f1782667e4139d49fabc99783fc900896c79",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-34a503e15750bf2a",
+      "input_sha256": "d5493ff409b2888be12ae468337f44af015d0cb38c9c8a614bdf48ca18a6caae",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-fa3203eb4cb612ed",
+      "input_sha256": "fe4eaf16ab61e4d50fdb2e1ed53bd9bdca5e237eb9e5338421e2c05dab953df9",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    },
+    {
+      "id": "tall_headers_and_footers_reserve_body_space_and_keep_all_their_lines-177986df98cc47f7",
+      "input_sha256": "b4831fbab055401a39dd3898d9b0d1910beed495ac09488eb2a87604a3fda99f",
+      "status": "passed",
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 4,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 5,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 6,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 7,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [],
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ]
+    }
+  ]
+}

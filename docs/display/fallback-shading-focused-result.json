@@ -1,0 +1,2365 @@
+{
+  "schema": 1,
+  "passed": false,
+  "comparison_tool_sha256": "67d4c9b5a8bf953f3ad9c3d57fcf2a8d2a5af581ff52566c44266c4e779b61b2",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "edgedoc_build_inputs_sha256": "078f1327b9eda15ad1547647781e6d182eae7705582672df91a58413818080eb",
+  "scope": "394 retained differential cases; not exhaustive Wordcraft parity",
+  "reference_reused_cases": [
+    "changing_fonts_invalidates_previous_layout-7621e5a46e342c81",
+    "ligatures_and_kerning_survive_layout_and_paint-185f3dca73c2301b",
+    "docx4j-06-rfonts",
+    "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-7301662067fc3068",
+    "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-9437217bacf43520",
+    "regression-theme_fonts_override_literal_names_and_survive_an_edited_save-42ab7909b8a239c5",
+    "poi-extra-797bfdf13936",
+    "regression-symbol_font_bullets_use_unicode_and_share_the_text_baseline-5ea4fa5327add93a",
+    "regression-bullet_without_a_level_font_uses_the_paragraph_text_face-f0d3d73b7df05547",
+    "regression-bullet_without_a_level_font_uses_the_paragraph_mark_face-1f5a083ecf55254d"
+  ],
+  "thresholds": {
+    "position_pt": 0.5,
+    "font_size_pt": 0.05,
+    "unmatched_ink_fraction": 0.01,
+    "mean_ink_color_error": 0.05,
+    "dpi": 144,
+    "pixel_neighborhood": 1
+  },
+  "cases": [
+    {
+      "id": "changing_fonts_invalidates_previous_layout-7621e5a46e342c81",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "ligatures_and_kerning_survive_layout_and_paint-185f3dca73c2301b",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "docx4j-06-rfonts",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Character effects and borders"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Complex-script and bidirectional layout"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Embedded drawings, equations, and text boxes"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Fields other than page and section counters use cached results"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Cambria"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Consolas"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Segoe UI"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "inherit"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Batang"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "MS Mincho"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Cambria Math"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.2485377916514902,
+          "mean_ink_color_error": 0.06385885924100876,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "rFonts (Run Fonts)",
+                  "This element specifies the fonts which shall be used to display the text contents of this run. Within a single run, there may be up ",
+                  "to four types of content present which shall each be allowed to use a unique font:",
+                  "•ASCII",
+                  "•High ANSI",
+                  "•Complex Script",
+                  "•East Asian",
+                  "The use of each of these fonts shall be determined by the Unicode character values of the run content, unless manually ",
+                  "overridden via use of the cs element (§Error! Reference source not found.).",
+                  "If this element is not present, the default value is to leave the formatting applied at previous level in the style hierarchy. If this ",
+                  "element is never applied in the style hierarchy, then the text shall be displayed in any default font which supports each type of ",
+                  "content. ",
+                  "[Example: Consider a single text run with both Arabic and English text, as follows:",
+                  "English ةيبرعلا",
+                  "This content may be expressed in a single WordprocessingML run:",
+                  "<w:r>",
+                  "  <w:t>English ةيبرعلا</w:t>",
+                  "</w:r>",
+                  "Although it is in the same run, the contents are in different font faces by specifying a different font for ASCII and CS characters in ",
+                  "the run:",
+                  "<w:r>",
+                  "  <w:rPr>",
+                  "    <w:rFonts w:ascii=\"Courier New\" w:cs=\"Times New Roman\" />",
+                  "  </w:rPr>",
+                  "  <w:t>English ةيبرعلا</w:t>",
+                  "</w:r>",
+                  "This text run shall therefore use the Courier New font for all characters in the ASCII range, and shall use the Times New Roman ",
+                  "font for all characters in the Complex Script range. end example]",
+                  "Parent Elements",
+                  "rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§",
+                  "Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.); ",
+                  "rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§",
+                  "Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.)",
+                  "AttributesDescription",
+                  "ascii (ASCII Font)Specifies a font which shall be used to format all characters in the ASCII range (0 - 127) within the ",
+                  "parent run.",
+                  "If the asciiTheme attribute is also specified *in the run properties*., then this attribute shall be ",
+                  "ignored and that value shall be used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports ASCII content. ",
+                  "[Example: Consider a run of ASCII text which shall be displayed using the Courier New font. This ",
+                  "requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:ascii=”Courier New” />"
+                ],
+                "edgedoc": [
+                  "rFonts (Run Fonts)",
+                  "This element specifies the fonts which shall be used to display the text contents of this run. Within a single run, there may be up ",
+                  "to four types of content present which shall each be allowed to use a unique font:",
+                  "•ASCII",
+                  "•High ANSI",
+                  "•Complex Script",
+                  "•East Asian",
+                  "The use of each of these fonts shall be determined by the Unicode character values of the run content, unless manually ",
+                  "overridden via use of the cs element (§Error! Reference source not found.).",
+                  "If this element is not present, the default value is to leave the formatting applied at previous level in the style hierarchy. If this ",
+                  "element is never applied in the style hierarchy, then the text shall be displayed in any default font which supports each type of ",
+                  "content. ",
+                  "[Example: Consider a single text run with both Arabic and English text, as follows:",
+                  "English العربية",
+                  "This content may be expressed in a single WordprocessingML run:",
+                  "<w:r>",
+                  "  <w:t>English العربية</w:t>",
+                  "</w:r>",
+                  "Although it is in the same run, the contents are in different font faces by specifying a different font for ASCII and CS characters in ",
+                  "the run:",
+                  "<w:r>",
+                  "  <w:rPr>",
+                  "    <w:rFonts w:ascii=\"Courier New\" w:cs=\"Times New Roman\" />",
+                  "  </w:rPr>",
+                  "  <w:t>English العربية</w:t>",
+                  "</w:r>",
+                  "This text run shall therefore use the Courier New font for all characters in the ASCII range, and shall use the Times New Roman ",
+                  "font for all characters in the Complex Script range. end example]",
+                  "Parent Elements",
+                  "rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference source not ",
+                  "found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference source ",
+                  "not found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference source not found.); rPr (§Error! Reference ",
+                  "source not found.); rPr (§Error! Reference source not found.)",
+                  "AttributesDescription"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.2485377916514902,
+              "mean_ink_color_error": 0.06385885924100876
+            }
+          ]
+        },
+        {
+          "page": 2,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.7720917955208976,
+          "mean_ink_color_error": 0.28969383239746094,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "</w:rPr>",
+                  "The ascii attribute specifies that the run shall use the Courier New font for all text in the ASCII range. ",
+                  "end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§",
+                  "Error! Reference source not found.).",
+                  "asciiTheme (ASCII Specifies a theme font which shall be used to format all characters in the ASCII range (0 - 127) ",
+                  "Theme Font)within the parent run. This theme font is a reference to one of the predefined theme fonts, located ",
+                  "in the document's Theme part,which allows for font information to be set centrally in the ",
+                  "document.",
+                  "If the ascii attribute is also specified, then that attribute shall be ignored and this value shall be used ",
+                  "instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the ascii attribute. ",
+                  "[Example: Consider a run of ASCII text which shall be displayed using the majorASCII theme font. ",
+                  "This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:asciiTheme=”majorAscii” />",
+                  "</w:rPr>",
+                  "The ascii attribute specifies that the run shall use the majorAscii theme font as defined in the ",
+                  "document's themes part for all text in the ASCII range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§",
+                  "Error! Reference source not found.).",
+                  "cs (Complex Script Specifies a font which shall be used to format all characters in a complex script Unicode range ",
+                  "Font)within the parent run.",
+                  "If the csTheme attribute is also specified, then this attribute shall be ignored and that value shall be ",
+                  "used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports complex script content. ",
+                  "[Example: Consider a run of Arabic text which shall be displayed using the Arial Unicode MS font. ",
+                  "This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:cs=”Arial Unicode MS” />",
+                  "</w:rPr>",
+                  "The cs attribute specifies that the run shall use the Arial Unicode MS font for all text in a complex ",
+                  "script range. end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§",
+                  "Error! Reference source not found.).",
+                  "cstheme (Complex Specifies a theme font which shall be used to format all characters in a complex script Unicode ",
+                  "Script Theme Font)range within the parent run. This theme font is a reference to one of the predefined theme fonts, ",
+                  "located in the document's Theme part,which allows for font information to be set centrally in the ",
+                  "document.",
+                  "If the cs attribute is also specified, then that attribute shall be ignored and this value shall be used ",
+                  "instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the cs attribute.",
+                  "[Example: Consider a run of Arabic text which shall be displayed using the majorBidi theme font. ",
+                  "This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:csTheme=”majorBidi” />",
+                  "</w:rPr>",
+                  "The csTheme attribute specifies that the run shall use the majorBidi theme font as defined in the ",
+                  "document's themes part for all text in a complex script range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§",
+                  "Error! Reference source not found.).",
+                  "eastAsia (East Asian Specifies a font which shall be used to format all characters in an East Asian Unicode range within ",
+                  "Font)the parent run.",
+                  "If the eastAsiaTheme attribute is also specified, then this attribute shall be ignored and that value ",
+                  "shall be used instead."
+                ],
+                "edgedoc": [
+                  "ascii (ASCII Font)Specifies a font which shall be used to format all characters in the ASCII range (0 - 127) within the ",
+                  "parent run.",
+                  "If the asciiTheme attribute is also specified *in the run properties*., then this attribute shall be ",
+                  "ignored and that value shall be used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports ASCII content. ",
+                  "[Example: Consider a run of ASCII text which shall be displayed using the Courier New font. This ",
+                  "requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:ascii=”Courier New” />",
+                  "</w:rPr>",
+                  "The ascii attribute specifies that the run shall use the Courier New font for all text in the ASCII range. ",
+                  "end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§Error! Reference ",
+                  "source not found.).",
+                  "asciiTheme (ASCII Specifies a theme font which shall be used to format all characters in the ASCII range (0 - 127) ",
+                  "Theme Font)within the parent run. This theme font is a reference to one of the predefined theme fonts, located ",
+                  "in the document's Theme part,which allows for font information to be set centrally in the ",
+                  "document.",
+                  "If the ascii attribute is also specified, then that attribute shall be ignored and this value shall be used ",
+                  "instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the ascii attribute. ",
+                  "[Example: Consider a run of ASCII text which shall be displayed using the majorASCII theme font. ",
+                  "This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:asciiTheme=”majorAscii” />",
+                  "</w:rPr>",
+                  "The ascii attribute specifies that the run shall use the majorAscii theme font as defined in the ",
+                  "document's themes part for all text in the ASCII range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§Error! Reference ",
+                  "source not found.).",
+                  "cs (Complex Script Specifies a font which shall be used to format all characters in a complex script Unicode range ",
+                  "Font)within the parent run.",
+                  "If the csTheme attribute is also specified, then this attribute shall be ignored and that value shall be ",
+                  "used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports complex script content. ",
+                  "[Example: Consider a run of Arabic text which shall be displayed using the Arial Unicode MS font. ",
+                  "This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:cs=”Arial Unicode MS” />",
+                  "</w:rPr>",
+                  "The cs attribute specifies that the run shall use the Arial Unicode MS font for all text in a complex ",
+                  "script range. end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§Error! Reference ",
+                  "source not found.)."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.7720917955208976,
+              "mean_ink_color_error": 0.28969383239746094
+            }
+          ]
+        },
+        {
+          "page": 3,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.6428597182827749,
+          "mean_ink_color_error": 0.2722361087799072,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports East Asian content. ",
+                  "[Example: Consider a run of Japanese text which shall be displayed using the MS Mincho font. This ",
+                  "requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:eastAsia=”MS Mincho” />",
+                  "</w:rPr>",
+                  "The eastAsia attribute specifies that the run shall use the MS Mincho font for all text in an East ",
+                  "Asian range. end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§",
+                  "Error! Reference source not found.).",
+                  "eastAsiaTheme (East Specifies a theme font which shall be used to format all characters in an East Asian Unicode range ",
+                  "Asian Theme Font)within the parent run. This theme font is a reference to one of the predefined theme fonts, located ",
+                  "in the document's Theme part,which allows for font information to be set centrally in the ",
+                  "document.",
+                  "If the eastAsia attribute is also specified, then that attribute shall be ignored and this value shall be ",
+                  "used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the eastAsia attribute.",
+                  "[Example: Consider a run of Japanese text which shall be displayed using the minorEastAsia theme ",
+                  "font. This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:eastAsiaTheme=”minorEastAsia” />",
+                  "</w:rPr>",
+                  "The eastAsiaTheme attribute specifies that the run shall use the minorEastAsia theme font as ",
+                  "defined in the document's themes part for all text in an East Asian range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§",
+                  "Error! Reference source not found.).",
+                  "hAnsi (High ANSI Font)Specifies a font which shall be used to format all characters in a Unicode range within the parent ",
+                  "run which does not fall into one of the three categories defined above, which is called the high ANSI ",
+                  "range in WordprocessingML.",
+                  "If the hAnsiTheme attribute is also specified, then this attribute shall be ignored and that value shall ",
+                  "be used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports high ANSI content. ",
+                  "[Example: Consider a run of text which falls into a high ANSI range, and shall be displayed using the ",
+                  "Bauhaus 93 font. This requirement would be specified as follows in the resulting ",
+                  "WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:hAnsi=”Bauhaus 93” />",
+                  "</w:rPr>",
+                  "The hAnsi attribute specifies that the run shall use the Bauhaus 93 font for all text in a high ANSI ",
+                  "range. end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§",
+                  "Error! Reference source not found.).",
+                  "hAnsiTheme (High Specifies a theme font which shall be used to format all characters in a Unicode range within the ",
+                  "ANSI Theme Font)parent run which does not fall into one of the three categories defined above, which is called the ",
+                  "high ANSI range in WordprocessingML. This theme font is a reference to one of the predefined ",
+                  "theme fonts, located in the document's Theme part,which allows for font information to be set ",
+                  "centrally in the document.",
+                  "If the hAnsi attribute is also specified, then that attribute shall be ignored and this value shall be ",
+                  "used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the hAnsi attribute. ",
+                  "[Example: Consider a run of text which falls into a high ANSI range, and shall be displayed using the ",
+                  "minorHAnsi theme font. This requirement would be specified as follows in the resulting ",
+                  "WordprocessingML:",
+                  "<w:rPr>"
+                ],
+                "edgedoc": [
+                  "cstheme (Complex Specifies a theme font which shall be used to format all characters in a complex script Unicode ",
+                  "Script Theme Font)range within the parent run. This theme font is a reference to one of the predefined theme fonts, ",
+                  "located in the document's Theme part,which allows for font information to be set centrally in the ",
+                  "document.",
+                  "If the cs attribute is also specified, then that attribute shall be ignored and this value shall be used ",
+                  "instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the cs attribute.",
+                  "[Example: Consider a run of Arabic text which shall be displayed using the majorBidi theme font. ",
+                  "This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:csTheme=”majorBidi” />",
+                  "</w:rPr>",
+                  "The csTheme attribute specifies that the run shall use the majorBidi theme font as defined in the ",
+                  "document's themes part for all text in a complex script range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§Error! Reference ",
+                  "source not found.).",
+                  "eastAsia (East Asian Specifies a font which shall be used to format all characters in an East Asian Unicode range within ",
+                  "Font)the parent run.",
+                  "If the eastAsiaTheme attribute is also specified, then this attribute shall be ignored and that value ",
+                  "shall be used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports East Asian content. ",
+                  "[Example: Consider a run of Japanese text which shall be displayed using the MS Mincho font. This ",
+                  "requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:eastAsia=”MS Mincho” />",
+                  "</w:rPr>",
+                  "The eastAsia attribute specifies that the run shall use the MS Mincho font for all text in an East ",
+                  "Asian range. end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§Error! Reference ",
+                  "source not found.).",
+                  "eastAsiaTheme (East Specifies a theme font which shall be used to format all characters in an East Asian Unicode range ",
+                  "Asian Theme Font)within the parent run. This theme font is a reference to one of the predefined theme fonts, located ",
+                  "in the document's Theme part,which allows for font information to be set centrally in the ",
+                  "document.",
+                  "If the eastAsia attribute is also specified, then that attribute shall be ignored and this value shall be ",
+                  "used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the eastAsia attribute.",
+                  "[Example: Consider a run of Japanese text which shall be displayed using the minorEastAsia theme ",
+                  "font. This requirement would be specified as follows in the resulting WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:eastAsiaTheme=”minorEastAsia” />",
+                  "</w:rPr>",
+                  "The eastAsiaTheme attribute specifies that the run shall use the minorEastAsia theme font as ",
+                  "defined in the document's themes part for all text in an East Asian range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§Error! Reference ",
+                  "source not found.)."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.6428597182827749,
+              "mean_ink_color_error": 0.2722361087799072
+            }
+          ]
+        },
+        {
+          "page": 4,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.8034372797442024,
+          "mean_ink_color_error": 0.26449480652809143,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "  <w:rFonts w:hAnsiTheme=\"minorHAnsi\" />",
+                  "</w:rPr>",
+                  "The hAnsiTheme attribute specifies that the run shall use the minorHAnsi theme font as defined in ",
+                  "the document's themes part for all text in a high ANSI range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§",
+                  "Error! Reference source not found.).",
+                  "hint (Font Content Specifies the font type which shall be used to format any ambiguous characters in the current run.",
+                  "Type)There are certain characters which are not explicitly stored in the document, and may be mapped ",
+                  "into multiple categories of the four mentioned above. This attribute shall be used to arbitrate that ",
+                  "conflict, and determine how ambiguities in this run shall be handled. [Note: This is primarily used to ",
+                  "handle the formatting on the paragraph mark glyph, and other characters that are not stored as text ",
+                  "in the WordprocessingML document. end note]",
+                  "If this attribute is omitted, then this ambiguity may be resolved by any means available.",
+                  "[Example: Consider the run representing the paragraph mark glyph, which is not stored as a physical ",
+                  "character. Since this could therefore be formatted with any of the fonts specified for the run, this ",
+                  "ambiguity is resolved using the following WordprocessingML:",
+                  "<w:pPr>",
+                  "  <w:rPr>",
+                  "    <w:rFonts w:hint=\"eastAsia\" />",
+                  "  </w:rPr>",
+                  "</w:pPr>",
+                  "The hint attribute specifies that the run shall use the eastAsia font (theme or not, whichever is in ",
+                  "use for East Asian text) as defined for this range. end example]",
+                  "The possible values for this attribute are defined by the ST_Hint simple type (§",
+                  "Error! Reference source not found.)."
+                ],
+                "edgedoc": [
+                  "hAnsi (High ANSI Font)Specifies a font which shall be used to format all characters in a Unicode range within the parent ",
+                  "run which does not fall into one of the three categories defined above, which is called the high ANSI ",
+                  "range in WordprocessingML.",
+                  "If the hAnsiTheme attribute is also specified, then this attribute shall be ignored and that value shall ",
+                  "be used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in any default font which supports high ANSI content. ",
+                  "[Example: Consider a run of text which falls into a high ANSI range, and shall be displayed using the ",
+                  "Bauhaus 93 font. This requirement would be specified as follows in the resulting ",
+                  "WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:hAnsi=”Bauhaus  />",
+                  "</w:rPr>",
+                  "The hAnsi attribute specifies that the run shall use the Bauhaus 93 font for all text in a high ANSI ",
+                  "range. end example]",
+                  "The possible values for this attribute are defined by the ST_String simple type (§Error! Reference ",
+                  "source not found.).",
+                  "hAnsiTheme (High Specifies a theme font which shall be used to format all characters in a Unicode range within the ",
+                  "ANSI Theme Font)parent run which does not fall into one of the three categories defined above, which is called the ",
+                  "high ANSI range in WordprocessingML. This theme font is a reference to one of the predefined ",
+                  "theme fonts, located in the document's Theme part,which allows for font information to be set ",
+                  "centrally in the document.",
+                  "If the hAnsi attribute is also specified, then that attribute shall be ignored and this value shall be ",
+                  "used instead.",
+                  "If this attribute is not present, the default value is to leave the formatting applied at previous level ",
+                  "in the style hierarchy. If this attribute is never applied in the style hierarchy, then the text shall be ",
+                  "displayed in the font specified by the hAnsi attribute. ",
+                  "[Example: Consider a run of text which falls into a high ANSI range, and shall be displayed using the ",
+                  "minorHAnsi theme font. This requirement would be specified as follows in the resulting ",
+                  "WordprocessingML:",
+                  "<w:rPr>",
+                  "  <w:rFonts w:hAnsiTheme=\"minorHAnsi\" />",
+                  "</w:rPr>",
+                  "The hAnsiTheme attribute specifies that the run shall use the minorHAnsi theme font as defined in ",
+                  "the document's themes part for all text in a high ANSI range. end example]",
+                  "The possible values for this attribute are defined by the ST_Theme simple type (§Error! Reference ",
+                  "source not found.).",
+                  "hint (Font Content Specifies the font type which shall be used to format any ambiguous characters in the current run.",
+                  "Type)There are certain characters which are not explicitly stored in the document, and may be mapped ",
+                  "into multiple categories of the four mentioned above. This attribute shall be used to arbitrate that ",
+                  "conflict, and determine how ambiguities in this run shall be handled. [Note: This is primarily used to ",
+                  "handle the formatting on the paragraph mark glyph, and other characters that are not stored as text ",
+                  "in the WordprocessingML document. end note]",
+                  "If this attribute is omitted, then this ambiguity may be resolved by any means available.",
+                  "[Example: Consider the run representing the paragraph mark glyph, which is not stored as a physical ",
+                  "character. Since this could therefore be formatted with any of the fonts specified for the run, this ",
+                  "ambiguity is resolved using the following WordprocessingML:",
+                  "<w:pPr>",
+                  "  <w:rPr>",
+                  "    <w:rFonts w:hint=\"eastAsia\" />",
+                  "  </w:rPr>",
+                  "</w:pPr>",
+                  "The hint attribute specifies that the run shall use the eastAsia font (theme or not, whichever is in ",
+                  "use for East Asian text) as defined for this range. end example]",
+                  "The possible values for this attribute are defined by the ST_Hint simple type (§Error! Reference ",
+                  "source not found.)."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.8034372797442024,
+              "mean_ink_color_error": 0.26449480652809143
+            }
+          ]
+        },
+        {
+          "page": 5,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.5176068491760009,
+          "mean_ink_color_error": 0.2281414419412613,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "2.1.87 Part 1 Section 17.3.2.26, rFonts (Run Fonts)",
+                  "a. The standard does not limit the length of the ascii, hAnsi, cs, and eastAsia attributes.",
+                  "Word restricts the value of these attributes to be less than 32 characters",
+                  "b. The standard states that the use of each of the run fonts shall be determined by the Unicode character values of the run ",
+                  "content, but does not explain precisely how this is done.",
+                  "Word determines the use of each of these fonts from the Unicode character values in the following manner:",
+                  "If the run has the cs element (\"[ISO/IEC-29500-1] §17.3.2.7; cs\") or the rtl element (\"[ISO/IEC-29500-1] §17.3.2.30; rtl\"), then ",
+                  "the cs (or cstheme if defined) font is used, regardless of the Unicode character values of the run’s content.",
+                  "If the eastAsia (or eastAsiaTheme if defined) attribute’s value is “Times New Roman” and the ascii (or asciiTheme if defined) ",
+                  "and hAnsi (orhAnsiTheme if defined) attributes are equal, then the ascii (or asciiTheme if defined) font is used.",
+                  "Otherwise, the following table is used. For all ranges not listed in the following table, the hAnsi (or hAnsiTheme if defined) font ",
+                  "shall be used.",
+                  "Unicode BlockRangeClassification",
+                  "Basic Latin0000 ascii (or asciiTheme if defined)",
+                  "– ",
+                  "007F",
+                  "Latin-1 00A0 hAnsi (or hAnsiTheme if defined), with the following exceptions:",
+                  "Supplement– If hint is eastAsia, the following characters ",
+                  "00FFuse eastAsia (or eastAsiaTheme if defined): A1, A4, A7 – A8, AA, AD, ",
+                  "AF, B0 – B4, B6 – BA, BC – BF, D7, F7",
+                  "If hint is eastAsia and the language of the run is either Chinese ",
+                  "Traditional or Chinese Simplified, the following characters ",
+                  "use eastAsia (or eastAsiaTheme if defined): E0 – E1, E8 – EA, EC – ",
+                  "ED, F2 – F3, F9 – FA, FC",
+                  "Latin 0100 hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "Extended-A– If hint is eastAsia, and the language of the run is either Chinese ",
+                  "017FTraditional or Chinese Simplified, or the character set of ",
+                  "the eastAsia (or eastAsiaTheme if defined) font is Chinese5 or ",
+                  "GB2312 then eastAsia (or eastAsiaThemeif defined) font is used.",
+                  "Latin 0180 hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "Extended-B– If hint is eastAsia, and the language of the run is either Chinese ",
+                  "024FTraditional or Chinese Simplified, or the character set of ",
+                  "the eastAsia (or eastAsiaTheme if defined) font is Chinese5 or ",
+                  "GB2312 then eastAsia (or eastAsiaThemeif defined) font is used.",
+                  "IPA Extensions0250 hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "– If hint is eastAsia, and the language of the run is either Chinese ",
+                  "02AFTraditional or Chinese Simplified, or the character set of ",
+                  "the eastAsia (or eastAsiaTheme if defined) font is Chinese5 or ",
+                  "GB2312 then eastAsia (or eastAsiaThemeif defined) font is used."
+                ],
+                "edgedoc": [
+                  "2.1.87 Part 1 Section 17.3.2.26, rFonts (Run Fonts)",
+                  "a. The standard does not limit the length of the ascii, hAnsi, cs, and eastAsia attributes.",
+                  "Word restricts the value of these attributes to be less than 32 characters",
+                  "b. The standard states that the use of each of the run fonts shall be determined by the Unicode character values of the ",
+                  "run content, but does not explain precisely how this is done.",
+                  "Word determines the use of each of these fonts from the Unicode character values in the following manner:",
+                  "If the run has the cs element (\"[ISO/IEC-29500-1] §17.3.2.7; cs\") or the rtl element (\"[ISO/IEC-29500-1] §17.3.2.30; ",
+                  "rtl\"), then the cs (or cstheme if defined) font is used, regardless of the Unicode character values of the run’s content.",
+                  "If the eastAsia (or eastAsiaTheme if defined) attribute’s value is “Times New Roman” and the ascii (or asciiTheme if ",
+                  "defined) and hAnsi (orhAnsiTheme if defined) attributes are equal, then the ascii (or asciiTheme if defined) font is ",
+                  "used.",
+                  "Otherwise, the following table is used. For all ranges not listed in the following table, the hAnsi (or hAnsiTheme if ",
+                  "defined) font shall be used.",
+                  "Unicode BlockRangeClassification",
+                  "Basic Latin0000 – ascii (or asciiTheme if defined)",
+                  "007F",
+                  "Latin-1 00A0 – hAnsi (or hAnsiTheme if defined), with the following exceptions:",
+                  "Supplement00FFIf hint is eastAsia, the following characters ",
+                  "use eastAsia (or eastAsiaTheme if defined): A1, A4, A7 – A8, AA, AD, AF, ",
+                  "B0 – B4, B6 – BA, BC – BF, D7, F7",
+                  "If hint is eastAsia and the language of the run is either Chinese ",
+                  "Traditional or Chinese Simplified, the following characters ",
+                  "use eastAsia (or eastAsiaTheme if defined): E0 – E1, E8 – EA, EC – ED, F2 ",
+                  "– F3, F9 – FA, FC",
+                  "Latin Extended-A0100 – hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "017FIf hint is eastAsia, and the language of the run is either Chinese ",
+                  "Traditional or Chinese Simplified, or the character set of ",
+                  "the eastAsia (or eastAsiaTheme if defined) font is Chinese5 or GB2312 ",
+                  "then eastAsia (or eastAsiaThemeif defined) font is used.",
+                  "Latin Extended-B0180 – hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "024FIf hint is eastAsia, and the language of the run is either Chinese ",
+                  "Traditional or Chinese Simplified, or the character set of ",
+                  "the eastAsia (or eastAsiaTheme if defined) font is Chinese5 or GB2312 ",
+                  "then eastAsia (or eastAsiaThemeif defined) font is used.",
+                  "IPA Extensions0250 – hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "02AFIf hint is eastAsia, and the language of the run is either Chinese ",
+                  "Traditional or Chinese Simplified, or the character set of ",
+                  "the eastAsia (or eastAsiaTheme if defined) font is Chinese5 or GB2312 ",
+                  "then eastAsia (or eastAsiaThemeif defined) font is used."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.5176068491760009,
+              "mean_ink_color_error": 0.2281414419412613
+            }
+          ]
+        },
+        {
+          "page": 6,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.8112779908449833,
+          "mean_ink_color_error": 0.25174152851104736,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "Spacing 02B0 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Modifier – used.",
+                  "Letters02FF",
+                  "Combining 0300 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Diacritical – used.",
+                  "Marks036F",
+                  "Greek0370 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "– used.",
+                  "03CF",
+                  "Cyrillic0400 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "– used.",
+                  "04FF",
+                  "Hebrew0590 ascii (or asciiTheme if defined)",
+                  "– ",
+                  "05FF",
+                  "Arabic0600 ascii (or asciiTheme if defined)",
+                  "– ",
+                  "06FF",
+                  "Syriac0700 ascii (or asciiTheme if defined)",
+                  "– ",
+                  "074F",
+                  "Arabic 0750 ascii (or asciiTheme if defined)",
+                  "Supplement– ",
+                  "077F",
+                  "Thaana0780 ascii (or asciiTheme if defined)",
+                  "– ",
+                  "07BF",
+                  "Hangul Jamo1100 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "11FF",
+                  "Latin Extended 1E00 hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "Additional– If the hint is eastAsia and the language of the run is Chinese ",
+                  "1EFFTraditional or Chinese Simplified then eastAsia (oreastAsiaTheme if ",
+                  "defined) is used.",
+                  "General 2000 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Punctuation– used.",
+                  "206F"
+                ],
+                "edgedoc": [
+                  "Spacing Modifier 02B0 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Letters02FFused.",
+                  "Combining 0300 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Diacritical Marks036Fused.",
+                  "Greek0370 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "03CFused.",
+                  "Cyrillic0400 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "04FFused.",
+                  "Hebrew0590 – ascii (or asciiTheme if defined)",
+                  "05FF",
+                  "Arabic0600 – ascii (or asciiTheme if defined)",
+                  "06FF",
+                  "Syriac0700 – ascii (or asciiTheme if defined)",
+                  "074F",
+                  "Arabic 0750 – ascii (or asciiTheme if defined)",
+                  "Supplement077F",
+                  "Thaana0780 – ascii (or asciiTheme if defined)",
+                  "07BF",
+                  "Hangul Jamo1100 – eastAsia (or eastAsiaTheme if defined)",
+                  "11FF",
+                  "Latin Extended 1E00 – hAnsi (or hAnsiTheme if defined), with the following exception:",
+                  "Additional1EFFIf the hint is eastAsia and the language of the run is Chinese Traditional ",
+                  "or Chinese Simplified then eastAsia (oreastAsiaTheme if defined) is ",
+                  "used.",
+                  "General 2000 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Punctuation206Fused.",
+                  "Superscripts and 2070 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Subscripts209Fused.",
+                  "Currency 20A0 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Symbols20CFused.",
+                  "Combining 20D0 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Diacritical Marks 20FFused.",
+                  "for Symbols",
+                  "Letter-like 2100 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Symbols214Fused."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.8112779908449833,
+              "mean_ink_color_error": 0.25174152851104736
+            }
+          ]
+        },
+        {
+          "page": 7,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.8091189167001214,
+          "mean_ink_color_error": 0.2708357572555542,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "Superscripts 2070 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "and Subscripts– used.",
+                  "209F",
+                  "Currency 20A0 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Symbols– used.",
+                  "20CF",
+                  "Combining 20D0 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Diacritical – used.",
+                  "Marks for 20FF",
+                  "Symbols",
+                  "Letter-like 2100 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Symbols– used.",
+                  "214F",
+                  "Number Forms2150 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "– used.",
+                  "218F",
+                  "Arrows2190 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "– used.",
+                  "21FF",
+                  "Mathematical 2200 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Operators– used.",
+                  "22FF",
+                  "Miscellaneous 2300 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Technical– used.",
+                  "23FF",
+                  "Control 2400 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Pictures– used.",
+                  "243F",
+                  "Optical 2440 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Character – used.",
+                  "Recognition245F",
+                  "Enclosed 2460 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Alphanumerics– used.",
+                  "24FF",
+                  "Box Drawing2500 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "– used.",
+                  "257F"
+                ],
+                "edgedoc": [
+                  "Number Forms2150 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "218Fused.",
+                  "Arrows2190 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "21FFused.",
+                  "Mathematical 2200 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Operators22FFused.",
+                  "Miscellaneous 2300 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Technical23FFused.",
+                  "Control Pictures2400 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "243Fused.",
+                  "Optical Character 2440 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Recognition245Fused.",
+                  "Enclosed 2460 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Alphanumerics24FFused.",
+                  "Box Drawing2500 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "257Fused.",
+                  "Block Elements2580 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "259Fused.",
+                  "Geometric 25A0 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Shapes25FFused.",
+                  "Miscellaneous 2600 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Symbols26FFused.",
+                  "Dingbats2700 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "27BFused.",
+                  "CJK Radicals 2E80 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Supplement2EFFused.",
+                  "Kangxi Radicals2F00 – eastAsia (or eastAsiaTheme if defined)",
+                  "2FDF",
+                  "Ideographic 2FF0 – eastAsia (or eastAsiaTheme if defined)",
+                  "Description 2FFF",
+                  "Characters",
+                  "CJK Symbols and 3000 – eastAsia (or eastAsiaTheme if defined)",
+                  "Punctuation303F"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.8091189167001214,
+              "mean_ink_color_error": 0.2708357572555542
+            }
+          ]
+        },
+        {
+          "page": 8,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.7797931311618894,
+          "mean_ink_color_error": 0.25142771005630493,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "Block 2580 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Elements– used.",
+                  "259F",
+                  "Geometric 25A0 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Shapes– used.",
+                  "25FF",
+                  "Miscellaneous 2600 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Symbols– used.",
+                  "26FF",
+                  "Dingbats2700 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "– used.",
+                  "27BF",
+                  "CJK Radicals 2E80 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Supplement– used.",
+                  "2EFF",
+                  "Kangxi 2F00 eastAsia (or eastAsiaTheme if defined)",
+                  "Radicals– ",
+                  "2FDF",
+                  "Ideographic 2FF0 eastAsia (or eastAsiaTheme if defined)",
+                  "Description – ",
+                  "Characters2FFF",
+                  "CJK Symbols 3000 eastAsia (or eastAsiaTheme if defined)",
+                  "and – ",
+                  "Punctuation303F",
+                  "Hiragana3040 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "309F",
+                  "Katakana30A0 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "30FF",
+                  "Bopomofo3100 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "312F",
+                  "Hangul 3130 eastAsia (or eastAsiaTheme if defined)",
+                  "Compatibility – ",
+                  "Jamo318F"
+                ],
+                "edgedoc": [
+                  "Hiragana3040 – eastAsia (or eastAsiaTheme if defined)",
+                  "309F",
+                  "Katakana30A0 – eastAsia (or eastAsiaTheme if defined)",
+                  "30FF",
+                  "Bopomofo3100 – eastAsia (or eastAsiaTheme if defined)",
+                  "312F",
+                  "Hangul 3130 – eastAsia (or eastAsiaTheme if defined)",
+                  "Compatibility 318F",
+                  "Jamo",
+                  "Kanbun3190 – eastAsia (or eastAsiaTheme if defined)",
+                  "319F",
+                  "Enclosed CJK 3200 – eastAsia (or eastAsiaTheme if defined)",
+                  "Letters and 32FF",
+                  "Months",
+                  "CJK Compatibility3300 – eastAsia (or eastAsiaTheme if defined)",
+                  "33FF",
+                  "CJK Unified 3400 – eastAsia (or eastAsiaTheme if defined)",
+                  "Ideographs 4DBF",
+                  "Extension A",
+                  "CJK Unified 4E00 – eastAsia (or eastAsiaTheme if defined)",
+                  "Ideographs9FAF",
+                  "Yi SyllablesA000 – eastAsia (or eastAsiaTheme if defined)",
+                  "A48F",
+                  "Yi RadicalsA490 – eastAsia (or eastAsiaTheme if defined)",
+                  "A4CF",
+                  "Hangul SyllablesAC00 – eastAsia (or eastAsiaTheme if defined)",
+                  "D7AF",
+                  "High SurrogatesD800 – eastAsia (or eastAsiaTheme if defined)",
+                  "DB7F",
+                  "High Private Use DB80 – eastAsia (or eastAsiaTheme if defined)",
+                  "SurrogatesDBFF",
+                  "Low SurrogatesDC00 – eastAsia (or eastAsiaTheme if defined)",
+                  "DFFF",
+                  "Private Use AreaE000 – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "F8FFused."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.7797931311618894,
+              "mean_ink_color_error": 0.25142771005630493
+            }
+          ]
+        },
+        {
+          "page": 9,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.7253619920837717,
+          "mean_ink_color_error": 0.2034076452255249,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "Kanbun3190 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "319F",
+                  "Enclosed CJK 3200 eastAsia (or eastAsiaTheme if defined)",
+                  "Letters and – ",
+                  "Months32FF",
+                  "CJK 3300 eastAsia (or eastAsiaTheme if defined)",
+                  "Compatibility– ",
+                  "33FF",
+                  "CJK Unified 3400 eastAsia (or eastAsiaTheme if defined)",
+                  "Ideographs – ",
+                  "Extension A4DBF",
+                  "CJK Unified 4E00 eastAsia (or eastAsiaTheme if defined)",
+                  "Ideographs– ",
+                  "9FAF",
+                  "Yi SyllablesA000 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "A48F",
+                  "Yi RadicalsA490 eastAsia (or eastAsiaTheme if defined)",
+                  "– ",
+                  "A4CF",
+                  "Hangul AC00 eastAsia (or eastAsiaTheme if defined)",
+                  "Syllables– ",
+                  "D7AF",
+                  "High D800 eastAsia (or eastAsiaTheme if defined)",
+                  "Surrogates– ",
+                  "DB7F",
+                  "High Private DB80 eastAsia (or eastAsiaTheme if defined)",
+                  "Use – ",
+                  "SurrogatesDBFF",
+                  "Low DC00 eastAsia (or eastAsiaTheme if defined)",
+                  "Surrogates– ",
+                  "DFFF",
+                  "Private Use E000 If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Area– used.",
+                  "F8FF"
+                ],
+                "edgedoc": [
+                  "CJK Compatibility F900 – eastAsia (or eastAsiaTheme if defined)",
+                  "IdeographsFAFF",
+                  "Alphabetic FB00 – hAnsi (or hAnsiTheme if defined), with the following exceptions:",
+                  "Presentation FB4FIf the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "Formsused for characters in the range FB00 – FB1C.",
+                  "For the range FB1D – FB4F, ascii (or asciiTheme if defined) is used.",
+                  "Arabic FB50 – ascii (or asciiTheme if defined)",
+                  "Presentation FDFF",
+                  "Forms-A",
+                  "CJK Compatibility FE30 – eastAsia (or eastAsiaTheme if defined)",
+                  "FormsFE4F",
+                  "Small Form FE50 – eastAsia (or eastAsiaTheme if defined)",
+                  "VariantsFE6F",
+                  "Arabic FE70 – ascii (or asciiTheme if defined)",
+                  "Presentation FEFE",
+                  "Forms-B",
+                  "Halfwidth and FF00 – eastAsia (or eastAsiaTheme if defined)",
+                  "Fullwidth FormsFFEF",
+                  "c. The standard states that the default fonts for the ascii, hAnsi, cs, and eastAsia attributes are application-defined.",
+                  "Word uses a default font of Times New Roman for all of these attributes.",
+                  "d. The standard states that all characters that are determined to be East Asian should use the value of eastAsia ",
+                  "element as the font.",
+                  "If the value of eastAsia attibute is \"Times New Roman\", and the value of the ascii (or asciiTheme) and the hAnsi (or ",
+                  "hAnsiTheme) attributes are equal, then the value of the ascii (or asciiTheme, if defined) attribute is used as the font."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.7253619920837717,
+              "mean_ink_color_error": 0.2034076452255249
+            }
+          ]
+        },
+        {
+          "page": 10,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.9906393058054525,
+          "mean_ink_color_error": 0.17331214249134064,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "CJK F900 eastAsia (or eastAsiaTheme if defined)",
+                  "Compatibility – ",
+                  "IdeographsFAFF",
+                  "Alphabetic FB00 hAnsi (or hAnsiTheme if defined), with the following exceptions:",
+                  "Presentation – If the hint is eastAsia then eastAsia (or eastAsiaTheme if defined) is ",
+                  "FormsFB4Fused for characters in the range FB00 – FB1C.",
+                  "For the range FB1D – FB4F, ascii (or asciiTheme if defined) is used.",
+                  "Arabic FB50 ascii (or asciiTheme if defined)",
+                  "Presentation – ",
+                  "Forms-AFDFF",
+                  "CJK FE30 eastAsia (or eastAsiaTheme if defined)",
+                  "Compatibility – ",
+                  "FormsFE4F",
+                  "Small Form FE50 eastAsia (or eastAsiaTheme if defined)",
+                  "Variants– ",
+                  "FE6F",
+                  "Arabic FE70 ascii (or asciiTheme if defined)",
+                  "Presentation – ",
+                  "Forms-BFEFE",
+                  "Halfwidth and FF00 eastAsia (or eastAsiaTheme if defined)",
+                  "Fullwidth – ",
+                  "FormsFFEF",
+                  "c. The standard states that the default fonts for the ascii, hAnsi, cs, and eastAsia attributes are application-defined.",
+                  "Word uses a default font of Times New Roman for all of these attributes.",
+                  "d. The standard states that all characters that are determined to be East Asian should use the value of eastAsia element as the ",
+                  "font.",
+                  "If the value of eastAsia attibute is \"Times New Roman\", and the value of the ascii (or asciiTheme) and the hAnsi (or hAnsiTheme) ",
+                  "attributes are equal, then the value of the ascii (or asciiTheme, if defined) attribute is used as the font."
+                ],
+                "edgedoc": [
+                  "http://social.msdn.microsoft.com/Forums/en-US/ef7b4b55-9d38-4cd8-89f0-38389419c672/determining-font-script-",
+                  "from-majorminorfont-and-lang-and-text-in-drawingml"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.9906393058054525,
+              "mean_ink_color_error": 0.17331214249134064
+            }
+          ]
+        },
+        {
+          "page": 11,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.7949952283226498,
+          "mean_ink_color_error": 0.26483234763145447,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "http://social.msdn.microsoft.com/Forums/en-US/ef7b4b55-9d38-4cd8-89f0-38389419c672/determining-font-script-",
+                  "from-majorminorfont-and-lang-and-text-in-drawingml",
+                  "Determining font script from major/minorFont and lang and ",
+                  "text in DrawingML ",
+                  "I can't quite figure out how to do something and need a fairly urgent reply. I don't think this is as much about implementation as it ",
+                  "is lack of documentation. I need to determine what the mapping is for a font's script code/name (such as Jpan or Thai) below and ",
+                  "the language tag (such as ja-JP or th-Th).",
+                  " ",
+                  "I have the following in my theme1.xml:",
+                  "      <a:minorFont>",
+                  "        <a:latin typeface=\"Segoe UI\"/>",
+                  "        <a:ea typeface=\"\"/>",
+                  "        <a:cs typeface=\"\"/>",
+                  "        <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>",
+                  "        <a:font script=\"Hang\" typeface=\"맑은 고딕\"/>",
+                  ":",
+                  "        <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>",
+                  "        <a:font script=\"Geor\" typeface=\"Sylfaen\"/>",
+                  "      </a:minorFont>",
+                  " ",
+                  "I have a run in simplified Chinese, as below which displays in the 宋体 (called \"SimSun\" in English):",
+                  "            <a:r>",
+                  "              <a:rPr lang=\"zh-CN\" smtClean=\"0\">",
+                  "                <a:solidFill>",
+                  "                  <a:schemeClr val=\"bg1\"/>",
+                  "                </a:solidFill>",
+                  "              </a:rPr>",
+                  "              <a:t>你好</a:t>",
+                  "            </a:r>",
+                  "            <a:r>",
+                  "It displays correctly.",
+                  " ",
+                  "However, if I change the lang=\"zh-CN\"  to lang=\"en-US\", it displays it in my  <a:latintypeface=\"Segoe UI\"/> font.",
+                  " ",
+                  "If I use Chinese with an English language attribute of lang=\"en-US\", it still displays in the SimSun font.",
+                  " ",
+                  "            <a:r>",
+                  "              <a:rPr lang=\"en-US\" dirty=\"0\" smtClean=\"0\">",
+                  "                <a:solidFill>",
+                  "                  <a:schemeClr val=\"bg1\"/>",
+                  "                </a:solidFill>"
+                ],
+                "edgedoc": [
+                  "Determining font script from major/minorFont and lang and ",
+                  "text in DrawingML ",
+                  "I can't quite figure out how to do something and need a fairly urgent reply. I don't think this is as much about implementation as ",
+                  "it is lack of documentation. I need to determine what the mapping is for a font's script code/name (such as Jpan or Thai) below ",
+                  "and the language tag (such as ja-JP or th-Th).",
+                  " ",
+                  "I have the following in my theme1.xml:",
+                  "      <a:minorFont>",
+                  "        <a:latin typeface=\"Segoe UI\"/>",
+                  "        <a:ea typeface=\"\"/>",
+                  "        <a:cs typeface=\"\"/>",
+                  "        <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>",
+                  "        <a:font script=\"Hang\" typeface=\"맑은 고딕\"/>",
+                  ":",
+                  "        <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>",
+                  "        <a:font script=\"Geor\" typeface=\"Sylfaen\"/>",
+                  "      </a:minorFont>",
+                  " ",
+                  "I have a run in simplified Chinese, as below which displays in the 宋体 (called \"SimSun\" in English):",
+                  "            <a:r>",
+                  "              <a:rPr lang=\"zh-CN\" smtClean=\"0\">",
+                  "                <a:solidFill>",
+                  "                  <a:schemeClr val=\"bg1\"/>",
+                  "                </a:solidFill>",
+                  "              </a:rPr>",
+                  "              <a:t>你好</a:t>",
+                  "            </a:r>",
+                  "            <a:r>",
+                  "It displays correctly.",
+                  " ",
+                  "However, if I change the lang=\"zh-CN\"  to lang=\"en-US\", it displays it in my  <a:latintypeface=\"Segoe UI\"/> font.",
+                  " ",
+                  "If I use Chinese with an English language attribute of lang=\"en-US\", it still displays in the SimSun font.",
+                  " ",
+                  "            <a:r>",
+                  "              <a:rPr lang=\"en-US\" dirty=\"0\" smtClean=\"0\">",
+                  "                <a:solidFill>",
+                  "                  <a:schemeClr val=\"bg1\"/>",
+                  "                </a:solidFill>",
+                  "              </a:rPr>",
+                  "              <a:t>你好</a:t>",
+                  "            </a:r>"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.7949952283226498,
+              "mean_ink_color_error": 0.26483234763145447
+            }
+          ]
+        },
+        {
+          "page": 12,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.659267002531082,
+          "mean_ink_color_error": 0.2398930937051773,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "              </a:rPr>",
+                  "              <a:t>你好</a:t>",
+                  "            </a:r>",
+                  "So again, the question is how do lang ids/tags in runs map to script codes in minorFont/majorFont font elements in DrawingML. ",
+                  "Also, is there something else in determining what font displays?",
+                  " ",
+                  "I'm well aware of RFC 4646/BCP 47 for the lang attribute. The script codes (\"Hans, Ethi, etc.\") appear to be from ISO 15924, but ",
+                  "that is not explicitly stated - nor is any kind of mapping from RFC 4646 (or 4647) defined in any of the documentation.  ",
+                  "20.1.4.1.16 of ISOIEC-29500 states under the script attribute: \"Specifies the script, or language, in which the typeface is supposed ",
+                  "to be used. The possible values for this attribute are defined by the W3C XML Schema string datatype.\" This just tells us it could ",
+                  "be any string at all, like \"gingersnap\" - not that the actual values listed in the attribute are semantic and have a mapping.",
+                  "It appears that WG4 has also noticed this is a problem and has started discussing it (see .doc ",
+                  "onhttp://mailman.vse.cz/pipermail/sc34wg4/2011-March/002204.html) - but the focus appears to be on WordprocessingML, not ",
+                  "DrawingML.",
+                  "Todd Main",
+                  "165 Points",
+                  "Thanks Tom.",
+                  "I've done some research on what PowerPoint is implementing and wanted to share my results with you.",
+                  " ",
+                  "Research Scenario:",
+                  "1.I created a .PPTM in PowerPoint 2010 (x64/SP1) and a VBA script which inserted a single textbox for every available ",
+                  "MsoLanguageID (for example msoLanguageIDEdo, msoLanguageIDChineseHongKongSAR, etc.). The \".Text\" string ",
+                  "of the \".TextFrame.TextRange\" was the string value of the MsoLanguageID (so inside the textbox would be the text ",
+                  "\"msoLanguageIDEdo\", for example). I then ran a VBA script to find what font the TextBox was displaying in.",
+                  "2.After this, I looped through the .PPTX in Visual Studio and grabbed the \"lang\" value (and \"alt-lang\", if exists) of the ",
+                  "TextBox.",
+                  "3.Then I compared the display fonts of the TextBoxes from <minorFont>.<font script=\"X\"> values of my theme1.xml.",
+                  "4.From there, I manually compared all lang values (IETF language tags) against the IANA sub-tag registry ",
+                  "on http://www.iana.org/assignments/language-subtag-registry. I believe this list is the same as ISO 15924.",
+                  "I used a slightly different <minorFont> set this time, here it is:",
+                  "      <a:minorFont>",
+                  "        <a:latin typeface=\"Calibri\"/>",
+                  "        <a:ea typeface=\"\"/>",
+                  "        <a:cs typeface=\"\"/>",
+                  "        <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>",
+                  "        <a:font script=\"Hang\" typeface=\"맑은 고딕\"/>",
+                  "        <a:font script=\"Hans\" typeface=\"宋体\"/>",
+                  "        <a:font script=\"Hant\" typeface=\"新細明體\"/>",
+                  "        <a:font script=\"Arab\" typeface=\"Times New Roman\"/> <!--used = yes-->",
+                  "        <a:font script=\"Hebr\" typeface=\"Arial\"/> <!--used = yes-->",
+                  "        <a:font script=\"Thai\" typeface=\"Cordia New\"/> <!--used = yes-->",
+                  "        <a:font script=\"Ethi\" typeface=\"Nyala\"/>  <!--used = yes-->",
+                  "        <a:font script=\"Beng\" typeface=\"Vrinda\"/> <!--used = yes-->"
+                ],
+                "edgedoc": [
+                  "So again, the question is how do lang ids/tags in runs map to script codes in minorFont/majorFont font elements in DrawingML. ",
+                  "Also, is there something else in determining what font displays?",
+                  " ",
+                  "I'm well aware of RFC 4646/BCP 47 for the lang attribute. The script codes (\"Hans, Ethi, etc.\") appear to be from ISO 15924, but ",
+                  "that is not explicitly stated - nor is any kind of mapping from RFC 4646 (or 4647) defined in any of the documentation.  ",
+                  "20.1.4.1.16 of ISOIEC-29500 states under the script attribute: \"Specifies the script, or language, in which the typeface is ",
+                  "supposed to be used. The possible values for this attribute are defined by the W3C XML Schema string datatype.\" This just tells ",
+                  "us it could be any string at all, like \"gingersnap\" - not that the actual values listed in the attribute are semantic and have a ",
+                  "mapping.",
+                  "It appears that WG4 has also noticed this is a problem and has started discussing it (see .doc ",
+                  "onhttp://mailman.vse.cz/pipermail/sc34wg4/2011-March/002204.html) - but the focus appears to be on WordprocessingML, ",
+                  "not DrawingML.",
+                  "Todd Main",
+                  "165 Points",
+                  "Thanks Tom.",
+                  "I've done some research on what PowerPoint is implementing and wanted to share my results with you.",
+                  " ",
+                  "Research Scenario:",
+                  "1.I created a .PPTM in PowerPoint 2010 (x64/SP1) and a VBA script which inserted a single textbox for every available ",
+                  "MsoLanguageID (for example msoLanguageIDEdo, msoLanguageIDChineseHongKongSAR, etc.). The \".Text\" string of ",
+                  "the \".TextFrame.TextRange\" was the string value of the MsoLanguageID (so inside the textbox would be the text ",
+                  "\"msoLanguageIDEdo\", for example). I then ran a VBA script to find what font the TextBox was displaying in.",
+                  "2.After this, I looped through the .PPTX in Visual Studio and grabbed the \"lang\" value (and \"alt-lang\", if exists) of the ",
+                  "TextBox.",
+                  "3.Then I compared the display fonts of the TextBoxes from <minorFont>.<font script=\"X\"> values of my theme1.xml.",
+                  "4.From there, I manually compared all lang values (IETF language tags) against the IANA sub-tag registry ",
+                  "on http://www.iana.org/assignments/language-subtag-registry. I believe this list is the same as ISO 15924.",
+                  "I used a slightly different <minorFont> set this time, here it is:",
+                  "      <a:minorFont>",
+                  "        <a:latin typeface=\"Calibri\"/>",
+                  "        <a:ea typeface=\"\"/>",
+                  "        <a:cs typeface=\"\"/>",
+                  "        <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>",
+                  "        <a:font script=\"Hang\" typeface=\"맑은 고딕\"/>",
+                  "        <a:font script=\"Hans\" typeface=\"宋体\"/>",
+                  "        <a:font script=\"Hant\" typeface=\"新細明體\"/>",
+                  "        <a:font script=\"Arab\" typeface=\"Times New Roman\"/> <!--used = yes-->",
+                  "        <a:font script=\"Hebr\" typeface=\"Arial\"/> <!--used = yes-->",
+                  "        <a:font script=\"Thai\" typeface=\"Cordia New\"/> <!--used = yes-->",
+                  "        <a:font script=\"Ethi\" typeface=\"Nyala\"/>  <!--used = yes-->",
+                  "        <a:font script=\"Beng\" typeface=\"Vrinda\"/> <!--used = yes-->",
+                  "        <a:font script=\"Gujr\" typeface=\"Shruti\"/> <!--used = yes-->",
+                  "        <a:font script=\"Khmr\" typeface=\"DaunPenh\"/> <!--used = yes-->"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.659267002531082,
+              "mean_ink_color_error": 0.2398930937051773
+            }
+          ]
+        },
+        {
+          "page": 13,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.6038250401567437,
+          "mean_ink_color_error": 0.2216106802225113,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "        <a:font script=\"Gujr\" typeface=\"Shruti\"/> <!--used = yes-->",
+                  "        <a:font script=\"Khmr\" typeface=\"DaunPenh\"/> <!--used = yes-->",
+                  "        <a:font script=\"Knda\" typeface=\"Tunga\"/> <!--used = yes-->",
+                  "        <a:font script=\"Guru\" typeface=\"Raavi\"/> <!--used = yes-->",
+                  "        <a:font script=\"Cans\" typeface=\"Euphemia\"/>  <!--used = yes-->",
+                  "        <a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/> <!--used = yes-->",
+                  "        <a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/>  <!--used in PowerPoint = NO-->",
+                  "        <a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/> <!--used = yes-->",
+                  "        <a:font script=\"Thaa\" typeface=\"MV Boli\"/> <!--used = yes-->",
+                  "        <a:font script=\"Deva\" typeface=\"Mangal\"/> <!--used = yes-->",
+                  "        <a:font script=\"Telu\" typeface=\"Gautami\"/> <!--used = yes-->",
+                  "        <a:font script=\"Taml\" typeface=\"Latha\"/> <!--used = yes-->",
+                  "        <a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/> <!--used = yes-->",
+                  "        <a:font script=\"Orya\" typeface=\"Kalinga\"/> <!--used = yes-->",
+                  "        <a:font script=\"Mlym\" typeface=\"Kartika\"/> <!--used = yes-->",
+                  "        <a:font script=\"Laoo\" typeface=\"DokChampa\"/> <!--used = yes-->",
+                  "        <a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/> <!--used = yes-->",
+                  "        <a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/>  <!--used in PowerPoint  = NO-->",
+                  "        <a:font script=\"Viet\" typeface=\"Candara\"/>  <!--used = yes-->",
+                  "        <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>   <!--used in PowerPoint  = NO-->",
+                  "      </a:minorFont>",
+                  " ",
+                  "Conclusion:",
+                  "The results are in an Excel file on http://dl.dropbox.com/u/16442383/font%20list.xlsx for you to view. The conclusion is that ",
+                  "\"almost everything\" maps to IANA sub tags.",
+                  "•Not everything though as there are non-IETF tags used in PowerPoint (or at least, non-consistent). Sometimes a three-",
+                  "letter tag is used. Sometimes a two-letter tag + a four-letter script are used.",
+                  "•In one case, I was expecting the \"Ethi\" script to be used based off the language tag, but it wasn't.",
+                  "•Not all scripts are used by (or available to) the PowerPoint client - in particular \"Uigh\", \"Mong\" and \"Yiii\".",
+                  "•It appears that the display mechanism generally uses IANA script groupings, unless it is is an East Asian font, in ",
+                  "which case it is a combination of the the lang attribute and Unicode.",
+                  " ",
+                  "My conclusion is that I believe I can figure out about 80-90% of what is going on. However, it would be great to have ",
+                  "confirmation from you on the exact font selection algorithm and mapping.",
+                  "----------",
+                  "Thank you Tom for the reply! Note that I'm not asking about Word here, I'm asking about PowerPoint. Word appears to have ",
+                  "richer features in determining which script to use, it's DrawingML that is my concern.",
+                  " Okatu,",
+                  "Here's an overview of the algorithm from the PowerPoint team which may help a little:",
+                  "Algorithm:",
+                  "   a. Call MSO APIs to convert a LCID to a script tag. It uses language or alt language (if the former is missing). And it requires ",
+                  "a language and slot match; otherwise it returns the default typeface.",
+                  "   b. Use the script tag to search the major (or minor) font collection. If found, then OK.",
+                  "   c. If not found, we return the default typeface, depending on whether it’s latin, or ea, or cs.",
+                  "For each run, we run three times: latin, ea, and cs. That said, for each run, we have three typefaces at runtime. But in the "
+                ],
+                "edgedoc": [
+                  "        <a:font script=\"Knda\" typeface=\"Tunga\"/> <!--used = yes-->",
+                  "        <a:font script=\"Guru\" typeface=\"Raavi\"/> <!--used = yes-->",
+                  "        <a:font script=\"Cans\" typeface=\"Euphemia\"/>  <!--used = yes-->",
+                  "        <a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/> <!--used = yes-->",
+                  "        <a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/>  <!--used in PowerPoint = NO-->",
+                  "        <a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/> <!--used = yes-->",
+                  "        <a:font script=\"Thaa\" typeface=\"MV Boli\"/> <!--used = yes-->",
+                  "        <a:font script=\"Deva\" typeface=\"Mangal\"/> <!--used = yes-->",
+                  "        <a:font script=\"Telu\" typeface=\"Gautami\"/> <!--used = yes-->",
+                  "        <a:font script=\"Taml\" typeface=\"Latha\"/> <!--used = yes-->",
+                  "        <a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/> <!--used = yes-->",
+                  "        <a:font script=\"Orya\" typeface=\"Kalinga\"/> <!--used = yes-->",
+                  "        <a:font script=\"Mlym\" typeface=\"Kartika\"/> <!--used = yes-->",
+                  "        <a:font script=\"Laoo\" typeface=\"DokChampa\"/> <!--used = yes-->",
+                  "        <a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/> <!--used = yes-->",
+                  "        <a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/>  <!--used in PowerPoint  = NO-->",
+                  "        <a:font script=\"Viet\" typeface=\"Candara\"/>  <!--used = yes-->",
+                  "        <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>   <!--used in PowerPoint  = NO-->",
+                  "      </a:minorFont>",
+                  " ",
+                  "Conclusion:",
+                  "The results are in an Excel file on http://dl.dropbox.com/u/16442383/font%20list.xlsx for you to view. The conclusion is that ",
+                  "\"almost everything\" maps to IANA sub tags.",
+                  "•Not everything though as there are non-IETF tags used in PowerPoint (or at least, non-consistent). Sometimes a ",
+                  "three-letter tag is used. Sometimes a two-letter tag + a four-letter script are used.",
+                  "•In one case, I was expecting the \"Ethi\" script to be used based off the language tag, but it wasn't.",
+                  "•Not all scripts are used by (or available to) the PowerPoint client - in particular \"Uigh\", \"Mong\" and \"Yiii\".",
+                  "•It appears that the display mechanism generally uses IANA script groupings, unless it is is an East Asian font, in which ",
+                  "case it is a combination of the the lang attribute and Unicode.",
+                  " ",
+                  "My conclusion is that I believe I can figure out about 80-90% of what is going on. However, it would be great to have ",
+                  "confirmation from you on the exact font selection algorithm and mapping.",
+                  "----------",
+                  "Thank you Tom for the reply! Note that I'm not asking about Word here, I'm asking about PowerPoint. Word appears to have ",
+                  "richer features in determining which script to use, it's DrawingML that is my concern.",
+                  " Okatu,",
+                  "Here's an overview of the algorithm from the PowerPoint team which may help a little:",
+                  "Algorithm:",
+                  "   a. Call MSO APIs to convert a LCID to a script tag. It uses language or alt language (if the former is missing). And it requires a ",
+                  "language and slot match; otherwise it returns the default typeface.",
+                  "   b. Use the script tag to search the major (or minor) font collection. If found, then OK.",
+                  "   c. If not found, we return the default typeface, depending on whether it’s latin, or ea, or cs.",
+                  "For each run, we run three times: latin, ea, and cs. That said, for each run, we have three typefaces at runtime. But in the ",
+                  "Ribbon font gallery, OArt text appears the theme name – e.g. a piece of English text with “Mlym” (Malayalam) appears in ",
+                  "Ribbon “Kartika (Body)” in font gallery, but actually it renders in the slide with Calibri."
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.6038250401567437,
+              "mean_ink_color_error": 0.2216106802225113
+            }
+          ]
+        },
+        {
+          "page": 14,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.780342869742572,
+          "mean_ink_color_error": 0.22004415094852448,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "Ribbon font gallery, OArt text appears the theme name – e.g. a piece of English text with “Mlym” (Malayalam) appears in ",
+                  "Ribbon “Kartika (Body)” in font gallery, but actually it renders in the slide with Calibri.",
+                  "Regarding the three mismatch cases:",
+                  "1. Why doesn't “Mong” work? Most likely, its LCID (0x450) is converted to script “Cyrl”.",
+                  "2. Why doesn't “Yiii” work? We can’t reproduce this. Can you provide a .pptx sample document to help us reproduce the ",
+                  "problem?",
+                  "3. Why doesn't “Uigh” work? Do you mean VBA doesn’t support it? If so, you are right. But you can change the Xml using ",
+                  "“UG-CN”.",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer",
+                  "Microsoft Open Specifications",
+                  "Thanks Tom.",
+                  " ",
+                  "•Regarding point A: How are the LCIDs mapped to script tags? Does it use IANA scripts or...? I can't imagine this ",
+                  "would be propriatary information as that would defeat the whole of purpose of having an open format for DrawingML ",
+                  "and any type of globalization. That said, it doesn't appear to be documented anywhere. As demonstrated in my follow ",
+                  "up post, I can sort of figure things out, but need the standards to document what the standard is.",
+                  " ",
+                  "•Regarding point C: Is it that there is only one default typeface (latin, ea or cs) at a type in <rPr> ? Is the default script ",
+                  "found based on unicode of the characters in the run text or something else?",
+                  " ",
+                  "•Regarding the sentance that begins with \"For each run\": I'm not sure if I understand what you're saying. Can you ",
+                  "elaborate?",
+                  " ",
+                  "•Regarding your questions 1, 2 and 3: those are eamples of where VBA doesn't create this using any of the ",
+                  "MSOLanguageIDs - i.e. if you create a textbox in all languages that PowerPoint supports automated input from, these ",
+                  "3 never appear (using PowerPoint 2010 x64).",
+                  "------------------",
+                  "Okatu,",
+                  "Here are the answers I mentioned:",
+                  ">> Regarding point A: How are the LCIDs mapped to script tags? Does it use IANA scripts or...? I can't imagine this would be ",
+                  "propriatary information as that would defeat the whole of purpose of having an open format for DrawingML and any type of ",
+                  "globalization. That said, it doesn't appear to be documented anywhere. As demonstrated in my follow up post, I can sort of ",
+                  "figure things out, but need the standards to document what the standard is.",
+                  "Please send an email to dochelp at microsoft.com and I will discuss this with you further. ",
+                  ">> Regarding point C: Is it that there is only one default typeface (latin, ea or cs) at a type in <rPr> ? Is the default script found ",
+                  "based on unicode of the characters in the run text or something else?",
+                  "For each theme, there is a default for each of them:"
+                ],
+                "edgedoc": [
+                  "Regarding the three mismatch cases:",
+                  "1. Why doesn't “Mong” work? Most likely, its LCID (0x450) is converted to script “Cyrl”.",
+                  "2. Why doesn't “Yiii” work? We can’t reproduce this. Can you provide a .pptx sample document to help us reproduce the ",
+                  "problem?",
+                  "3. Why doesn't “Uigh” work? Do you mean VBA doesn’t support it? If so, you are right. But you can change the Xml using ",
+                  "“UG-CN”.",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer",
+                  "Microsoft Open Specifications",
+                  "Thanks Tom.",
+                  " ",
+                  "•Regarding point A: How are the LCIDs mapped to script tags? Does it use IANA scripts or...? I can't imagine this ",
+                  "would be propriatary information as that would defeat the whole of purpose of having an open format for ",
+                  "DrawingML and any type of globalization. That said, it doesn't appear to be documented anywhere. As ",
+                  "demonstrated in my follow up post, I can sort of figure things out, but need the standards to document what the ",
+                  "standard is.",
+                  " ",
+                  "•Regarding point C: Is it that there is only one default typeface (latin, ea or cs) at a type in <rPr> ? Is the default script ",
+                  "found based on unicode of the characters in the run text or something else?",
+                  " ",
+                  "•Regarding the sentance that begins with \"For each run\": I'm not sure if I understand what you're saying. Can you ",
+                  "elaborate?",
+                  " ",
+                  "•Regarding your questions 1, 2 and 3: those are eamples of where VBA doesn't create this using any of the ",
+                  "MSOLanguageIDs - i.e. if you create a textbox in all languages that PowerPoint supports automated input from, these ",
+                  "3 never appear (using PowerPoint 2010 x64).",
+                  "------------------",
+                  "Okatu,",
+                  "Here are the answers I mentioned:",
+                  ">> Regarding point A: How are the LCIDs mapped to script tags? Does it use IANA scripts or...? I can't imagine this would be ",
+                  "propriatary information as that would defeat the whole of purpose of having an open format for DrawingML and any type of ",
+                  "globalization. That said, it doesn't appear to be documented anywhere. As demonstrated in my follow up post, I can sort of ",
+                  "figure things out, but need the standards to document what the standard is.",
+                  "Please send an email to dochelp at microsoft.com and I will discuss this with you further. ",
+                  ">> Regarding point C: Is it that there is only one default typeface (latin, ea or cs) at a type in <rPr> ? Is the default script found ",
+                  "based on unicode of the characters in the run text or something else?",
+                  "For each theme, there is a default for each of them:",
+                  "      <a:latin typeface=\"Calibri\"/>"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.780342869742572,
+              "mean_ink_color_error": 0.22004415094852448
+            }
+          ]
+        },
+        {
+          "page": 15,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.6776006312226325,
+          "mean_ink_color_error": 0.21648016571998596,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "      <a:latin typeface=\"Calibri\"/>",
+                  "      <a:ea typeface=\"\"/>",
+                  "        <a:cs typeface=\"\"/>",
+                  "There is no need to calculate the default script. We figure out whether it’s latin or ea or cs from characters, then we know ",
+                  "which one from above to use.",
+                  ">> Regarding the sentance that begins with \"For each run\": I'm not sure if I understand what you're saying. Can you elaborate?",
+                  "This is PowerPoint runtime behavior. E.g. for each <a:r>",
+                  "      <a:r>",
+                  "         <a:rPr lang=\"ii-CN\" altLang=\"ii-CN\" dirty=\"0\" smtClean=\"0\"/>",
+                  "         <a:t>ZmsoLanguageIDYi</a:t>",
+                  "         Latin-typeface = the default latin typeface // Use this for layout / glyph at runtime",
+                  "         CS-typeface = the default cs typeface // Use this for layout / glyph at runtime",
+                  "      </a:r>",
+                  ">> Regarding your questions 1, 2 and 3: those are eamples of where VBA doesn't create this using any of the ",
+                  "MSOLanguageIDs - i.e. if you create a textbox in all languages that PowerPoint supports automated input from, these 3 never ",
+                  "appear (using PowerPoint 2010 x64).",
+                  "For “Mong” and “Yiii”, they work in PowerPoint 2010, and they are msoLanguageIDMongolian and msoLanguageIDYi. But ",
+                  "for “Uigh”, you are right – there is no MsoLanguageID for this one. You can still use 1152 (0x480) as follows:",
+                  "      activepresentation.Slides(1).Shapes(1).TextFrame.TextRange.LanguageID=1152",
+                  " ",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer ",
+                  "Microsoft Open Specifications",
+                  " ---------",
+                  ">>There is no need to calculate the default script. We figure out whether it’s latin or ea or cs from characters, then we ",
+                  "know which one from above to use.",
+                  "I guess this is the question. How do you figure out weither it's latin/ea/cs from the characers? Is it just looking for a particular ",
+                  "set of codepages based on all the text, some of the text, or something else? Is it mulitple codepages?",
+                  " ",
+                  ">>For “Mong” and “Yiii”, they work in PowerPoint 2010, and they are msoLanguageIDMongolian and ",
+                  "msoLanguageIDYi. But for “Uigh”, you are right – there is no MsoLanguageID for this one. You can still use 1152 (0x480)",
+                  "Confirmed for Uigher, but for Mongolian and Yi, the display font remains Calibri. For example:",
+                  "Sub CreateLangEntryBox()",
+                  "    Dim p As Presentation: Set p = ActivePresentation",
+                  "    Dim S As slide: Set S = p.Slides(1)",
+                  "    Dim sh As Shape: Set sh = S.Shapes.AddShape(msoShapeRectangle, 200, 200, 200, 50)",
+                  "    sh.Name = \"Mongolian\""
+                ],
+                "edgedoc": [
+                  "      <a:ea typeface=\"\"/>",
+                  "        <a:cs typeface=\"\"/>",
+                  "There is no need to calculate the default script. We figure out whether it’s latin or ea or cs from characters, then we know ",
+                  "which one from above to use.",
+                  ">> Regarding the sentance that begins with \"For each run\": I'm not sure if I understand what you're saying. Can you ",
+                  "elaborate?",
+                  "This is PowerPoint runtime behavior. E.g. for each <a:r>",
+                  "      <a:r>",
+                  "         <a:rPr lang=\"ii-CN\" altLang=\"ii-CN\" dirty=\"0\" smtClean=\"0\"/>",
+                  "         <a:t>ZmsoLanguageIDYi</a:t>",
+                  "         Latin-typeface = the default latin typeface // Use this for layout / glyph at runtime",
+                  "         CS-typeface = the default cs typeface // Use this for layout / glyph at runtime",
+                  "      </a:r>",
+                  ">> Regarding your questions 1, 2 and 3: those are eamples of where VBA doesn't create this using any of the ",
+                  "MSOLanguageIDs - i.e. if you create a textbox in all languages that PowerPoint supports automated input from, these 3 never ",
+                  "appear (using PowerPoint 2010 x64).",
+                  "For “Mong” and “Yiii”, they work in PowerPoint 2010, and they are msoLanguageIDMongolian and msoLanguageIDYi. But for ",
+                  "“Uigh”, you are right – there is no MsoLanguageID for this one. You can still use 1152 (0x480) as follows:",
+                  "      activepresentation.Slides(1).Shapes(1).TextFrame.TextRange.LanguageID=1152",
+                  " ",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer ",
+                  "Microsoft Open Specifications",
+                  " ---------",
+                  ">>There is no need to calculate the default script. We figure out whether it’s latin or ea or cs from characters, then we ",
+                  "know which one from above to use.",
+                  "I guess this is the question. How do you figure out weither it's latin/ea/cs from the characers? Is it just looking for a particular ",
+                  "set of codepages based on all the text, some of the text, or something else? Is it mulitple codepages?",
+                  " ",
+                  ">>For “Mong” and “Yiii”, they work in PowerPoint 2010, and they are msoLanguageIDMongolian and msoLanguageIDYi. ",
+                  "But for “Uigh”, you are right – there is no MsoLanguageID for this one. You can still use 1152 (0x480)",
+                  "Confirmed for Uigher, but for Mongolian and Yi, the display font remains Calibri. For example:",
+                  "Sub CreateLangEntryBox()",
+                  "    Dim p As Presentation: Set p = ActivePresentation",
+                  "    Dim S As slide: Set S = p.Slides(1)",
+                  "    Dim sh As Shape: Set sh = S.Shapes.AddShape(msoShapeRectangle, 200, 200, 200, 50)",
+                  "    sh.Name = \"Mongolian\"",
+                  "    With sh.TextFrame.TextRange"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.6776006312226325,
+              "mean_ink_color_error": 0.21648016571998596
+            }
+          ]
+        },
+        {
+          "page": 16,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.6945397772993941,
+          "mean_ink_color_error": 0.2170032113790512,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "    With sh.TextFrame.TextRange",
+                  "        .Text = \"Mongolian\"",
+                  "        .LanguageID = msoLanguageIDMongolian",
+                  "    End With",
+                  "End Sub",
+                  "Maybe this is like Chinese where in order for the font to be displayed, the text in the shape needs to be written in the script? I'm ",
+                  "not sure how I would enter either of those scripts in in VBA, but if you can confirm that this is like Chinese where it only ",
+                  "displays in Calibri if *not* in expected script, that would be fine. Also, I believe this may be related to your >>This is ",
+                  "PowerPoint runtime behavior. Is that correct?",
+                  "Okatu,",
+                  "Thanks for your patience.  Here are answers to your follow-up questions:",
+                  ">>I guess this is the question. How do you figure out weither it's latin/ea/cs from the characers? Is it just looking for a ",
+                  "particular set of codepages based on all the text, some of the text, or something else? Is it mulitple codepages?",
+                  "We use UNICODE sub ranges + some Windows APIs to decide this. Some typical examples as follows:",
+                  "a. South Asia + Bidi -> CS.",
+                  "b. Surrogates are classified to FE.",
+                  "c. FE check also uses a Windows API GetStringTypeExW.",
+                  "That said, we use UNICODE rather than depending on codepages / locales when dealing with text layout and glyph things.",
+                  ">>Confirmed for Uigher, but for Mongolian and Yi, the display font remains Calibri. For example:",
+                  " ",
+                  "Sub CreateLangEntryBox()",
+                  "     Dim p As Presentation: Set p = ActivePresentation",
+                  "     Dim S As slide: Set S = p.Slides(1)",
+                  "     Dim sh As Shape: Set sh = S.Shapes.AddShape(msoShapeRectangle, 200, 200, 200, 50)",
+                  "     sh.Name = \"Mongolian\"",
+                  "     With sh.TextFrame.TextRange",
+                  "         .Text = \"Mongolian\"",
+                  "         .LanguageID = msoLanguageIDMongolian",
+                  "     End With",
+                  " End Sub",
+                  " ",
+                  "Probably you want to set the language first, and then the text, something like:",
+                  "activepresentation.Slides(1).Shapes(2).TextFrame.TextRange.LanguageID=msoLanguageIDYi",
+                  "activepresentation.Slides(1).Shapes(2).TextFrame.TextRange.Text=\"am I yiii\"",
+                  "Please notice that Mongolian corresponds to “Cyrl”.",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer ",
+                  "Microsoft Open Specifications",
+                  " "
+                ],
+                "edgedoc": [
+                  "        .Text = \"Mongolian\"",
+                  "        .LanguageID = msoLanguageIDMongolian",
+                  "    End With",
+                  "End Sub",
+                  "Maybe this is like Chinese where in order for the font to be displayed, the text in the shape needs to be written in the script? ",
+                  "I'm not sure how I would enter either of those scripts in in VBA, but if you can confirm that this is like Chinese where it only ",
+                  "displays in Calibri if *not* in expected script, that would be fine. Also, I believe this may be related to your >>This is ",
+                  "PowerPoint runtime behavior. Is that correct?",
+                  "Okatu,",
+                  "Thanks for your patience.  Here are answers to your follow-up questions:",
+                  ">>I guess this is the question. How do you figure out weither it's latin/ea/cs from the characers? Is it just looking for a ",
+                  "particular set of codepages based on all the text, some of the text, or something else? Is it mulitple codepages?",
+                  "We use UNICODE sub ranges + some Windows APIs to decide this. Some typical examples as follows:",
+                  "a. South Asia + Bidi -> CS.",
+                  "b. Surrogates are classified to FE.",
+                  "c. FE check also uses a Windows API GetStringTypeExW.",
+                  "That said, we use UNICODE rather than depending on codepages / locales when dealing with text layout and glyph things.",
+                  ">>Confirmed for Uigher, but for Mongolian and Yi, the display font remains Calibri. For example:",
+                  " ",
+                  "Sub CreateLangEntryBox()",
+                  "     Dim p As Presentation: Set p = ActivePresentation",
+                  "     Dim S As slide: Set S = p.Slides(1)",
+                  "     Dim sh As Shape: Set sh = S.Shapes.AddShape(msoShapeRectangle, 200, 200, 200, 50)",
+                  "     sh.Name = \"Mongolian\"",
+                  "     With sh.TextFrame.TextRange",
+                  "         .Text = \"Mongolian\"",
+                  "         .LanguageID = msoLanguageIDMongolian",
+                  "     End With",
+                  " End Sub",
+                  " ",
+                  "Probably you want to set the language first, and then the text, something like:",
+                  "activepresentation.Slides(1).Shapes(2).TextFrame.TextRange.LanguageID=msoLanguageIDYi",
+                  "activepresentation.Slides(1).Shapes(2).TextFrame.TextRange.Text=\"am I yiii\"",
+                  "Please notice that Mongolian corresponds to “Cyrl”.",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer ",
+                  "Microsoft Open Specifications",
+                  " ",
+                  " "
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.6945397772993941,
+              "mean_ink_color_error": 0.2170032113790512
+            }
+          ]
+        },
+        {
+          "page": 17,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.7485529230953474,
+          "mean_ink_color_error": 0.23105505108833313,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  " ",
+                  "------------------------",
+                  "Greetings.  I would like to continue this discussion.  I have similar questions as Okatu, but I am not yet satisfied with the ",
+                  "answers given.  In particular, I'd like to further discuss the algorithm Tom Jebo outlined above and repeated below:",
+                  "------------------------------------------------------------------",
+                  "Algorithm:",
+                  "   a. Call MSO APIs to convert a LCID to a script tag. It uses language or alt language (if the former is missing). And it requires ",
+                  "a language and slot match; otherwise it returns the default typeface.",
+                  "   b. Use the script tag to search the major (or minor) font collection. If found, then OK.",
+                  "   c. If not found, we return the default typeface, depending on whether it’s latin, or ea, or cs.",
+                  "For each run, we run three times: latin, ea, and cs. That said, for each run, we have three typefaces at runtime. But in the ",
+                  "Ribbon font gallery, OArt text appears the theme name – e.g. a piece of English text with “Mlym” (Malayalam) appears in ",
+                  "Ribbon “Kartika (Body)” in font gallery, but actually it renders in the slide with Calibri.",
+                  "------------------------------------------------------------------",
+                  "As I understand things, the example above contradicts the stated algorithm.  For the example, I understand that there is a run ",
+                  "with a lang tag that specifies the language to be Malayalam.  According to the algorithm, we first convert the locale ID to the ",
+                  "script tag Mlym.  We then use this script tag to locate the font Kartika.  As this was correctly found, then the algorithm states ",
+                  "this is the font that should be used to render the text.  However, you state that it is actually rendered with Calibri. ",
+                  "How, then, did PowerPoint decide to use Calibri?",
+                  "I have a couple other follow-up questions.  Somewhere in this thread it was stated that PowerPoint uses UNICODE sub ranges ",
+                  "+ some Windows APIs to decide whether a character falls in the latin, east asian, or complex script buckets.  I would like to ",
+                  "know two things:",
+                  "1)  What are the exact unicode ranges PowerPoint uses to define each bucket?",
+                  "2)  Supposing that the Windows platform is not available, then a Window API call is not possible.  How, then, should I replace ",
+                  "this missing functionality.  What does the Window API call do so that I can reproduce the logic in a non-Windows ",
+                  "environment?",
+                  "Hi BoulderPika,",
+                  "Please check out the post I just made:",
+                  "http://social.msdn.microsoft.com/Forums/en-US/os_openXML-ecma/thread/1bf1f185-ee49-4314-94e7-f4e1563b5c00",
+                  "The table should give you what you need to translate unicode ranges to latin, cs and ea. ",
+                  "---------------",
+                  "Tom Jebo -",
+                  "I am still having difficulties understanding PowerPoint's algorithm for determining what font to use for a given text run.  I have ",
+                  "created a simple test case and hand-edited the XML to further reduce complexity.  You can find that test case here:",
+                  "http://home.comcast.net/~bellert/symbol1.pptx",
+                  "Of particular interest is the following XML from theme1.xml:"
+                ],
+                "edgedoc": [
+                  "------------------------",
+                  "Greetings.  I would like to continue this discussion.  I have similar questions as Okatu, but I am not yet satisfied with the ",
+                  "answers given.  In particular, I'd like to further discuss the algorithm Tom Jebo outlined above and repeated below:",
+                  "------------------------------------------------------------------",
+                  "Algorithm:",
+                  "   a. Call MSO APIs to convert a LCID to a script tag. It uses language or alt language (if the former is missing). And it requires a ",
+                  "language and slot match; otherwise it returns the default typeface.",
+                  "   b. Use the script tag to search the major (or minor) font collection. If found, then OK.",
+                  "   c. If not found, we return the default typeface, depending on whether it’s latin, or ea, or cs.",
+                  "For each run, we run three times: latin, ea, and cs. That said, for each run, we have three typefaces at runtime. But in the ",
+                  "Ribbon font gallery, OArt text appears the theme name – e.g. a piece of English text with “Mlym” (Malayalam) appears in ",
+                  "Ribbon “Kartika (Body)” in font gallery, but actually it renders in the slide with Calibri.",
+                  "------------------------------------------------------------------",
+                  "As I understand things, the example above contradicts the stated algorithm.  For the example, I understand that there is a run ",
+                  "with a lang tag that specifies the language to be Malayalam.  According to the algorithm, we first convert the locale ID to the ",
+                  "script tag Mlym.  We then use this script tag to locate the font Kartika.  As this was correctly found, then the algorithm states ",
+                  "this is the font that should be used to render the text.  However, you state that it is actually rendered with Calibri. ",
+                  "How, then, did PowerPoint decide to use Calibri?",
+                  "I have a couple other follow-up questions.  Somewhere in this thread it was stated that PowerPoint uses UNICODE sub ranges ",
+                  "+ some Windows APIs to decide whether a character falls in the latin, east asian, or complex script buckets.  I would like to ",
+                  "know two things:",
+                  "1)  What are the exact unicode ranges PowerPoint uses to define each bucket?",
+                  "2)  Supposing that the Windows platform is not available, then a Window API call is not possible.  How, then, should I replace ",
+                  "this missing functionality.  What does the Window API call do so that I can reproduce the logic in a non-Windows ",
+                  "environment?",
+                  "Hi BoulderPika,",
+                  "Please check out the post I just made:",
+                  "http://social.msdn.microsoft.com/Forums/en-US/os_openXML-ecma/thread/1bf1f185-ee49-4314-94e7-f4e1563b5c00",
+                  "The table should give you what you need to translate unicode ranges to latin, cs and ea. ",
+                  "---------------",
+                  "Tom Jebo -",
+                  "I am still having difficulties understanding PowerPoint's algorithm for determining what font to use for a given text run.  I ",
+                  "have created a simple test case and hand-edited the XML to further reduce complexity.  You can find that test case here:",
+                  "http://home.comcast.net/~bellert/symbol1.pptx",
+                  "Of particular interest is the following XML from theme1.xml:",
+                  "------------------------------------------------------------------------------------------------------------------------"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.7485529230953474,
+              "mean_ink_color_error": 0.23105505108833313
+            }
+          ]
+        },
+        {
+          "page": 18,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.7490006872466655,
+          "mean_ink_color_error": 0.21869878470897675,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "...",
+                  "      <a:fontScheme name=\"Office\">",
+                  "        <a:majorFont>",
+                  "          <a:latin typeface=\"Calibri\"/>",
+                  "          <a:ea typeface=\"\"/>",
+                  "          <a:cs typeface=\"\"/>",
+                  "          <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>",
+                  "...",
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "and the following from slide1.xml:",
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "...",
+                  "             <a:r>",
+                  "                <a:rPr lang=\"en-US\" sz=\"7200\" dirty=\"0\" smtClean=\"0\">",
+                  "                  <a:latin typeface=\"+mj-lt\"/>",
+                  "                  <a:ea typeface=\"+mj-ea\"/>",
+                  "                  <a:cs typeface=\"+mj-cs\"/>",
+                  "                </a:rPr>",
+                  "                <a:t>⓫</a:t>",
+                  "              </a:r>",
+                  "...",
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "The text within the a:t tag has Unicode value 0x24EB.  Using the table you referenced in the link above, I determine that this ",
+                  "should use the East Asian font (character range 0x2460 - 0x266F).  Looking at my run properties for the text, I see that the ea ",
+                  "typeface is \"+mj-ea\".  I interpret this to use the major East Asian font from the theme file.  However, retrieving the major East ",
+                  "Asian font from the theme file gives me the empty string.  I'm perplexed.  I've greatly simplified the test case and am ",
+                  "reasonably certain I have removed all other places where a typeface could have been set.",
+                  "I'm referencing ECMA-376 Third Edition from June 2011.  This specification (20.1.4.1.24) does not indicate the use of any ",
+                  "default fonts for the children of the majorFont tag and nor does the specification (21.1.2.3.3) indicate that there should be any ",
+                  "default values for the ea tag.",
+                  "Are you certain that the character range 0x2460 - 0x266F calls for the East Asian font?  For this test case, I simply don't see an ",
+                  "East Asian font defined anywhere.",
+                  "If it matters, I'm using PowerPoint 14.0.4760.1000 (32-bit).",
+                  "BoulderPika,",
+                  " ",
+                  "Yes, from what you’ve described, your interpretation seems correct and the specification is itself correct (aside from the defect ",
+                  "report information that is pending, relevant parts of which I've posted here already).  And PowerPoint is following the ",
+                  "specification wrt your font question.  We have discussed your scenario questions about selecting font when the theme typeface "
+                ],
+                "edgedoc": [
+                  "...",
+                  "      <a:fontScheme name=\"Office\">",
+                  "        <a:majorFont>",
+                  "          <a:latin typeface=\"Calibri\"/>",
+                  "          <a:ea typeface=\"\"/>",
+                  "          <a:cs typeface=\"\"/>",
+                  "          <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>",
+                  "...",
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "and the following from slide1.xml:",
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "...",
+                  "             <a:r>",
+                  "                <a:rPr lang=\"en-US\" sz=\"7200\" dirty=\"0\" smtClean=\"0\">",
+                  "                  <a:latin typeface=\"+mj-lt\"/>",
+                  "                  <a:ea typeface=\"+mj-ea\"/>",
+                  "                  <a:cs typeface=\"+mj-cs\"/>",
+                  "                </a:rPr>",
+                  "                <a:t>⓫</a:t>",
+                  "              </a:r>",
+                  "...",
+                  "------------------------------------------------------------------------------------------------------------------------",
+                  "The text within the a:t tag has Unicode value 0x24EB.  Using the table you referenced in the link above, I determine that this ",
+                  "should use the East Asian font (character range 0x2460 - 0x266F).  Looking at my run properties for the text, I see that the ea ",
+                  "typeface is \"+mj-ea\".  I interpret this to use the major East Asian font from the theme file.  However, retrieving the major East ",
+                  "Asian font from the theme file gives me the empty string.  I'm perplexed.  I've greatly simplified the test case and am ",
+                  "reasonably certain I have removed all other places where a typeface could have been set.",
+                  "I'm referencing ECMA-376 Third Edition from June 2011.  This specification (20.1.4.1.24) does not indicate the use of any ",
+                  "default fonts for the children of the majorFont tag and nor does the specification (21.1.2.3.3) indicate that there should be ",
+                  "any default values for the ea tag.",
+                  "Are you certain that the character range 0x2460 - 0x266F calls for the East Asian font?  For this test case, I simply don't see an ",
+                  "East Asian font defined anywhere.",
+                  "If it matters, I'm using PowerPoint 14.0.4760.1000 (32-bit).",
+                  "BoulderPika,",
+                  " ",
+                  "Yes, from what you’ve described, your interpretation seems correct and the specification is itself correct (aside from the ",
+                  "defect report information that is pending, relevant parts of which I've posted here already).  And PowerPoint is following the ",
+                  "specification wrt your font question.  We have discussed your scenario questions about selecting font when the theme ",
+                  "typeface (i.e. <a:ea typeface=\"\"/>) is blank, here is the result of our discussion:",
+                  " "
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.7490006872466655,
+              "mean_ink_color_error": 0.21869878470897675
+            }
+          ]
+        },
+        {
+          "page": 19,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.4900562429696288,
+          "mean_ink_color_error": 0.22846639156341553,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "(i.e. <a:ea typeface=\"\"/>) is blank, here is the result of our discussion:",
+                  " ",
+                  "You correctly traced back to the a:fontScheme element and its children.  In this case, the file (typeface attribute of the a:ea ",
+                  "element) has not requested the use of a particular font face for that type of text and the implementation is free to select an ",
+                  "appropriate font for its context, given its particular needs and constraints.",
+                  " ",
+                  "This gets into the realm of font substitution, fallback fonts and font linking.  This area is rather complicated and is a typical task ",
+                  "for application developers dealing with text.  It arises even when font faces are specified, as the font requested is not always ",
+                  "available in a given environment (e.g., which fonts are installed by default on various OSes, use of user-installed fonts).  ",
+                  "Industry-wide, there is no common way to handle font selection, partly because applications sometimes have different needs ",
+                  "for how detailed they need to be in choosing a font.  Often, developers will let the OS figure it out, but applications with more ",
+                  "specific needs, such as Office, often put a lot of work into logic for finding the most appropriate font.",
+                  " ",
+                  "So, this is up to the developer to decide which font to select based on the type of text, fonts available on the system, and any ",
+                  "particular design goals of the application.  An application might decide to use another major font, or the corresponding minor ",
+                  "font if it defined, or fall back to a “hard-coded” font appropriate for that font type (e.g., East Asian), or do further analysis of ",
+                  "the text run and the available fonts on the system to find a more appropriate fallback.  There is a globalization article that ",
+                  "discusses these topics on MSDN that you may find helpful in getting started determining how your application wants to handle ",
+                  "fonts: http://msdn.microsoft.com/en-us/goglobal/bb688134.",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer ",
+                  "Microsoft Open Specifications"
+                ],
+                "edgedoc": [
+                  "You correctly traced back to the a:fontScheme element and its children.  In this case, the file (typeface attribute of the a:ea ",
+                  "element) has not requested the use of a particular font face for that type of text and the implementation is free to select an ",
+                  "appropriate font for its context, given its particular needs and constraints.",
+                  " ",
+                  "This gets into the realm of font substitution, fallback fonts and font linking.  This area is rather complicated and is a typical ",
+                  "task for application developers dealing with text.  It arises even when font faces are specified, as the font requested is not ",
+                  "always available in a given environment (e.g., which fonts are installed by default on various OSes, use of user-installed ",
+                  "fonts).  Industry-wide, there is no common way to handle font selection, partly because applications sometimes have ",
+                  "different needs for how detailed they need to be in choosing a font.  Often, developers will let the OS figure it out, but ",
+                  "applications with more specific needs, such as Office, often put a lot of work into logic for finding the most appropriate font.",
+                  " ",
+                  "So, this is up to the developer to decide which font to select based on the type of text, fonts available on the system, and any ",
+                  "particular design goals of the application.  An application might decide to use another major font, or the corresponding minor ",
+                  "font if it defined, or fall back to a “hard-coded” font appropriate for that font type (e.g., East Asian), or do further analysis of ",
+                  "the text run and the available fonts on the system to find a more appropriate fallback.  There is a globalization article that ",
+                  "discusses these topics on MSDN that you may find helpful in getting started determining how your application wants to ",
+                  "handle fonts: http://msdn.microsoft.com/en-us/goglobal/bb688134.",
+                  "Best regards,",
+                  "Tom Jebo",
+                  "Escalation Engineer ",
+                  "Microsoft Open Specifications"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.4900562429696288,
+              "mean_ink_color_error": 0.22846639156341553
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Character effects and borders"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Complex-script and bidirectional layout"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Embedded drawings, equations, and text boxes"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Fields other than page and section counters use cached results"
+            }
+          ]
+        },
+        {
+          "reference_used_other_font_data": [
+            {
+              "family": "Symbol",
+              "sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "style": "Regular"
+            },
+            {
+              "family": "Times New Roman",
+              "sha256": "50f5b1f27b7d34621090e437e8b1dd4510a22d2823fc876b3286bed327b64bbb",
+              "style": "Bold"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "72896bac3055c8f290b9b6b8b379186f140376e8a21953f0bb02736524048c4a",
+              "style": "Italic"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+              "style": "Regular"
+            },
+            {
+              "family": "Times New Roman",
+              "sha256": "906157e8294fdf168d83002eaabde01c2d30fc3f44977be89e33fa22f262002a",
+              "style": "Bold Italic"
+            },
+            {
+              "family": "PingFang HK",
+              "sha256": "9ff3ce9439fe285cdabb46f9ceb46b1ac58f1ca07e6f4a764e8286db621a0af9",
+              "style": "Regular"
+            },
+            {
+              "family": "Courier New",
+              "sha256": "c886ca3172d8ce9189976992d145ec090500a4ff516ecb9d4df56b1a78336247",
+              "style": "Regular"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "db0dfa0c7a50be334673dd43182eb7da25168b2a3cae638ee3c08ca3f171f646",
+              "style": "Bold"
+            },
+            {
+              "family": "Apple SD Gothic Neo",
+              "sha256": "f2fe69e39644d04a9484802044836ba9d4a950aed2e32b006a3e16d5df5f49f1",
+              "style": "Regular"
+            },
+            {
+              "family": "Times New Roman",
+              "sha256": "f3b4ffff71c2a0c7227d37497683b2498fb2d0a4e8beae26f022e3ccfcaabfa3",
+              "style": "Regular"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-7301662067fc3068",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-9437217bacf43520",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-theme_fonts_override_literal_names_and_survive_an_edited_save-42ab7909b8a239c5",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "poi-extra-797bfdf13936",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Frutiger 55 Roman"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Frutiger 45 Light"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0001181805127998814,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-symbol_font_bullets_use_unicode_and_share_the_text_baseline-5ea4fa5327add93a",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.011005135730007337,
+          "mean_ink_color_error": 0.0059949057176709175,
+          "errors": [
+            {
+              "font_or_style_mismatch": [
+                {
+                  "baseline": 84.05999755859375,
+                  "bold": false,
+                  "font": "Symbol",
+                  "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+                  "gid": 37,
+                  "italic": false,
+                  "size": 12.0,
+                  "text": "•",
+                  "x": 90.0
+                },
+                {
+                  "advance": 5.9765625,
+                  "baseline": 84.05999755859375,
+                  "bold": false,
+                  "font": "Carlito",
+                  "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+                  "gid": 302,
+                  "italic": false,
+                  "size": 12.0,
+                  "text": "•",
+                  "x": 90.0,
+                  "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+                }
+              ]
+            },
+            {
+              "unmatched_ink_fraction": 0.011005135730007337,
+              "mean_ink_color_error": 0.0059949057176709175
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "reference_used_other_font_data": [
+            {
+              "family": "Symbol",
+              "sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "style": "Regular"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+              "style": "Regular"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-bullet_without_a_level_font_uses_the_paragraph_text_face-f0d3d73b7df05547",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-bullet_without_a_level_font_uses_the_paragraph_mark_face-1f5a083ecf55254d",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

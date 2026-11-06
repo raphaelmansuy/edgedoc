@@ -134,12 +134,13 @@ impl<S: Shaper> Lowerer<'_, S> {
             Fragment::Picture {
                 rect,
                 resource,
+                src,
                 alt,
             } => {
                 self.ops.push(Op::Image {
                     resource: *resource,
                     rect: *rect,
-                    src: [0.0, 0.0, 1.0, 1.0],
+                    src: *src,
                     opacity: 1.0,
                     interpolate: true,
                 });
@@ -216,8 +217,14 @@ impl<S: Shaper> Lowerer<'_, S> {
         // Paragraph background shading covers every line of this fragment.
         if let Some(shading) = p.para.shading {
             if shading.a > 0 {
+                let hanging = p.para.indent_first.min(0.0);
+                let rect = if p.para.bidi {
+                    Rect::new(p.rect.x, p.rect.y, p.rect.w - hanging, p.rect.h)
+                } else {
+                    Rect::new(p.rect.x + hanging, p.rect.y, p.rect.w - hanging, p.rect.h)
+                };
                 self.ops.push(Op::FillRect {
-                    rect: p.rect,
+                    rect,
                     paint: Paint::solid(shading),
                 });
             }
@@ -231,25 +238,50 @@ impl<S: Shaper> Lowerer<'_, S> {
             (3usize, b.right),
         ] {
             if let Some(border) = border {
-                self.border_segment(rect_side(p.rect, side), border);
+                if (side == 0 && p.continues_before) || (side == 2 && p.continues_after) {
+                    continue;
+                }
+                self.border_segment(paragraph_border_rect(p, side, border), border);
             }
         }
         // A list label paints at its own position, right-aligned to the text indent.
         if let Some((label, rect)) = &p.label {
             if !label.trim().is_empty() {
                 let style = p.run_styles.first();
-                let (face, size) = style.map_or((0, 11.0), |s| (s.face, s.size));
-                let shaped = self.shaper.shape_run(face, label, size, false);
-                let width: f32 = shaped
-                    .iter()
-                    .map(|g| self.shaper.advance(face, g.gid, size))
-                    .sum();
+                let size = p
+                    .para
+                    .label_size
+                    .unwrap_or_else(|| style.map_or(11.0, |s| s.size));
+                let face = p.para.label_face.unwrap_or(p.para.label_fallback_face);
+                let shaped =
+                    self.shaper
+                        .shape_run_kerning(face, label, size, false, p.para.label_kerning);
+                let width: f32 = shaped.iter().map(|g| g.advance).sum();
                 // Right-align the label against the text indent, which is where Word puts it.
-                let x = (rect.right() - width - 4.0).max(rect.x);
+                let hanging_bullet = p.para.list.as_ref().is_some_and(|list| {
+                    list.format == "bullet"
+                        && (list.suffix.is_empty() || list.suffix == "tab")
+                        && (list.justification.is_empty() || list.justification == "left")
+                }) && p.para.indent_first < 0.0
+                    && width <= -p.para.indent_first;
+                let positioned_number = p
+                    .para
+                    .list
+                    .as_ref()
+                    .is_some_and(|list| list.format != "bullet");
+                let x = if hanging_bullet || positioned_number {
+                    rect.x
+                } else {
+                    (rect.right() - width - 4.0).max(rect.x)
+                };
                 let mut pen = x;
-                let baseline = rect.y + size * 0.85;
+                // The label shares the first text line's baseline. A fixed
+                // fraction of the font size drifts when the face has leading.
+                let baseline = layout.lines.get(p.l0).map_or(rect.y + size * 0.85, |line| {
+                    p.rect.y + line.baseline - layout.lines.get(p.l0).map_or(0.0, |first| first.top)
+                });
                 for (i, g) in shaped.iter().enumerate() {
-                    let adv = self.shaper.advance(face, g.gid, size);
+                    let adv = g.advance;
                     self.push_run(
                         face,
                         size,
@@ -276,11 +308,17 @@ impl<S: Shaper> Lowerer<'_, S> {
                 }
             }
         }
+        if p.para.line_exact {
+            self.ops.push(Op::PushClip(p.rect));
+        }
         for line_index in p.l0..p.l1 {
             let Some(line) = layout.lines.get(line_index) else {
                 continue;
             };
             self.line(p, layout, line);
+        }
+        if p.para.line_exact {
+            self.ops.push(Op::PopClip);
         }
         // A tracked deletion paints a strike across the fragment.
         if self.options.markup {
@@ -315,9 +353,8 @@ impl<S: Shaper> Lowerer<'_, S> {
 
     fn line(&mut self, p: &ParagraphFragment, layout: &ParagraphLayout, line: &edgedoc_text::Line) {
         // The y of this line inside the fragment, from the layout.
-        let y = p.rect.y + (line.top - layout.lines.get(p.l0).map_or(0.0, |l| l.top));
         let x0 = p.rect.x;
-        let baseline = y + line.baseline - layout.lines.get(p.l0).map_or(0.0, |l| l.top);
+        let baseline = p.rect.y + line.baseline - layout.lines.get(p.l0).map_or(0.0, |l| l.top);
         // Group the clusters of one style into one glyph run, so a line of text is a handful of
         // operations, not one per glyph. See DP-P-20.
         let mut i = line.c0;
@@ -325,6 +362,12 @@ impl<S: Shaper> Lowerer<'_, S> {
             let Some(cluster) = layout.clusters.get(i) else {
                 break;
             };
+            // A soft hyphen must not remain inside a glyph run's text. Apart from
+            // appearing in the text layer, it would shift the source offsets of later glyphs.
+            if matches!(cluster.kind, edgedoc_text::ClusterKind::SoftHyphen) {
+                i += 1;
+                continue;
+            }
             let style_index = cluster.style;
             let Some(style) = p.run_styles.get(style_index as usize) else {
                 i += 1;
@@ -333,14 +376,30 @@ impl<S: Shaper> Lowerer<'_, S> {
             let mut j = i;
             while j < line.c1 {
                 match layout.clusters.get(j) {
-                    Some(c) if c.style == style_index => j += 1,
+                    Some(c)
+                        if c.style == style_index
+                            && c.level == cluster.level
+                            && !matches!(c.kind, edgedoc_text::ClusterKind::SoftHyphen) =>
+                    {
+                        j += 1;
+                    }
                     _ => break,
                 }
             }
-            let start_byte = layout.clusters.get(i).map_or(0, |c| c.start);
-            let end_byte = layout
-                .clusters
-                .get(j.saturating_sub(1))
+            let visible = |c: &&edgedoc_text::Cluster| {
+                matches!(
+                    c.kind,
+                    edgedoc_text::ClusterKind::Text | edgedoc_text::ClusterKind::Space
+                )
+            };
+            let start_byte = layout.clusters[i..j]
+                .iter()
+                .find(visible)
+                .map_or(0, |c| c.start);
+            let end_byte = layout.clusters[i..j]
+                .iter()
+                .rev()
+                .find(visible)
                 .map_or(start_byte, |c| c.end);
             self.run(
                 p, layout, line, i, j, style, x0, baseline, start_byte, end_byte,
@@ -348,18 +407,24 @@ impl<S: Shaper> Lowerer<'_, S> {
             i = j;
         }
         // A tab leader paints across its tab.
-        for (cluster_offset, ch, count) in &line.leaders {
+        for (cluster_offset, ch, _count) in &line.leaders {
             let idx = line.c0 + *cluster_offset;
             let x = line.xs.get(*cluster_offset).copied().unwrap_or(0.0) + x0;
             let next_x = line.xs.get(*cluster_offset + 1).copied().unwrap_or(x - x0) + x0;
-            let _ = idx;
-            let style = p.run_styles.first();
+            let style = layout
+                .clusters
+                .get(idx)
+                .and_then(|cluster| p.run_styles.get(cluster.style as usize));
             let (face, size) = style.map_or((0, 11.0), |s| (s.face, s.size));
             let gid = self.shaper.glyph(face, *ch);
-            let adv = self.shaper.advance(face, gid, size).max(0.5);
-            let n = (*count).min(((next_x - x - 1.0) / adv).max(0.0) as u32);
-            for k in 0..n {
-                let gx = x + k as f32 * adv;
+            let ppem = (size * 600.0 / 72.0).round();
+            let adv = (self.shaper.advance(face, gid, ppem).round() * 72.0 / 600.0).max(1.0);
+            let first = (x / adv - 0.001).ceil();
+            for k in 0..2000 {
+                let gx = (first + k as f32) * adv;
+                if gx + adv > next_x + 0.001 {
+                    break;
+                }
                 self.push_run(
                     face,
                     size,
@@ -374,7 +439,7 @@ impl<S: Shaper> Lowerer<'_, S> {
                     false,
                     false,
                     1.0,
-                    ch.to_string(),
+                    String::new(),
                     None,
                     false,
                     None,
@@ -428,9 +493,15 @@ impl<S: Shaper> Lowerer<'_, S> {
         let mut advances = Vec::new();
         let mut offsets = Vec::new();
         let mut clusters = Vec::new();
-        let mut text = String::new();
+        let source = p.text.get(start_byte..end_byte).unwrap_or("");
+        let text = match style.caps {
+            CapsMode::All | CapsMode::Small => source.to_uppercase(),
+            CapsMode::None => source.to_string(),
+        };
         let mut first_x = 0.0f32;
         let mut started = false;
+        let mut advance_sum = 0.0f32;
+        let baseline = baseline - style.baseline_shift;
         let hidden = style.hidden && !self.options.show_hidden;
         for k in i..j {
             let Some(cluster) = layout.clusters.get(k) else {
@@ -444,6 +515,7 @@ impl<S: Shaper> Lowerer<'_, S> {
                     | edgedoc_text::ClusterKind::PageBreak
                     | edgedoc_text::ClusterKind::ColumnBreak
                     | edgedoc_text::ClusterKind::Object(_)
+                    | edgedoc_text::ClusterKind::Tab
             ) {
                 // An object paints itself; the cluster only holds its advance.
                 continue;
@@ -452,9 +524,21 @@ impl<S: Shaper> Lowerer<'_, S> {
             if !started {
                 first_x = x;
                 started = true;
+            } else {
+                // Layout owns positioning, including justified spaces, tabs, tracking, and bidi.
+                let delta = x - (first_x + advance_sum);
+                if let Some(last) = advances.last_mut() {
+                    *last += delta;
+                }
+                advance_sum += delta;
             }
+            let next_x = line
+                .xs
+                .get(k - line.c0 + 1)
+                .copied()
+                .unwrap_or(x - x0 + cluster.adv)
+                + x0;
             // The source text of the cluster, from the paragraph that this fragment carries.
-            let cluster_text = p.text.get(cluster.start..cluster.end).unwrap_or("");
             match cluster.kind {
                 edgedoc_text::ClusterKind::Tab => continue,
                 edgedoc_text::ClusterKind::Space => {
@@ -463,10 +547,10 @@ impl<S: Shaper> Lowerer<'_, S> {
                     }
                     let gid = self.shaper.glyph(style.face, ' ');
                     glyphs.push(gid);
-                    advances.push(cluster.adv);
+                    advances.push(next_x - x);
+                    advance_sum += next_x - x;
                     offsets.push((0.0, 0.0));
                     clusters.push(cluster.start as u32);
-                    text.push(' ');
                     continue;
                 }
                 _ => {}
@@ -474,43 +558,21 @@ impl<S: Shaper> Lowerer<'_, S> {
             if hidden {
                 continue;
             }
-            // Shape this cluster. One cluster is one grapheme, so a ligature stays whole.
-            let shown = match style.caps {
-                CapsMode::All => cluster_text.to_uppercase(),
-                CapsMode::Small => cluster_text.to_uppercase(),
-                CapsMode::None => cluster_text.to_string(),
-            };
-            let shaped = self
-                .shaper
-                .shape_run(style.face, &shown, style.size, style.rtl);
-            if shaped.is_empty() {
-                continue;
-            }
-            let mut pen = 0.0f32;
-            let mut produced = 0usize;
-            for g in &shaped {
+            // Reuse the contextual shaping result from layout. Reshaping one grapheme here
+            // loses ligatures, joining and the kerning that determined the line width.
+            let mut cluster_advance = 0.0f32;
+            for g in &cluster.glyphs {
                 glyphs.push(g.gid);
-                let adv = self.shaper.advance(style.face, g.gid, style.size) * style.x_scale;
-                advances.push(adv);
-                offsets.push((pen + g.dx, g.dy));
+                advances.push(g.advance);
+                offsets.push((g.dx, g.dy));
                 clusters.push(cluster.start as u32);
-                // The text layer holds one character per glyph, so a click maps to a position.
-                // A ligature of 2 glyphs splits its characters; the last glyph takes the rest.
-                produced += 1;
-                if produced == shaped.len() {
-                    text.push_str(if shown.is_empty() { "\u{FFFD}" } else { &shown });
-                } else {
-                    let first = shown.chars().next().unwrap_or('\u{FFFD}');
-                    text.push(first);
-                }
-                pen += adv;
+                cluster_advance += g.advance;
+                advance_sum += g.advance;
             }
-            // Justification moves the last glyph of the cluster to the cluster advance.
-            let glyph_sum: f32 =
-                advances.iter().rev().take(shaped.len()).sum::<f32>() / style.x_scale.max(0.01);
             if let Some(last) = advances.last_mut() {
-                let extra = (cluster.adv - glyph_sum).max(0.0);
-                *last += extra;
+                let delta = next_x - x - cluster_advance;
+                *last += delta;
+                advance_sum += delta;
             }
         }
         if glyphs.is_empty() {
@@ -537,10 +599,26 @@ impl<S: Shaper> Lowerer<'_, S> {
             let ink = style.color;
             if style.underline {
                 let y = baseline + style.size * 0.12;
-                self.ops.push(Op::FillRect {
-                    rect: Rect::new(first_x, y, width.max(1.0), (style.size * 0.06).max(0.5)),
-                    paint: Paint::solid(ink),
-                });
+                if style.double_underline {
+                    // Wordcraft uses a 0.6-width stroke at offsets of 0.9 widths.
+                    let line_width = (style.size / 18.0).max(0.5);
+                    for offset in [-0.9, 0.9] {
+                        self.ops.push(Op::FillRect {
+                            rect: Rect::new(
+                                first_x,
+                                y + line_width * offset - line_width * 0.3,
+                                width.max(1.0),
+                                line_width * 0.6,
+                            ),
+                            paint: Paint::solid(style.underline_color.unwrap_or(ink)),
+                        });
+                    }
+                } else {
+                    self.ops.push(Op::FillRect {
+                        rect: Rect::new(first_x, y, width.max(1.0), (style.size * 0.06).max(0.5)),
+                        paint: Paint::solid(style.underline_color.unwrap_or(ink)),
+                    });
+                }
             }
             if style.strike {
                 let y = baseline - style.size * 0.28;
@@ -746,13 +824,40 @@ fn border_paint(border: edgedoc_style::Border) -> (Rgba, BorderStyle) {
 }
 
 /// A `rect` side: 0 top, 1 left, 2 bottom, 3 right.
-fn rect_side(rect: Rect, side: usize) -> Rect {
-    let w = 0.75;
+/// The reference places each border outside its distance from the text, with top/bottom
+/// rules reaching the outside corners. Width and distance belong to the individual side.
+fn paragraph_border_rect(
+    p: &ParagraphFragment,
+    side: usize,
+    border: edgedoc_style::Border,
+) -> Rect {
+    let width = |b: edgedoc_style::Border| {
+        b.width.max(if b.style == BorderStyle::Thick {
+            1.5
+        } else {
+            0.25
+        })
+    };
+    let room = |b: Option<edgedoc_style::Border>| {
+        b.filter(|b| b.style.is_visible())
+            .map_or(0.0, |b| b.space + width(b))
+    };
+    let b = &p.para.borders;
+    let left = p.rect.x + p.para.indent_first.min(0.0) - room(b.left);
+    let right = p.rect.right() + room(b.right);
+    let top = p.rect.y - if p.continues_before { 0.0 } else { room(b.top) };
+    let bottom = p.rect.bottom()
+        + if p.continues_after {
+            0.0
+        } else {
+            room(b.bottom)
+        };
+    let w = width(border);
     match side {
-        0 => Rect::new(rect.x, rect.y, rect.w, w),
-        1 => Rect::new(rect.x, rect.y, w, rect.h),
-        2 => Rect::new(rect.x, rect.bottom() - w, rect.w, w),
-        _ => Rect::new(rect.right() - w, rect.y, w, rect.h),
+        0 => Rect::new(left, p.rect.y - border.space - w, right - left, w),
+        1 => Rect::new(left, top, w, bottom - top),
+        2 => Rect::new(left, p.rect.bottom() + border.space, right - left, w),
+        _ => Rect::new(right - w, top, w, bottom - top),
     }
 }
 
@@ -839,8 +944,13 @@ pub fn run_style_of(run: &ComputedRun, face: u32) -> RunStyle {
     RunStyle {
         face,
         size: run.size,
+        line_size: run.size,
+        kerning: run.kern.is_some_and(|threshold| run.size >= threshold),
+        positional_tab: None,
         color: run.color,
         underline: run.underline,
+        double_underline: run.double_underline,
+        underline_color: run.underline_color,
         strike: run.strike,
         double_strike: run.double_strike,
         highlight: run.highlight,
@@ -848,6 +958,7 @@ pub fn run_style_of(run: &ComputedRun, face: u32) -> RunStyle {
         x_scale: run.x_scale,
         letter_spacing: run.letter_spacing,
         baseline_shift: run.baseline_shift,
+        line_shift: run.baseline_shift,
         hidden: run.hidden,
         rtl: run.rtl,
         caps: run.caps,

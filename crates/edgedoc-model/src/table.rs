@@ -19,6 +19,9 @@ pub struct Cell {
     pub fit_text: bool,
     pub no_wrap: bool,
     pub extra: Vec<String>,
+    /// Preserved cell-level content-control markup surrounding this cell.
+    pub xml_before: String,
+    pub xml_after: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,6 +33,13 @@ pub struct Row {
     pub cant_split: bool,
     pub hidden: bool,
     pub extra: Vec<String>,
+    /// Row-specific table-property exceptions, retained in their original XML form.
+    pub table_properties_exception: Option<String>,
+    /// Border values resolved from the row-specific table-property exception.
+    pub exception_borders: Borders,
+    /// Preserved row-level content-control markup surrounding this row.
+    pub xml_before: String,
+    pub xml_after: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -96,6 +106,17 @@ pub struct TablePosition {
     pub tblp_y: Option<i32>,
 }
 
+/// Explicit `w:tblLook` switches; absent values use the bitmask or Word defaults.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct TableLookOptions {
+    pub first_row: Option<bool>,
+    pub last_row: Option<bool>,
+    pub first_column: Option<bool>,
+    pub last_column: Option<bool>,
+    pub no_h_band: Option<bool>,
+    pub no_v_band: Option<bool>,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Table {
     pub rows: Vec<Row>,
@@ -113,6 +134,7 @@ pub struct Table {
     pub borders: Borders,
     pub cell_margins: CellMargins,
     pub look: Option<String>,
+    pub look_options: TableLookOptions,
     /// `w:tblPrEx` raw markup, and other table properties that the model does not name.
     pub extra: Vec<String>,
 }
@@ -179,6 +201,7 @@ impl Table {
             borders: Borders::default(),
             cell_margins: CellMargins::default(),
             look: None,
+            look_options: TableLookOptions::default(),
             extra: Vec::new(),
         }
     }
@@ -252,6 +275,10 @@ impl Row {
             cant_split: false,
             hidden: false,
             extra: Vec::new(),
+            table_properties_exception: None,
+            exception_borders: Borders::default(),
+            xml_before: String::new(),
+            xml_after: String::new(),
         }
     }
 
@@ -288,6 +315,8 @@ impl Cell {
             fit_text: false,
             no_wrap: false,
             extra: Vec::new(),
+            xml_before: String::new(),
+            xml_after: String::new(),
         }
     }
 
@@ -334,6 +363,10 @@ fn row_from<'a>(cells: impl IntoIterator<Item = &'a str>, header: bool) -> Row {
         cant_split: false,
         hidden: false,
         extra: Vec::new(),
+        table_properties_exception: None,
+        exception_borders: Borders::default(),
+        xml_before: String::new(),
+        xml_after: String::new(),
         cells: cells.into_iter().map(Cell::paragraph).collect(),
     }
 }

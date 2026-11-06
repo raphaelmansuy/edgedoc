@@ -1,0 +1,9 @@
+{
+  "case": "docx4j-18-indentation_firstline",
+  "page": 1,
+  "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/linebreak-focused/docx4j-18-indentation_firstline/wordcraft/page-001.png",
+  "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/linebreak-focused/docx4j-18-indentation_firstline/edgedoc/page-001.png",
+  "wordcraft_sha256": "a102b899180ee16f2a27b3ff108ab72fb391f6337733b160f6fca001347bf9fb",
+  "edgedoc_sha256": "6b12d6a634a5bf19251f4fa4c14cbfb39560faa5142ccb870b3e881fa8dd3b3b",
+  "visually_inspected": true
+}

@@ -1,0 +1,9 @@
+{
+  "case": "regression-explicit_cell_borders_paint_shared_edges_without_table_inside_rules-e84212e7d41cd348",
+  "page": 1,
+  "visually_inspected": true,
+  "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/cell-border-image-inspection/wordcraft.png",
+  "wordcraft_sha256": "bba4aff5a59596f930dfa77688312996efdcef780026db055ec48220d3ace211",
+  "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/cell-border-image-inspection/edgedoc.png",
+  "edgedoc_sha256": "c2ca604e9685bee28e358c28cf6e10b0ac05fdde854053725478abfa3a661714"
+}

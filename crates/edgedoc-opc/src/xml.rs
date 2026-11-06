@@ -67,14 +67,17 @@ pub fn parse(bytes: &[u8], budget: &Budget) -> OpcResult<El> {
             "The part contains a DTD. Remove the DTD and send the part again.",
         ));
     }
-    let mut reader = Reader::from_reader(bytes);
+    // quick-xml consumes a UTF-8 BOM without including it in buffer_position(). Preserve
+    // original-byte offsets: raw property slices are later parsed and written verbatim.
+    let offset = usize::from(bytes.starts_with(&[0xEF, 0xBB, 0xBF])) * 3;
+    let mut reader = Reader::from_reader(&bytes[offset..]);
     reader.check_end_names(true);
     let mut buf = Vec::new();
     let mut stack: Vec<El> = Vec::new();
     let mut root: Option<El> = None;
     let mut elements = 0usize;
     loop {
-        let start_pos = reader.buffer_position();
+        let start_pos = reader.buffer_position() + offset;
         let event = reader.read_event_into(&mut buf).map_err(|err| {
             OpcError::new(
                 "xml.malformed",
@@ -93,14 +96,14 @@ pub fn parse(bytes: &[u8], budget: &Budget) -> OpcResult<El> {
                 budget.elements(elements).map_err(map_limit)?;
                 budget.depth(stack.len() + 1).map_err(map_limit)?;
                 let mut el = read_el(bytes, &start, start_pos, budget)?;
-                el.span.end = reader.buffer_position();
+                el.span.end = reader.buffer_position() + offset;
                 push_child(&mut stack, &mut root, Node::El(el))?;
             }
             Event::End(_) => {
                 let mut el = stack.pop().ok_or_else(|| {
                     OpcError::new("xml.malformed", "The part has an extra end tag.")
                 })?;
-                el.span.end = reader.buffer_position();
+                el.span.end = reader.buffer_position() + offset;
                 push_child(&mut stack, &mut root, Node::El(el))?;
             }
             Event::Text(text) => {

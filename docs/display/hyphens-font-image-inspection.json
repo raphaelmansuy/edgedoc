@@ -1,0 +1,9 @@
+{
+  "case": "regression-special_hyphens_render_and_survive_an_edited_save-39b66f2c09e8de9c",
+  "page": 1,
+  "visually_inspected": true,
+  "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/hyphens-font-focused/regression-special_hyphens_render_and_survive_an_edited_save-39b66f2c09e8de9c/wordcraft/page-001.png",
+  "wordcraft_sha256": "6cced5e47aea8357203c6b8d6797dda0eeaaee7041fdd574426ba63a38495f17",
+  "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/hyphens-font-focused/regression-special_hyphens_render_and_survive_an_edited_save-39b66f2c09e8de9c/edgedoc/page-001.png",
+  "edgedoc_sha256": "6cced5e47aea8357203c6b8d6797dda0eeaaee7041fdd574426ba63a38495f17"
+}

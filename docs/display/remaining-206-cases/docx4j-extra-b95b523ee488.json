@@ -1,0 +1,591 @@
+{
+  "id": "docx4j-extra-b95b523ee488",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Conditional table styles"
+    },
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Fields other than page and section counters use cached results"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Cambria"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Calibri"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 3.0517578125e-05,
+      "unmatched_ink_fraction": 0.00041889568624713103,
+      "mean_ink_color_error": 0.007787223439663649,
+      "errors": [
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 185.90777587890625,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 185.90777587890625,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 217.1688232421875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 217.1688232421875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 232.98797607421875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 232.98797607421875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 248.80712890625,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 248.80712890625,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 558.2993774414062,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 558.2993774414062,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 574.1185302734375,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 574.1185302734375,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 91.5,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 698.7767944335938,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 698.7767944335938,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 730.037841796875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 730.037841796875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "passed": false,
+      "max_glyph_origin_error_pt": 25.5,
+      "unmatched_ink_fraction": 0.3757434853347796,
+      "mean_ink_color_error": 0.06559373438358307,
+      "errors": [
+        {
+          "glyph_origin_error_pt": 25.5
+        },
+        {
+          "unmatched_ink_fraction": 0.3757434853347796,
+          "mean_ink_color_error": 0.06559373438358307
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "passed": false,
+      "max_glyph_origin_error_pt": 12.75,
+      "unmatched_ink_fraction": 0.27915504364258076,
+      "mean_ink_color_error": 0.04639096558094025,
+      "errors": [
+        {
+          "glyph_origin_error_pt": 12.75
+        },
+        {
+          "unmatched_ink_fraction": 0.27915504364258076,
+          "mean_ink_color_error": 0.04639096558094025
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "passed": false,
+      "max_glyph_origin_error_pt": 14.0,
+      "unmatched_ink_fraction": 0.4738913395361481,
+      "mean_ink_color_error": 0.1538619101047516,
+      "errors": [
+        {
+          "glyph_origin_error_pt": 14.0
+        },
+        {
+          "unmatched_ink_fraction": 0.4738913395361481,
+          "mean_ink_color_error": 0.1538619101047516
+        }
+      ]
+    },
+    {
+      "page": 5,
+      "passed": false,
+      "max_glyph_origin_error_pt": 14.0,
+      "unmatched_ink_fraction": 0.7940886853498804,
+      "mean_ink_color_error": 0.29222822189331055,
+      "errors": [
+        {
+          "glyph_origin_error_pt": 14.0
+        },
+        {
+          "unmatched_ink_fraction": 0.7940886853498804,
+          "mean_ink_color_error": 0.29222822189331055
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "passed": true,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.0,
+      "mean_ink_color_error": 0.00015938728756736964,
+      "errors": []
+    },
+    {
+      "page": 7,
+      "passed": true,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.0,
+      "mean_ink_color_error": 4.331189484219067e-05,
+      "errors": []
+    },
+    {
+      "page": 8,
+      "passed": false,
+      "max_glyph_origin_error_pt": 25.5,
+      "unmatched_ink_fraction": 0.3531385590103142,
+      "mean_ink_color_error": 0.009477195329964161,
+      "errors": [
+        {
+          "glyph_origin_error_pt": 25.5
+        },
+        {
+          "unmatched_ink_fraction": 0.3531385590103142,
+          "mean_ink_color_error": 0.009477195329964161
+        }
+      ]
+    },
+    {
+      "page": 9,
+      "passed": false,
+      "max_glyph_origin_error_pt": 14.0,
+      "unmatched_ink_fraction": 0.6160639221342009,
+      "mean_ink_color_error": 0.15984196960926056,
+      "errors": [
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 142.45220947265625,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 156.45220947265625,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 158.2713623046875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 172.2713623046875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "font_or_style_mismatch": [
+            {
+              "baseline": 174.09051513671875,
+              "bold": false,
+              "font": "Symbol",
+              "font_sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "gid": 37,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0
+            },
+            {
+              "advance": 5.478515625,
+              "baseline": 188.09051513671875,
+              "bold": false,
+              "font": "Carlito",
+              "font_path": "/Users/raphaelmansuy/Github/03-working/edgedoc/assets/fonts/subset/Carlito-Regular.ttf",
+              "gid": 302,
+              "italic": false,
+              "size": 11.0,
+              "text": "•",
+              "x": 90.0,
+              "font_sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58"
+            }
+          ]
+        },
+        {
+          "glyph_origin_error_pt": 14.0
+        },
+        {
+          "unmatched_ink_fraction": 0.6160639221342009,
+          "mean_ink_color_error": 0.15984196960926056
+        }
+      ]
+    },
+    {
+      "page": 10,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.1260105852573445,
+      "mean_ink_color_error": 0.019520297646522522,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Answers can be multiple choice.  For a condition, you will want multiple choice, with values true and ",
+              "false:",
+              "(If the user chooses \"true\", the conditional content control will be retained)",
+              "Macro Injection",
+              "A docx with questions embedded in it can be processed interactively, in various ways, for example:",
+              "•via a macro embedded in the docx",
+              "•via a web-based application "
+            ],
+            "edgedoc": [
+              "Answers can be multiple choice.  For a condition, you will want multiple choice, with values true and ",
+              "false:",
+              "(If the user chooses \"true\", the conditional content control will be retained)",
+              "Macro Injection",
+              "A docx with questions embedded in it can be processed interactively, in various ways, for example:",
+              "•via a macro embedded in the docx",
+              "•via a web-based application ",
+              "The Add-In can inject a suitable macro into the docx.  This macro is set to execute when the "
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.1260105852573445,
+          "mean_ink_color_error": 0.019520297646522522
+        }
+      ]
+    },
+    {
+      "page": 11,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.8114039270538619,
+      "mean_ink_color_error": 0.3323289155960083,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "The Add-In can inject a suitable macro into the docx.  This macro is set to execute when the ",
+              "document is opened.",
+              "To inject the macro, click the \"Inject Macro\" button on the toolbar:",
+              "This will prompt you to save your document as a docm (a macro-enabled docx).  Note that this ",
+              "operation cannot be performed if the document is already a docm.",
+              "Once complete, you can distribute the docm to end users. The macro will run on opening (provided ",
+              "the user allows), enabling the end user to create a customised document.  For further information, ",
+              "please see the macro_walkthrough document.",
+              "Questions/Comments",
+              "Questions/discussion belong at http://www.opendope.org/forum.html, or, for the Java ",
+              "implementation, the docx4j data binding sub forum.",
+              "Alternatively, you can email jason@plutext.org"
+            ],
+            "edgedoc": [
+              "document is opened.",
+              "To inject the macro, click the \"Inject Macro\" button on the toolbar:",
+              "This will prompt you to save your document as a docm (a macro-enabled docx).  Note that this ",
+              "operation cannot be performed if the document is already a docm.",
+              "Once complete, you can distribute the docm to end users. The macro will run on opening (provided ",
+              "the user allows), enabling the end user to create a customised document.  For further information, ",
+              "please see the macro_walkthrough document.",
+              "Questions/Comments",
+              "Questions/discussion belong at http://www.opendope.org/forum.html, or, for the Java ",
+              "implementation, the docx4j data binding sub forum.",
+              "Alternatively, you can email jason@plutext.org"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.8114039270538619,
+          "mean_ink_color_error": 0.3323289155960083
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "edgedoc_diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Fields other than page and section counters use cached results"
+        }
+      ]
+    },
+    {
+      "reference_used_other_font_data": [
+        {
+          "family": "Symbol",
+          "sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+          "style": "Regular"
+        },
+        {
+          "family": "Times New Roman",
+          "sha256": "50f5b1f27b7d34621090e437e8b1dd4510a22d2823fc876b3286bed327b64bbb",
+          "style": "Bold"
+        },
+        {
+          "family": "Carlito",
+          "sha256": "6f261b1fbe4ae9c53aa09194d152f80afacd9668badc30ee2c3301ad4d8f74c3",
+          "style": "Bold Italic"
+        },
+        {
+          "family": "Carlito",
+          "sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+          "style": "Regular"
+        },
+        {
+          "family": "Carlito",
+          "sha256": "db0dfa0c7a50be334673dd43182eb7da25168b2a3cae638ee3c08ca3f171f646",
+          "style": "Bold"
+        },
+        {
+          "family": "Times New Roman",
+          "sha256": "f3b4ffff71c2a0c7227d37497683b2498fb2d0a4e8beae26f022e3ccfcaabfa3",
+          "style": "Regular"
+        }
+      ]
+    }
+  ]
+}

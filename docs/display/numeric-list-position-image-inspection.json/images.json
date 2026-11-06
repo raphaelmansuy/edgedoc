@@ -1,0 +1,66 @@
+{
+  "poi-01-complexnumberedlists:1": {
+    "case": "poi-01-complexnumberedlists",
+    "page": 1,
+    "source_sha256": "297a085a7d433af2eeee7661e8db21539452cb585096484774a1e9f5f258b0b6",
+    "edgedoc_build_inputs_sha256": "2d283999f55e434b0387a5e824b00106a63e6e469708e6de5e14000fc2c97369",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 1,
+      "wordcraft": 1
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/numeric-list-position-image-inspection.json/poi-01-complexnumberedlists/wordcraft-page-001.png",
+        "svg_sha256": "3397b1a54c58405fa78299ed2d5b79d2172b3d00d0e3518c68a0c6f65c43343b",
+        "png_sha256": "59f062db399c99dfbea142f6813e0f448d69d519fbab7074b2692c6fc50f0521"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/numeric-list-position-image-inspection.json/poi-01-complexnumberedlists/edgedoc-page-001.png",
+        "svg_sha256": "586b0c9c71c970b0331d30cea80b6166d7215718a83522ec3f03d8239db294b8",
+        "png_sha256": "59f062db399c99dfbea142f6813e0f448d69d519fbab7074b2692c6fc50f0521"
+      }
+    }
+  },
+  "poi-03-numberingwoverrides:1": {
+    "case": "poi-03-numberingwoverrides",
+    "page": 1,
+    "source_sha256": "3754dee43880ce4c9e962eca41ac78c353999888282c9ada528efbb826e2bee6",
+    "edgedoc_build_inputs_sha256": "2d283999f55e434b0387a5e824b00106a63e6e469708e6de5e14000fc2c97369",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 1,
+      "wordcraft": 1
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/numeric-list-position-image-inspection.json/poi-03-numberingwoverrides/wordcraft-page-001.png",
+        "svg_sha256": "9867c42dfbcd0eee7c6b501d9598fc9032976c0f4b9151a8e8e17a4865e370d3",
+        "png_sha256": "2e917d418053a01b4a38cb2cb300366c7bcca7bf636daf43b2f6683e544de767"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/docs/display/numeric-list-position-image-inspection.json/poi-03-numberingwoverrides/edgedoc-page-001.png",
+        "svg_sha256": "9c7bc3d6e039dc7be8790ae9f610593da13ff74e320347e644ad70451675426f",
+        "png_sha256": "2e917d418053a01b4a38cb2cb300366c7bcca7bf636daf43b2f6683e544de767"
+      }
+    }
+  }
+}

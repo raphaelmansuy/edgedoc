@@ -1,0 +1,2651 @@
+{
+  "schema": 1,
+  "manifest_sha256": "ad417d1b5035e5db425865aec87ab88e715581ae402c93e38499abf033f9d68e",
+  "documents": [
+    {
+      "id": "poi-01-complexnumberedlists",
+      "sha256": "297a085a7d433af2eeee7661e8db21539452cb585096484774a1e9f5f258b0b6",
+      "bytes": 14458,
+      "text_characters": 226,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "numbering",
+        "multilevel"
+      ],
+      "structure": {
+        "p": 17,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 14,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-02-numbering",
+      "sha256": "776a59dcf0e290f1988602e6305e2d9cb2e31f631dc4aa751593c23cddbaad4d",
+      "bytes": 13808,
+      "text_characters": 95,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Courier New",
+        "Symbol",
+        "Wingdings"
+      ],
+      "features": [
+        "numbering"
+      ],
+      "structure": {
+        "p": 22,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 16,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-03-numberingwoverrides",
+      "sha256": "3754dee43880ce4c9e962eca41ac78c353999888282c9ada528efbb826e2bee6",
+      "bytes": 15190,
+      "text_characters": 32,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Symbol",
+        "Times New Roman"
+      ],
+      "features": [
+        "numbering",
+        "start-overrides"
+      ],
+      "structure": {
+        "p": 10,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 6,
+        "tab": 333,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-04-numberingwithoutoforderid",
+      "sha256": "fa2843a6297bb3e874f9c6dc8aac944704fba4d0d631b94627be7dbeaf12ed0f",
+      "bytes": 12978,
+      "text_characters": 7,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Courier New",
+        "Symbol",
+        "Wingdings"
+      ],
+      "features": [
+        "numbering",
+        "relationships"
+      ],
+      "structure": {
+        "p": 1,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 1,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-05-difffirstpageheadfoot",
+      "sha256": "e94332c7b86b1bbce960f93fec90078486ab8abc3913a024a24be391a0b42151",
+      "bytes": 14204,
+      "text_characters": 413,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "first-page"
+      ],
+      "structure": {
+        "p": 18,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-06-fancyfoot",
+      "sha256": "1cfd2b4fb1f7233062671b0f58789e1b0b437fbf79deb7d62167cffb85191f7a",
+      "bytes": 12876,
+      "text_characters": 268,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "footers"
+      ],
+      "structure": {
+        "p": 16,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 1,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-07-fieldcodes",
+      "sha256": "9247f85ab90b15f11d0cf14d0070fdcb5cdf47c65d6bc77cc32cb7ee682aad24",
+      "bytes": 17034,
+      "text_characters": 18,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "fields"
+      ],
+      "structure": {
+        "p": 4,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 2,
+        "numPr": 4,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-08-fldsimple",
+      "sha256": "6cf7364676d465e702cbbac44ca92331c525476e36a29c26f780cb9d7643b631",
+      "bytes": 12837,
+      "text_characters": 14,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "fields"
+      ],
+      "structure": {
+        "p": 1,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 1,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-09-headerfooterunicode",
+      "sha256": "ec439ac0643294e1e2961b381983304e044444f3a8f0dc465a98adf9ebee0e67",
+      "bytes": 15079,
+      "text_characters": 487,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "unicode"
+      ],
+      "structure": {
+        "p": 23,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-10-headers",
+      "sha256": "bdf91038f9a5454355e6393b7b74fd819a4adc480b4a7011a86e878403952b5b",
+      "bytes": 13076,
+      "text_characters": 27,
+      "authored_page_hint": "3",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers"
+      ],
+      "structure": {
+        "p": 15,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 3,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-11-illustrativecases",
+      "sha256": "4c2407d338f02a6ae107eac0b3e925ffb3d37921942ebe88db8660dea0891a00",
+      "bytes": 22858,
+      "text_characters": 5650,
+      "authored_page_hint": "4",
+      "fonts_requested": [
+        "Albertus Medium",
+        "Perpetua",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "mixed-formatting"
+      ],
+      "structure": {
+        "p": 393,
+        "tbl": 8,
+        "tr": 16,
+        "tc": 48,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 10,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-12-pagespecificheadfoot",
+      "sha256": "90bb8251b18c9f94e0b8fb91192413922a09dbe418a4a210116221054378eaad",
+      "bytes": 22994,
+      "text_characters": 441,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "sections"
+      ],
+      "structure": {
+        "p": 31,
+        "tbl": 3,
+        "tr": 4,
+        "tc": 10,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 1,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 2,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-13-sampledoc",
+      "sha256": "ea2c517bd7be4628887eb97f630334b93b894f4522d2c0adae263e602d76df92",
+      "bytes": 11611,
+      "text_characters": 130,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Arial Black"
+      ],
+      "features": [
+        "paragraphs"
+      ],
+      "structure": {
+        "p": 7,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-14-simpleheadthreecolfoot",
+      "sha256": "c682ea30e50785784969ee00b4d6ed8da31e725a64e0251a4f21077f02f19d8e",
+      "bytes": 13112,
+      "text_characters": 284,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "footers",
+        "tables"
+      ],
+      "structure": {
+        "p": 17,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-15-styles",
+      "sha256": "63f3fe4c3b4fbdc211eca8fa7fd31a799ff4438afbf4ca6e771b3aef107c732e",
+      "bytes": 10905,
+      "text_characters": 32,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "styles"
+      ],
+      "structure": {
+        "p": 6,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-16-testtablecellalign",
+      "sha256": "2968d4a5d5de21dce1cbeae3235e545cdf4bfd7ae508fe0eed3a9b032773ce17",
+      "bytes": 11712,
+      "text_characters": 15,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "tables",
+        "cell-alignment"
+      ],
+      "structure": {
+        "p": 5,
+        "tbl": 1,
+        "tr": 2,
+        "tc": 4,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-17-testtablecolumns",
+      "sha256": "3b1965a295c4a5c24573a6d5f2ded93f7de3e7a46ffe26b881456f1c4ddd6335",
+      "bytes": 12672,
+      "text_characters": 0,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Arial",
+        "Calibri",
+        "DejaVu Sans"
+      ],
+      "features": [
+        "tables",
+        "column-widths"
+      ],
+      "structure": {
+        "p": 18,
+        "tbl": 2,
+        "tr": 4,
+        "tc": 15,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 1,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-18-threecolfoot",
+      "sha256": "584ef284e9b106fd7f1d283e918bdb6b579f5c73162d075acba921c10c63930b",
+      "bytes": 13061,
+      "text_characters": 241,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "footers",
+        "tables"
+      ],
+      "structure": {
+        "p": 16,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-19-threecolhead",
+      "sha256": "304656fd791bd829f5cabebf8e7ec058260b669e9f572e500f69ff176387e090",
+      "bytes": 12508,
+      "text_characters": 247,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "tables"
+      ],
+      "structure": {
+        "p": 15,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-20-threecolheadfoot",
+      "sha256": "c2d16e89c23a8c1f7366f3b65ab33c6e14fcf00f916dfecfd8af1a3e7797f73d",
+      "bytes": 13123,
+      "text_characters": 306,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Calibri",
+        "Cambria",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "footers",
+        "tables"
+      ],
+      "structure": {
+        "p": 16,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-21-withtabs",
+      "sha256": "c6460c33b3343b0656189d5cba344fadafea821f8982ea01619c5324fa87a266",
+      "bytes": 14190,
+      "text_characters": 2,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "tabs",
+        "leaders"
+      ],
+      "structure": {
+        "p": 1,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 1,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-22-deep-table-cell",
+      "sha256": "31c5bfe1f68c98699cb356891de2e02fe223f633706d666c430ca79fd2cdf6bb",
+      "bytes": 17198,
+      "text_characters": 83890,
+      "authored_page_hint": null,
+      "fonts_requested": [],
+      "features": [
+        "tables",
+        "nesting"
+      ],
+      "structure": {
+        "p": 5000,
+        "tbl": 5000,
+        "tr": 5000,
+        "tc": 5000,
+        "sectPr": 0,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-23-footnotes",
+      "sha256": "9070094b27ff5201477f4de4b2c027730c66cb889106a1609c5adeed207a59c1",
+      "bytes": 12823,
+      "text_characters": 40,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "footnotes"
+      ],
+      "structure": {
+        "p": 6,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 5,
+        "endnote": 4,
+        "footnoteReference": 1,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-24-form_footnotes",
+      "sha256": "a890294bfbdc63f6d03eab61efc1e98cb51d59f0920541150dd7082f9bdf31f1",
+      "bytes": 27824,
+      "text_characters": 5738,
+      "authored_page_hint": "3",
+      "fonts_requested": [
+        "Arial",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "footnotes",
+        "forms"
+      ],
+      "structure": {
+        "p": 221,
+        "tbl": 6,
+        "tr": 30,
+        "tc": 77,
+        "sectPr": 1,
+        "footnote": 5,
+        "endnote": 4,
+        "footnoteReference": 1,
+        "endnoteReference": 0,
+        "drawing": 1,
+        "pict": 4,
+        "fldSimple": 0,
+        "instrText": 69,
+        "numPr": 10,
+        "tab": 127,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-25-endnotes",
+      "sha256": "6e2e1b2dabb0ae6b9b26ddd613dca446ba0710ecc8b4008722abc4ed592934e3",
+      "bytes": 13553,
+      "text_characters": 962,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "endnotes"
+      ],
+      "structure": {
+        "p": 17,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 5,
+        "footnoteReference": 0,
+        "endnoteReference": 1,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-26-headerfooter",
+      "sha256": "0ad90c6ee8ec8b9fab1ae8219387eca8d934b739580918d76a1b6c911bc41913",
+      "bytes": 28423,
+      "text_characters": 54,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "headers",
+        "footers"
+      ],
+      "structure": {
+        "p": 7,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-27-headerpic",
+      "sha256": "50d9b17f7575c8a91129fd8a3e6a70feec886480ab9f089e29a7f8ac7e5ed51a",
+      "bytes": 16206,
+      "text_characters": 0,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Baltica",
+        "FuturisXCTT",
+        "PragmaticaCTT",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "images"
+      ],
+      "structure": {
+        "p": 7,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 1,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-28-heading123",
+      "sha256": "dac67500b907811030ab2bdd5b1c65cda97a15651d6ec0d33592ef70d34a5550",
+      "bytes": 74810,
+      "text_characters": 1797,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Times",
+        "Times New Roman"
+      ],
+      "features": [
+        "styles",
+        "headings"
+      ],
+      "structure": {
+        "p": 6,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-29-sample",
+      "sha256": "be4fc1bf778ad8183f714e09b9df40669de34e9ecbc3adecfc8953f00749036f",
+      "bytes": 14860,
+      "text_characters": 1542,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Calibri",
+        "Times New Roman"
+      ],
+      "features": [
+        "paragraphs",
+        "formatting"
+      ],
+      "structure": {
+        "p": 13,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 4,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-30-table-alignment",
+      "sha256": "ee36729e0d050e529fea0b444006a194bea72b35cf8958ae58c6624c26156b41",
+      "bytes": 15519,
+      "text_characters": 342,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Courier New",
+        "Symbol",
+        "Wingdings"
+      ],
+      "features": [
+        "tables",
+        "alignment"
+      ],
+      "structure": {
+        "p": 60,
+        "tbl": 6,
+        "tr": 18,
+        "tc": 54,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 1,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-31-table-indent",
+      "sha256": "aaa3fd6a1c0d6ac222ccacad213257b9061be7d706396a36b3ffedacb3a56c9b",
+      "bytes": 7639,
+      "text_characters": 224,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Liberation Sans",
+        "Liberation Serif",
+        "Noto Sans CJK SC",
+        "Noto Sans Devanagari",
+        "Noto Serif CJK SC"
+      ],
+      "features": [
+        "tables",
+        "indentation"
+      ],
+      "structure": {
+        "p": 91,
+        "tbl": 7,
+        "tr": 21,
+        "tc": 84,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-32-table_footnotes",
+      "sha256": "69666500a7dd00600da64cc7676f8939c84df8804967ec2fc75567fad41f21a9",
+      "bytes": 13177,
+      "text_characters": 24,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "tables",
+        "footnotes"
+      ],
+      "structure": {
+        "p": 12,
+        "tbl": 1,
+        "tr": 3,
+        "tc": 6,
+        "sectPr": 1,
+        "footnote": 5,
+        "endnote": 4,
+        "footnoteReference": 1,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-33-rtl",
+      "sha256": "d159b6ac6734f14a9ecf8e97ca5029bdcddbfae2d33ba0128aa774924e0b190d",
+      "bytes": 6838,
+      "text_characters": 755,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Liberation Sans",
+        "Liberation Serif",
+        "Noto Sans Arabic UI",
+        "Noto Sans CJK SC",
+        "Noto Serif CJK SC"
+      ],
+      "features": [
+        "bidi",
+        "arabic"
+      ],
+      "structure": {
+        "p": 4,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-34-bug-paragraph-alignment",
+      "sha256": "0a7a19175b8fb5fdce4755a51489a29109b358447dc99a2125642964be48e6ad",
+      "bytes": 11916,
+      "text_characters": 179,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Liberation Sans",
+        "Liberation Serif",
+        "Noto Sans CJK SC",
+        "Noto Sans Devanagari",
+        "Noto Serif CJK SC"
+      ],
+      "features": [
+        "paragraph-alignment"
+      ],
+      "structure": {
+        "p": 2,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-35-bug56075-changetracking_on",
+      "sha256": "9c837e12aaf3deac10ac20ac1bc08dc6bebdec14b553698063742b9bc12f8920",
+      "bytes": 12606,
+      "text_characters": 18,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "revisions"
+      ],
+      "structure": {
+        "p": 1,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-36-comment",
+      "sha256": "23bbfe33e1acf7073253bd87552cbee5be0a07cbd08a479a4bf139f09b1dd6dc",
+      "bytes": 4926,
+      "text_characters": 45,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "DejaVu Sans",
+        "FreeSans",
+        "Liberation Sans",
+        "Liberation Serif"
+      ],
+      "features": [
+        "comments"
+      ],
+      "structure": {
+        "p": 4,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-37-bookmarks",
+      "sha256": "9b93eef9e2ce1ad0e28dc65beab73a896d5d1631a0b7fc73ec6ac279cf36b218",
+      "bytes": 10405,
+      "text_characters": 78,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Times",
+        "Times New Roman"
+      ],
+      "features": [
+        "bookmarks"
+      ],
+      "structure": {
+        "p": 6,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-38-saut_page",
+      "sha256": "748f34f3dc285f4d48474930758b2c37382d17965545a1729cb7400cada793da",
+      "bytes": 2959626,
+      "text_characters": 26,
+      "authored_page_hint": "3",
+      "fonts_requested": [
+        "",
+        "Aptos",
+        "Arial",
+        "Arial Unicode MS",
+        "Liberation Sans",
+        "Noto Sans CJK SC"
+      ],
+      "features": [
+        "page-breaks",
+        "long-document"
+      ],
+      "structure": {
+        "p": 6,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 3,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-39-variouspictures",
+      "sha256": "c1eecbca7de9f99e21c677e1d5b045eaa1d5a442eff4c82f0cbe9af93726a070",
+      "bytes": 103677,
+      "text_characters": 59,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "images"
+      ],
+      "structure": {
+        "p": 7,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 5,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "poi-40-shapes-with-text",
+      "sha256": "1ef4d8cbfd5e2333897ab3193b58ce445cee7e45476d39e5626a4c7097f72d95",
+      "bytes": 27520,
+      "text_characters": 230,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Aptos"
+      ],
+      "features": [
+        "drawings",
+        "text-boxes"
+      ],
+      "structure": {
+        "p": 11,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 7,
+        "pict": 7,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 1,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-01-docx4j_gettingstarted",
+      "sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97",
+      "bytes": 443680,
+      "text_characters": 70305,
+      "authored_page_hint": "45",
+      "fonts_requested": [
+        "Arial",
+        "Calibri",
+        "Consolas",
+        "Courier New",
+        "Lucida Console",
+        "Malgun Gothic",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman",
+        "Trebuchet MS",
+        "Verdana",
+        "Wingdings"
+      ],
+      "features": [
+        "long-document",
+        "headings",
+        "lists",
+        "tables",
+        "images",
+        "links"
+      ],
+      "structure": {
+        "p": 1285,
+        "tbl": 9,
+        "tr": 54,
+        "tc": 138,
+        "sectPr": 3,
+        "footnote": 8,
+        "endnote": 4,
+        "footnoteReference": 4,
+        "endnoteReference": 0,
+        "drawing": 2,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 76,
+        "numPr": 145,
+        "tab": 601,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-02-headers_footers",
+      "sha256": "621014619dbaebb287543f123d448059e6a1675a288c20a9ce82af12cbe9a607",
+      "bytes": 406287,
+      "text_characters": 41506,
+      "authored_page_hint": "31",
+      "fonts_requested": [
+        "Arial",
+        "Consolas",
+        "Courier New",
+        "Lucida Console",
+        "Segoe UI",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman",
+        "Verdana",
+        "Wingdings"
+      ],
+      "features": [
+        "long-document",
+        "headers",
+        "footers",
+        "sections"
+      ],
+      "structure": {
+        "p": 665,
+        "tbl": 14,
+        "tr": 94,
+        "tc": 174,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 8,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 89,
+        "numPr": 82,
+        "tab": 150,
+        "vMerge": 0,
+        "framePr": 2
+      }
+    },
+    {
+      "id": "docx4j-03-bookmark_crossrefs",
+      "sha256": "e42406910e1a87959c5782bec05405973a8793ac616f00d8ed25bae39828d2f5",
+      "bytes": 15903,
+      "text_characters": 411,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "bookmarks",
+        "fields"
+      ],
+      "structure": {
+        "p": 14,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 1,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-04-docx4j_russian",
+      "sha256": "c00b5434abdcc37487cb35f9525ffed974e3dc81670a060a72edc9a397cbc135",
+      "bytes": 750576,
+      "text_characters": 16913,
+      "authored_page_hint": "13",
+      "fonts_requested": [
+        "Arial",
+        "Consolas",
+        "Courier New",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman",
+        "Verdana",
+        "Wingdings"
+      ],
+      "features": [
+        "long-document",
+        "cyrillic",
+        "images"
+      ],
+      "structure": {
+        "p": 196,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 3,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 12,
+        "tab": 12,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-05-compatsetting",
+      "sha256": "1a3a601569043457589da0f617a302f0520fcab201865589954e2402d01f0a5f",
+      "bytes": 133635,
+      "text_characters": 637,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "long-document",
+        "compatibility",
+        "tables"
+      ],
+      "structure": {
+        "p": 34,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 5,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-06-rfonts",
+      "sha256": "d3a9fd32e4766ef88bb0276baffa6a4c4bab97a115a06e9c631550bc9a114203",
+      "bytes": 96416,
+      "text_characters": 42606,
+      "authored_page_hint": "20",
+      "fonts_requested": [
+        "Arial",
+        "Batang",
+        "Cambria Math",
+        "Consolas",
+        "Courier New",
+        "Lucida Console",
+        "MS Mincho",
+        "Segoe UI",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman",
+        "Verdana",
+        "Wingdings",
+        "inherit"
+      ],
+      "features": [
+        "font-resolution",
+        "styles"
+      ],
+      "structure": {
+        "p": 513,
+        "tbl": 3,
+        "tr": 73,
+        "tc": 205,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 1,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 40,
+        "numPr": 80,
+        "tab": 90,
+        "vMerge": 0,
+        "framePr": 2
+      }
+    },
+    {
+      "id": "docx4j-07-locale-styles",
+      "sha256": "de8d73569771b4ff0c872629462ce839a8925f4af82290f760da783c460c472f",
+      "bytes": 31610,
+      "text_characters": 2435,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Consolas"
+      ],
+      "features": [
+        "styles",
+        "localization"
+      ],
+      "structure": {
+        "p": 84,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-08-eastern-arabic-numbering",
+      "sha256": "eef8571d73be3f628429dfd1e8c6e971c4a63631d2a2d5b7e9a7e6d099870d82",
+      "bytes": 37012,
+      "text_characters": 1905,
+      "authored_page_hint": "3",
+      "fonts_requested": [
+        "Consolas",
+        "Trebuchet MS"
+      ],
+      "features": [
+        "numbering",
+        "arabic"
+      ],
+      "structure": {
+        "p": 105,
+        "tbl": 2,
+        "tr": 10,
+        "tc": 70,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 2,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-09-invoice",
+      "sha256": "37d38fc35e7df3a73688587369b01a8c5005df3e64cdf69b6e40503715d328c2",
+      "bytes": 22964,
+      "text_characters": 441,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "invoice",
+        "tables",
+        "content-controls"
+      ],
+      "structure": {
+        "p": 15,
+        "tbl": 1,
+        "tr": 2,
+        "tc": 4,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-10-different_first_page",
+      "sha256": "6a98e04e00c63381c066d821c03652d9e72d00332956bf32f3cf73d4d08e212b",
+      "bytes": 19659,
+      "text_characters": 43,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "first-page"
+      ],
+      "structure": {
+        "p": 14,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-11-odd_even",
+      "sha256": "ae1f4ec515269e8a738fa8bb7940dbbafc062e106eb3e1f65975813cf2b937e6",
+      "bytes": 18548,
+      "text_characters": 88,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "odd-even"
+      ],
+      "structure": {
+        "p": 20,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-12-odd_even_different_first_page",
+      "sha256": "a79ad8e70c80f6ae790d35fcb0f502dd24909b50aa8b9aacdc6390b2693e6c46",
+      "bytes": 19029,
+      "text_characters": 124,
+      "authored_page_hint": "3",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "first-page",
+        "odd-even"
+      ],
+      "structure": {
+        "p": 24,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-13-same_as_previous_numbering",
+      "sha256": "1e349e20294885bfc8b460649f7ab97e160bc7f35ce2512b5fb7d0dc6da9a6f8",
+      "bytes": 36390,
+      "text_characters": 2078,
+      "authored_page_hint": "4",
+      "fonts_requested": [
+        "Arial",
+        "Consolas",
+        "Courier New",
+        "Symbol",
+        "Times New Roman",
+        "Wingdings"
+      ],
+      "features": [
+        "headers",
+        "section-numbering"
+      ],
+      "structure": {
+        "p": 141,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 2,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 14,
+        "numPr": 0,
+        "tab": 9,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-14-sections_multiple",
+      "sha256": "e013190a084877201988dcdc3eac953e24fc97cb1efed1a0bef7891cac21034e",
+      "bytes": 20525,
+      "text_characters": 125,
+      "authored_page_hint": "4",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "sections"
+      ],
+      "structure": {
+        "p": 32,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 2,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-15-simple_hf_long",
+      "sha256": "73e9253544f5e04b1dc785599a8a1b36f58f116a3e7904b6dc6d286124da9f94",
+      "bytes": 20383,
+      "text_characters": 74,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "footers",
+        "long-document"
+      ],
+      "structure": {
+        "p": 23,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-16-simple_hf_margin",
+      "sha256": "c693e100265f201235ea821f6172bef460cadc14f1cb244528b18e25d4abc069",
+      "bytes": 17807,
+      "text_characters": 81,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "margins"
+      ],
+      "structure": {
+        "p": 7,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-17-simple_hf_negative",
+      "sha256": "aad6d28f67a7a4073b6bda666fdcd2cd836c679d6cb53e3a47891b2771ab4b3a",
+      "bytes": 17685,
+      "text_characters": 61,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "headers",
+        "negative-distance"
+      ],
+      "structure": {
+        "p": 7,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 8,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-18-indentation_firstline",
+      "sha256": "513c4f729e36131664c8287fa5dfd07a7347564a297909486b5c84e19ec28f46",
+      "bytes": 19471,
+      "text_characters": 648,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "indents",
+        "paragraphs"
+      ],
+      "structure": {
+        "p": 8,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 2,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-19-indentation_hanging",
+      "sha256": "9a051c88eab5f6b985f2d07ab5c856396f766f7ae3a31f28e35089a7e165b249",
+      "bytes": 18206,
+      "text_characters": 640,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "indents",
+        "paragraphs"
+      ],
+      "structure": {
+        "p": 8,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 2,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-20-numbering_indentation",
+      "sha256": "22ccfcaf4d6db90b10b6276ac2b9e0a30d4e4239b6f54638df87dadacdbf3c0a",
+      "bytes": 18923,
+      "text_characters": 584,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "numbering",
+        "indents"
+      ],
+      "structure": {
+        "p": 12,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 4,
+        "tab": 6,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-21-numbering_indentation_firstline",
+      "sha256": "7a2307943052016271a1397853156123fa82c7ed2410dbfcfa984dcdd0c6f697",
+      "bytes": 20259,
+      "text_characters": 761,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "numbering",
+        "indents"
+      ],
+      "structure": {
+        "p": 13,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 5,
+        "tab": 5,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-22-numberingimplicitnumid",
+      "sha256": "bacc7e588563ef49f0f5ba6c602901e64d9dae6ff0bf043d9ab4acbe94b59891",
+      "bytes": 26135,
+      "text_characters": 874,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Courier New",
+        "EngravrsRoman BT",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman",
+        "Wingdings"
+      ],
+      "features": [
+        "numbering",
+        "styles"
+      ],
+      "structure": {
+        "p": 19,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 36,
+        "tab": 82,
+        "vMerge": 0,
+        "framePr": 4
+      }
+    },
+    {
+      "id": "docx4j-23-startoverride",
+      "sha256": "c667a4b291adbfe1868d38b0a43c9d127a7fd4aea020afa89a4835af595942b0",
+      "bytes": 14376,
+      "text_characters": 327,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Courier New",
+        "Symbol",
+        "Times New Roman",
+        "Wingdings"
+      ],
+      "features": [
+        "numbering",
+        "start-overrides"
+      ],
+      "structure": {
+        "p": 13,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 30,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-24-article-section-islgl",
+      "sha256": "7bdf5d99badb2aaa29179ce2d4e4ab8fd015f0e4f2ac5c3df6151142df803dc7",
+      "bytes": 14383,
+      "text_characters": 395,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Courier New",
+        "Symbol",
+        "Times New Roman",
+        "Wingdings"
+      ],
+      "features": [
+        "numbering",
+        "legal"
+      ],
+      "structure": {
+        "p": 8,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 18,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-25-arabic_align",
+      "sha256": "198f98953c82f1be499c98dd39e1ad0b27cb8c9ec64bafdcda65d4198201e516",
+      "bytes": 31832,
+      "text_characters": 982,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Arial",
+        "Calibri",
+        "Courier New",
+        "MS Mincho",
+        "Symbol",
+        "Tahoma",
+        "Times New Roman",
+        "Wingdings"
+      ],
+      "features": [
+        "arabic",
+        "bidi",
+        "alignment"
+      ],
+      "structure": {
+        "p": 24,
+        "tbl": 1,
+        "tr": 1,
+        "tc": 2,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 5,
+        "tab": 19,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-26-arabic_numbering",
+      "sha256": "15d77d6eec68ee3f6e40ba37cfee73ea517d775a1a83b3bed2dfeb236847d65d",
+      "bytes": 16976,
+      "text_characters": 331,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Times New Roman"
+      ],
+      "features": [
+        "arabic",
+        "bidi",
+        "numbering"
+      ],
+      "structure": {
+        "p": 16,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-27-textbox",
+      "sha256": "11e16acb10335f770bf0beb3596837c1df8cbbaa5ed5855bdf4132202f664569",
+      "bytes": 58948,
+      "text_characters": 23,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Calibri",
+        "Tahoma"
+      ],
+      "features": [
+        "text-boxes",
+        "vml"
+      ],
+      "structure": {
+        "p": 3,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 0,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 1,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-28-tblheadertestone",
+      "sha256": "fc5a4d709ae885e68b4a64072825d94237b3c3246e868ecff4cddd6d2e144ea2",
+      "bytes": 19981,
+      "text_characters": 385,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Consolas"
+      ],
+      "features": [
+        "tables",
+        "repeated-headers"
+      ],
+      "structure": {
+        "p": 13,
+        "tbl": 1,
+        "tr": 1,
+        "tc": 1,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-29-tblheadertesttwo",
+      "sha256": "768171fc2d7dfbb1aaacdf0c2203f2d8137052511727ddb36a757349f283ce20",
+      "bytes": 21421,
+      "text_characters": 562,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Consolas"
+      ],
+      "features": [
+        "tables",
+        "repeated-headers"
+      ],
+      "structure": {
+        "p": 18,
+        "tbl": 1,
+        "tr": 3,
+        "tc": 3,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-30-tables",
+      "sha256": "50ea2fd62761aedc66e307c30ca1191a4e6baf8fa9d8d849ba1d9c20eb5921f4",
+      "bytes": 433587,
+      "text_characters": 937,
+      "authored_page_hint": "3",
+      "fonts_requested": [
+        "Arial Narrow",
+        "Tahoma"
+      ],
+      "features": [
+        "tables",
+        "merges",
+        "nesting",
+        "long-document"
+      ],
+      "structure": {
+        "p": 200,
+        "tbl": 13,
+        "tr": 50,
+        "tc": 168,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 1,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 1,
+        "tab": 2,
+        "vMerge": 14,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-31-sample-docx",
+      "sha256": "f527fe32f4bf9e152d86a8e7f1971033e7404929c624e3bdc26853c6a0cfa25e",
+      "bytes": 142893,
+      "text_characters": 1167,
+      "authored_page_hint": "5",
+      "fonts_requested": [
+        "Arial Black",
+        "Courier New",
+        "Symbol",
+        "Tahoma",
+        "Wingdings"
+      ],
+      "features": [
+        "mixed-formatting",
+        "images",
+        "tables"
+      ],
+      "structure": {
+        "p": 80,
+        "tbl": 1,
+        "tr": 4,
+        "tc": 11,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 3,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 5,
+        "tab": 8,
+        "vMerge": 2,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-32-toc",
+      "sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49",
+      "bytes": 34793,
+      "text_characters": 9574,
+      "authored_page_hint": "4",
+      "fonts_requested": [
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "fields",
+        "toc"
+      ],
+      "structure": {
+        "p": 70,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 14,
+        "numPr": 0,
+        "tab": 26,
+        "vMerge": 0,
+        "framePr": 2
+      }
+    },
+    {
+      "id": "docx4j-33-hyperlinks-internal",
+      "sha256": "e06670ede7135c32ef404ae63ee072bdf466476608002def811f6d2c0b66181e",
+      "bytes": 13972,
+      "text_characters": 125,
+      "authored_page_hint": "2",
+      "fonts_requested": [
+        "Tahoma"
+      ],
+      "features": [
+        "hyperlinks",
+        "bookmarks"
+      ],
+      "structure": {
+        "p": 18,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 1,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-34-2010-mcalternatecontent-in-header",
+      "sha256": "8153ad9348f89f0adc28d3613cd1f3fd404625663a847e8d707f34235e1c643e",
+      "bytes": 22550,
+      "text_characters": 56,
+      "authored_page_hint": "1",
+      "fonts_requested": [
+        "Arial",
+        "Tahoma",
+        "Times New Roman"
+      ],
+      "features": [
+        "headers",
+        "alternate-content"
+      ],
+      "structure": {
+        "p": 8,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 4,
+        "endnote": 4,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 1,
+        "pict": 1,
+        "fldSimple": 2,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 10,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    },
+    {
+      "id": "docx4j-35-inheritance",
+      "sha256": "c05804faa4bb343894e85902173eee5546188ff6cd6f49a239d8bd8b29d22a97",
+      "bytes": 10201,
+      "text_characters": 85,
+      "authored_page_hint": "1",
+      "fonts_requested": [],
+      "features": [
+        "styles",
+        "inheritance"
+      ],
+      "structure": {
+        "p": 4,
+        "tbl": 0,
+        "tr": 0,
+        "tc": 0,
+        "sectPr": 1,
+        "footnote": 0,
+        "endnote": 0,
+        "footnoteReference": 0,
+        "endnoteReference": 0,
+        "drawing": 0,
+        "pict": 0,
+        "fldSimple": 0,
+        "instrText": 0,
+        "numPr": 0,
+        "tab": 0,
+        "vMerge": 0,
+        "framePr": 0
+      }
+    }
+  ],
+  "total_documents": 75,
+  "total_text_characters": 303227,
+  "feature_tags": {
+    "numbering": 11,
+    "multilevel": 1,
+    "start-overrides": 2,
+    "relationships": 1,
+    "headers": 19,
+    "first-page": 3,
+    "footers": 7,
+    "fields": 4,
+    "unicode": 1,
+    "mixed-formatting": 2,
+    "sections": 3,
+    "paragraphs": 4,
+    "tables": 17,
+    "styles": 6,
+    "cell-alignment": 1,
+    "column-widths": 1,
+    "tabs": 1,
+    "leaders": 1,
+    "nesting": 2,
+    "footnotes": 3,
+    "forms": 1,
+    "endnotes": 1,
+    "images": 5,
+    "headings": 2,
+    "formatting": 1,
+    "alignment": 2,
+    "indentation": 1,
+    "bidi": 3,
+    "arabic": 4,
+    "paragraph-alignment": 1,
+    "revisions": 1,
+    "comments": 1,
+    "bookmarks": 3,
+    "page-breaks": 1,
+    "long-document": 7,
+    "drawings": 1,
+    "text-boxes": 2,
+    "lists": 1,
+    "links": 1,
+    "cyrillic": 1,
+    "compatibility": 1,
+    "font-resolution": 1,
+    "localization": 1,
+    "invoice": 1,
+    "content-controls": 1,
+    "odd-even": 2,
+    "section-numbering": 1,
+    "margins": 1,
+    "negative-distance": 1,
+    "indents": 4,
+    "legal": 1,
+    "vml": 1,
+    "repeated-headers": 2,
+    "merges": 1,
+    "toc": 1,
+    "hyperlinks": 1,
+    "alternate-content": 1,
+    "inheritance": 1
+  },
+  "scope": "Structural inventory of the downloaded, unmodified sources. Stored page hints are not rendering oracles."
+}

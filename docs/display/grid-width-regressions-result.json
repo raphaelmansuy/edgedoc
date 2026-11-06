@@ -1,0 +1,699 @@
+{
+  "schema": 1,
+  "passed": false,
+  "comparison_tool_sha256": "67d4c9b5a8bf953f3ad9c3d57fcf2a8d2a5af581ff52566c44266c4e779b61b2",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "edgedoc_build_inputs_sha256": "1280d85059090818458c44ec261504211af0be277569396934320664348f8e99",
+  "scope": "378 fixture cases retaining every prior input; not exhaustive Wordcraft parity",
+  "reference_reused_cases": [
+    "a_multi_page_table_keeps_each_row_once_and_repeats_its_header-392f8516a232609c",
+    "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-34a503e15750bf2a",
+    "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-fa3203eb4cb612ed",
+    "poi-31-table-indent",
+    "regression-a_table_without_rows_does_not_create_endless_pages-83a1d7802f33716c",
+    "regression-cell_content_control_renders_as_a_table_cell-3bab4942affe1a76",
+    "regression-paragraph_spacing_precedes_a_table_with_a_wide_preferred_grid-e36aa970eb07363e",
+    "regression-conditional_table_styles_apply_first_row_and_corner_precedence-6d21b772091f67e9",
+    "regression-conditional_table_bands_edges_and_direct_cell_properties_cascade-e8ab74df45181e01",
+    "regression-conditional_table_last_edges_and_column_bands_follow_look_switches-f15e3d48e3f25e53",
+    "regression-whole_table_region_overrides_base_shading_and_borders-bd834ad83ca7200e",
+    "regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1",
+    "regression-table_row_height_includes_cell_insets_and_border_bands-43dbb91a81bec4fa",
+    "regression-whole_table_region_overrides_base_shading_and_borders-223a4a7c08717a19",
+    "regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf",
+    "table-numbering-continuity",
+    "table-numbering-repeated-header"
+  ],
+  "thresholds": {
+    "position_pt": 0.5,
+    "font_size_pt": 0.05,
+    "unmatched_ink_fraction": 0.01,
+    "mean_ink_color_error": 0.05,
+    "dpi": 144,
+    "pixel_neighborhood": 1
+  },
+  "cases": [
+    {
+      "id": "a_multi_page_table_keeps_each_row_once_and_repeats_its_header-392f8516a232609c",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 4,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-34a503e15750bf2a",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-fa3203eb4cb612ed",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "poi-31-table-indent",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Liberation Serif"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.25,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.048514217138290405,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-a_table_without_rows_does_not_create_endless_pages-83a1d7802f33716c",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-cell_content_control_renders_as_a_table_cell-3bab4942affe1a76",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 7.62939453125e-06,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-paragraph_spacing_precedes_a_table_with_a_wide_preferred_grid-e36aa970eb07363e",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-conditional_table_styles_apply_first_row_and_corner_precedence-6d21b772091f67e9",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-conditional_table_bands_edges_and_direct_cell_properties_cascade-e8ab74df45181e01",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.00868279580026865,
+          "errors": []
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-conditional_table_last_edges_and_column_bands_follow_look_switches-f15e3d48e3f25e53",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 9.184721420751885e-05,
+          "errors": []
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-whole_table_region_overrides_base_shading_and_borders-bd834ad83ca7200e",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-table_row_height_includes_cell_insets_and_border_bands-43dbb91a81bec4fa",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.04502883553504944,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "regression-whole_table_region_overrides_base_shading_and_borders-223a4a7c08717a19",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "table-numbering-continuity",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": "table-numbering-repeated-header",
+      "status": "passed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        },
+        {
+          "page": 4,
+          "passed": true,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

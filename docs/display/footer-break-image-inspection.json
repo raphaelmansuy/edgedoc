@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "inspected_at": "2026-11-05T08:58:32.797751+00:00",
+  "method": "Inspected both engines at 144 dpi without alignment or cropping.",
+  "records": [
+    {
+      "case": "docx4j-32-toc",
+      "page": 1,
+      "source_sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49",
+      "edgedoc_build_inputs_sha256": "86140c59f2906565bf4f44d4eea7aa9c1d909f7a050df0aa11aa60fcd4790daa",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 4,
+        "wordcraft": 4
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/footer-break-inspection/docx4j-32-toc/wordcraft-page-001.png",
+          "svg_sha256": "caa4eba36de11be4e06dffbbd12c5142c821f8ac35429e29e51ced4131233a61",
+          "png_sha256": "7f0cf16f8f36d3ea17e1a8a04fa9fef6c0f0b7fc94c097c02b804bdac7e7405a"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/footer-break-inspection/docx4j-32-toc/edgedoc-page-001.png",
+          "svg_sha256": "26b74c141f2fabd134d077fa8847c7437377877afd1c1424c42fdcd09d9810ad",
+          "png_sha256": "f6360ea70828a71d92d7021800b4b269dcb97bc41855b95465720521ce4ed7d5"
+        }
+      },
+      "observations": "The title, TOC, body text, paragraph spacing and right-aligned page number visually match on the inspected page. All four pages pass the comparison page thresholds; document status remains failed because cached fields and general paragraph frames remain diagnosed.",
+      "visual_result": "bounded page match"
+    },
+    {
+      "case": "docx4j-32-toc",
+      "page": 3,
+      "source_sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49",
+      "edgedoc_build_inputs_sha256": "86140c59f2906565bf4f44d4eea7aa9c1d909f7a050df0aa11aa60fcd4790daa",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 4,
+        "wordcraft": 4
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/footer-break-inspection/docx4j-32-toc/wordcraft-page-003.png",
+          "svg_sha256": "cca3f0e94befd4be6c3beccff72a8a4d945b9ca4a0671df1f1077f908a2140eb",
+          "png_sha256": "e78dfd51a97b968b7b8e4f30071cc311ae1e3cf802479fb9011fa6f33bb7b45d"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/footer-break-inspection/docx4j-32-toc/edgedoc-page-003.png",
+          "svg_sha256": "1c82f3883434b7767c20c7e1e4044a44bb7a3eab62411cfd1f367b8428a0ca74",
+          "png_sha256": "c4e632b42db1e8c510203a5a64438e1e7e98dcec9ea1d043f844896bc8514309"
+        }
+      },
+      "observations": "The title, TOC, body text, paragraph spacing and right-aligned page number visually match on the inspected page. All four pages pass the comparison page thresholds; document status remains failed because cached fields and general paragraph frames remain diagnosed.",
+      "visual_result": "bounded page match"
+    }
+  ]
+}

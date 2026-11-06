@@ -1,0 +1,34 @@
+{
+  "poi-30-table-alignment:1": {
+    "case": "poi-30-table-alignment",
+    "page": 1,
+    "source_sha256": "ee36729e0d050e529fea0b444006a194bea72b35cf8958ae58c6624c26156b41",
+    "edgedoc_build_inputs_sha256": "d2d219a7a2ce0d447d2e7f9b6b38696e93fef5cc7adc780bd442355f98e8f2e5",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 1,
+      "wordcraft": 1
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/conditional-real-visual/poi-30-table-alignment/wordcraft-page-001.png",
+        "svg_sha256": "ef30dc54562ca5b30adda5966f03fe4b223eeb14a3f1a58e569bdc33fbc06b75",
+        "png_sha256": "62a1f9e06bd78a30760ba788b0ed27707a318cd6e0d85703e266c6199f2738cd"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/conditional-real-visual/poi-30-table-alignment/edgedoc-page-001.png",
+        "svg_sha256": "7b1969a144cf7ea3288f55ad2cf694d3e8a438bd995c8c650b4420c78bc5ca4e",
+        "png_sha256": "3a2054cb555cb6ca0bb344319a2a1b76d4baa2c016160475f141de9689fcaf52"
+      }
+    }
+  }
+}

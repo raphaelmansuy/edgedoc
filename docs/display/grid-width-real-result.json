@@ -1,0 +1,497 @@
+{
+  "schema": 1,
+  "passed": false,
+  "comparison_tool_sha256": "67d4c9b5a8bf953f3ad9c3d57fcf2a8d2a5af581ff52566c44266c4e779b61b2",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "edgedoc_build_inputs_sha256": "1280d85059090818458c44ec261504211af0be277569396934320664348f8e99",
+  "scope": "381 fixture cases retaining every prior input; not exhaustive Wordcraft parity",
+  "reference_reused_cases": [
+    "docx4j-30-tables",
+    "docx4j-31-sample-docx"
+  ],
+  "thresholds": {
+    "position_pt": 0.5,
+    "font_size_pt": 0.05,
+    "unmatched_ink_fraction": 0.01,
+    "mean_ink_color_error": 0.05,
+    "dpi": 144,
+    "pixel_neighborhood": 1
+  },
+  "cases": [
+    {
+      "id": "docx4j-30-tables",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Table cell spacing"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Vertically merged table cells"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Arial Narrow"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.5859375,
+          "unmatched_ink_fraction": 0.3288524199907753,
+          "mean_ink_color_error": 0.07530291378498077,
+          "errors": [
+            "Glyph clustering differs",
+            {
+              "glyph_origin_error_pt": 0.5859375
+            },
+            {
+              "unmatched_ink_fraction": 0.3288524199907753,
+              "mean_ink_color_error": 0.07530291378498077
+            }
+          ]
+        },
+        {
+          "page": 2,
+          "passed": true,
+          "max_glyph_origin_error_pt": 3.0517578125e-05,
+          "unmatched_ink_fraction": 0.0,
+          "mean_ink_color_error": 0.0018461613217368722,
+          "errors": []
+        },
+        {
+          "page": 3,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.7160110473632812,
+          "unmatched_ink_fraction": 0.025105757866949425,
+          "mean_ink_color_error": 0.03448862582445145,
+          "errors": [
+            {
+              "glyph_origin_error_pt": 0.7160110473632812
+            },
+            {
+              "unmatched_ink_fraction": 0.025105757866949425,
+              "mean_ink_color_error": 0.03448862582445145
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Table cell spacing"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Vertically merged table cells"
+            }
+          ]
+        },
+        {
+          "reference_adapter_limit": [
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes",
+            "Reference adapter does not render patterned strokes"
+          ]
+        },
+        {
+          "reference_used_other_font_data": [
+            {
+              "family": "Arial",
+              "sha256": "525979822591a3447cfc49d943d6f7683508e25543407871c0ed8fed05fd2bd9",
+              "style": "Regular"
+            },
+            {
+              "family": "Arial Narrow",
+              "sha256": "9e1d881c4e43b51868f5e235ea5a12c838e23cc8df6277df1a3c94e158999826",
+              "style": "Regular"
+            },
+            {
+              "family": "Arial",
+              "sha256": "d72db21f9242aedd6b917d8549ad5921766b24d5f8d0becfda2ff4c620b3c2e0",
+              "style": "Bold"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "docx4j-31-sample-docx",
+      "status": "failed",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Embedded drawings, equations, and text boxes"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Tracked revision presentation"
+        },
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Vertically merged table cells"
+        },
+        {
+          "code": "display.object_placeholder",
+          "detail": "A <w:delText xml:space=\"preserve\"> A deletion</w:delText> object paints as a placeholder"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Cambria"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Calibri"
+        },
+        {
+          "code": "display.font_substituted",
+          "detail": "Arial Black"
+        }
+      ],
+      "pages": [
+        {
+          "page": 1,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.04488229583788375,
+          "mean_ink_color_error": 0.011672885157167912,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "My header",
+                  "Docx sample document",
+                  "This is a document exhibiting basic docx features.  ",
+                  "This is style Heading 1",
+                  "Some text.",
+                  "Tables",
+                  "Cell textShaded grey",
+                  "Vertical mergeShaded grey",
+                  "Horizontal merge",
+                  "(There is another document which tests tables more thoroughly)",
+                  "Paragraph properties",
+                  "Left indent",
+                  "Centred ",
+                  "Align Right",
+                  "Justified text",
+                  "Indented indented indented indented indented indented indented indented indented indented indented ",
+                  "indented indented indented indented indented indented indented indented indented ",
+                  "First line indent, Left indent, Hanging indent aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa ",
+                  "bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb",
+                  "Normal",
+                  "A short paragraph with 10 points spacing before, 20 points after.",
+                  "Run properties",
+                  "Font styles Aerial Black",
+                  "Font styles 18 point",
+                  "Font styles bold",
+                  "Font styles italic",
+                  "Font styles underline",
+                  "Bullets & numbering",
+                  "Bullets",
+                  "?Level 1"
+                ],
+                "edgedoc": [
+                  "My header",
+                  "Docx sample document",
+                  "This is a document exhibiting basic docx features.  ",
+                  "This is style Heading 1",
+                  "Some text.",
+                  "Tables",
+                  "Cell textShaded grey",
+                  "Vertical mergeShaded grey",
+                  "Horizontal merge",
+                  "(There is another document which tests tables more thoroughly)",
+                  "Paragraph properties",
+                  "Left indent",
+                  "Centred ",
+                  "Align Right",
+                  "Justified text",
+                  "Indented indented indented indented indented indented indented indented indented indented indented ",
+                  "indented indented indented indented indented indented indented indented indented ",
+                  "First line indent, Left indent, Hanging indent aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa ",
+                  "bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb aaa bbb",
+                  "Normal",
+                  "A short paragraph with 10 points spacing before, 20 points after.",
+                  "Run properties",
+                  "Font styles Aerial Black",
+                  "Font styles 18 point",
+                  "Font styles bold",
+                  "Font styles italic",
+                  "Font styles underline",
+                  "Bullets & numbering",
+                  "Bullets",
+                  "?Level 1",
+                  "oLevel 2"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.04488229583788375,
+              "mean_ink_color_error": 0.011672885157167912
+            }
+          ]
+        },
+        {
+          "page": 2,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.10132543813670591,
+          "mean_ink_color_error": 0.17739194631576538,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "My header",
+                  "oLevel 2",
+                  "Numbering",
+                  "1)Level 1",
+                  "a)Level 2",
+                  "i)Level 3",
+                  "Images",
+                  "Jpeg:",
+                  "Gif (scaled):"
+                ],
+                "edgedoc": [
+                  "My header",
+                  "Numbering",
+                  "1)Level 1",
+                  "a)Level 2",
+                  "i)Level 3",
+                  "Images",
+                  "Jpeg:",
+                  "Gif (scaled):"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.10132543813670591,
+              "mean_ink_color_error": 0.17739194631576538
+            }
+          ]
+        },
+        {
+          "page": 3,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.9944458049154106,
+          "mean_ink_color_error": 0.0,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "My header",
+                  "Png (from http://davidpritchard.org/images/pacsoc-s1b.png )"
+                ],
+                "edgedoc": [
+                  "My header"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.9944458049154106,
+              "mean_ink_color_error": 0.0
+            }
+          ]
+        },
+        {
+          "page": 4,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.9872801249383528,
+          "mean_ink_color_error": 0.1268470287322998,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "My header",
+                  "(TODO: we really should have both 2003 & 2007 pictures)"
+                ],
+                "edgedoc": [
+                  "My header",
+                  "Png (from http://davidpritchard.org/images/pacsoc-s1b.png )"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.9872801249383528,
+              "mean_ink_color_error": 0.1268470287322998
+            }
+          ]
+        },
+        {
+          "page": 5,
+          "passed": false,
+          "max_glyph_origin_error_pt": 0.0,
+          "unmatched_ink_fraction": 0.9004203643157404,
+          "mean_ink_color_error": 0.0,
+          "errors": [
+            {
+              "line_breaks_or_text": {
+                "wordcraft": [
+                  "My header",
+                  "That was a page break",
+                  "Here is some change tracking. An insertion Followed by A deletion.",
+                  "This line contains a soft return",
+                  "and here it continues"
+                ],
+                "edgedoc": [
+                  "My header",
+                  "(TODO: we really should have both 2003 & 2007 pictures)"
+                ]
+              }
+            },
+            {
+              "unmatched_ink_fraction": 0.9004203643157404,
+              "mean_ink_color_error": 0.0
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "edgedoc_diagnostics": [
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Conditional table styles"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Embedded drawings, equations, and text boxes"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Tracked revision presentation"
+            },
+            {
+              "code": "display.unsupported_layout",
+              "detail": "Vertically merged table cells"
+            },
+            {
+              "code": "display.object_placeholder",
+              "detail": "A <w:delText xml:space=\"preserve\"> A deletion</w:delText> object paints as a placeholder"
+            }
+          ]
+        },
+        {
+          "reference_used_other_font_data": [
+            {
+              "family": "Symbol",
+              "sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+              "style": "Regular"
+            },
+            {
+              "family": "Times New Roman",
+              "sha256": "50f5b1f27b7d34621090e437e8b1dd4510a22d2823fc876b3286bed327b64bbb",
+              "style": "Bold"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "72896bac3055c8f290b9b6b8b379186f140376e8a21953f0bb02736524048c4a",
+              "style": "Italic"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+              "style": "Regular"
+            },
+            {
+              "family": "Arial Black",
+              "sha256": "7d7db3ad96a31373c1437c6ab14266f6605495544c8e663558b047521174c42e",
+              "style": "Regular"
+            },
+            {
+              "family": "Courier New",
+              "sha256": "c886ca3172d8ce9189976992d145ec090500a4ff516ecb9d4df56b1a78336247",
+              "style": "Regular"
+            },
+            {
+              "family": "Carlito",
+              "sha256": "db0dfa0c7a50be334673dd43182eb7da25168b2a3cae638ee3c08ca3f171f646",
+              "style": "Bold"
+            },
+            {
+              "family": "Times New Roman",
+              "sha256": "f3b4ffff71c2a0c7227d37497683b2498fb2d0a4e8beae26f022e3ccfcaabfa3",
+              "style": "Regular"
+            }
+          ]
+        },
+        {
+          "page_count": {
+            "wordcraft": 5,
+            "edgedoc": 6
+          }
+        }
+      ]
+    }
+  ]
+}

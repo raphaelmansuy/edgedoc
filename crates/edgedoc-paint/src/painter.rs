@@ -468,20 +468,18 @@ impl PdfPainter {
                     rect.h
                 ));
             }
-            Op::StrokeRect { rect, paint, style } => {
-                if paint.a > 0 {
-                    self.current.content.push_str(&format!(
-                        "{} {} {} RG {:.2} w {:.2} {:.2} {:.2} {:.2} re S\n",
-                        f(paint.r),
-                        f(paint.g),
-                        f(paint.b),
-                        style.width,
-                        rect.x,
-                        fy(rect.bottom()),
-                        rect.w,
-                        rect.h
-                    ));
-                }
+            Op::StrokeRect { rect, paint, style } if paint.a > 0 => {
+                self.current.content.push_str(&format!(
+                    "{} {} {} RG {:.2} w {:.2} {:.2} {:.2} {:.2} re S\n",
+                    f(paint.r),
+                    f(paint.g),
+                    f(paint.b),
+                    style.width,
+                    rect.x,
+                    fy(rect.bottom()),
+                    rect.w,
+                    rect.h
+                ));
             }
             Op::FillPath {
                 segs,
@@ -495,19 +493,17 @@ impl PdfPainter {
                     .content
                     .push_str(&format!("{} {} {} rg f\n", f(c.r), f(c.g), f(c.b)));
             }
-            Op::StrokePath { segs, paint, style } => {
-                if paint.a > 0 {
-                    self.current
-                        .content
-                        .push_str(&path_ops(segs, |x, y| (x, fy(y))));
-                    self.current.content.push_str(&format!(
-                        "{} {} {} RG {:.2} w S\n",
-                        f(paint.r),
-                        f(paint.g),
-                        f(paint.b),
-                        style.width
-                    ));
-                }
+            Op::StrokePath { segs, paint, style } if paint.a > 0 => {
+                self.current
+                    .content
+                    .push_str(&path_ops(segs, |x, y| (x, fy(y))));
+                self.current.content.push_str(&format!(
+                    "{} {} {} RG {:.2} w S\n",
+                    f(paint.r),
+                    f(paint.g),
+                    f(paint.b),
+                    style.width
+                ));
             }
             Op::Glyphs(run) => {
                 // Text as vector outlines would lose the text layer, so the painter writes

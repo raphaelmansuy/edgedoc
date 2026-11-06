@@ -6,6 +6,9 @@ use crate::table::{Borders, LineBorder};
 pub struct CharProps {
     pub bold: bool,
     pub italic: bool,
+    /// WordprocessingML on/off properties explicitly disabled at this level.
+    /// An absent property inherits; an explicit off overrides an inherited value.
+    pub explicit_off: Vec<String>,
     pub underline: bool,
     pub strike: bool,
     pub double_strike: bool,
@@ -93,6 +96,8 @@ pub struct FrameProps {
     pub y: Option<Twips>,
     pub h_anchor: Option<String>,
     pub v_anchor: Option<String>,
+    pub x_align: Option<String>,
+    pub y_align: Option<String>,
     pub h_space: Option<Twips>,
     pub v_space: Option<Twips>,
     pub width: Option<Twips>,
@@ -108,11 +113,14 @@ pub struct ParaProps {
     pub indent_left: Option<Twips>,
     pub indent_right: Option<Twips>,
     pub indent_first: Option<Twips>,
+    /// Character indents in OOXML hundredths of a character.
     pub indent_left_chars: Option<i32>,
     pub indent_right_chars: Option<i32>,
     pub indent_first_chars: Option<i32>,
     pub spacing_before: Option<Twips>,
     pub spacing_after: Option<Twips>,
+    pub spacing_before_auto: Option<bool>,
+    pub spacing_after_auto: Option<bool>,
     pub line: Option<Twips>,
     pub line_rule: Option<String>,
     pub num_id: Option<u32>,
@@ -124,10 +132,19 @@ pub struct ParaProps {
     pub widow_control: bool,
     pub contextual_spacing: bool,
     pub suppress_line_numbers: bool,
+    /// On/off elements explicitly present in the source, including values set to off.
+    /// Their names let a paragraph override a value inherited from a style.
+    pub explicit_on_off: Vec<String>,
     pub outline: Option<i32>,
     pub bidi: bool,
+    /// East Asian punctuation rules; absent inherits the style setting.
+    pub kinsoku: Option<bool>,
+    /// Whether Latin words stay together; absent inherits the style setting.
+    pub word_wrap: Option<bool>,
     pub shading: Option<String>,
     pub borders: Borders,
+    /// Whether an explicit paragraph-border set was supplied, including an empty set.
+    pub borders_present: bool,
     pub tabs: Vec<TabStop>,
     pub frame: Option<FrameProps>,
     pub mark: CharProps,
@@ -185,6 +202,8 @@ impl Default for ParaProps {
             indent_first_chars: None,
             spacing_before: None,
             spacing_after: None,
+            spacing_before_auto: None,
+            spacing_after_auto: None,
             line: None,
             line_rule: None,
             num_id: None,
@@ -196,10 +215,14 @@ impl Default for ParaProps {
             widow_control: true,
             contextual_spacing: false,
             suppress_line_numbers: false,
+            explicit_on_off: Vec::new(),
             outline: None,
             bidi: false,
+            kinsoku: None,
+            word_wrap: None,
             shading: None,
             borders: Borders::default(),
+            borders_present: false,
             tabs: Vec::new(),
             frame: None,
             mark: CharProps::default(),

@@ -1,0 +1,1077 @@
+{
+  "id": "docx4j-extra-bb3c80a78974",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.font_substituted",
+      "detail": "Symbol"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Wingdings"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS Mincho"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Batang"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "SimSun"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "PMingLiU"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS Gothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Dotum"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "SimHei"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MingLiU"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Gulim"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Century"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Mangal"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Latha"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Sylfaen"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Raavi"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Shruti"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Gautami"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Tunga"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Estrangelo Edessa"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Cambria Math"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Arial Unicode MS"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Cambria"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Calibri"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Tahoma"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Marlett"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Console"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Sans Unicode"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Verdana"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Arial Black"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Comic Sans MS"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Impact"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Georgia"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Franklin Gothic Medium"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Palatino Linotype"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Trebuchet MS"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Webdings"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MV Boli"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Microsoft Sans Serif"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@MS Mincho"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS PMincho"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@MS PMincho"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@MS Gothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS PGothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@MS PGothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS UI Gothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@MS UI Gothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@Gulim"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "GulimChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@GulimChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@Dotum"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "DotumChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@DotumChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@Batang"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "BatangChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@BatangChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Gungsuh"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@Gungsuh"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "GungsuhChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@GungsuhChe"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@SimSun"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "NSimSun"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@NSimSun"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@SimHei"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@MingLiU"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@PMingLiU"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Sans"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Algerian"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Baskerville Old Face"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Bauhaus 93"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Bell MT"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Berlin Sans FB"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Bernard MT Condensed"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Bodoni MT Poster Compressed"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Britannic Bold"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Broadway"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Brush Script MT"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Californian FB"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Centaur"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Century Gothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Chiller"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Colonna MT"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Cooper Black"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Footlight MT Light"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Freestyle Script"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Harlow Solid Italic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Harrington"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "High Tower Text"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Jokerman"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Juice ITC"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Kristen ITC"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Kunstler Script"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Bright"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Calligraphy"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Fax"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Lucida Handwriting"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Magneto"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Matura MT Script Capitals"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Mistral"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Modern No. 20"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Monotype Corsiva"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Niagara Engraved"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Niagara Solid"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Old English Text MT"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Onyx"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Parchment"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Playbill"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Poor Richard"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Ravie"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Informal Roman"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Showcard Gothic"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Snap ITC"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Stencil"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Tempus Sans ITC"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Viner Hand ITC"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Vivaldi"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Vladimir Script"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Wide Latin"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Wingdings 2"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Wingdings 3"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Berlin Sans FB Demi"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Nina"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MT Extra"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Bookshelf Symbol 7"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS Reference Sans Serif"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "MS Reference Specialty"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Arial Narrow"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Book Antiqua"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Garamond"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Bookman Old Style"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Candara"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Consolas"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Constantia"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Corbel"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Segoe UI"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "@Arial Unicode MS"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.47848696121104733,
+      "mean_ink_color_error": 0.1261187195777893,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Times New Roman",
+              "Arial",
+              "Courier New",
+              "Symbol Σψμβολ",
+              "Wingdings 🕈♓◼♑♎♓◼♑🞟",
+              "MS Mincho",
+              "Batang",
+              "SimSun",
+              "PMingLiU",
+              "MS Gothic",
+              "Dotum",
+              "SimHei",
+              "MingLiU",
+              "Gulim",
+              "Century",
+              "Mangal",
+              "Latha",
+              "Sylfaen",
+              "Raavi",
+              "Shruti",
+              "Gautami",
+              "Tunga",
+              "Estrangelo Edessa",
+              "Cambria Math",
+              "Arial Unicode MS",
+              "Cambria"
+            ],
+            "edgedoc": [
+              "Times New Roman",
+              "Arial",
+              "Courier New",
+              "Symbol ",
+              "Wingdings ",
+              "MS Mincho",
+              "Batang",
+              "SimSun",
+              "PMingLiU",
+              "MS Gothic",
+              "Dotum",
+              "SimHei",
+              "MingLiU",
+              "Gulim",
+              "Century",
+              "Mangal",
+              "Latha",
+              "Sylfaen",
+              "Raavi",
+              "Shruti",
+              "Gautami",
+              "Tunga",
+              "Estrangelo Edessa",
+              "Cambria Math",
+              "Arial Unicode MS",
+              "Cambria"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.47848696121104733,
+          "mean_ink_color_error": 0.1261187195777893
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.33765287114278775,
+      "mean_ink_color_error": 0.1964922994375229,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Calibri",
+              "Tahoma",
+              "Marlett  ",
+              "Lucida Console",
+              "Lucida Sans Unicode",
+              "Verdana",
+              "Arial Black",
+              "Comic Sans MS",
+              "Impact",
+              "Georgia",
+              "Franklin Gothic Medium",
+              "Palatino Linotype",
+              "Trebuchet MS",
+              "Webdings 🕨📦🚲🛡🛈⬤⬛❓",
+              "MV Boli",
+              "Microsoft Sans Serif",
+              "@MS Mincho",
+              "MS PMincho",
+              "@MS PMincho",
+              "@MS Gothic",
+              "MS PGothic",
+              "@MS PGothic",
+              "MS UI Gothic",
+              "@MS UI Gothic",
+              "@Gulim",
+              "GulimChe"
+            ],
+            "edgedoc": [
+              "Calibri",
+              "Tahoma",
+              "Marlett  ",
+              "Lucida Console",
+              "Lucida Sans Unicode",
+              "Verdana",
+              "Arial Black",
+              "Comic Sans MS",
+              "Impact",
+              "Georgia",
+              "Franklin Gothic Medium",
+              "Palatino Linotype",
+              "Trebuchet MS",
+              "Webdings ",
+              "MV Boli",
+              "Microsoft Sans Serif",
+              "@MS Mincho",
+              "MS PMincho",
+              "@MS PMincho",
+              "@MS Gothic",
+              "MS PGothic",
+              "@MS PGothic",
+              "MS UI Gothic",
+              "@MS UI Gothic",
+              "@Gulim",
+              "GulimChe"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.33765287114278775,
+          "mean_ink_color_error": 0.1964922994375229
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.462258247161546,
+      "mean_ink_color_error": 0.130310520529747,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "@GulimChe",
+              "@Dotum",
+              "DotumChe",
+              "@DotumChe",
+              "@Batang",
+              "BatangChe",
+              "@BatangChe",
+              "Gungsuh",
+              "@Gungsuh",
+              "GungsuhChe",
+              "@GungsuhChe",
+              "@SimSun",
+              "NSimSun",
+              "@NSimSun",
+              "@SimHei",
+              "@MingLiU",
+              "@PMingLiU",
+              "Lucida Sans",
+              "Algerian",
+              "Baskerville Old Face",
+              "Bauhaus 93",
+              "Bell MT",
+              "Berlin Sans FB",
+              "Bernard MT Condensed",
+              "Bodoni MT Poster Compressed",
+              "Britannic Bold"
+            ],
+            "edgedoc": [
+              "@GulimChe",
+              "@Dotum",
+              "DotumChe",
+              "@DotumChe",
+              "@Batang",
+              "BatangChe",
+              "@BatangChe",
+              "Gungsuh",
+              "@Gungsuh",
+              "GungsuhChe",
+              "@GungsuhChe",
+              "@SimSun",
+              "NSimSun",
+              "@NSimSun",
+              "@SimHei",
+              "@MingLiU",
+              "@PMingLiU",
+              "Lucida Sans",
+              "Algerian",
+              "Baskerville Old Face",
+              "Bauhaus 93",
+              "Bell MT",
+              "Berlin Sans FB",
+              "Bernard MT Condensed",
+              "Bodoni MT Poster Compressed"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.462258247161546,
+          "mean_ink_color_error": 0.130310520529747
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.68870878075899,
+      "mean_ink_color_error": 0.25844454765319824,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Broadway",
+              "Brush Script MT",
+              "Californian FB",
+              "Centaur",
+              "Century Gothic",
+              "Chiller",
+              "Colonna MT",
+              "Cooper Black",
+              "Footlight MT Light",
+              "Freestyle Script",
+              "Harlow Solid Italic",
+              "Harrington",
+              "High Tower Text",
+              "Jokerman",
+              "Juice ITC",
+              "Kristen ITC",
+              "Kunstler Script",
+              "Lucida Bright",
+              "Lucida Calligraphy",
+              "Lucida Fax",
+              "Lucida Handwriting",
+              "Magneto",
+              "Matura MT Script Capitals",
+              "Mistral",
+              "Modern No. 20",
+              "Monotype Corsiva"
+            ],
+            "edgedoc": [
+              "Britannic Bold",
+              "Broadway",
+              "Brush Script MT",
+              "Californian FB",
+              "Centaur",
+              "Century Gothic",
+              "Chiller",
+              "Colonna MT",
+              "Cooper Black",
+              "Footlight MT Light",
+              "Freestyle Script",
+              "Harlow Solid Italic",
+              "Harrington",
+              "High Tower Text",
+              "Jokerman",
+              "Juice ITC",
+              "Kristen ITC",
+              "Kunstler Script",
+              "Lucida Bright",
+              "Lucida Calligraphy",
+              "Lucida Fax",
+              "Lucida Handwriting",
+              "Magneto",
+              "Matura MT Script Capitals",
+              "Mistral"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.68870878075899,
+          "mean_ink_color_error": 0.25844454765319824
+        }
+      ]
+    },
+    {
+      "page": 5,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.6111359126984127,
+      "mean_ink_color_error": 0.2774412930011749,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Niagara Engraved",
+              "Niagara Solid",
+              "Old English Text MT",
+              "Onyx",
+              "Parchment",
+              "Playbill",
+              "Poor Richard",
+              "Ravie",
+              "Informal Roman",
+              "Showcard Gothic",
+              "Snap ITC",
+              "Stencil",
+              "Tempus Sans ITC",
+              "Viner Hand ITC",
+              "Vivaldi",
+              "Vladimir Script",
+              "Wide Latin",
+              "Wingdings2 🛇⓪⑤🙙🙧⓪⑤🙙⑩ 📋",
+              "Wingdings3 ⍽🡓🡘🡒🢪🡓🡘🡒▽ ⭪",
+              "Berlin Sans FB Demi",
+              "Nina",
+              "MT Extra ",
+              "Bookshelf Symbol 7   ",
+              "MS Reference Sans Serif",
+              "MS Reference Specialty  ",
+              "Arial Narrow"
+            ],
+            "edgedoc": [
+              "Modern No. 20",
+              "Monotype Corsiva",
+              "Niagara Engraved",
+              "Niagara Solid",
+              "Old English Text MT",
+              "Onyx",
+              "Parchment",
+              "Playbill",
+              "Poor Richard",
+              "Ravie",
+              "Informal Roman",
+              "Showcard Gothic",
+              "Snap ITC",
+              "Stencil",
+              "Tempus Sans ITC",
+              "Viner Hand ITC",
+              "Vivaldi",
+              "Vladimir Script",
+              "Wide Latin",
+              "Wingdings2 ",
+              "Wingdings3 ",
+              "Berlin Sans FB Demi",
+              "Nina",
+              "MT Extra ",
+              "Bookshelf Symbol 7   "
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.6111359126984127,
+          "mean_ink_color_error": 0.2774412930011749
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.6753801213392255,
+      "mean_ink_color_error": 0.3063625693321228,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Book Antiqua",
+              "Garamond",
+              "Bookman Old Style",
+              "Candara",
+              "Consolas",
+              "Constantia",
+              "Corbel",
+              "Segoe UI",
+              "@Arial Unicode MS"
+            ],
+            "edgedoc": [
+              "MS Reference Sans Serif",
+              "MS Reference Specialty  ",
+              "Arial Narrow",
+              "Book Antiqua",
+              "Garamond",
+              "Bookman Old Style",
+              "Candara",
+              "Consolas",
+              "Constantia",
+              "Corbel",
+              "Segoe UI",
+              "@Arial Unicode MS"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.6753801213392255,
+          "mean_ink_color_error": 0.3063625693321228
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "reference_used_other_font_data": [
+        {
+          "family": "Wingdings 3",
+          "sha256": "04d2acd5591632909c5e0c3d07309b8d8c01db8ac985d4cab3ef566dabca109a",
+          "style": "Regular"
+        },
+        {
+          "family": "Verdana",
+          "sha256": "0da8c12f3e15d95585434d2cf294b3113a3e3fc84bf9ba9d64f2ef834ef4bd98",
+          "style": "Regular"
+        },
+        {
+          "family": "Brush Script MT",
+          "sha256": "28b58b7a1bab9fa76aeef353caed56918abcdef3385daeb569c75226618c7b1d",
+          "style": "Italic"
+        },
+        {
+          "family": "Tahoma",
+          "sha256": "359413e76969fc8a03e0acf91b355a98bb13c42472614e54bff5c8e4f4817fbb",
+          "style": "Regular"
+        },
+        {
+          "family": "Symbol",
+          "sha256": "447a0a83656747b74fe0193f9e34643e68feedb8566a6a1ca79afc2b8ab81673",
+          "style": "Regular"
+        },
+        {
+          "family": "Georgia",
+          "sha256": "4f54eb299fccea7f103edeb0d92437359bfd4441811d53222b82b335369f6218",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial",
+          "sha256": "525979822591a3447cfc49d943d6f7683508e25543407871c0ed8fed05fd2bd9",
+          "style": "Regular"
+        },
+        {
+          "family": "Impact",
+          "sha256": "57e95627fd36fe2740e5ee8a91ff1ae74fb216df9580bd23e30d6772814727be",
+          "style": "Regular"
+        },
+        {
+          "family": "Microsoft Sans Serif",
+          "sha256": "681fd20f201435edc09fac432cd5409722ca8fd10970dc3dc9be1b2de4b0ef43",
+          "style": "Regular"
+        },
+        {
+          "family": "Wingdings 2",
+          "sha256": "6fce8b535724253e294c88f272613ad4b796c4181bae18b3e49775be63d02dcd",
+          "style": "Regular"
+        },
+        {
+          "family": "Palatino",
+          "sha256": "6fe36c18e44734ce15e939083445adf81a0fd87f90e9eed0ceadedb935682657",
+          "style": "Regular"
+        },
+        {
+          "family": "Wingdings",
+          "sha256": "709d5848799239f0c51c0544c471c8d02bcbf9f2bcdc49702ebca1691a4c760e",
+          "style": "Regular"
+        },
+        {
+          "family": "Carlito",
+          "sha256": "745df3d95c9694f214885c9e036366772f0012d48e5ba9262920a5e7598a3e58",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial Black",
+          "sha256": "7d7db3ad96a31373c1437c6ab14266f6605495544c8e663558b047521174c42e",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial Unicode MS",
+          "sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+          "style": "Regular"
+        },
+        {
+          "family": "Webdings",
+          "sha256": "876fd4b39d4049cc7d037e4181e2a3291652845d7f4ce85d11885156f2b3407a",
+          "style": "Regular"
+        },
+        {
+          "family": "Arial Narrow",
+          "sha256": "9e1d881c4e43b51868f5e235ea5a12c838e23cc8df6277df1a3c94e158999826",
+          "style": "Regular"
+        },
+        {
+          "family": "Comic Sans MS",
+          "sha256": "a6f559bc059fe6d0e68826e2daee0db31194844ed6145d5cc31a610c4e2700d2",
+          "style": "Regular"
+        },
+        {
+          "family": "Courier New",
+          "sha256": "c886ca3172d8ce9189976992d145ec090500a4ff516ecb9d4df56b1a78336247",
+          "style": "Regular"
+        },
+        {
+          "family": "Times New Roman",
+          "sha256": "f3b4ffff71c2a0c7227d37497683b2498fb2d0a4e8beae26f022e3ccfcaabfa3",
+          "style": "Regular"
+        },
+        {
+          "family": "Trebuchet MS",
+          "sha256": "ff1d49fde63aabd7f4fc7cd0a80ac7cdb1b9540058988fcbb64d7c23639a7386",
+          "style": "Regular"
+        }
+      ]
+    }
+  ]
+}

@@ -92,9 +92,9 @@ fn a_heading_is_not_black() {
     }
 }
 
-/// `DP-L-39`. A shared edge between two cells paints once.
+/// Shared cell edges follow Wordcraft: each adjoining cell paints the same centered rule.
 #[test]
-fn a_table_rule_paints_once() {
+fn a_table_rule_paints_once_per_adjoining_cell() {
     let doc = laid_out("report");
     let page = doc.page(1).expect("page 2");
     // A vertical rule is a fill that is much taller than it is wide.
@@ -106,20 +106,21 @@ fn a_table_rule_paints_once() {
             }
         }
     }
-    // The KPI strip has three columns, so it holds two dividers. A doubled edge would give four,
-    // or two at the same x with double the width.
-    let mut xs: Vec<f32> = verticals
-        .iter()
-        .map(|r| (r.x * 10.0).round() / 10.0)
-        .collect();
-    xs.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-    let before = xs.len();
-    xs.dedup_by(|a, b| (*a - *b).abs() < 0.6);
+    // The KPI strip has three columns and two shared dividers. Each adjoining cell paints
+    // its edge, but the two strokes must occupy the same geometry rather than widen it.
+    verticals.sort_by(|a, b| a.x.total_cmp(&b.x));
     assert_eq!(
-        xs.len(),
-        before,
-        "no two vertical rules sit at the same x: {verticals:?}"
+        verticals.len(),
+        4,
+        "two cell edges per divider: {verticals:?}"
     );
+    for pair in verticals.chunks_exact(2) {
+        assert!((pair[0].x - pair[1].x).abs() < 0.01, "{pair:?}");
+        assert!((pair[0].w - pair[1].w).abs() < 0.01, "{pair:?}");
+        assert!((pair[0].y - pair[1].y).abs() < 0.01, "{pair:?}");
+        assert!((pair[0].h - pair[1].h).abs() < 0.01, "{pair:?}");
+    }
+    assert!(verticals[2].x - verticals[0].x > 1.0);
 }
 
 /// `DP-F-23`. A line ends at a word boundary, never inside a word.
@@ -217,12 +218,18 @@ fn a_page_field_changes_per_page() {
 fn a_total_field_matches_the_page_count() {
     let doc = laid_out("report");
     let pages = doc.pages().len();
-    let text = doc.page_text(0).unwrap_or_default();
-    assert!(
-        text.contains(&format!("of {pages}")) || text.contains(&format!("of {pages} ")),
-        "the footer shows {pages} pages: {:?}",
-        text.chars().rev().take(40).collect::<String>()
-    );
+    // The cover has its own first-page footer without a number. Check every numbered footer.
+    let numbered: Vec<_> = (0..pages)
+        .filter_map(|i| doc.page_text(i))
+        .filter(|text| text.contains("Page "))
+        .collect();
+    assert!(numbered.len() >= 2, "the report has numbered footers");
+    for text in numbered {
+        assert!(
+            text.contains(&format!("of {pages}")),
+            "the footer shows {pages} pages: {text:?}"
+        );
+    }
     let report = doc.report().expect("a report");
     assert!(report.passes >= 2, "a total field needs a second pass");
 }
@@ -404,7 +411,7 @@ fn a_character_indent_moves_the_text_right() {
         .expect("build");
     doc.edit(edgedoc::EditOptions::default(), |edit| {
         edit.body().paragraph_at(0, |p| {
-            p.paragraph_mut().props.indent_left_chars = Some(2);
+            p.paragraph_mut().props.indent_left_chars = Some(200);
             Ok(())
         })
     })

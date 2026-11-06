@@ -11,7 +11,7 @@ const PAGE_GAP = 16;
 const H_PAD = 16;
 
 /** The faces that the module carries, in the order that the display list names them. */
-const FACE_FAMILIES = ["Carlito", "Carlito", "Carlito", "Carlito"];
+const FACE_FAMILIES = ["Carlito", "Carlito", "Carlito", "Carlito", "Arimo", "Arimo", "Arimo", "Arimo", "Tinos", "Tinos", "Tinos", "Tinos"];
 
 /**
  * A paged viewer.
@@ -46,6 +46,7 @@ export class Viewer {
 
     this.module = null;
     this.viewer = null;
+    this.glyphPaths = new Map();
     this.pages = [];
     this.texts = [];
     this.diagnostics = [];
@@ -72,6 +73,7 @@ export class Viewer {
     const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
     const t0 = performance.now();
     const meta = JSON.parse(this._call(() => this.viewer.open(u8)));
+    this.glyphPaths.clear();
     this.docTitle = meta.title && meta.title.trim() ? meta.title : "Untitled document";
     this.title.textContent = this.docTitle;
     document.title = `${this.docTitle} — EdgeDoc Display`;
@@ -882,72 +884,37 @@ export class Viewer {
     }
   }
 
-  /**
-   * Paint one glyph run. The display list carries glyph ids, not characters, so the viewer draws
-   * the run text with the face at the same positions. A browser shapes `fi` differently from the
-   * list, so each glyph is placed on its own pen, which keeps the paint exact.
-   */
+  /** Paint the exact shaped glyph IDs and advances; Canvas never reshapes the source text. */
   _glyphs(ctx, op) {
     if (op.hidden) return;
-    const family = FACE_FAMILIES[op.face] || FACE_FAMILIES[0];
     ctx.fillStyle = op.color;
-    ctx.font = `${op.size}px ${family}, "Segoe UI", sans-serif`;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    // A glyph run is painted with its own advances, so a browser that shapes the text differently
-    // still puts every glyph where the layout put it. `ctx.fillText` at a fractional x rounds to a
-    // device pixel, so the run uses a transform instead: the pen moves in layout units and the
-    // canvas keeps the fraction. See `DP-G-04`.
-    const chars = Array.from(op.text);
-    // A synthesized bold face is filled and then stroked with the same colour, which thickens the
-    // letter. A synthesized italic face is slanted. See `DP-F-13`.
+    ctx.strokeStyle = op.color;
     const embolden = op.synthBold ? Math.max(0.25, op.size * 0.025) : 0;
-    if (op.synthItalic) {
-      ctx.save();
-      ctx.transform(1, 0, -Math.tan((12 * Math.PI) / 180), 1, Math.tan((12 * Math.PI) / 180) * op.y, 0);
-    }
-    const drawString = (s, x, y) => {
-      ctx.fillText(s, x, y);
-      if (embolden > 0) {
-        ctx.lineWidth = embolden;
-        ctx.strokeStyle = op.color;
-        ctx.strokeText(s, x, y);
+    let x = op.x;
+    for (let i = 0; i < op.glyphs.length; i += 1) {
+      const key = `${op.face}:${op.glyphs[i]}`;
+      let outline = this.glyphPaths.get(key);
+      if (!outline) {
+        const encoded = this.viewer.glyphOutline(op.face, op.glyphs[i]);
+        if (!encoded) throw new Error(`Missing outline for glyph ${key}`);
+        const [upem, data] = JSON.parse(encoded);
+        outline = { upem, path: new Path2D(data) };
+        this.glyphPaths.set(key, outline);
       }
-    };
-    // A run whose glyphs sit on their pen (no offset, one glyph per character) paints as one
-    // string, so the browser applies its own kerning and ligatures. That is what Word shows, and
-    // it avoids the uneven letter spacing of a per-glyph draw. A run with a real offset, such as a
-    // combining mark or a scaled cluster, keeps the per-glyph path.
-    const perGlyph =
-      op.offsets.some((o) => o && (Math.abs(o[0]) > 0.01 || Math.abs(o[1]) > 0.01)) ||
-      op.glyphs.length !== chars.length;
-    if (!perGlyph) {
+      const [dx, dy] = op.offsets[i] || [0, 0];
+      const scale = op.size / outline.upem;
       ctx.save();
-      if (op.xScale && Math.abs(op.xScale - 1) > 0.001) {
-        ctx.translate(op.x, op.y);
-        ctx.scale(op.xScale, 1);
-        drawString(op.text, 0, 0);
-      } else {
-        drawString(op.text, op.x, op.y);
+      ctx.translate(x + dx, op.y + dy);
+      if (op.synthItalic) ctx.transform(1, 0, -Math.tan((12 * Math.PI) / 180), 1, 0, 0);
+      ctx.scale(scale * (op.xScale || 1), -scale);
+      ctx.fill(outline.path);
+      if (embolden) {
+        ctx.lineWidth = embolden / scale;
+        ctx.stroke(outline.path);
       }
       ctx.restore();
-      if (op.synthItalic) ctx.restore();
-      return;
-    }
-    ctx.save();
-    ctx.translate(op.x, op.y);
-    let x = 0;
-    for (let i = 0; i < op.glyphs.length; i += 1) {
-      const ch = chars[i];
-      if (ch !== undefined && ch !== " ") {
-        const dx = op.offsets[i] ? op.offsets[i][0] : 0;
-        const dy = op.offsets[i] ? op.offsets[i][1] : 0;
-        drawString(ch, x + dx, dy);
-      }
       x += op.advances[i] || 0;
     }
-    ctx.restore();
-    if (op.synthItalic) ctx.restore();
   }
 
   /**
@@ -1097,6 +1064,7 @@ export class Viewer {
     this.container.classList.remove("edv-root");
     this.pages = [];
     this.pageEls = [];
+    this.glyphPaths.clear();
   }
 }
 

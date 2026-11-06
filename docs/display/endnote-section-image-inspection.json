@@ -1,0 +1,66 @@
+{
+  "regression-note_references_count_each_kind_in_document_order-51f9026369fddb80:1": {
+    "case": "regression-note_references_count_each_kind_in_document_order-51f9026369fddb80",
+    "page": 1,
+    "source_sha256": "57cd534f8ff484167617e702583a03abb771de782cff8b417d0ab5a8307ca5c1",
+    "edgedoc_build_inputs_sha256": "311891f586db3af6925b139ee5b56c3421f0a2a099919f764687205b62830904",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 2,
+      "wordcraft": 2
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/endnote-section-final/regression-note_references_count_each_kind_in_document_order-51f9026369fddb80/wordcraft-page-001.png",
+        "svg_sha256": "8619e57feb382febbc432eaf5d828fbc1209727eea023827ce3b82dbd89b297f",
+        "png_sha256": "ea8ceb62f91fd3166085725fa09da4fcaffadfcd3069ebba3603070b03e12a3c"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/endnote-section-final/regression-note_references_count_each_kind_in_document_order-51f9026369fddb80/edgedoc-page-001.png",
+        "svg_sha256": "29568ea809223413f587373fa47d5a685b85343045a06fedf9feae68f0ad2e56",
+        "png_sha256": "f3d121faba5da5473ee7957e496613b8bf02c21f71ae991dc427772bde212f01"
+      }
+    }
+  },
+  "regression-note_references_count_each_kind_in_document_order-51f9026369fddb80:2": {
+    "case": "regression-note_references_count_each_kind_in_document_order-51f9026369fddb80",
+    "page": 2,
+    "source_sha256": "57cd534f8ff484167617e702583a03abb771de782cff8b417d0ab5a8307ca5c1",
+    "edgedoc_build_inputs_sha256": "311891f586db3af6925b139ee5b56c3421f0a2a099919f764687205b62830904",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 2,
+      "wordcraft": 2
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/endnote-section-final/regression-note_references_count_each_kind_in_document_order-51f9026369fddb80/wordcraft-page-002.png",
+        "svg_sha256": "96a86bf0dab5c3d73b705bc43779ad28cb2abc716bab1429ffeafeeb20eb518e",
+        "png_sha256": "13df8432b31afbb87f9150966c5217764fa2098651a3960be9f40c788f854185"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/endnote-section-final/regression-note_references_count_each_kind_in_document_order-51f9026369fddb80/edgedoc-page-002.png",
+        "svg_sha256": "c7023b4a5a9fe976750609a69e74e1ec2579fd1f5304a32da1e11690a3fa32b3",
+        "png_sha256": "fd34654769674351027bba47790689ae35e2b84e5b90d226df05483a038d3190"
+      }
+    }
+  }
+}

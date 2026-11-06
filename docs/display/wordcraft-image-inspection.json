@@ -1,0 +1,398 @@
+{
+  "schema": 1,
+  "inspected_at": "2026-11-05T03:21:45.916383+00:00",
+  "method": "Direct image inspection of 11 page pairs (22 engine page images), rendered at 144 dpi from each engine’s actual display output. Unchanged final images were verified by hash against already inspected images. No registration, cropping, scaling correction or retouching.",
+  "scope": "Representative manual inspection, separate from the full automated Wordcraft gate. It does not establish exhaustive parity.",
+  "records": [
+    {
+      "case": "poi-06-fancyfoot",
+      "page": 1,
+      "source_sha256": "1cfd2b4fb1f7233062671b0f58789e1b0b437fbf79deb7d62167cffb85191f7a",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 2,
+        "wordcraft": 2
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-06-fancyfoot/wordcraft-page-001.png",
+          "svg_sha256": "c6bbab37d2b1944794db2e40e7d0378fd06839cea0b5791523d11a7f667cb738",
+          "png_sha256": "98d48b4a022af37b84233202cd5c54ad2c08f4105ddf6a0e8c37c384bcd4ed6a"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-06-fancyfoot/edgedoc-page-001.png",
+          "svg_sha256": "ee34a33f4c41d0c1cee8e7189883361a69e429da8b5af9eafd7e1a70325056f4",
+          "png_sha256": "894753faffe07d09632c7e0386721eaf957e4f52e81a67c94e350840dd9a897b"
+        }
+      },
+      "visual_result": "visually matched after fix",
+      "observations": "Body text, heading, footer text and PAGE 1 placement match. The rule now has the reference thickness and distance above the text. Its resolved color differs slightly in numeric RGB; this is checked by the pixel gate."
+    },
+    {
+      "case": "poi-06-fancyfoot",
+      "page": 2,
+      "source_sha256": "1cfd2b4fb1f7233062671b0f58789e1b0b437fbf79deb7d62167cffb85191f7a",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 2,
+        "wordcraft": 2
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-06-fancyfoot/wordcraft-page-002.png",
+          "svg_sha256": "fd44e9a7ee01d0f6a1020816dfb551a0659258afe6fa0d5df9d5c00e14870781",
+          "png_sha256": "e02a0b5d1570c0ff2b735c1782006f035f73c423ba8366d233517a4011e9b20a"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-06-fancyfoot/edgedoc-page-002.png",
+          "svg_sha256": "4470a332059c72be8fa6489e01bd855127a27f42b3bdf49b501897e41a104c76",
+          "png_sha256": "5bc7736ea753060c1c1186aeafacd2d771f427a634f9503fd328cd10f28cd08e"
+        }
+      },
+      "visual_result": "visually matched after fix",
+      "observations": "Second-page body placement and PAGE 2 footer match; the thick rule remains aligned across the page."
+    },
+    {
+      "case": "poi-05-difffirstpageheadfoot",
+      "page": 1,
+      "source_sha256": "e94332c7b86b1bbce960f93fec90078486ab8abc3913a024a24be391a0b42151",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 2,
+        "wordcraft": 2
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-05-difffirstpageheadfoot/wordcraft-page-001.png",
+          "svg_sha256": "1546fcf806d7e6f58b6df887b5d46f2ad0804df8138bdbc4e530ce831183a3e5",
+          "png_sha256": "71f7901fc52eec798b8a4a96add89daa7680af4de46aa3bda8e052e6a9c5d99f"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-05-difffirstpageheadfoot/edgedoc-page-001.png",
+          "svg_sha256": "9f942baea10c02d80e9acfb5ee65861844ce60ae18b1c0ac950e15562124ab3e",
+          "png_sha256": "71f7901fc52eec798b8a4a96add89daa7680af4de46aa3bda8e052e6a9c5d99f"
+        }
+      },
+      "visual_result": "visually matched",
+      "observations": "First-page header/footer variant, body wrapping and heading positions match. The two PNGs have identical hashes."
+    },
+    {
+      "case": "poi-05-difffirstpageheadfoot",
+      "page": 2,
+      "source_sha256": "e94332c7b86b1bbce960f93fec90078486ab8abc3913a024a24be391a0b42151",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 2,
+        "wordcraft": 2
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-05-difffirstpageheadfoot/wordcraft-page-002.png",
+          "svg_sha256": "3a3b5996f4caf5305c61a258c41e66c47ddfd70f9711f60f32d1c863340313e8",
+          "png_sha256": "de9d62314c60e8ae78b392a80ffeeaa8aad9135489d4d863a2a059587d99c642"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-05-difffirstpageheadfoot/edgedoc-page-002.png",
+          "svg_sha256": "38bdd2a8b89b4031208930fa81f03b7d970ec84b7fe5c825bc3d4a2957b62437",
+          "png_sha256": "de9d62314c60e8ae78b392a80ffeeaa8aad9135489d4d863a2a059587d99c642"
+        }
+      },
+      "visual_result": "visually matched",
+      "observations": "Default header/footer variants use matching left, middle and right columns. The two PNGs have identical hashes."
+    },
+    {
+      "case": "poi-31-table-indent",
+      "page": 1,
+      "source_sha256": "aaa3fd6a1c0d6ac222ccacad213257b9061be7d706396a36b3ffedacb3a56c9b",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 1,
+        "wordcraft": 1
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-31-table-indent/wordcraft-page-001.png",
+          "svg_sha256": "b3dfaaaeafeec6972c8beeafd930be99ff76c70499f92efb30c80cddb2959bf8",
+          "png_sha256": "aadd3473360326e4fcc0c1cb432660ecc401e5a6fd27f72a9d7b06f199bca9b6"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-31-table-indent/edgedoc-page-001.png",
+          "svg_sha256": "6676d7cacf70c81cbf14f7c1821af74f8476b4de6dbad8d4c5953cc6b918c754",
+          "png_sha256": "5cdea98c7741561d7b03a108c7218339e8e1b76cd015fa8ecd6e2723e683d398"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "Table offsets broadly follow the source, including tables extending off the page. EdgeDoc omits internal cell rules and its row geometry/text placement drifts vertically. Both final PNG hashes match the previously inspected pre-paint-fix images."
+    },
+    {
+      "case": "poi-39-variouspictures",
+      "page": 1,
+      "source_sha256": "c1eecbca7de9f99e21c677e1d5b045eaa1d5a442eff4c82f0cbe9af93726a070",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 1,
+        "wordcraft": 1
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-39-variouspictures/wordcraft-page-001.png",
+          "svg_sha256": "af27db39c51b0298e1be65f5ac54a64e5f047fcd0e3de5957613a3a1d12c1d68",
+          "png_sha256": "4bf0809f81e5875dc7cc310b34dc99dc4d106179f93f6c9c1621d60921b6bd93"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-39-variouspictures/edgedoc-page-001.png",
+          "svg_sha256": "094078ff2965fa069f116e828c5a762e09975378d3cb6179d0c7ad82d625f7e4",
+          "png_sha256": "d43a3c2822f2448dc96355a75c6008e9fe3ad3ef26f1fde29e0daf983f7c13af"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "The two exported raster pictures appear centered in the reference and lower/left-aligned in EdgeDoc. Metafile formats also have reference-adapter limitations, so this image pair is not a complete picture-format comparison. Final PNG hashes match the previously inspected images."
+    },
+    {
+      "case": "poi-01-complexnumberedlists",
+      "page": 1,
+      "source_sha256": "297a085a7d433af2eeee7661e8db21539452cb585096484774a1e9f5f258b0b6",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 1,
+        "wordcraft": 1
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-01-complexnumberedlists/wordcraft-page-001.png",
+          "svg_sha256": "3397b1a54c58405fa78299ed2d5b79d2172b3d00d0e3518c68a0c6f65c43343b",
+          "png_sha256": "59f062db399c99dfbea142f6813e0f448d69d519fbab7074b2692c6fc50f0521"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/poi-01-complexnumberedlists/edgedoc-page-001.png",
+          "svg_sha256": "1f77c5c01fdafb334e1d7168733beb08951aec2d66dee5bd91cbc5161cad553f",
+          "png_sha256": "256b7651d380c61456049d246e49cc9f05319f414f35a98659976da41c01c8cd"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "List numbers, letter sublevels and restarts are visible in both. Label positions, text indents and cumulative line spacing differ."
+    },
+    {
+      "case": "docx4j-01-docx4j_gettingstarted",
+      "page": 1,
+      "source_sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 45,
+        "wordcraft": 45
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-01-docx4j_gettingstarted/wordcraft-page-001.png",
+          "svg_sha256": "1f56e3b7cf479bb4cc92fe58d91fc045f1237b7d896e67e529be56b9f19e4dd8",
+          "png_sha256": "1c0debce7c1d6fec79c2ee8a6fc25bebf801e9b933288a34dfe91647a5f444dc"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-01-docx4j_gettingstarted/edgedoc-page-001.png",
+          "svg_sha256": "46ce740d93bef6122cff0b6e1cef9ab9d31fca85afcfb899b65275c04bddc6cb",
+          "png_sha256": "353286a80abf1ce21748cd0e5542f5a7cd60e5fc3b958a871580c87b0bf694b7"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "The first TOC entry text is absent in EdgeDoc. Nested TOC lines/page numbers wrap differently; links and leaders are blue/underlined instead of black. The title rule and vertical spacing also differ."
+    },
+    {
+      "case": "docx4j-01-docx4j_gettingstarted",
+      "page": 22,
+      "source_sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 45,
+        "wordcraft": 45
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-01-docx4j_gettingstarted/wordcraft-page-022.png",
+          "svg_sha256": "67a09a41906c5d249a0f731f48757cb1c50af55de555c999082f865390f10bf4",
+          "png_sha256": "71e5acbdd16fe81635b8423e0b2526e12bbac8d18eabd4c21d9852b035753976"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-01-docx4j_gettingstarted/edgedoc-page-022.png",
+          "svg_sha256": "27512f0de2fb66c2c458c2e85571caf3d50438cbd38a2aee90a7c80dccf0c16d",
+          "png_sha256": "4493643f83ae380888b35660cce4d2858c84209c5d8ba1ea9455e8b3e2210c07"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "The pages start at different source content and place the code block and following heading at different heights. The leading-tab fix improves code indentation; paragraph spacing and the placement of later content remain different."
+    },
+    {
+      "case": "docx4j-01-docx4j_gettingstarted",
+      "page": 45,
+      "source_sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 45,
+        "wordcraft": 45
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-01-docx4j_gettingstarted/wordcraft-page-045.png",
+          "svg_sha256": "03d3d2a16164070182f4097069a3c1a9f22c00cfa42afacfa6a785e6786cc668",
+          "png_sha256": "02fcc637611944db4be7534792e24a9f0ce40e02c52ec67fd4ee13d0532122fa"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-01-docx4j_gettingstarted/edgedoc-page-045.png",
+          "svg_sha256": "4cac65d4970380ebeafab0251d49e447fdbaf940defeca5a1aa2fb9222fca32e",
+          "png_sha256": "89a7ad50cc54cd31d69c25991fa1670f505d6dc779f85a42839c2b0ce7eaf0b6"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "The code line containing PhysicalFonts.setRegex(regex) is now contiguous and correctly indented after the leading-tab fix. Page-start content and baselines still differ. The page count is 45 in both engines, which alone is not parity evidence."
+    },
+    {
+      "case": "docx4j-26-arabic_numbering",
+      "page": 1,
+      "source_sha256": "15d77d6eec68ee3f6e40ba37cfee73ea517d775a1a83b3bed2dfeb236847d65d",
+      "edgedoc_build_inputs_sha256": "3bbf8742e93fbab3debcc0f19e201fa289c55efba919c77905c0a4072848f56f",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 1,
+        "wordcraft": 1
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-26-arabic_numbering/wordcraft-page-001.png",
+          "svg_sha256": "3def8a24fa6b03572f01b6b38e702df73c683856aa66a3e41ce65e642a370e13",
+          "png_sha256": "850128a09d08c7b55c249c37fd6179f3d2af8cfdc54df77bfddf0a38b2dcb257"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/corpus-inspection/visual-final/docx4j-26-arabic_numbering/edgedoc-page-001.png",
+          "svg_sha256": "b299d96c5df353fcc73a3b192ec2d9495f9dd7f246694312b96c387c073a23ba",
+          "png_sha256": "b98602a13043a29d5c9b1da503a6b9aae9f7e53d52b4ceba009b36523c49192b"
+        }
+      },
+      "visual_result": "visible differences remain",
+      "observations": "Paragraph alignment is reversed between the engines for the English labels and Arabic lines. Mixed Arabic/digit ordering and joining also differ."
+    }
+  ],
+  "revalidated_at": "2026-11-05T03:29:49.888498+00:00",
+  "revalidation": "All 22 images rerendered after the diagnostics-only change; every PNG hash matches the already inspected image.",
+  "difference_images_inspected": [
+    {
+      "case": "poi-06-fancyfoot",
+      "page": 1,
+      "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/expanded-final/poi-06-fancyfoot/diff-001.png",
+      "sha256": "d12f3000fd8348024968b9e92a0b991ee0b78681731e6d53242ef15bce178669"
+    },
+    {
+      "case": "docx4j-01-docx4j_gettingstarted",
+      "page": 1,
+      "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/expanded-final/docx4j-01-docx4j_gettingstarted/diff-001.png",
+      "sha256": "04f35ffdbddc05f3124bc73ed915a31dee1cbac6e30892fb68a20bfb8ad4a863"
+    }
+  ]
+}

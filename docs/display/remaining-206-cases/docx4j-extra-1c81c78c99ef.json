@@ -1,0 +1,235 @@
+{
+  "id": "docx4j-extra-1c81c78c99ef",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.unsupported_layout",
+      "detail": "Conditional table styles"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Calibri"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Segoe UI;Lucida Grande;Verdana;Arial;Helvetica;sans-serif"
+    },
+    {
+      "code": "display.font_substituted",
+      "detail": "Monospace"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.45397389134190824,
+      "mean_ink_color_error": 0.22963033616542816,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Chart.xsdhttp://schemas.openxmlformats.org/drawingml/2006/chart ",
+              "ChartDrawing.xsd http://schemas.openxmlformats.org/drawingml/2006/chartDrawing",
+              "igxelementpropertyset.xsd http://schemas.openxmlformats.org/drawingml/2006/diagram ",
+              "oart14docprop.xsdhttp://schemas.microsoft.com/office/drawing/2010/main",
+              "oartbasestylesheet.xsdhttp://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartbasetypes.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartbasetypes.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartdocprop.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oarte2o.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oarte2oformat.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartsp3dscene.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartsp3dstyles.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspeffects.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartsplineproperties.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspproperties.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspproperties.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspstyle.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartstylesheet.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oarttx.xsd http://schemas.openxmlformats.org/drawingml/2006/main",
+              "oartwordcontentpart.xsd http://schemas.microsoft.com/office/word/2010/wordml",
+              "oartwordgroup.xsd http://schemas.microsoft.com/office/word/2010/wordprocessingGroup ",
+              "oartWordNonEcmaShapeTextbox.xsd http://schemas.microsoft.com/office/word/2006/wordml",
+              "oartwordshape.xsd http://schemas.microsoft.com/office/word/2010/wordprocessingShape ",
+              "oartWordShapeTextbox.xsd http://schemas.openxmlformats.org/wordprocessingml/2006/main ",
+              "orel.xsdhttp://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "orel.xsd http://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "orel.xsd http://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "orel.xsdhttp://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "picturee2o.xsd http://schemas.openxmlformats.org/drawingml/2006/picture ",
+              "Oartwordcanvas",
+              "oartdrawingdiagram2008.xsd",
+              "ink2010",
+              "Schemas in [MS-ODRAWXML] v17 (9/19/2017)",
+              "https://msdn.microsoft.com/en-us/library/ee198339(v=office.12).aspx"
+            ],
+            "edgedoc": [
+              "Chart.xsdhttp://schemas.openxmlformats.org/drawingml/2006/chart ",
+              "ChartDrawing.xsd http://schemas.openxmlformats.org/drawingml/2006/chartDrawing",
+              "igxelementpropertyset.xsd http://schemas.openxmlformats.org/drawingml/2006/diagram ",
+              "oart14docprop.xsdhttp://schemas.microsoft.com/office/drawing/2010/main",
+              "oartbasestylesheet.xsdhttp://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartbasetypes.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartbasetypes.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartdocprop.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oarte2o.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oarte2oformat.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartsp3dscene.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartsp3dstyles.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspeffects.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartsplineproperties.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspproperties.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspproperties.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartspstyle.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oartstylesheet.xsd http://schemas.openxmlformats.org/drawingml/2006/main ",
+              "oarttx.xsd http://schemas.openxmlformats.org/drawingml/2006/main",
+              "oartwordcontentpart.xsd http://schemas.microsoft.com/office/word/2010/wordml",
+              "oartwordgroup.xsd http://schemas.microsoft.com/office/word/2010/wordprocessingGroup ",
+              "oartWordNonEcmaShapeTextbox.xsd http://schemas.microsoft.com/office/word/2006/wordml",
+              "oartwordshape.xsd http://schemas.microsoft.com/office/word/2010/wordprocessingShape ",
+              "oartWordShapeTextbox.xsd http://schemas.openxmlformats.org/wordprocessingml/2006/main ",
+              "orel.xsdhttp://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "orel.xsd http://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "orel.xsd http://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "orel.xsdhttp://schemas.openxmlformats.org/officeDocument/2006/relationships ",
+              "picturee2o.xsd http://schemas.openxmlformats.org/drawingml/2006/picture ",
+              "Oartwordcanvas",
+              "oartdrawingdiagram2008.xsd",
+              "ink2010",
+              "Schemas in [MS-ODRAWXML] v17 (9/19/2017)"
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.45397389134190824,
+          "mean_ink_color_error": 0.22963033616542816
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.5938607417707096,
+      "mean_ink_color_error": 0.2342708706855774,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "Schema namePrefixdocx4j filenamepackage",
+              "http://schemas.microsoft.com/ink/2010/main Schemamsink",
+              "http://schemas.microsoft.com/office/drawing/2007/8/2/chart SchemaNone.odrawxml/chart20070802.xsdorg.docx4j.dml.chart.x2007",
+              "http://schemas.microsoft.com/office/drawing/2008/diagram SchemaNone.org.docx4j.dml.diagram2008",
+              "http://schemas.microsoft.com/office/drawing/2010/chartDrawing SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2010/diagram SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2010/main Schemaa14",
+              "http://schemas.microsoft.com/office/drawing/2010/picture SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2012/chart SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2012/chartStyle SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2012/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2013/main/command Schemaac",
+              "http://schemas.microsoft.com/office/drawing/2014/chart SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2014/chart/ac SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2014/chartex SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2014/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2016/11/diagram SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2016/11/main SchemaNone."
+            ],
+            "edgedoc": [
+              "https://msdn.microsoft.com/en-us/library/ee198339(v=office.12).aspx",
+              "Schema namePrefixdocx4j filenamepackage",
+              "http://schemas.microsoft.com/ink/2010/main Schemamsink",
+              "http://schemas.microsoft.com/office/drawing/2007/8/2/chart SchemaNone.odrawxml/chart20070802.xsdorg.docx4j.dml.chart.x2007",
+              "http://schemas.microsoft.com/office/drawing/2008/diagram SchemaNone.org.docx4j.dml.diagram2008",
+              "http://schemas.microsoft.com/office/drawing/2010/chartDrawing SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2010/diagram SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2010/main Schemaa14",
+              "http://schemas.microsoft.com/office/drawing/2010/picture SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2012/chart SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2012/chartStyle SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2012/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2013/main/command Schemaac",
+              "http://schemas.microsoft.com/office/drawing/2014/chart SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2014/chart/ac SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2014/chartex SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2014/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2016/11/diagram SchemaNone."
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.5938607417707096,
+          "mean_ink_color_error": 0.2342708706855774
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 0.36704690268237344,
+      "mean_ink_color_error": 0.2339552342891693,
+      "errors": [
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "http://schemas.microsoft.com/office/drawing/2016/ink SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2016/SVG/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2017/model3d Schemaam3d",
+              "http://schemas.microsoft.com/office/excel/2010/spreadsheetDrawing SchemaNone.",
+              "http://schemas.microsoft.com/office/powerpoint/2014/inkAction Schemaiact",
+              "http://schemas.microsoft.com/office/thememl/2012/main SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordml SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingShape SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2012/wordprocessingDrawing SchemaNone."
+            ],
+            "edgedoc": [
+              "http://schemas.microsoft.com/office/drawing/2016/11/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2016/ink SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2016/SVG/main SchemaNone.",
+              "http://schemas.microsoft.com/office/drawing/2017/model3d Schemaam3d",
+              "http://schemas.microsoft.com/office/excel/2010/spreadsheetDrawing SchemaNone.",
+              "http://schemas.microsoft.com/office/powerpoint/2014/inkAction Schemaiact",
+              "http://schemas.microsoft.com/office/thememl/2012/main SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordml SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2010/wordprocessingShape SchemaNone.",
+              "http://schemas.microsoft.com/office/word/2012/wordprocessingDrawing SchemaNone."
+            ]
+          }
+        },
+        {
+          "unmatched_ink_fraction": 0.36704690268237344,
+          "mean_ink_color_error": 0.2339552342891693
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "edgedoc_diagnostics": [
+        {
+          "code": "display.unsupported_layout",
+          "detail": "Conditional table styles"
+        }
+      ]
+    }
+  ]
+}

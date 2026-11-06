@@ -1,0 +1,88 @@
+{
+  "id": "docx4j-extra-aff6f3642a76",
+  "status": "failed",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "diagnostics": [
+    {
+      "code": "display.font_substituted",
+      "detail": "Calibri"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "passed": false,
+      "max_glyph_origin_error_pt": 0.0,
+      "unmatched_ink_fraction": 1.0,
+      "mean_ink_color_error": 1.0,
+      "errors": [
+        "Only one renderer omitted this page's text",
+        {
+          "line_breaks_or_text": {
+            "wordcraft": [
+              "14",
+              "12",
+              "10",
+              "8",
+              "Series 3",
+              "Series 2",
+              "6",
+              "Series 1",
+              "4",
+              "2",
+              "0",
+              "Category 1Category 2Category 3Category 4"
+            ],
+            "edgedoc": []
+          }
+        },
+        {
+          "unmatched_ink_fraction": 1.0,
+          "mean_ink_color_error": 1.0
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "reference_adapter_limit": [
+        "Reference adapter does not paint Shape { rect: Rect { x: 72.0, y: 72.0, w: 432.0, h: 252.0 }, kind: Rectangle, fill: Some(Solid(Rgb(255, 255, 255), 1.0)), stroke: None, stroke_width: 0.75, dash: [], cap: Flat, effects: ShapeEffects { shadow: None, glow: None, soft_edge: None }, corner: None }",
+        "Reference adapter does not paint Shape { rect: Rect { x: 447.4, y: 182.79999, w: 7.0, h: 7.0 }, kind: Rectangle, fill: Some(Solid(Rgb(155, 187, 89), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat, effects: ShapeEffects { shadow: None, glow: None, soft_edge: None }, corner: None }",
+        "Reference adapter does not paint Shape { rect: Rect { x: 447.4, y: 194.5, w: 7.0, h: 7.0 }, kind: Rectangle, fill: Some(Solid(Rgb(192, 80, 77), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat, effects: ShapeEffects { shadow: None, glow: None, soft_edge: None }, corner: None }",
+        "Reference adapter does not paint Shape { rect: Rect { x: 447.4, y: 206.2, w: 7.0, h: 7.0 }, kind: Rectangle, fill: Some(Solid(Rgb(79, 129, 189), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat, effects: ShapeEffects { shadow: None, glow: None, soft_edge: None }, corner: None }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 302.3), Line(441.4, 302.3)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 271.09286), Line(441.4, 271.09286)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 239.88571), Line(441.4, 239.88571)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 208.67857), Line(441.4, 208.67857)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 177.47144), Line(441.4, 177.47144)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 146.26428), Line(441.4, 146.26428)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 115.057144), Line(441.4, 115.057144)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 83.850006), Line(441.4, 83.850006)], fill: None, stroke: Some(Rgb(217, 217, 217)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(118.1125, 235.20465), Line(153.0625, 235.20465), Line(153.0625, 302.3), Line(118.1125, 302.3), Close], fill: Some(Solid(Rgb(79, 129, 189), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(205.4875, 263.29108), Line(240.4375, 263.29108), Line(240.4375, 302.3), Line(205.4875, 302.3), Close], fill: Some(Solid(Rgb(79, 129, 189), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(292.8625, 247.6875), Line(327.8125, 247.6875), Line(327.8125, 302.3), Line(292.8625, 302.3), Close], fill: Some(Solid(Rgb(79, 129, 189), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(380.2375, 232.08392), Line(415.1875, 232.08392), Line(415.1875, 302.3), Line(380.2375, 302.3), Close], fill: Some(Solid(Rgb(79, 129, 189), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(118.1125, 197.75607), Line(153.0625, 197.75607), Line(153.0625, 235.20465), Line(118.1125, 235.20465), Close], fill: Some(Solid(Rgb(192, 80, 77), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(205.4875, 194.63538), Line(240.4375, 194.63538), Line(240.4375, 263.29108), Line(205.4875, 263.29108), Close], fill: Some(Solid(Rgb(192, 80, 77), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(292.8625, 219.60107), Line(327.8125, 219.60107), Line(327.8125, 247.6875), Line(292.8625, 247.6875), Close], fill: Some(Solid(Rgb(192, 80, 77), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(380.2375, 188.39392), Line(415.1875, 188.39392), Line(415.1875, 232.08392), Line(380.2375, 232.08392), Close], fill: Some(Solid(Rgb(192, 80, 77), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(118.1125, 166.54893), Line(153.0625, 166.54893), Line(153.0625, 197.75607), Line(118.1125, 197.75607), Close], fill: Some(Solid(Rgb(155, 187, 89), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(205.4875, 163.42822), Line(240.4375, 163.42822), Line(240.4375, 194.63538), Line(205.4875, 194.63538), Close], fill: Some(Solid(Rgb(155, 187, 89), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(292.8625, 172.79036), Line(327.8125, 172.79036), Line(327.8125, 219.60107), Line(292.8625, 219.60107), Close], fill: Some(Solid(Rgb(155, 187, 89), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(380.2375, 110.37607), Line(415.1875, 110.37607), Line(415.1875, 188.39392), Line(380.2375, 188.39392), Close], fill: Some(Solid(Rgb(155, 187, 89), 1.0)), stroke: None, stroke_width: 0.0, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 302.3), Line(441.4, 302.3)], fill: None, stroke: Some(Rgb(191, 191, 191)), stroke_width: 0.75, dash: [], cap: Flat }",
+        "Reference adapter does not paint Path { segs: [Move(91.9, 83.85), Line(91.9, 302.3)], fill: None, stroke: Some(Rgb(191, 191, 191)), stroke_width: 0.75, dash: [], cap: Flat }"
+      ]
+    },
+    "Empty text rendering is not parity evidence for these fixtures"
+  ]
+}

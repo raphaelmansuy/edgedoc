@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "inspected_at": "2026-11-05T09:29:00.448020+00:00",
+  "method": "Inspected both engines at 144 dpi without alignment or cropping.",
+  "records": [
+    {
+      "case": "docx4j-01-docx4j_gettingstarted",
+      "page": 5,
+      "source_sha256": "0f4b223e6536e47127d6752cdf583527388fd590362fc33fcab889d2ade42a97",
+      "edgedoc_build_inputs_sha256": "d8d87253afbbb08554cda14edf1633172bdd488b03de4740a3f0f7e9ce785a3a",
+      "reference": {
+        "engine": "Wordcraft",
+        "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+        "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+        "dirty": false,
+        "source_sha256": "dfd114d00a1e324cebdc04fb4a4950abdc51afdc61214213fa767eaaf0d0256a",
+        "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+        "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+        "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+      },
+      "pages": {
+        "edgedoc": 48,
+        "wordcraft": 45
+      },
+      "images": {
+        "wordcraft": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/bullet-inspection/docx4j-01-docx4j_gettingstarted/wordcraft-page-005.png",
+          "svg_sha256": "6e2860bcc7a4214615368be28ac76c5fd56e41ab66d1d70a02ca2b3c049d28c0",
+          "png_sha256": "7421f89dc698af84b1c5fa0f4f8f7881bb4f97db842d947428c0930c602c7e9b"
+        },
+        "edgedoc": {
+          "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/bullet-inspection/docx4j-01-docx4j_gettingstarted/edgedoc-page-005.png",
+          "svg_sha256": "39d0f46eed94b2ca120d11595406fa155f2b3998331e54e6a74d772153e9fe95",
+          "png_sha256": "99ad5caedda702e3e80f2ff9f2b6ea5003e2cf2fbe650d1a3483ad47776f6585"
+        }
+      },
+      "observations": "Bullets now render as Unicode characters on the text baseline with matching horizontal marker and text positions for the inspected hanging-indent examples. The page contains an extra entry compared with Wordcraft because pagination differs; bullet fonts and line metrics also differ.",
+      "visual_result": "not visually matched"
+    }
+  ]
+}

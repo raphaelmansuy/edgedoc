@@ -16,6 +16,20 @@ use std::sync::Arc;
 
 use edgedoc_geom::Rgba;
 use ttf_parser::{Face, GlyphId};
+use unicode_segmentation::UnicodeSegmentation;
+
+// Macintosh Roman names are byte-compatible with UTF-8 when they are ASCII.
+fn ascii_mac_name(platform: ttf_parser::PlatformId, encoding: u16, bytes: &[u8]) -> Option<String> {
+    if platform == ttf_parser::PlatformId::Macintosh
+        && encoding == 0
+        && !bytes.is_empty()
+        && bytes.is_ascii()
+    {
+        std::str::from_utf8(bytes).ok().map(str::to_string)
+    } else {
+        None
+    }
+}
 
 /// Largest font file the library accepts, in bytes.
 pub const MAX_FONT_BYTES: usize = 8 << 20;
@@ -52,6 +66,11 @@ impl PartialEq for FontFace {
 }
 
 impl FontFace {
+    /// The exact font bytes used for shaping and outlines.
+    pub fn data(&self) -> &[u8] {
+        self.bytes.as_slice()
+    }
+
     pub fn ascender_pt(&self, size: f32) -> f32 {
         self.ascender / self.units_per_em * size
     }
@@ -157,6 +176,8 @@ impl ttf_parser::OutlineBuilder for PathBuilder<'_> {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ShapedGlyph {
     pub gid: u16,
+    /// Shaped advance, including kerning and positioning adjustments.
+    pub advance: f32,
     pub dx: f32,
     pub dy: f32,
     /// Byte offset of the cluster in the run text.
@@ -186,6 +207,13 @@ impl FontDb {
 
     pub fn faces(&self) -> &[FontFace] {
         &self.faces
+    }
+
+    /// Every registered family/style alias, including aliases of metric-compatible faces.
+    pub fn registered_faces(&self) -> impl Iterator<Item = (&str, bool, bool, u32)> {
+        self.by_key
+            .iter()
+            .map(|((family, bold, italic), id)| (family.as_str(), *bold, *italic, *id))
     }
 
     pub fn face(&self, id: u32) -> Option<&FontFace> {
@@ -233,7 +261,10 @@ impl FontDb {
             .names()
             .into_iter()
             .filter(|n| n.name_id == ttf_parser::name_id::FAMILY)
-            .find_map(|n| n.to_string())
+            .find_map(|n| {
+                n.to_string()
+                    .or_else(|| ascii_mac_name(n.platform_id, n.encoding_id, n.name))
+            })
             .unwrap_or_else(|| requested.unwrap_or("unknown").to_string());
         let upem = f32::from(face.units_per_em()).max(1.0);
         // Vertical metrics: `hhea` first, then `OS/2`, then the 0.8/0.2 em fallback of DP-F-42.
@@ -325,6 +356,18 @@ impl FontDb {
                 return Some(*id);
             }
         }
+        for family in substitute_candidates(family) {
+            for (b, i) in [
+                (bold, italic),
+                (bold, false),
+                (false, italic),
+                (false, false),
+            ] {
+                if let Some(id) = self.by_key.get(&(family.to_ascii_lowercase(), b, i)) {
+                    return Some(*id);
+                }
+            }
+        }
         self.fallback
     }
 
@@ -339,6 +382,51 @@ impl FontDb {
     /// Total bytes held by the faces.
     pub fn bytes_loaded(&self) -> usize {
         self.faces.iter().map(|f| f.bytes.len()).sum()
+    }
+}
+
+/// Available-family fallbacks, in the order used by the inspected Wordcraft font resolver.
+/// Prefer a compatible design and retain serif/monospace families when the first choice is absent.
+pub fn substitute_candidates(family: &str) -> &'static [&'static str] {
+    match family.to_ascii_lowercase().as_str() {
+        "cambria" | "cambria math" | "constantia" | "georgia" | "garamond"
+        | "palatino linotype" | "book antiqua" => &[
+            "Caladea",
+            "Times New Roman",
+            "Liberation Serif",
+            "Georgia",
+            "Noto Serif",
+            "DejaVu Serif",
+            "Source Serif 4",
+            "Tinos",
+        ],
+        "times new roman" | "times" | "liberation serif" => {
+            &["Times New Roman", "Liberation Serif", "Times", "Tinos"]
+        }
+        "consolas" | "courier" | "courier new" | "lucida console" => &[
+            "Courier New",
+            "Liberation Mono",
+            "Menlo",
+            "Consolas",
+            "DejaVu Sans Mono",
+            "Cousine",
+        ],
+        "arial" | "liberation sans" | "helvetica" | "segoe ui" | "tahoma" | "verdana"
+        | "trebuchet ms" => &[
+            "Liberation Sans",
+            "Arial",
+            "Helvetica",
+            "Helvetica Neue",
+            "Arimo",
+        ],
+        "calibri" | "calibri light" | "aptos" | "aptos display" | "carlito" => &[
+            "Carlito",
+            "Helvetica Neue",
+            "Arial",
+            "Liberation Sans",
+            "Arimo",
+        ],
+        _ => &[],
     }
 }
 
@@ -393,6 +481,48 @@ pub struct ShapedRun {
 /// Shape a string in one face. The result is in logical order with visual glyph order inside a
 /// cluster, which is what the layout needs. See `DP-F-08` and `DP-F-45`.
 pub fn shape(face: &FontFace, text: &str, rtl: bool, features: &[&str]) -> ShapedRun {
+    // rustybuzz's internal syllable serial is an eight-bit wrapping counter. Very long runs can
+    // overflow it in debug builds. Break large runs at whitespace when possible, without splitting
+    // grapheme clusters, and retain the original byte offsets in the resulting glyphs.
+    const MAX_GRAPHEMES: usize = 128;
+    let graphemes = text.grapheme_indices(true).collect::<Vec<_>>();
+    if graphemes.len() <= MAX_GRAPHEMES {
+        return shape_chunk(face, text, rtl, features);
+    }
+    let mut ranges = Vec::new();
+    let mut start = 0usize;
+    while start < graphemes.len() {
+        let limit = (start + MAX_GRAPHEMES).min(graphemes.len());
+        let end = if limit < graphemes.len() {
+            (start + 1..=limit)
+                .rev()
+                .find(|index| graphemes[*index - 1].1.chars().all(char::is_whitespace))
+                .unwrap_or(limit)
+        } else {
+            limit
+        };
+        let from = graphemes[start].0;
+        let to = graphemes.get(end).map_or(text.len(), |entry| entry.0);
+        ranges.push((from, to));
+        start = end;
+    }
+    if rtl {
+        ranges.reverse();
+    }
+    let mut result = ShapedRun::default();
+    for (from, to) in ranges {
+        let mut chunk = shape_chunk(face, &text[from..to], rtl, features);
+        let offset = u32::try_from(from).unwrap_or(u32::MAX);
+        for glyph in &mut chunk.glyphs {
+            glyph.cluster = glyph.cluster.saturating_add(offset);
+        }
+        result.advance += chunk.advance;
+        result.glyphs.extend(chunk.glyphs);
+    }
+    result
+}
+
+fn shape_chunk(face: &FontFace, text: &str, rtl: bool, features: &[&str]) -> ShapedRun {
     let Ok(parsed) = Face::parse(face_bytes(face), 0) else {
         return fallback_advances(face, text);
     };
@@ -405,14 +535,15 @@ pub fn shape(face: &FontFace, text: &str, rtl: bool, features: &[&str]) -> Shape
     let tag_list: Vec<rustybuzz::Feature> = features
         .iter()
         .filter_map(|f| {
-            let mut chars = f.chars();
+            let (tag, value) = f.strip_prefix('-').map_or((*f, 1), |tag| (tag, 0));
+            let mut chars = tag.chars();
             let a = chars.next()?;
             let b = chars.next()?;
             let c = chars.next()?;
             let d = chars.next()?;
             Some(rustybuzz::Feature::new(
                 rustybuzz::ttf_parser::Tag::from_bytes(&[a as u8, b as u8, c as u8, d as u8]),
-                1,
+                value,
                 ..,
             ))
         })
@@ -425,6 +556,7 @@ pub fn shape(face: &FontFace, text: &str, rtl: bool, features: &[&str]) -> Shape
     for (info, pos) in infos.iter().zip(positions.iter()) {
         glyphs.push(ShapedGlyph {
             gid: info.glyph_id as u16,
+            advance: pos.x_advance as f32,
             dx: pos.x_offset as f32,
             dy: pos.y_offset as f32,
             cluster: info.cluster,
@@ -445,6 +577,7 @@ fn fallback_advances(face: &FontFace, text: &str) -> ShapedRun {
         let gid = face.glyph_for(c).unwrap_or(0);
         out.push(ShapedGlyph {
             gid,
+            advance: face.advance_units(gid),
             dx: 0.0,
             dy: 0.0,
             cluster: i as u32,
@@ -461,6 +594,17 @@ fn fallback_advances(face: &FontFace, text: &str) -> ShapedRun {
 pub trait Shaper {
     /// Shape one run. `size` is in points and the glyph offsets are in points.
     fn shape_run(&self, face_id: u32, text: &str, size: f32, rtl: bool) -> Vec<ShapedGlyph>;
+    /// Shape with the document's kerning choice. Test shapers may retain their fixed metrics.
+    fn shape_run_kerning(
+        &self,
+        face_id: u32,
+        text: &str,
+        size: f32,
+        rtl: bool,
+        _kern: bool,
+    ) -> Vec<ShapedGlyph> {
+        self.shape_run(face_id, text, size, rtl)
+    }
     /// The advance of one glyph at a size, in points.
     fn advance(&self, face_id: u32, gid: u16, size: f32) -> f32;
     /// The natural line height of a face at a size.
@@ -476,14 +620,26 @@ pub struct DbShaper<'a> {
 
 impl Shaper for DbShaper<'_> {
     fn shape_run(&self, face_id: u32, text: &str, size: f32, rtl: bool) -> Vec<ShapedGlyph> {
+        self.shape_run_kerning(face_id, text, size, rtl, true)
+    }
+
+    fn shape_run_kerning(
+        &self,
+        face_id: u32,
+        text: &str,
+        size: f32,
+        rtl: bool,
+        kern: bool,
+    ) -> Vec<ShapedGlyph> {
         let Some(face) = self.db.face(face_id) else {
             return Vec::new();
         };
         let scale = size / face.units_per_em;
-        let mut shaped = shape(face, text, rtl, &["kern", "liga", "clig", "calt"]);
+        let mut shaped = shape(face, text, rtl, if kern { &[] } else { &["-kern"] });
         for g in &mut shaped.glyphs {
+            g.advance *= scale;
             g.dx *= scale;
-            g.dy *= scale;
+            g.dy *= -scale;
         }
         shaped.glyphs
     }
@@ -545,6 +701,35 @@ mod tests {
     }
 
     #[test]
+    fn ascii_mac_family_names_are_decoded_without_misreading_other_encodings() {
+        use ttf_parser::PlatformId;
+        assert_eq!(
+            ascii_mac_name(PlatformId::Macintosh, 0, b"Symbol").as_deref(),
+            Some("Symbol")
+        );
+        assert_eq!(ascii_mac_name(PlatformId::Macintosh, 0, &[0x80]), None);
+        assert_eq!(ascii_mac_name(PlatformId::Windows, 0, b"Symbol"), None);
+        assert_eq!(ascii_mac_name(PlatformId::Macintosh, 1, b"Symbol"), None);
+    }
+
+    #[test]
+    fn long_runs_shape_without_counter_overflow_and_keep_source_offsets() {
+        let db = db();
+        let face = db.face(0).expect("regular face");
+        let text = " note continuation content".repeat(1800);
+        let shaped = shape(face, &text, false, &[]);
+        assert!(!shaped.glyphs.is_empty());
+        assert!(shaped
+            .glyphs
+            .iter()
+            .any(|glyph| glyph.cluster as usize > text.len() / 2));
+        assert!(shaped
+            .glyphs
+            .iter()
+            .all(|glyph| (glyph.cluster as usize) < text.len()));
+    }
+
+    #[test]
     fn a_family_name_is_case_insensitive() {
         let db = db();
         assert_eq!(db.resolve("carlito", false, false), Some(0));
@@ -555,6 +740,13 @@ mod tests {
     fn an_unknown_family_uses_the_fallback() {
         let db = db();
         assert_eq!(db.resolve("No Such Face", false, false), Some(0));
+    }
+
+    #[test]
+    fn an_unknown_family_respects_an_explicit_fallback() {
+        let mut db = db();
+        db.set_fallback(1);
+        assert_eq!(db.resolve("No Such Face", false, false), Some(1));
     }
 
     #[test]

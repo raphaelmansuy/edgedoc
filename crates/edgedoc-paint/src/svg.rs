@@ -1,8 +1,8 @@
 //! The SVG painter: a page as one `<svg>` element.
 //!
 //! SVG output is for export, for print, and for a screenshot test that needs no rasterizer. Glyphs
-//! are written as `<text>` with the character, so a browser renders them with its own font. When a
-//! face is not available to the browser, the `<text>` still selects and reads. See `DP-G-19`.
+//! can use the loaded font's outlines, so exports do not depend on fonts installed in the viewer.
+//! The legacy face-name API writes text when no font database is supplied. See `DP-G-19`.
 
 use edgedoc_geom::Rgba;
 
@@ -100,6 +100,24 @@ pub fn paint_page_styled(
     faces: &[FaceStyle],
     images: &[ImageResource],
 ) -> String {
+    paint_page_impl(page, faces, images, None)
+}
+
+/// Export the actual shaped glyphs from the loaded fonts, retaining an invisible text layer.
+pub fn paint_page_fonts(
+    page: &crate::DisplayPage,
+    fonts: &edgedoc_fonts::FontDb,
+    images: &[ImageResource],
+) -> String {
+    paint_page_impl(page, &[], images, Some(fonts))
+}
+
+fn paint_page_impl(
+    page: &crate::DisplayPage,
+    faces: &[FaceStyle],
+    images: &[ImageResource],
+    fonts: Option<&edgedoc_fonts::FontDb>,
+) -> String {
     let mut out = String::with_capacity(8192);
     out.push_str(&format!(
         "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{:.2}\" height=\"{:.2}\" viewBox=\"0 0 {:.2} {:.2}\" role=\"img\">\n",
@@ -107,13 +125,16 @@ pub fn paint_page_styled(
     ));
     out.push_str("<rect width=\"100%\" height=\"100%\" fill=\"#ffffff\"/>\n");
     let mut clip_depth = 0usize;
+    let mut clip_serial = 0usize;
     let mut transform_depth = 0usize;
     for op in &page.ops {
         match op {
             Op::BeginPage { .. } | Op::EndPage => {}
             Op::PushClip(r) => {
+                let clip_id = clip_serial;
+                clip_serial += 1;
                 out.push_str(&format!(
-                    "<g clip-path=\"url(#clip{clip_depth})\"><clipPath id=\"clip{clip_depth}\"><rect x=\"{:.2}\" y=\"{:.2}\" width=\"{:.2}\" height=\"{:.2}\"/></clipPath>\n",
+                    "<g clip-path=\"url(#clip{clip_id})\"><clipPath id=\"clip{clip_id}\"><rect x=\"{:.2}\" y=\"{:.2}\" width=\"{:.2}\" height=\"{:.2}\"/></clipPath>\n",
                     r.x, r.y, r.w, r.h
                 ));
                 clip_depth += 1;
@@ -188,6 +209,12 @@ pub fn paint_page_styled(
                 }
             }
             Op::Glyphs(run) => {
+                if let Some(fonts) = fonts {
+                    if !run.hidden {
+                        outline_run(&mut out, run, fonts);
+                    }
+                    continue;
+                }
                 // One `<text>` per glyph, placed at its pen, so the SVG matches the display list
                 // and a screenshot test compares the same positions.
                 if run.hidden {
@@ -244,18 +271,26 @@ pub fn paint_page_styled(
                     x += adv;
                 }
             }
-            Op::Image { resource, rect, .. } => {
+            Op::Image {
+                resource,
+                rect,
+                src,
+                opacity,
+                ..
+            } => {
                 match images.iter().find(|i| i.id == *resource) {
                     Some(image) => {
-                        out.push_str(&format!(
-                            "<image x=\"{:.2}\" y=\"{:.2}\" width=\"{:.2}\" height=\"{:.2}\" preserveAspectRatio=\"none\" href=\"data:{};base64,{}\"/>\n",
-                            rect.x,
-                            rect.y,
-                            rect.w,
-                            rect.h,
-                            image.mime,
-                            base64(&image.bytes)
-                        ));
+                        if *src == [0.0, 0.0, 1.0, 1.0] {
+                            out.push_str(&format!(
+                                "<image x=\"{:.2}\" y=\"{:.2}\" width=\"{:.2}\" height=\"{:.2}\" preserveAspectRatio=\"none\" href=\"data:{};base64,{}\"/>\n",
+                                rect.x, rect.y, rect.w, rect.h, image.mime, base64(&image.bytes)
+                            ));
+                        } else if src[2] > 0.0 && src[3] > 0.0 {
+                            out.push_str(&format!(
+                                "<svg x=\"{:.2}\" y=\"{:.2}\" width=\"{:.2}\" height=\"{:.2}\" viewBox=\"{:.6} {:.6} {:.6} {:.6}\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"1\" height=\"1\" opacity=\"{:.4}\" preserveAspectRatio=\"none\" href=\"data:{};base64,{}\"/></svg>\n",
+                                rect.x, rect.y, rect.w, rect.h, src[0], src[1], src[2], src[3], opacity, image.mime, base64(&image.bytes)
+                            ));
+                        }
                     }
                     None => {
                         // A missing resource paints a marked box, so the page shows where it goes.
@@ -293,6 +328,51 @@ pub fn paint_page_styled(
     }
     out.push_str("</svg>\n");
     out
+}
+
+/// A glyph's SVG path in font units, with positive y pointing up.
+pub fn glyph_path(face: &edgedoc_fonts::FontFace, gid: u16) -> String {
+    use edgedoc_fonts::PathSeg as FontPath;
+    let segs: Vec<_> = face
+        .outline(gid)
+        .into_iter()
+        .map(|seg| match seg {
+            FontPath::Move(x, y) => PathSeg::Move(x, y),
+            FontPath::Line(x, y) => PathSeg::Line(x, y),
+            FontPath::Quad(x1, y1, x, y) => PathSeg::Quad(x1, y1, x, y),
+            FontPath::Cubic(x1, y1, x2, y2, x, y) => PathSeg::Cubic(x1, y1, x2, y2, x, y),
+            FontPath::Close => PathSeg::Close,
+        })
+        .collect();
+    path_data(&segs)
+}
+
+fn outline_run(out: &mut String, run: &crate::GlyphRunOp, fonts: &edgedoc_fonts::FontDb) {
+    let Some(face) = fonts.face(run.face) else {
+        return;
+    };
+    out.push_str(&format!("<g aria-label=\"{}\">\n", escape_attr(&run.text)));
+    let scale = run.size / face.units_per_em;
+    let mut x = run.x;
+    for (i, gid) in run.glyphs.iter().enumerate() {
+        let (dx, dy) = run.offsets.get(i).copied().unwrap_or_default();
+        let path = glyph_path(face, *gid);
+        if !path.is_empty() {
+            let bold = if run.synth_bold {
+                format!(
+                    " stroke=\"{}\" stroke-width=\"{}\" vector-effect=\"non-scaling-stroke\"",
+                    run.paint.to_css(),
+                    (run.size * 0.025).max(0.25)
+                )
+            } else {
+                String::new()
+            };
+            let skew = if run.synth_italic { "skewX(-12) " } else { "" };
+            out.push_str(&format!("<path d=\"{path}\" fill=\"{}\"{bold} transform=\"translate({} {}) {skew}scale({} {})\"/>\n", run.paint.to_css(), x + dx, run.y + dy, scale * run.x_scale, -scale));
+        }
+        x += run.advances.get(i).copied().unwrap_or_default();
+    }
+    out.push_str(&format!("<text x=\"{}\" y=\"{}\" font-family=\"{}\" font-size=\"{}\" fill-opacity=\"0\">{}</text></g>\n", run.x, run.y, escape_attr(&face.family), run.size, escape_text(&run.text)));
 }
 
 fn transform_attr(a: &Affine) -> String {
@@ -340,6 +420,8 @@ fn escape_text(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
         match c {
+            c if (c < '\u{20}' && !matches!(c, '\t' | '\n' | '\r'))
+                || matches!(c, '\u{FFFE}' | '\u{FFFF}') => {}
             '&' => out.push_str("&amp;"),
             '<' => out.push_str("&lt;"),
             '>' => out.push_str("&gt;"),

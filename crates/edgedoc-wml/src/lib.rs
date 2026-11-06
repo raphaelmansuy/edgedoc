@@ -8,7 +8,7 @@ mod write;
 
 pub use catalog::{is_owned, OWNED};
 pub use error::{WmlError, WmlResult};
-pub use read::document_from_package;
+pub use read::{document_from_package, style_default_properties};
 pub use write::write_document;
 
 use edgedoc_limit::Budget;

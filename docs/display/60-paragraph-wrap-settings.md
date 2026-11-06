@@ -1,0 +1,9 @@
+# Paragraph wrap settings
+
+EdgeDoc now reads, inherits, applies, and writes `w:wordWrap` and `w:kinsoku`. When word wrap is disabled, Latin words may break between letters, matching Wordcraft. When kinsoku is disabled, adjacent East Asian characters may break around punctuation; with it enabled, the prohibition list now includes the small kana and prolonged sound marks used by Wordcraft. Direct paragraph settings override inherited style settings.
+
+The focused word-wrap document previously broke into four lines instead of Wordcraft's three; it now passes (`wordwrap-before-result.json`, `wordwrap-focused-result.json`), and its paired page images were inspected (`wordwrap-image-inspection/`). A separate `kinsoku=0` comparison also passes (`kinsoku-focused-result.json`), with inspected images in `kinsoku-image-inspection/`. Both engines used the same locally generated subset of the system Arial Unicode font for the latter; that font profile is environment-specific and is not included in the common-font corpus totals.
+
+The common-font selected set passes 200/200 (`wordwrap-200-result.json`). Tests cover the word-wrap read/edit/save round trip, both style inheritance and direct overrides, and East Asian break opportunities. Workspace tests, strict clippy and formatting checks passed; browser checks passed 18/18 interactions and 134/134 checks across 33 corpus documents. The most recent complete 394-case comparison before this change recorded 198 passed, 178 failed, and 18 blocked (`whitespace-final-394-result.json`); overall Wordcraft parity remains unproven.
+
+A separate font-profile follow-up adds the already bundled Source Sans 3 face to the explicitly supplied comparison fonts. Both edited-save special-hyphen fixtures then pass (`hyphens-font-focused-result.json`); the first pair was inspected (`hyphens-font-image-inspection.json`). These results use a different font profile and are not counted in the common-font run.

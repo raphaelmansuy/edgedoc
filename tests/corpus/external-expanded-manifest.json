@@ -1,0 +1,2541 @@
+{
+  "schema": 1,
+  "scope": "Additional pinned upstream DOCX files; invalid, encrypted and malformed fixtures retained for independent bounded assessment.",
+  "documents": [
+    {
+      "id": "poi-extra-12d36225024b",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/51921-Word-Crash067.docx",
+      "git_blob_sha1": "12c27c85e47a06b44b1f5d24cdbdc1ded4a0f176",
+      "bytes": 20006,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/51921-Word-Crash067.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "422e62dfe18243e8bfbb4504be91075cde9318c11d479b70132972aebbb3b107",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-797bfdf13936",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/52288.docx",
+      "git_blob_sha1": "0eb23b0d4e5cd52bda79634b87b3766e3813e45d",
+      "bytes": 12788,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/52288.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8ab0f0afddd11ab43bd2dcfe4e5b51f8a4dfcc948fe3f327b338bcc2c3733bee",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-2d06be0efd68",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/52449.docx",
+      "git_blob_sha1": "f294b85dbd1995ed67c68f83ac2295df477d9943",
+      "bytes": 18854,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/52449.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f48139d1b019b5e5e0d4396fb6b10ed21dd30116926646bbd5598d807580ae2b",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-8e6608aa6526",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/55733.docx",
+      "git_blob_sha1": "521f50ee8481f053df9e0eb970f22dce1913e6fc",
+      "bytes": 3045,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/55733.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "b5c30080ffe667ef27414302ffd3ccd01ef1c85d4a5a459761b9c82c3421a4e0",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-a27a2c2fb6b2",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/55966.docx",
+      "git_blob_sha1": "28543c970284917cb08558041fcf13b9abf050cf",
+      "bytes": 20757,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/55966.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "4409a5e95d229c5ab94fb24aac1a53ee47d0d66c9e75b7f39d80f10c218abedb",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-2b9113f42ae4",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/56392.docx",
+      "git_blob_sha1": "89a71aed2fdbf90c860a15d680680902acbb9686",
+      "bytes": 11211,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/56392.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bdff4457ccfbe7482f8230e2e1085e8becdda5bc869237923a4e70977d3b6678",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-fcd5027c3c76",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/57312.docx",
+      "git_blob_sha1": "3227597391329c83cf2a691c87d1292c5df9f35f",
+      "bytes": 21702,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/57312.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f80b3c4f3885e0284d8017fec93818b4ec5366f9486ad97b8ddd47ab68a330c5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-0a15e0b16c26",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/58067.docx",
+      "git_blob_sha1": "ede9abbe5b47b8e627a5cdd01a6f6d19716d38ef",
+      "bytes": 28709,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/58067.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "719b5076b736e6208be4b10fd268e9e3b7e0029c819d485d53ca14700fc98fc5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-6fd23c221b39",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/58618.docx",
+      "git_blob_sha1": "5a779391e121314ac5406708c9462f28b21f86bd",
+      "bytes": 10045,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/58618.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "393ac2f66113a3a8a35e3cacf806cbcaf080dbdb62d1c8345183e6a338f35295",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-1857ebe7e32f",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/59030.docx",
+      "git_blob_sha1": "cf40dd2213a44972cce7f1bccdfd6f9db8933386",
+      "bytes": 11712,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/59030.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "2968d4a5d5de21dce1cbeae3235e545cdf4bfd7ae508fe0eed3a9b032773ce17",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-9c1a183acdd4",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/59378.docx",
+      "git_blob_sha1": "f3939ade56deca83c414b44364b90efa19893d1f",
+      "bytes": 26063,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/59378.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9829d202db7fc9d86399552ea7e92fbb415444c9242303c8142026b73034776a",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-3f9c9c787331",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/60293.docx",
+      "git_blob_sha1": "02dcabc9c4a3a0409b7a33f534a9f075e7c34d56",
+      "bytes": 15634,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/60293.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a534742296b8a3817f94ded5110ab79e3995bb53184c2741207fbc70e475e5f5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-49e505debc61",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/60316.docx",
+      "git_blob_sha1": "78b2b1d846cbb951606d0a86fc9e42f587126378",
+      "bytes": 48142,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/60316.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0bfd17f6ccbf1d410278fcd9141c6007b521ebb0cba53276eddb52bdd16c4769",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-e818b7f851ec",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/60329.docx",
+      "git_blob_sha1": "c0bb15ca0438b976e01644ece73981c5980e0990",
+      "bytes": 31124,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/60329.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "e5b4e66038f92ef589e12ea870b24cc7a3e0005cd7a53817abff1307404f7aa3",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-bcdee200e9d4",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/61470.docx",
+      "git_blob_sha1": "6fc1afe45cfc6615874a5b56191a055751954b08",
+      "bytes": 12523,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/61470.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "abda850b3685027eef32a4c583b2b5f7f20f243026d8c453cdb3315348ed6ff0",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-beb260560d03",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/61745.docx",
+      "git_blob_sha1": "d4e5bc827e12d7ed0ad52e2e82ef5335066867ee",
+      "bytes": 37030,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/61745.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "ec54badce04b9fc3c4c327e31fbbd06c1bb556056df9cf04760db75c8913f8a2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-6bd18ab3b455",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/61787.docx",
+      "git_blob_sha1": "0c4c9353cffe3afbd212349f51f2d70eff192201",
+      "bytes": 7047,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/61787.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "eaea73fcee1225c17d55fdd363444ee34ce8a4eb2358b2ec2e5d835f24691227",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-cf380cd9dbe4",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/61991.docx",
+      "git_blob_sha1": "d363e6a7b2ae69afaf3a5560fbdc1168afb7da41",
+      "bytes": 17931,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/61991.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "e48f4d42f64b6b7bfc30827c37285fc6af692bdb9b73d9caca90343afeb6b140",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-33200a85fb5b",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/65099.docx",
+      "git_blob_sha1": "a0b57db943804dd03e57c93ab2c0917b865fa1d0",
+      "bytes": 17126,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/65099.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "135859d73ef88c3c721ee42ad5e49d325e5a1a7ee68e0a099eb667b49331cc62",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-b7668ab3f815",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug51170.docx",
+      "git_blob_sha1": "c712cdc20f794ffc92ae966fbc72346f364de820",
+      "bytes": 239621,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug51170.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "3a5f19e5bfdc7f25ce16cb256bb8bab1a15e900a767b4a4c6b1ea3ee34faaa32",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-fc489ae79869",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug54771a.docx",
+      "git_blob_sha1": "19bbbd1a456831e456d37e2c3043e389a010bf42",
+      "bytes": 44431,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug54771a.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "e9f466580cd26098320262def84db719802e6f7ef2302036ce0ec8a5a607188d",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-f409e5487ec7",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug54771b.docx",
+      "git_blob_sha1": "f9850bb556559dd0027d5752542e63eb2ec3aeac",
+      "bytes": 39666,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug54771b.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8721295e024cf07671ba7db0430db2a94f9a6f12dd3ba2aa36f3011d5885021b",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-22f6e0f4d24f",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug54849.docx",
+      "git_blob_sha1": "836c1470695e13391028667e73de4fe7736ff225",
+      "bytes": 27566,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug54849.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f54182713ea5ce5d77b9593d3d9d24e645460043cec0b40ef59c932385f084d3",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-812bde95b63b",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug55142.docx",
+      "git_blob_sha1": "1ae2adafea5826987be9ff5c2a75e970cfc65c96",
+      "bytes": 22586,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug55142.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "69828bfe8887125db7d7e5b29405111927807b849d262d42c351ccec3b3cdb83",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-6a6413f93cdd",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug60337.docx",
+      "git_blob_sha1": "06d0339fc5f854d90fe6721d991c512c815da4c5",
+      "bytes": 13463,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug60337.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "87f983bdd93b3b5b8469104a5b09ccff41e0f5c144060e13fd4db07bfd2e39da",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-62a6f4519bd5",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug60341.docx",
+      "git_blob_sha1": "d97ebdce725232f8fd66995fe1ef7dbad4852526",
+      "bytes": 2297,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug60341.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "56147fba379742c9b73e98787ff171c7ed37b038e623ed26749dab6b90a009ab",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-0c1ec0515def",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug62859.docx",
+      "git_blob_sha1": "e0ede4a83db6a202989695236065e72c8884bf79",
+      "bytes": 17326,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug62859.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9a2af7058bb7f2c77a6591ecffd72f8b45983659ea59b9b5d7acf92b1daea513",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-df49cb615afe",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug64561.docx",
+      "git_blob_sha1": "f34fe701bf3ebf57419d46e321541ea058a029c1",
+      "bytes": 17630,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug64561.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "ae2ce22d39377301bf17145d6ce0812f6cf33ab9639edb7b06bc1f5254bd9824",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-bb1b8bd67870",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug66263-paragraph.docx",
+      "git_blob_sha1": "e1b942b9ce0290620adfe829d621afc52e970e45",
+      "bytes": 2012,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug66263-paragraph.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "41ccacadeda1ac97485b772404228b9a66c2339d46208271b932b7a4a6661998",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-52104d1357d4",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug66263-table.docx",
+      "git_blob_sha1": "4964164911f8d50e3eafe8d56c4bfccf1d88b68e",
+      "bytes": 1970,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug66263-table.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "2d3aedaf149375071e54c10a898c1900b343fb22a7b2db9261a32b1452ed7737",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-8895c0d98d26",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Bug66988.docx",
+      "git_blob_sha1": "4b7a781bc37506d4495a2dc76edf16fe1a020945",
+      "bytes": 4875,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Bug66988.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "349b3576e2478801a80672e190d7406252d7adefb6d722bd6ae790817ea0bd2f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-57c8431cd88e",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/EmbeddedDocument.docx",
+      "git_blob_sha1": "1cb35a5cf7b48bd4b8fc4a13571a46591b60798f",
+      "bytes": 13268,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/EmbeddedDocument.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "3cb521da0faab3b8a9e7c5d155961b4f5506fb2ceda8e69e0790d03ee01767f2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-d81b24672f09",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/EmptyDocumentWithHeaderFooter.docx",
+      "git_blob_sha1": "f5af230000b2e8f20ed33b5362fede0ae1c79a59",
+      "bytes": 14549,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/EmptyDocumentWithHeaderFooter.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a6ac4223c9b7217426a54303ca52307f3c69cd8cd05b7e788e43fab449b7b45c",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-51b3af13ac07",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/EnforcedWith.docx",
+      "git_blob_sha1": "c50e358591f2b5bf7a1e5f2352d740bacf593926",
+      "bytes": 11321,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/EnforcedWith.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0727ecf6523dd8026c53129255b11dec8de4437060f2927643d99cd77e82a41b",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-6657220cc85a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/ExternalEntityInText.docx",
+      "git_blob_sha1": "0b47852de44e25cfbe931ab1967428b933dcf330",
+      "bytes": 12756,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/ExternalEntityInText.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5cf7340ffd6516c2fd168f445ff78cf64bd86409fe69db68997fc9f94820c223",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-78a320dfb1f7",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/MultipleBodyBug.docx",
+      "git_blob_sha1": "84f795b26f64bd9e23d5dfaa70c1b02e498230eb",
+      "bytes": 102103,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/MultipleBodyBug.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7b34a3e9458daa3cb4a56c012e279dc8edab71300404b3d9da6f145cb743211d",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-defcb06c352c",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/NoHeadFoot.docx",
+      "git_blob_sha1": "7af2a14583d09c337a7993fb744c33e31e28d687",
+      "bytes": 10380,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/NoHeadFoot.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "dc6a67b1c118658acadc87ba41200f0b90ead05ada95e7ce6fa72a97700430c5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-bad58e840052",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/TestDocument.docx",
+      "git_blob_sha1": "d87a542ecd1018d3f52b5cfc9a977e6a54bc9f7b",
+      "bytes": 10861,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/TestDocument.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "527a906b3cc31d0a72a47290a6c8a53854a89a31178a60fa3cb314d70b57a413",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-946c228566ef",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/TestPoiXMLDocumentCorePropertiesGetKeywords.docx",
+      "git_blob_sha1": "ee384799110f24c01e30013b0b307a6a11e0ce07",
+      "bytes": 13380,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/TestPoiXMLDocumentCorePropertiesGetKeywords.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "722eb8f8d5cccdbb53af226ac270dc750b5e071ae7ca91c73151ed9fb771959a",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-f4085af47035",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/Tika-792.docx",
+      "git_blob_sha1": "e8ddc0b1d3b7cd7cfab236b4fa1144948af5f334",
+      "bytes": 17913,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/Tika-792.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "95de9f3b655bfec5b619ee31d1319e5a9a6ce4f253a9738898876640a2969665",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-120fb934c494",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/WithGIF.docx",
+      "git_blob_sha1": "8af42d588095b184337f09ea3a1b1a0a5d5b5245",
+      "bytes": 20875,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/WithGIF.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "fb9f0bfa791921c43fe113005d3bb7d639ab2946c082e7d24d31e0bf73003036",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-24c53d4cf0f7",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/WordWithAttachments.docx",
+      "git_blob_sha1": "ebefabc4432b1efed38102ad456ca45ad873ecb3",
+      "bytes": 144959,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/WordWithAttachments.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "90352263823e6d3d39a4ec88212134b74bcb0f86b603bc3b51d712a3ec3df9f2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-d5418e2896db",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bib-chernigovka.netdo.ru_download_docs_17459.docx",
+      "git_blob_sha1": "e62c2ef39fe58b4324b22cac0abacfa9ca4f1ae9",
+      "bytes": 47023,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bib-chernigovka.netdo.ru_download_docs_17459.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "74575caabe35de9982ed11328ebe556844fcd3da2fed1e425255bfe81dee4c50",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-01894d4e445f",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug53475-password-is-pass.docx",
+      "git_blob_sha1": "b969da60fd7855a8655f8c487680facf6b941878",
+      "bytes": 29696,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug53475-password-is-pass.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "c182f7825ae588fe1c28497588d1bded635a5bef7eb7370fd1c589233a6471d5",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-9a4098b5ee6a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug53475-password-is-solrcell.docx",
+      "git_blob_sha1": "2723d5654b4a3a78b876d323c388128162975db6",
+      "bytes": 33792,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug53475-password-is-solrcell.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "cde5752f65238b42fefeaa28c0a10ef3b75bd6232cd6427b3920113c91c5909d",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-3e6e8e14b42a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug56075-changeTracking_off.docx",
+      "git_blob_sha1": "a92202d22e1d67282a7ac52a9e38b5ecb567e7ce",
+      "bytes": 12617,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug56075-changeTracking_off.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bfe651932119ad2472b943b726f8ea7559d8ff0fb9c100b63cc0c28f8227de78",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-0a64a8d86368",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug56076.docx",
+      "git_blob_sha1": "a1ba93e3a6189eb4e47ba23f0f08a696b232c208",
+      "bytes": 11033,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug56076.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "3abb05a4e76d5f92cf59eb818db7b03e8ff342d051f832a1bee196b1164b3b0d",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-5d050edd39c0",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug57031.docx",
+      "git_blob_sha1": "6a1230e6f3cf43ed71fab0372bae338558973b62",
+      "bytes": 55889,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug57031.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bbd88b16a90c65b46e1a6922f7017e8d4cc0bc8f62ac28619c2d367d37d6754b",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-a5cad9f7fdc3",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug59058.docx",
+      "git_blob_sha1": "08808daec82a58d7c9dec94cac2b43156bbd5300",
+      "bytes": 210256,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug59058.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "89d0abb8eed1a58f262c49c386f74d8a82798d6344bed690d66b389514f0751c",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-df9ffb5779f6",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug65649.docx",
+      "git_blob_sha1": "48548788f0afb74f17b34ce52d7dd25cdbb09656",
+      "bytes": 474844,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug65649.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f98d2bfcca5d091cda26539b00318bb2b2b1e6d8aa644e370175e99ca9c1b4ad",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-91a9a6f2e9fa",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug65738.docx",
+      "git_blob_sha1": "5ef040e98817c7e216c1b736e217619348d544d4",
+      "bytes": 13436,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug65738.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "67797f5691cb5346201f1c40000a959f9f08d05d0b4493b4291e8d5f16e81e65",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-80ffb7986b23",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug66312.docx",
+      "git_blob_sha1": "3880a1364aec5b2a519051ba58737590063cd145",
+      "bytes": 4500,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug66312.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "de03dd0ac02c04e07790c400ee5cb36b580e38750d6c56c2b8528a53219cb46a",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-ef0acb5db4f4",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/bug69628.docx",
+      "git_blob_sha1": "359a3b360864a85c636ad7a8eebbb055f29d1cf6",
+      "bytes": 7510,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/bug69628.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a6c0d65a75862446b3261e0eb8f2709c889c9308c60e73b9f8fd0e022d8ba74f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-a9e8fecc9e87",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/capitalized.docx",
+      "git_blob_sha1": "9658e94b39af4b94e899dd9d928651d645d26a6e",
+      "bytes": 12104,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/capitalized.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "e96c6a0f4db42a658f56a2c96db0d6a7c899db1078d1fe3ea05033c1b7297dc3",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-19d2e157ea85",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/chartex.docx",
+      "git_blob_sha1": "79b1cb639a9c818f1b3cff542783083420dc40ab",
+      "bytes": 133304,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/chartex.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5d7f0ca9aa26d0244eedbc8ff862f08910689ec3848a036c622b17d56a290b57",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-42b54dddd092",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/checkboxes.docx",
+      "git_blob_sha1": "c35b71598f22b242347f8fca17ea0ea5b41601e1",
+      "bytes": 20800,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/checkboxes.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "06f1dc1370c772a020c6d5183c8b7c4fe30ad7a9fff108cb2f027128ddf5e209",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-4fea3a5a68ad",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIFuzzer-6709287337197568.docx",
+      "git_blob_sha1": "ff963e1ebbf28f7a5b7e495f45a4cb686805af00",
+      "bytes": 12632,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIFuzzer-6709287337197568.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "dda9dd500d6922d60205d5045adb7496bc3ff431a4dad702da1c26af030766fc",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-873ab485555f",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-4791943399604224.docx",
+      "git_blob_sha1": "79b696cfc10b26954a79a8029f58c8ef8ff65696",
+      "bytes": 15932,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-4791943399604224.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "096a1119c0fd110d7fb7b93db16bd1a302513732d8dd0bd7641ecedafbe36f43",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-741a0d6a4619",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-4959857092198400.docx",
+      "git_blob_sha1": "fc5d388422201b82268204d43b0ad6e694ce541f",
+      "bytes": 50918,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-4959857092198400.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f45e20bb8d8c4ed61413c9874927a784307b75e22a6d7be775e6485dc60e1abb",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-a84e6a1a86cc",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-4961551840247808.docx",
+      "git_blob_sha1": "cb604f0cc502cb926e9cbf07d9e42076fa0ebd3e",
+      "bytes": 35568,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-4961551840247808.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "04a57da257ee6af6d33ba88999e2c12a54d266c1d1ffb56eefc1cd04bd1c9be6",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-f114377ca30a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5166796835258368.docx",
+      "git_blob_sha1": "08e62e49e23a2a163a5ccd923cd5bbba2ed716f0",
+      "bytes": 12890,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5166796835258368.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9a78086d1bfd6aab90fa1c1e12569c166267a1d7e1e6c5d36e4bfb64c5ee10b9",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-8e705769ea2d",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5313273089884160.docx",
+      "git_blob_sha1": "169a1d0d46109b13ac28d5174a49cc6f172f0822",
+      "bytes": 4764,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5313273089884160.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "b418f2b0e307e6f526f85ef90979fe582d5c2644a4597a882597ccd18300d838",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-cd375e3b584a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5564805011079168.docx",
+      "git_blob_sha1": "5fad14ce589f827f8ed2b33d5f4cdd2d699b440e",
+      "bytes": 34995,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5564805011079168.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d9eb560e2285db6cf38c5b2ed0edd7a44b1b4de45343085c9232b82426c51632",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-8ad1f12a875e",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5569740188549120.docx",
+      "git_blob_sha1": "6947f6fbec512e02f94bd258e44fa018b3538269",
+      "bytes": 6043,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-5569740188549120.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9c9d14a0ed831cc9adca4ca212a86ec19df760f54ce0c495996808fd9c015af7",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-b0b6fafba074",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6061520554164224.docx",
+      "git_blob_sha1": "70f491c23a5d99ae30fca8c7bdbb03920d4676e0",
+      "bytes": 7789,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6061520554164224.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "af0490674ff7c414b1d34ae6bae2140e9e2a3166e5b7ef524201ffb576c74d57",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-520b32a1cd7b",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6120975439364096.docx",
+      "git_blob_sha1": "33f01afa4d5d08a9325f7b3d40a595876215efe0",
+      "bytes": 43758,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6120975439364096.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7d34e905b8df2a09b9b671e1e1243c7898da94cf935797b98fc4131faeb55f25",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-9132aea3d7a5",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6442791109263360.docx",
+      "git_blob_sha1": "53b8a69712b12c39d6d4caaa4c7d90a42496d23c",
+      "bytes": 4941,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6442791109263360.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "dbb8b118a4bc0a3d75a65722805f4ab039d3067626c98b209dde41a2f0af86f8",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-de80ac4e2558",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6733884933668864.docx",
+      "git_blob_sha1": "36132483c9bb0064b82dea4895e3bddd5dab2c67",
+      "bytes": 20757,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/clusterfuzz-testcase-minimized-POIXWPFFuzzer-6733884933668864.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a1f9d9fd811700ea52b571c72aaaceea012d53f83ef2e6baace0238168c4b206",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-b48f81d5258d",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/crash-517626e815e0afa9decd0ebb6d1dee63fb9907dd.docx",
+      "git_blob_sha1": "e98f30e13fbd113613d1d287c062012e72b5a388",
+      "bytes": 7789,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/crash-517626e815e0afa9decd0ebb6d1dee63fb9907dd.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "4fa1dc1cd5bddeaa5a14169d9a4f5abdc687d732c3beb06901cf9a701533d466",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-0b35487998e0",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/delins.docx",
+      "git_blob_sha1": "b53069135b573f226bc594a47ff368bdb8de8c6f",
+      "bytes": 17720,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/delins.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7ecad102602586be7f1371f117fc567ea47f3ed0ca703b353e003002f1ff8d3f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-56844fc65fc3",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProperties.docx",
+      "git_blob_sha1": "4ec577ee93ba32a1b1dc8b4b99b674dbe31cfdcf",
+      "bytes": 23503,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProperties.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "1cff7a0a94dfce307a70032d21070d26ae34b9fdf742cf70fa66d4a2078ec9d5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-6028920f22c7",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProtection_comments_no_password.docx",
+      "git_blob_sha1": "5cc800e361e0ef62fad5f330768df39605507171",
+      "bytes": 9868,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProtection_comments_no_password.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d15cd04edecf3489c2028864e70736494a1c5259b6e92097e50457efd934d78c",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-934359602172",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProtection_forms_no_password.docx",
+      "git_blob_sha1": "8d31026b403260ca4a4a2a0f53f4a91587519928",
+      "bytes": 9924,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProtection_forms_no_password.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5c299d134577cb3a752548e6891701d2b3447570bd2bb0b38bf16efc026ee0a2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-1962f4225443",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProtection_no_protection.docx",
+      "git_blob_sha1": "fc1089e39648be619a40545e38182868384c09e4",
+      "bytes": 9884,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProtection_no_protection.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5d1cce05b576fc527981c56dd9844df3b6669967bcd9b981adfc043bd516f62c",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-f7873179ad5d",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProtection_no_protection_tag_existing.docx",
+      "git_blob_sha1": "2c655b6b1bf938f2410fc4de8b3f05e3fd85ecd0",
+      "bytes": 9923,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProtection_no_protection_tag_existing.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "1fb9592a737a350cad1a2a7d9136c7fa6106c5c18c88980251ee9273ddd4ec32",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-7f3e67a254ad",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProtection_readonly_no_password.docx",
+      "git_blob_sha1": "1ec7063ab526ecc69f2f8cf10df669be2b3970d1",
+      "bytes": 9856,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProtection_readonly_no_password.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5d4c919f2e06b84fbe35cfaaa4012e8f469b811e1f643deb3e660b798bfe4544",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-b6ce5cb05bd7",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/documentProtection_trackedChanges_no_password.docx",
+      "git_blob_sha1": "8531573c07621c94330ebce158ef43699ab5c271",
+      "bytes": 9940,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/documentProtection_trackedChanges_no_password.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f57113d70213bf8d2fb739fc980662a84e3530f3d1b128ab92d00ab587cd3eb4",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-7b1519b6776a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/drawing.docx",
+      "git_blob_sha1": "23546b7f2cf38843260864e650314997fb0cc680",
+      "bytes": 95247,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/drawing.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5e83462dd7ac3cf0a333fe09cf0837602dbd41775cdcec813a6e288b5d55dff8",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-ff44c21938b2",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/emptyPPr.docx",
+      "git_blob_sha1": "7ef696b1e13b43e4ea4986a3457cde945ed6b2e0",
+      "bytes": 13349,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/emptyPPr.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0db26e190d0d4888d3d11fa831cb4815fdf821b448ae2b2c5503bac697e6a530",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-dac79ab57e4a",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/issue_51265_1.docx",
+      "git_blob_sha1": "a18f6fb6726c2ae4964bdf52b87c4452d64714ed",
+      "bytes": 423363,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/issue_51265_1.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "711adad4316f4a1937b08f4647e679aac00a42dc134d205e81759777a0cda8a7",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-e035c87ed031",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/issue_51265_2.docx",
+      "git_blob_sha1": "b528d7d2b8280f64505cddefbc215bb1a7e67188",
+      "bytes": 421828,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/issue_51265_2.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "f06f14a64bd7bb58cc93a832059f722c7af0c7854e0f3bebe5945e7d23e149ae",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-a6b2fc152435",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/issue_51265_3.docx",
+      "git_blob_sha1": "721d9d4aa399b35b136adb50d7c8463033c356ef",
+      "bytes": 529742,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/issue_51265_3.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "219c78b7bb2750d85dfb32cc13f38162a7b1ed5cfe610fa1dacd8364f578479b",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-29edb04b1174",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/protected_sample.docx",
+      "git_blob_sha1": "e6b5e0bfcef068f6398b52f3fa00c8500e99d20d",
+      "bytes": 10082,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/protected_sample.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "688b994faa8c909d7d3fc3f48fdccce538426affb1cf562d107a2847ec561beb",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-b1ebe1eee2af",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/smarttag-snippet.docx",
+      "git_blob_sha1": "2c54f18d038c8bd11be22564c0384663cffba8ae",
+      "bytes": 11862,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/smarttag-snippet.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "693ad667f07b6ca90c4375e024a122adb970e9f5cc7e29a1cd53e0a9cbfb6de9",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-37cfbcecf546",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/testComment.docx",
+      "git_blob_sha1": "d27bb7e9b993d9c8c9104b6c4ddc51cac5a3dacb",
+      "bytes": 65298,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/testComment.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "06b63b13f0b78a7179151af52c2282557c1ed204899feee9fcef4ca575344f97",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-ccb12c4291de",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/tika-3388.docx",
+      "git_blob_sha1": "b884ea1ac6da53ab2003dddde4c166412e28f3f1",
+      "bytes": 16665,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/tika-3388.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "3a1b5f73e61be4071c5bef5be3e52d344142f45c78681a673b14bc38bc07f717",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-aeec089cdd88",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/tika-3816.docx",
+      "git_blob_sha1": "54469f6537acc89afafb3c4b842a2e51db4a0446",
+      "bytes": 22374,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/tika-3816.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "ab5b32d15d2fd14c633452cc5a8b1cd27cd65038cd208a11ede29d6f8fe24259",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-b308ae500e71",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/truncated62886.docx",
+      "git_blob_sha1": "4998b45ad6b4de4604a2bf9d924225bf21dd2a9f",
+      "bytes": 19785,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/truncated62886.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "39619851dab09369e91f926a94499caba0749ca2fa57d30b2fc2bc4a937292d0",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "poi-extra-01aeac572095",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/unicode-path.docx",
+      "git_blob_sha1": "1855aa1e74083d039cbf79521019d87aedfa51c8",
+      "bytes": 5720,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/unicode-path.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "4d8b0b3dd8ada4eb6bf141e88f8dffc07f993545d9fdd25f505d8ac839918946",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "poi-extra-42affb302e24",
+      "repository": "apache/poi",
+      "revision": "7f4d36854109efa17152b27a5fb1b2c7d842c314",
+      "path": "test-data/document/zero-length.docx",
+      "git_blob_sha1": "eb34b47b1a5f854f785c09ab9a2f6ec4b315c176",
+      "bytes": 10469,
+      "url": "https://raw.githubusercontent.com/apache/poi/7f4d36854109efa17152b27a5fb1b2c7d842c314/test-data/document/zero-length.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8e39d68e61deed4d3afcbfc3bcea9b1c3d5a1e50ee0e0af3e15a705c8d186bbe",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-375d370aacec",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/Creating SmartArt with docx4j.docx",
+      "git_blob_sha1": "3c0a612429fb3ae7957c5bd1a99163fae06431df",
+      "bytes": 185129,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/Creating%20SmartArt%20with%20docx4j.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "016a83aed42cac85a323b303e6271b53ed2113e2bfea885bcf7a7f05d5e19120",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-a8ff26549a67",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/OpenDoPE Flat OPC XML processing.docx",
+      "git_blob_sha1": "2f7ef28ac4b696487f02a56ee5a4efd48b4aaa91",
+      "bytes": 183803,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/OpenDoPE%20Flat%20OPC%20XML%20processing.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "fb08fd36abfed6214ca75520a04aa9e87494efc51b83c9d4896bea1b460cafe4",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-b152daff1670",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/OpenDoPE_Images.docx",
+      "git_blob_sha1": "9f8651c0f5c567389f0e36b798dc14bc37f5b0fc",
+      "bytes": 41261,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/OpenDoPE_Images.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "72ff8a8aee1f458910ec65a46febfc71648bc4c843f03b150f15e18cce4175c3",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-cf3728d2149e",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/OpenDoPE_XHTML.docx",
+      "git_blob_sha1": "03344a96d6141eb392c228ce9c83a1cd7b4b68fb",
+      "bytes": 37515,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/OpenDoPE_XHTML.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "219856bec7c854270b73c6fff5ea3632f783f829d88e24695913bba89475bfba",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-a813c54603e2",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/Convert_Out.docx",
+      "git_blob_sha1": "e18986cae359c5c1d704473687940f0313ef7b9b",
+      "bytes": 43030,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/Convert_Out.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a527adfd5e5f495a07e69e9194cc86aa39c1a0fee15f60b831235c12b9cbd051",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5699960d16a7",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/PDF list items.docx",
+      "git_blob_sha1": "107f26454a2323e06bc3db0f9f596eccceef7863",
+      "bytes": 33733,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/PDF%20list%20items.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "25ae8622baf433f6165cb2638b727cbb2ad127b69a7682b3b29fb1fbf75d7cb8",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-a0e868588388",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/themeFontLang.docx",
+      "git_blob_sha1": "9d1b400fc3113a5e7a41f21fa12458f94ec315b8",
+      "bytes": 26839,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/themeFontLang.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0926dc45f45b7c427b8be7f7eb08956e1b9c793b394a4730f340f2bcdcb91bdd",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9796c5c8a7b9",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docs/developer/w15RepeatingSection_cf_OpenDoPE.docx",
+      "git_blob_sha1": "7d99800b787ed66e495d4f0dcfe3e46a63aef81c",
+      "bytes": 303993,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docs/developer/w15RepeatingSection_cf_OpenDoPE.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "ee6a1d531fd2b9239d4aa9c7ecb97a61b8efdda070030c6fdfc25b010ed5199f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-c9811bad70b2",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/NumberingIndents-OUT.docx",
+      "git_blob_sha1": "9ebcc21d8a3bb2127498b6f7ee4ad00d692084bd",
+      "bytes": 20645,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/NumberingIndents-OUT.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9c00a0d4ed2ef8723a085bb8551b73c6761ad89227e75bf0b1de1c67e8026774",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-c1efa2018b28",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/NumberingIndents.docx",
+      "git_blob_sha1": "46e8d577990be8a1bde7508da5e90a3fef9c7f28",
+      "bytes": 20658,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/NumberingIndents.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "4da1cb8eb18e1855f9e019f4c59cd226857e551955b15a94561158c804950879",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-369f021993fd",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/article-section-NotIsLgl.docx",
+      "git_blob_sha1": "ac665583f3a1f784a88b2b263ae2f2e47c4eecb5",
+      "bytes": 14495,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/java/org/docx4j/model/listnumbering/article-section-NotIsLgl.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8c9ee4b2eeebd9c2c2cfc39e101eda96f7a9ef763a538bb6fcb8add70974c49f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5c3648fc2eea",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/2010-glow-then-AlternateContent.docx",
+      "git_blob_sha1": "08064f7cd545fcce77b71814126312039e725f98",
+      "bytes": 8378,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/2010-glow-then-AlternateContent.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "205634d8c232f8660754cc258c37f15b22db6d5d7e4a525771e74d84db594ced",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-b96fc008bc27",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/2010-mcAlternateContent-MDP.docx",
+      "git_blob_sha1": "bb59d61d8df4c4980fb0ab0ab8847586b7226244",
+      "bytes": 8256,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/2010-mcAlternateContent-MDP.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a7c23b97f79fd58b20542da3ac73bc079ec5566272bb1afde15ff1ec4c470e0d",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-02b78288ec96",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/2010-mcAlternateContent.docx",
+      "git_blob_sha1": "4629c22a3d656cfcf6ca2a4414129ce4f157b13c",
+      "bytes": 14501,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/2010-mcAlternateContent.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0f91c3125d9a9c7a88e58ebb8ae22aee7245d5daccd12acdbaa20ca6f2b27c90",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-d7041398d9be",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/2010-sample1.docx",
+      "git_blob_sha1": "1649ed8befea72f8f00678c8dd7d28826f48aeea",
+      "bytes": 13502,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/2010-sample1.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8f703c651f33ea312fa20e25d6895b530c5619c6d9742e34188de3f91e1dc565",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9973c2acc7b8",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/DrawingML_GraphicData_wps.docx",
+      "git_blob_sha1": "12b648d134fa18bc12a8e8bd7ee35b2f51220942",
+      "bytes": 32032,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/DrawingML_GraphicData_wps.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8ae530b3462293b62bebb9435547cb552e6ee06e482c36bb6d9ac0a0b5740bf1",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-f113b91e9274",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/w14_mcIgnorable-in-other-parts.docx",
+      "git_blob_sha1": "e372cf8bf9b9d1741979d315de255ff04de71dc7",
+      "bytes": 16530,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/w14_mcIgnorable-in-other-parts.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a30030976d5f1dc00e524be24f98b0759fa0a5e8835d82b1d7647212cb396042",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-d9f6266361e0",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/2010/w14_texteffects.docx",
+      "git_blob_sha1": "9c98098f841d8f5b0d4f3c14959456dbde027f77",
+      "bytes": 20348,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/2010/w14_texteffects.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "61892c44d892a47dcb893338c3cfd3a651d9a8426497fe2768bd4e4f63379c04",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-a586d57ac318",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/comments-one.docx",
+      "git_blob_sha1": "591eb40fdbd5338206212ff7d4dfe83220f0a828",
+      "bytes": 4548,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/comments-one.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "2c60ca60ac65fd746de4915edc41ce7412cae1852efb7909884fffbbe8a552b8",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5f594c95e9aa",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/comments-two.docx",
+      "git_blob_sha1": "516f01c7df9dd3b5a52794f93da2902d6852b8c1",
+      "bytes": 4589,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/comments-two.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "08d1190c4eb81bdec3a3fcce0cfbf29ac1d9d5798f22594eb212420fb85a7699",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-7d3c41011a95",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/header-section2.docx",
+      "git_blob_sha1": "66c935874849baf1dad7c02eee9e6640c2188900",
+      "bytes": 6275,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/header-section2.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0e193ff4244d2acdae2c6fcd2aa170e6b60286b08ff984b4137daf9d721bb0e9",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-6eab0083efbc",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/header-simple-plus-image.docx",
+      "git_blob_sha1": "2d1f3137aaad9ef1736159d2a657ecf524ac21d6",
+      "bytes": 19762,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/header-simple-plus-image.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "14d09dab85752b60cbcb85bfea2b3ce6d9aa5c0e44ca997234e7adf12859222a",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-26a250b12d9e",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/header-simple.docx",
+      "git_blob_sha1": "5e2bbe0948244c7035d7efe654b1f45cdca2e48e",
+      "bytes": 8402,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/header-simple.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "299d0b5404ccda9637ab61fcbd417980303685535fca0fee5c84cdf3005919a7",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-8dfa675f6d80",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/hyperlink.docx",
+      "git_blob_sha1": "f50bb6e328f0fc9c41ab9901f0784eae20903fcf",
+      "bytes": 3739,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/hyperlink.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "eeac378f86fffbf749a686aae7d26f5fa9a472599dde3e35c1ef8d07163c14c0",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9adcf9b83290",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/image-png1-scaled.docx",
+      "git_blob_sha1": "d45c629892777cad3909c80603cfd804d5d68849",
+      "bytes": 10190,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/image-png1-scaled.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "c9f60c09727e2f8e6ac6375f3c0290899a7767e411a2829808169bde2c04b22d",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-dabd9ba10828",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/image-png1.docx",
+      "git_blob_sha1": "1d32ea14b363c80cd55f9f6ecccb4b616bc1eb02",
+      "bytes": 10178,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/image-png1.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "3358be3525f6b089105c269d6aad5f2fdb045ef88e0719534dbd4756da4afe91",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-870fd1736e4e",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/image-png2.docx",
+      "git_blob_sha1": "8fac8845904ab44a2c259b662c1df817a400fbde",
+      "bytes": 14778,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/image-png2.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "cb15c507296c5102e0b367c0692ed1e1f35943cb7ea063208b02f7d86cd64bc9",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-8144f451fd39",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/images-jpg then png2.docx",
+      "git_blob_sha1": "d4a0fc6a0462eb7bfe410d014878240ae11d559d",
+      "bytes": 17213,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/images-jpg%20then%20png2.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "44fb67bedafd07615921ca8a2185db499e1016c61a75423b1c22ff3a7478c6e2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-1f20434b03a2",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/images-png2 then jpg.docx",
+      "git_blob_sha1": "97b2f0fb66b7bbd12c3ce41b40c47048ad334f89",
+      "bytes": 17214,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/images-png2%20then%20jpg.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a33c1b486c4f9558ff7ee4b7043a640092fbc9196a75af68f6faae75026dd6db",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-bd04d7268f51",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/paragraph-single.docx",
+      "git_blob_sha1": "27d98803b74b03db079af8a20fe18751f2643ccc",
+      "bytes": 3555,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/paragraph-single.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "e8bf2a3cc57961579f11aeea49f51fcc7fb758940533be495776a39319055215",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-c4b3fba53439",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/AlteredParts/paragraph-two.docx",
+      "git_blob_sha1": "b428d0206cba0340b68226bc226d854db2eda5ea",
+      "bytes": 3563,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/AlteredParts/paragraph-two.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "184d534082a0e1ab4d661f0caa693182526f6a54734ae62f5ee53ec83ac6d502",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-ccdc62fe92eb",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/HelloWordOnline.docx",
+      "git_blob_sha1": "17bc17f5ce1ee4836d57d0b01a6345eb7d4ceb2d",
+      "bytes": 11024,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/HelloWordOnline.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "99d247b6c7b07c501ba2182d5db764fe3cc2f88447d622468bbcf3fe55dccee3",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "docx4j-extra-e0fce0827eb3",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/LegacyForms.docx",
+      "git_blob_sha1": "37615329181db447c37daaad1c385964ec0ab858",
+      "bytes": 27274,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/LegacyForms.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d482ac9efc23413eebd4b3b5e2f3ee2328de90aed7f9f405584495525b8a5eb7",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-91355bafb8c3",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/MERGEFIELD.docx",
+      "git_blob_sha1": "5c9ef131ec8ed1bf6e952fe60a54bf73dfd15afb",
+      "bytes": 12982,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/MERGEFIELD.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "69f9310075473af803aead55e68a78032f8cb2a70e6afe16fe9fb8691c4749b5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9696b8ddce24",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/Mac_OSX_Fonts.docx",
+      "git_blob_sha1": "fd4243bf9fb1ec32e86732ce1691cb507f893337",
+      "bytes": 22011,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/Mac_OSX_Fonts.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "82ee2b910c6aa2c32626cd0e9e16b75209ec5e59ada3239aae404dc7833cb717",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-56cde1f750d1",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/OpenDoPE/hyperlinks.docx",
+      "git_blob_sha1": "c32fa4216a24a6dde4e6ecc720176235a049f0ee",
+      "bytes": 20639,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/OpenDoPE/hyperlinks.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "fbf2d5b320d11b434aadc4ab5388af5877c9a5a74a1a65711f6adf0eb41d609e",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-46a1b831a080",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/OpenDoPE/repeat-containing-JAXBElement.docx",
+      "git_blob_sha1": "76a22cbec11ccf55a020f65e1a33cf683d04511a",
+      "bytes": 22377,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/OpenDoPE/repeat-containing-JAXBElement.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "ac0135374b08683f7fd3951287b968dbbe9200876d61899c5353d5e36e6936e9",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-a2da07fc299b",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/empty_p.docx",
+      "git_blob_sha1": "99ac115840711e4e1711f3fbd8872aa228a04e8f",
+      "bytes": 17387,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/empty_p.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "84dfbb765e6fbe6f1b81bdb96761863beaf6f9feb15db3208585aff07a87927e",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-35b8ba79e923",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/fields/separator_missing.docx",
+      "git_blob_sha1": "99b67d1cc75190558a04476bb5a1c95523309356",
+      "bytes": 14254,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/fields/separator_missing.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "162eded65dd1863a4cd6878e2154fe4bd6644ce6d5ae8874f92f3d2ca0e84258",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-34c8105d8043",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/header-no-rels.docx",
+      "git_blob_sha1": "d30283534f0a18b744bd8d25b635c073f7fcf924",
+      "bytes": 12760,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/header-no-rels.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "c5763a90ceb7fff40387ee8b0af5c1f52b829fbaf252eadd4e28c4cd607d6be6",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-3cb15414a412",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/simple_hf.docx",
+      "git_blob_sha1": "c540b88bde786d9eacaafca218d7d91686cfa4c0",
+      "bytes": 17510,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/simple_hf.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9123507c5650fcbe66046d79158ec95299d65595e7b4e58a0f6fae6236b6414f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-c1f28cd154cf",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/headers_footers/simple_hf_none.docx",
+      "git_blob_sha1": "977f495d24c2bdb4883de7645de673fea5e9736d",
+      "bytes": 13734,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/headers_footers/simple_hf_none.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "6a8e42ab36b1bd0f764dba4054b5ce058963fbaf5589c8ab89805d466f14a3a0",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-997530d38a3d",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/hyperlink_dupe.docx",
+      "git_blob_sha1": "a47b4c0eee7d0a7a1fb83cd15ba7920bf7923754",
+      "bytes": 12523,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/hyperlink_dupe.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "59cc8d4415c125c9fa1a9dc4d0535c903c5dc1db357a3ff3e142840e7c8c2978",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-c155cb166228",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-core-tests/src/test/resources/jaxb-binder-issue.docx",
+      "git_blob_sha1": "ff7c198dd92968f02eae2f5100e1b043130a30ed",
+      "bytes": 1111267,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-core-tests/src/test/resources/jaxb-binder-issue.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "02e1339660363c991a5af92a5b1601e7f67bfc263609d588434e2f65c6632f82",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-02a884fa4738",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx-export-fo/sample-docs/word/Symbols.docx",
+      "git_blob_sha1": "3f10bc51b0dc552ce309af2426e206b463e49700",
+      "bytes": 76840,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx-export-fo/sample-docs/word/Symbols.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "1e671e24826e833afb446ef2be4d21051fd36b91f8d0cdbf9ff149db305c0da1",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9b1059870cf2",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx-export-fo/sample-docs/word/Word2007-fonts.docx",
+      "git_blob_sha1": "10a44c2449a46a5a844f94439886fcd07ac5d6ef",
+      "bytes": 18697,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx-export-fo/sample-docs/word/Word2007-fonts.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7acb6260223ccb548bd374d02f9d7b80aa3fc37973cf42560a95c1fbadb15aeb",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5c9993003011",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx-export-fo/sample-docs/word/sample-docx.docx",
+      "git_blob_sha1": "75e6d46c8ae87cb7e604db9c2fd14a191005b025",
+      "bytes": 142920,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx-export-fo/sample-docs/word/sample-docx.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "ecf2e0d863a7ffd486d28ca8420e005f52e0ae94d0104ec74c88ada176425417",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-e3154428501b",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx-export-fo/sample-docs/word/tables.docx",
+      "git_blob_sha1": "cbdfd4ede24746ff92490a84e48034958f7a9e74",
+      "bytes": 433587,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx-export-fo/sample-docs/word/tables.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "50ea2fd62761aedc66e307c30ca1191a4e6baf8fa9d8d849ba1d9c20eb5921f4",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-e6dcea07f562",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx-export-fo/sample-docs/word/textbox_alternates_contrived.docx",
+      "git_blob_sha1": "0c534f3ce29d79f0db2cfd37d5fe9597441eaee5",
+      "bytes": 14830,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx-export-fo/sample-docs/word/textbox_alternates_contrived.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bdc80be35bfcd38eef6676c3b7bb08c290cf8fbfaa79709ede5b48d791f0408a",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-26922f182be4",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2003/word2003-vml.docx",
+      "git_blob_sha1": "94428c1678d8cbc0f987dcec91646c80e770546a",
+      "bytes": 1106796,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2003/word2003-vml.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bd2caf7d4002e976cffea07f75d065b83f0a0f5c92aaac567220cb0e125c87db",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-23dd2fc50219",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/2010-glow-then-AlternateContent.docx",
+      "git_blob_sha1": "08064f7cd545fcce77b71814126312039e725f98",
+      "bytes": 8378,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/2010-glow-then-AlternateContent.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "205634d8c232f8660754cc258c37f15b22db6d5d7e4a525771e74d84db594ced",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-263fb9ae4d86",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/2010-mcAlternateContent-MDP.docx",
+      "git_blob_sha1": "bb59d61d8df4c4980fb0ab0ab8847586b7226244",
+      "bytes": 8256,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/2010-mcAlternateContent-MDP.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a7c23b97f79fd58b20542da3ac73bc079ec5566272bb1afde15ff1ec4c470e0d",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-93b14f31ab7f",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/2010-mcAlternateContent-in-header.docx",
+      "git_blob_sha1": "0fbb50a476f9489dabb42ece5a81942e546bae29",
+      "bytes": 22550,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/2010-mcAlternateContent-in-header.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8153ad9348f89f0adc28d3613cd1f3fd404625663a847e8d707f34235e1c643e",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-54e04f448122",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/2010-mcAlternateContent.docx",
+      "git_blob_sha1": "4629c22a3d656cfcf6ca2a4414129ce4f157b13c",
+      "bytes": 14501,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/2010-mcAlternateContent.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0f91c3125d9a9c7a88e58ebb8ae22aee7245d5daccd12acdbaa20ca6f2b27c90",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9938b3ae178d",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/2010-sample1.docx",
+      "git_blob_sha1": "1649ed8befea72f8f00678c8dd7d28826f48aeea",
+      "bytes": 13502,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/2010-sample1.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8f703c651f33ea312fa20e25d6895b530c5619c6d9742e34188de3f91e1dc565",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-7af00ff12df4",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/DrawingML_GraphicData_wps.docx",
+      "git_blob_sha1": "12b648d134fa18bc12a8e8bd7ee35b2f51220942",
+      "bytes": 32032,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/DrawingML_GraphicData_wps.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "8ae530b3462293b62bebb9435547cb552e6ee06e482c36bb6d9ac0a0b5740bf1",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-f1f9241c745f",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/w14_mcIgnorable-in-other-parts.docx",
+      "git_blob_sha1": "e372cf8bf9b9d1741979d315de255ff04de71dc7",
+      "bytes": 16530,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/w14_mcIgnorable-in-other-parts.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a30030976d5f1dc00e524be24f98b0759fa0a5e8835d82b1d7647212cb396042",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-aba9ddc8fd0c",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2010/w14_texteffects.docx",
+      "git_blob_sha1": "9c98098f841d8f5b0d4f3c14959456dbde027f77",
+      "bytes": 20348,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2010/w14_texteffects.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "61892c44d892a47dcb893338c3cfd3a651d9a8426497fe2768bd4e4f63379c04",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-8d47c7fd5e25",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2016/2016_image.docx",
+      "git_blob_sha1": "074764206314e9fddcce04d9479d42e0375991a3",
+      "bytes": 16940,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2016/2016_image.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9908aff8cfda65aa77bf963b2d129586424ff81b511e7172bb823d6b2474ce23",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-b49a01a67e96",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/2016/2016_image_with_text_effects.docx",
+      "git_blob_sha1": "9ee41b4c67e279c27e209eb032987680f7264f2c",
+      "bytes": 60991,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/2016/2016_image_with_text_effects.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "820a2ae3118f9a2d05b32ee5dccdd0078165815dd715a2aeaf547f4cde5e611c",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-77c65e1f60e0",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/ArialUnicodeMS.docx",
+      "git_blob_sha1": "515efcedbd9d70f937899c9d7b1c3c03e8f7d045",
+      "bytes": 25403,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/ArialUnicodeMS.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "0115732f11677776fac8a1a20b7b0dd8badff306feae64e5ea0b39e3a188b1f4",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-3ce52aaa7857",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/DOCPROP_builtin.docx",
+      "git_blob_sha1": "1792ab47bc8d0a0b3ee7529636d7a1ac712b6951",
+      "bytes": 148128,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/DOCPROP_builtin.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "4631e53aa06190f94193c66bd11a70356d3b2f2bf7d15f7202c405eb8c8f75ec",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5f88fa6951eb",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/FontEmbedded.docx",
+      "git_blob_sha1": "99abf4478f2b74282d3c7a1b461f9226d826121a",
+      "bytes": 1212630,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/FontEmbedded.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "4dd7e8cd2d620d8c406044a6161bed27abf10f48d97ddcfd0fc618515d405f84",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-f749038ff223",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/Headers.docx",
+      "git_blob_sha1": "87e32c9b6a8c56e8e304e3a9cd848c1dc2d5bfe1",
+      "bytes": 93161,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/Headers.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7bdaf60ef968ea43882309b48677229c7d194394ee032633a2252c3f4f8536f2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-55d8615cc8b6",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/Images.docx",
+      "git_blob_sha1": "6fcb4ec5c7558754db9f5567c8803eda66cb47ce",
+      "bytes": 185779,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/Images.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "612570a1ef38d8bdebbfda2c38498a9b904374e7e8fa324eb116861dc0ba8ea7",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-7edc7c24d324",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/Symbols.docx",
+      "git_blob_sha1": "3f10bc51b0dc552ce309af2426e206b463e49700",
+      "bytes": 76840,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/Symbols.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "1e671e24826e833afb446ef2be4d21051fd36b91f8d0cdbf9ff149db305c0da1",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-bb3c80a78974",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/Word2007-fonts.docx",
+      "git_blob_sha1": "10a44c2449a46a5a844f94439886fcd07ac5d6ef",
+      "bytes": 18697,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/Word2007-fonts.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7acb6260223ccb548bd374d02f9d7b80aa3fc37973cf42560a95c1fbadb15aeb",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-81d125b255ce",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/WordOnline/HelloWordOnline.docx",
+      "git_blob_sha1": "17bc17f5ce1ee4836d57d0b01a6345eb7d4ceb2d",
+      "bytes": 11024,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/WordOnline/HelloWordOnline.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "99d247b6c7b07c501ba2182d5db764fe3cc2f88447d622468bbcf3fe55dccee3",
+      "valid_docx_archive": false
+    },
+    {
+      "id": "docx4j-extra-aff6f3642a76",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/chart.docx",
+      "git_blob_sha1": "96048b01a3eaa06ce94acbb87f04195cca34733c",
+      "bytes": 24067,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/chart.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "85ba6d56dc8484a0f98242ce099b20ba4563217d5888da244fe9959294cd49fd",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5aeabaa6f7ce",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/chunk.docx",
+      "git_blob_sha1": "aa94ec72c9299f2c90bcdcbf774c2130b815f379",
+      "bytes": 13630,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/chunk.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d3c9c8fdfd47c643269a5eeb6cb2548af9e5f949a50ecc3440a654eac66bf8e9",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-b95b523ee488",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/WordAddIn_walkthrough.docx",
+      "git_blob_sha1": "6e3c705897c67089140319d83b22b5685608512f",
+      "bytes": 169322,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/WordAddIn_walkthrough.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "b3c44a4d03e9c6c008c2f28168bdf3856f97ffaf7470e262b5917d589fbbcb86",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-638f7b5cdcfd",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/binding-simple.docx",
+      "git_blob_sha1": "4f7601524d08aed1afd76dfeb224fe07ddbc9755",
+      "bytes": 22700,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/binding-simple.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "e656e6a889a9576a4ea408cc4d20ec8f390f93b8819332d849f845a6722aa326",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-781a065b2c97",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/component-subdoc.docx",
+      "git_blob_sha1": "11863ba47d2cd2461ae1ca4b1414e657b3b83976",
+      "bytes": 21665,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/component-subdoc.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "6a4809417a5fb9544a5399cdbdd5a627c4b3713c83129d81a934b5efc663a901",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-bcfcfac5882e",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/conventions.docx",
+      "git_blob_sha1": "02916596440f0b0b047fbce8dc82de201ede26fc",
+      "bytes": 35693,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/conventions.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "a5863bfcc48b5abbb7738e3eb14078f4f2686b3ccdc7bdc8f1ded5546fc97d6c",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-20ef77f77b6b",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/hyperlink-binding-test.docx",
+      "git_blob_sha1": "1bdd83a88f5b46013ae8d3071a91593024ecf443",
+      "bytes": 20955,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/hyperlink-binding-test.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "b194989f30d06bb21ba1cba09ee7c0f2f609bed2f6e4dee99af0ca5304fc3d30",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-8799f67d455e",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/invoice.docx",
+      "git_blob_sha1": "99140ef02c90dc9b5bd9047f3665134420f2f81d",
+      "bytes": 22964,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/invoice.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "37d38fc35e7df3a73688587369b01a8c5005df3e64cdf69b6e40503715d328c2",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-630cf4ee8546",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/invoice2013.docx",
+      "git_blob_sha1": "a93f3088e4a0ca3a7c1bef4c6df935fabb9b40f1",
+      "bytes": 49797,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/invoice2013.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "7db84f21ed07484ce9fa95d795f78fdb6d1d60537832d1c5bd9e53d98fff6f32",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-b55b4e62bb30",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/invoice_Saxon_XPath2.docx",
+      "git_blob_sha1": "08483f41ac8dc02710d00bcf08f38a0a1da13471",
+      "bytes": 29474,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/invoice_Saxon_XPath2.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "15f0349094c4d8e91bedc1df842a006d4b6e12a2cf3ee3dc4531f22ea8bc9bc4",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-40691fdb124e",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/non-element-bind.docx",
+      "git_blob_sha1": "ee6bb5bbf071dd4b8199cf6463bd633950868e74",
+      "bytes": 20119,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/non-element-bind.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bb1002142e417153697f6dd295dce61e23950dc6e389028f5cc65008bfda37f5",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-1e7d1d3efb87",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/databinding/picture.docx",
+      "git_blob_sha1": "a441fa715e1a315d900a53d0ccd7ade371d5bef2",
+      "bytes": 39415,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/databinding/picture.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "bd2a781e05a5bd8c8fedb3fa435687e23d2ccd043edc0f1b1d5ac3efd3f54ebb",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-a01cbbbce41b",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/decracdiscrim1.docx",
+      "git_blob_sha1": "73435202bf005cb86bc92359f96f8197d63ab8c2",
+      "bytes": 22140,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/decracdiscrim1.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "9ac66331cc12691a52c8a585455370c2e949f338f4cdec452354c35aebecc88f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-18ad767f94c8",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/docProps.docx",
+      "git_blob_sha1": "2673b7e4c331f1d6e4de72f9c58e521dba68dae4",
+      "bytes": 10780,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/docProps.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "c915cf971f3376b033880fc42da45ac19b5a56855edafe5f254553948287b8b7",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-6ac4dcab0e65",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/fonts-modesOfApplication.docx",
+      "git_blob_sha1": "dcf61523139c1f74a8244c594e6a0001f54a28bf",
+      "bytes": 11945,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/fonts-modesOfApplication.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "93ab6b3ba56c92507f28c2aa92f5cbca376ae999387572ea7cc24afc2b4d9071",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-30f139d067ac",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/metafile-samples/EMF.docx",
+      "git_blob_sha1": "7aeb29b87379d0076bf0df675f1d0e56197373f9",
+      "bytes": 97667,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/metafile-samples/EMF.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "12cb74f1cff831562f4f435142588ddfe45671479d1442294878d72bed064795",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-5bbc9147cb59",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/metafile-samples/WMF.docx",
+      "git_blob_sha1": "9e4182a67f24572e4227fb9104dd8272cd44dcf0",
+      "bytes": 174583,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/metafile-samples/WMF.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "dd853ca539219f489369261c31d297f6310a46e3ccc20ac90a9916765c75494f",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-6ea14a15d116",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/sample-docxv2.docx",
+      "git_blob_sha1": "24b978553aee0f8a97d63458d8966f23c19584ba",
+      "bytes": 142888,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/sample-docxv2.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d0c53cbd31a1044fe7699814f26f035b44a21add9c0086757ba50b804bccfd13",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-9c39c10e7abe",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/test-docs/field_numeric_formatting_switch.docx",
+      "git_blob_sha1": "92b407c402a714c7272bc9f93e24f6b19f8a1d04",
+      "bytes": 16218,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/test-docs/field_numeric_formatting_switch.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "efab53d650524443de4c6e0203fa5f5e6042286ab679d1086299d08a91f5b3cc",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-520f06fdb120",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/unmarshallFromTemplateDirtyExample.docx",
+      "git_blob_sha1": "58b6e1fa2c8666ada84e8583c311789eaca56040",
+      "bytes": 16840,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/unmarshallFromTemplateDirtyExample.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d19e09dd6ce93d720914b0b23d481e12b5b9dcb619f6fc0c9657b2bd0a73cb42",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-f97992ae2270",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "docx4j-samples-docx4j/sample-docs/unmarshallFromTemplateExample.docx",
+      "git_blob_sha1": "84c01de8b1771518b4adcc9c6f89047ddc4fd916",
+      "bytes": 3135,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/docx4j-samples-docx4j/sample-docs/unmarshallFromTemplateExample.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "292fc4be231bb5b240251f182605c3c31e15aea1ec59bf5521f4b9bdb02fa247",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-4f44f178c2f1",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "legals/docx4j_IndividualContributor.docx",
+      "git_blob_sha1": "bd281de510257db939c58a303d7fa0686d40a13e",
+      "bytes": 12249,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/legals/docx4j_IndividualContributor.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "5b1ddeb9ca7a500c72f499df77219b0dd6d0f1daf739221b10ddfb7613c13163",
+      "valid_docx_archive": true
+    },
+    {
+      "id": "docx4j-extra-1c81c78c99ef",
+      "repository": "plutext/docx4j",
+      "revision": "0eec2587ab38db5265ce66c12423849c1bea2c60",
+      "path": "xsd/odrawxml/filenames.docx",
+      "git_blob_sha1": "f962fcb60545c04cd8e02859e4f149854e06ff09",
+      "bytes": 11490,
+      "url": "https://raw.githubusercontent.com/plutext/docx4j/0eec2587ab38db5265ce66c12423849c1bea2c60/xsd/odrawxml/filenames.docx",
+      "features": [
+        "upstream-expanded"
+      ],
+      "sha256": "d1847304dbe43e7b0b12c1e0762aa4e3fd2833182e671bead29d683de3487efd",
+      "valid_docx_archive": true
+    }
+  ],
+  "download_failures": []
+}

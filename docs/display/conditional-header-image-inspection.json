@@ -1,0 +1,34 @@
+{
+  "regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1:1": {
+    "case": "regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1",
+    "page": 1,
+    "source_sha256": "b44b245b0146556a9a3b0c618858e92efdb823475a6674b00197516578ad20f6",
+    "edgedoc_build_inputs_sha256": "d2d219a7a2ce0d447d2e7f9b6b38696e93fef5cc7adc780bd442355f98e8f2e5",
+    "reference": {
+      "engine": "Wordcraft",
+      "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+      "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+      "dirty": false,
+      "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+      "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+      "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+      "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+    },
+    "pages": {
+      "edgedoc": 1,
+      "wordcraft": 1
+    },
+    "images": {
+      "wordcraft": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/conditional-header-visual/regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1/wordcraft-page-001.png",
+        "svg_sha256": "4a7a3f26c91d988ca42295c50d5b4be0e9ed702976a263f519ca2a0be81bbc2e",
+        "png_sha256": "5e8f282848a7297752e274c76677bd1e89c45fceb54fd215e20e2d02f2732fbd"
+      },
+      "edgedoc": {
+        "path": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/conditional-header-visual/regression-conditional_table_styles_apply_first_row_and_corner_precedence-78a0f1ce44cf8fb1/edgedoc-page-001.png",
+        "svg_sha256": "05e8319f85d5929290775c9b319e2b4e064193f5911ace7dd70bd379cc83e575",
+        "png_sha256": "383a0351080e15568dd2b0242b1d22b27eed625fa0688b6a4934dd415f1a18de"
+      }
+    }
+  }
+}

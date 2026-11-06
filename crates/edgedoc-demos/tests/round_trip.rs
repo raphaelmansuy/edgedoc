@@ -393,6 +393,33 @@ fn nested_table() -> Test {
     )
 }
 
+#[test]
+fn row_table_property_exception_survives_an_edit() -> Test {
+    keeps(
+        "row table property exception",
+        "word/document.xml",
+        r#"<w:tbl><w:tblGrid><w:gridCol w:w="900"/><w:gridCol w:w="900"/></w:tblGrid><w:tr><w:tblPrEx><w:tblBorders><w:insideV w:val="single" w:sz="8"/></w:tblBorders></w:tblPrEx><w:tc><w:p><w:r><w:t>A</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>B</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#,
+        "",
+        &[],
+        &["<w:tblPrEx>", "<w:insideV", r#"w:sz="8""#],
+    )
+}
+
+#[test]
+fn omitted_table_grid_columns_survive_an_edit() -> Test {
+    keeps(
+        "row grid offsets",
+        "word/document.xml",
+        r#"<w:tbl><w:tblGrid><w:gridCol w:w="900"/><w:gridCol w:w="900"/><w:gridCol w:w="900"/></w:tblGrid><w:tr><w:trPr><w:gridBefore w:val="1"/><w:gridAfter w:val="1"/></w:trPr><w:tc><w:p><w:r><w:t>A</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#,
+        "",
+        &[],
+        &[
+            r#"<w:gridBefore w:val="1"/>"#,
+            r#"<w:gridAfter w:val="1"/>"#,
+        ],
+    )
+}
+
 fn control_in_table() -> Test {
     keeps(
         "control in cell",
@@ -460,6 +487,70 @@ fn note_separator() -> Test {
         )],
         &[r#"w:type="separator""#],
     )
+}
+
+#[test]
+fn note_story_number_marks_survive_an_edited_save() -> Test {
+    for (kind, element) in [("footnote", "footnoteRef"), ("endnote", "endnoteRef")] {
+        let rels = format!(
+            r#"<Relationship Id="note" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/{kind}s" Target="{kind}s.xml"/>"#
+        );
+        let name = format!("word/{kind}s.xml");
+        let story = format!(
+            r#"<w:{kind}s xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:{kind} w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:{kind}><w:{kind} w:type="continuationSeparator" w:id="0"><w:p><w:r><w:continuationSeparator/></w:r></w:p></w:{kind}><w:{kind} w:id="1"><w:p><w:r><w:{element}/><w:t> note</w:t></w:r></w:p></w:{kind}></w:{kind}s>"#
+        );
+        let bytes = office(
+            &body("<w:p><w:r><w:t>Body</w:t></w:r></w:p>"),
+            &rels,
+            &[(&name, story.as_bytes())],
+        )?;
+        let model = Document::read_bytes(&bytes).map_err(err)?;
+        let part_kind = if kind == "footnote" {
+            edgedoc::PartKind::Footnote
+        } else {
+            edgedoc::PartKind::Endnote
+        };
+        let parts = model.parts(part_kind);
+        let part = *parts
+            .iter()
+            .find(|id| model.part_meta(**id).is_some_and(|meta| meta.id == Some(1)))
+            .ok_or("note part missing")?;
+        let blocks = model.part_blocks(part);
+        let found = blocks.iter().any(|block| match block {
+            edgedoc::Block::Paragraph(paragraph) => paragraph.objects.iter().any(|object| {
+                matches!(object, edgedoc::InlineObject::Note { kind: value, .. } if value == &format!("{kind}Mark"))
+            }),
+            _ => false,
+        });
+        if !found {
+            return fail(format!("{kind} story number mark was not read"));
+        }
+        for (id, continuation) in [(-1, false), (0, true)] {
+            let part = *parts
+                .iter()
+                .find(|part| {
+                    model
+                        .part_meta(**part)
+                        .is_some_and(|meta| meta.id == Some(id))
+                })
+                .ok_or("separator story missing")?;
+            let found = model.part_blocks(part).iter().any(|block| match block {
+                edgedoc::Block::Paragraph(paragraph) => paragraph.objects.iter().any(|object| matches!(object, edgedoc::InlineObject::NoteSeparator { continuation: value } if *value == continuation)),
+                _ => false,
+            });
+            if !found {
+                return fail(format!("{kind} separator {id} was not read"));
+            }
+        }
+        let saved = after_edit(&bytes, &name)?;
+        if !saved.contains(&format!("<w:{element}/>")) {
+            return fail(format!("{kind} story lost its number mark: {saved}"));
+        }
+        if !saved.contains("<w:separator/>") || !saved.contains("<w:continuationSeparator/>") {
+            return fail(format!("{kind} story lost a separator: {saved}"));
+        }
+    }
+    Ok(())
 }
 
 fn endnote_and_comment() -> Test {
@@ -683,5 +774,168 @@ fn round_trip() -> Test {
     for (id, case) in cases {
         case().map_err(|message| format!("{id}: {message}"))?;
     }
+    Ok(())
+}
+
+#[test]
+fn nested_toc_field_preserves_results_and_boundaries_after_edit() -> Test {
+    let inner = r##"<w:p><w:r><w:fldChar w:fldCharType="begin" w:dirty="true"/></w:r><w:r><w:instrText> TOC \o "1-3" </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:hyperlink w:anchor="heading"><w:r><w:rPr><w:b/></w:rPr><w:t>First heading</w:t></w:r><w:r><w:tab/></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> PAGEREF heading </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>3</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:hyperlink></w:p><w:p><w:r><w:t>Second heading</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r><w:r><w:t> after</w:t></w:r></w:p>"##;
+    let bytes = office(&body(inner), "", &[])?;
+    let doc = Document::read_bytes(&bytes).map_err(err)?;
+    let text = doc.plain_text(edgedoc::StoryRef::Body);
+    if !text.contains("First heading\t3") || !text.contains("Second heading after") {
+        return fail(format!("nested TOC lost visible text: {text:?}"));
+    }
+    let saved = after_edit(&bytes, "word/document.xml")?;
+    for needle in [
+        "TOC",
+        "PAGEREF",
+        "First heading",
+        "Second heading",
+        "w:dirty=\"true\"",
+    ] {
+        if !saved.contains(needle) {
+            return fail(format!("saved TOC lost {needle}"));
+        }
+    }
+    let saved_bytes = office(&saved, "", &[])?;
+    let reread = Document::read_bytes(&saved_bytes).map_err(err)?;
+    let text = reread.plain_text(edgedoc::StoryRef::Body);
+    if !text.contains("First heading\t3") || !text.contains("Second heading after") {
+        return fail(format!("reread TOC lost visible text: {text:?}"));
+    }
+    Ok(())
+}
+
+#[test]
+fn nested_field_result_stays_in_its_parent() -> Test {
+    let inner = r#"<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> IF 1 = 1 </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>before </w:t></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> REF x </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>middle</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r><w:r><w:t> after</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>"#;
+    let bytes = office(&body(inner), "", &[])?;
+    let doc = Document::read_bytes(&bytes).map_err(err)?;
+    let text = doc.plain_text(edgedoc::StoryRef::Body);
+    if text != "before middle after" {
+        return fail(format!("nested field result: {text:?}"));
+    }
+    Ok(())
+}
+
+#[test]
+fn cached_field_tabs_and_nested_simple_fields_round_trip_in_order() -> Test {
+    let inner = r#"<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> IF 1 = 1 </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>before</w:t><w:tab/></w:r><w:fldSimple w:instr=" REF target "><w:r><w:t>middle</w:t></w:r></w:fldSimple><w:r><w:br/><w:t>after</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>"#;
+    let bytes = office(&body(inner), "", &[])?;
+    let before = Document::read_bytes(&bytes)
+        .map_err(err)?
+        .plain_text(edgedoc::StoryRef::Body);
+    if before != "before\tmiddle\nafter" {
+        return fail(format!("cached field content: {before:?}"));
+    }
+    let saved = after_edit(&bytes, "word/document.xml")?;
+    if !saved.contains("<w:tab/>") || !saved.contains("<w:br/>") {
+        return fail("field result did not retain tab and line-break elements");
+    }
+    let bytes = office(&saved, "", &[])?;
+    let after = Document::read_bytes(&bytes)
+        .map_err(err)?
+        .plain_text(edgedoc::StoryRef::Body);
+    if !after.starts_with(&before) {
+        return fail(format!("reread cached field: {after:?}"));
+    }
+    Ok(())
+}
+
+#[test]
+fn empty_paragraph_border_set_survives_an_edited_save() -> Test {
+    let bytes = office(
+        &body(r#"<w:p><w:pPr><w:pBdr/></w:pPr><w:r><w:t>Text</w:t></w:r></w:p>"#),
+        "",
+        &[],
+    )?;
+    let saved = after_edit(&bytes, "word/document.xml")?;
+    if !saved.contains("<w:pBdr/>") {
+        return fail("the empty paragraph border override was lost");
+    }
+    Ok(())
+}
+
+#[test]
+fn paragraph_frame_alignment_attributes_survive_an_edited_save() -> Test {
+    let bytes = office(
+        &body(
+            r#"<w:p><w:pPr><w:framePr w:xAlign="right" w:yAlign="bottom" w:hAnchor="margin"/></w:pPr><w:r><w:t>Frame</w:t></w:r></w:p>"#,
+        ),
+        "",
+        &[],
+    )?;
+    let saved = after_edit(&bytes, "word/document.xml")?;
+    if !saved.contains("w:xAlign=\"right\"") || !saved.contains("w:yAlign=\"bottom\"") {
+        return fail("paragraph frame alignment attributes were lost");
+    }
+    Ok(())
+}
+
+#[test]
+fn inline_control_survives_edited_save() -> Test {
+    let xml = r#"<w:p><w:r><w:t>Before </w:t></w:r><w:sdt><w:sdtPr><w:alias w:val="Label"/></w:sdtPr><w:sdtContent><w:proofErr w:type="spellStart"/><w:r><w:t>Visible</w:t></w:r><w:proofErr w:type="spellEnd"/></w:sdtContent></w:sdt><w:r><w:t> After</w:t></w:r></w:p>"#;
+    let bytes = office(&body(xml), "", &[])?;
+    let mut model = Document::read_bytes(&bytes).map_err(err)?;
+    model
+        .edit(EditOptions::default(), |edit| {
+            edit.body()
+                .paragraph_at(0, |paragraph| paragraph.insert_text(16, "X"))?;
+            Ok(())
+        })
+        .map_err(err)?;
+    let output = model.write_bytes().map_err(err)?;
+    let package = edgedoc_opc::read_zip(&output, &Budget::default()).map_err(err)?;
+    let saved = String::from_utf8_lossy(
+        &package
+            .part("word/document.xml")
+            .ok_or("missing document")?
+            .bytes,
+    )
+    .into_owned();
+    for text in [
+        "<w:sdt>",
+        "<w:sdtPr>",
+        "Label",
+        "<w:sdtContent>",
+        "X",
+        "</w:sdtContent>",
+        "</w:sdt>",
+        "proofErr",
+    ] {
+        if !saved.contains(text) {
+            return fail(format!("inline control lost {text}"));
+        }
+    }
+    edgedoc_opc::xml::parse(saved.as_bytes(), &Budget::default()).map_err(err)?;
+    let start = saved
+        .find("<w:sdtContent>")
+        .ok_or("missing control start")?;
+    let end = saved.find("</w:sdtContent>").ok_or("missing control end")?;
+    if !saved[start..end].contains("X") {
+        return fail("edit moved outside the inline control");
+    }
+    Ok(())
+}
+
+#[test]
+fn cell_control_survives_edited_save() -> Test {
+    let xml = r#"<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Left</w:t></w:r></w:p></w:tc><w:sdt><w:sdtPr><w:alias w:val="Cell"/></w:sdtPr><w:sdtContent><w:tc><w:p><w:r><w:t>Inside</w:t></w:r></w:p></w:tc></w:sdtContent></w:sdt></w:tr></w:tbl>"#;
+    let bytes = office(&body(xml), "", &[])?;
+    let saved = after_edit(&bytes, "word/document.xml")?;
+    for text in [
+        "<w:sdt>",
+        "Cell",
+        "<w:sdtContent>",
+        "Inside",
+        "</w:sdtContent>",
+        "</w:sdt>",
+    ] {
+        if !saved.contains(text) {
+            return fail(format!("cell control lost {text}"));
+        }
+    }
+    edgedoc_opc::xml::parse(saved.as_bytes(), &Budget::default()).map_err(err)?;
     Ok(())
 }

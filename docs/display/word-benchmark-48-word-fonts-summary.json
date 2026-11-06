@@ -1,0 +1,823 @@
+{
+  "source_report_sha256": "6c5a851e1e9e135dd6ad46953cb6ec30263db69cbf3fc9f73c3aae6544ad6e54",
+  "font_profile_sha256": "534d9b077d0fbf2363f0cde37b449505be50ba2a2ec8b6ff9cb8816f69fc9923",
+  "font_profile_description": "Existing profile augmented with locally installed Microsoft Word Calibri, Aptos, Century Gothic and Symbol faces",
+  "source_manifest_sha256": "383a1dac6017837c3ed817f1b78f4fb2e3d272365c214746e8f7fa80b800b575",
+  "comparison_tool_sha256": "20dba900a13a67c46f47d21dbaba878b169925ba7580cbc70a4a58778ed777a6",
+  "edgedoc_build_inputs_sha256": "228e33198a195acdf220ffa9e254313a0d10d36befb950579efd463e1c4b795b",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "b6f7c9a24c6c88a8a7e4dcff313c9602679f5c192cea700d5e25bd40747440e0",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "counts": {
+    "failed": 43,
+    "blocked": 1,
+    "passed": 4
+  },
+  "cases": [
+    {
+      "id": "wordbench-0048ba31dd",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "96d161ccd46213ae574475bc0e379c2d7b0f085dbb35ccb5117c3960e24709ff",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Extended paragraph properties",
+        "Vertically merged table cells"
+      ]
+    },
+    {
+      "id": "wordbench-00afa1113a",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "28fac3a6f2539fd8e5d858eb2dbaf4b35bd38c202cba33baa6622080544b8222",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Tahoma"
+      ]
+    },
+    {
+      "id": "wordbench-00b4bc7784",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "25ca6f381d17a8f11ba3af3c625186f88136d43d1e8879fd27b86f7b3eeb6e95",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 3
+      },
+      "diagnostics": [
+        "Table cell text direction and fitting"
+      ]
+    },
+    {
+      "id": "wordbench-00b4bca293",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "f69715fe42c862650183ccf5cb2173dabbef9125edfe6d101f62b07ea27b2fe4",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 4,
+        "wordcraft_pages": 4
+      },
+      "diagnostics": [
+        "Extended paragraph properties"
+      ]
+    },
+    {
+      "id": "wordbench-014f5b166b",
+      "status": "blocked",
+      "word_pdf": {
+        "sha256": "3c8843f7cb6c9d0dc109931f47a4f31053fc5126a3095073eca6416757e969d1",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 7,
+        "wordcraft_pages": null
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-01dfe66768",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "cae89389f7f029960a6a7e02e15ec6726f44286a54dcf3416d10e71e6236a54b",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 3
+      },
+      "diagnostics": [
+        "Conditional table styles",
+        "Document grid",
+        "Line numbering",
+        "\u7b49\u7ebf"
+      ]
+    },
+    {
+      "id": "wordbench-030c864b67",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "3d45875714943ba43f8d05e875e5576679fef6d17d4fd4848abf33df31f27c7f",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Extended paragraph properties"
+      ]
+    },
+    {
+      "id": "wordbench-036dd6afba",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "5ef1ba6d3338663b3da418344684dce7d52419c7bc57bc3cf05bb382ea7b10d4",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Conditional table styles",
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "Fields other than page and section counters use cached results",
+        "Floating picture positioning and text wrap",
+        "Roboto Light",
+        "Roboto Medium"
+      ]
+    },
+    {
+      "id": "wordbench-03fc85a4cc",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "232959f55877b16e08667342e40c8ab936f1b00d0a4922bc4389f98513867404",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "BigMisterC"
+      ]
+    },
+    {
+      "id": "wordbench-04dafefc52",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "817044c02900393f89b964541fe7cfb18a77322fd044e00ab916304a50b55b4b",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251657728\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658752\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\"><wp:simplePos x=\"0\" y=\"0\"/",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251656704\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "Embedded drawings, equations, and text boxes",
+        "Paragraph frames and drop caps"
+      ]
+    },
+    {
+      "id": "wordbench-051e6da4f6",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "d6e1b8936c38476e39e54ecc8f7317e14636269289d1cd8187911d4b80d0f7c8",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 3
+      },
+      "diagnostics": [
+        "Vertically merged table cells",
+        "Ebrima"
+      ]
+    },
+    {
+      "id": "wordbench-055277a98a",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "01e32632b6ffb71fa7217b0285a589e94eafa1b2cf6f249493a8d48b3d4f5e2e",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Extended character typography",
+        "Extended paragraph properties"
+      ]
+    },
+    {
+      "id": "wordbench-056bfeba7c",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "106a1ff59a5a0d63d12ab624ba5be2d9750ea43574c6821396b6c10dd5b5bf92",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 4
+      },
+      "diagnostics": [
+        "Extended paragraph properties",
+        "Floating picture positioning and text wrap",
+        "Floating table positioning and text wrap",
+        "Paragraph frames and drop caps",
+        "Helvetica"
+      ]
+    },
+    {
+      "id": "wordbench-07ffc3f5af",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "72abd7c5361354f68663b46591f0b5b2f2641a08d59b9fe50f7e08ffd8939df7",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": [
+        "Conditional table styles",
+        "Floating picture positioning and text wrap",
+        "Arial Bold"
+      ]
+    },
+    {
+      "id": "wordbench-0800162a66",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "37ac4456252ea8de805cd3c0d66458afdc5d61af4552f2c6bf300a9a7d140d85",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Floating picture positioning and text wrap"
+      ]
+    },
+    {
+      "id": "wordbench-09321ae5d1",
+      "status": "passed",
+      "word_pdf": {
+        "sha256": "33056d3d4f695bc977eb05c3fe9e0f751bef5851bf327b1862fce2d9ce98075b",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 3
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-0d421d4956",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "e978eae6c83e7ed7277304af78d67570ee1233185189e8eb65bdf15ecd71b9e6",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Complex-script and bidirectional layout",
+        "Vertically merged table cells"
+      ]
+    },
+    {
+      "id": "wordbench-0e6f813e69",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "d4ab0a2949627b7cb028662f4b33ae3d75b4e2c2cc90fb9ebe4b70aef715be9a",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Document grid",
+        "\u7b49\u7ebf"
+      ]
+    },
+    {
+      "id": "wordbench-115c721277",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "88395b21ec6a4ca530dbe6c4744955a5c155ee5c256b16fa42e6f3524583ee5a",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Floating picture positioning and text wrap"
+      ]
+    },
+    {
+      "id": "wordbench-132172576b",
+      "status": "passed",
+      "word_pdf": {
+        "sha256": "fabdb9d204badbdddee5555ab0f4c8b71f4076b699a52faf57ab3a95a3b82de5",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-153475ecc3",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "85cf87d06e755a213f5d0cb861cc0a31679f7b4491b7aad939f0d0721c139216",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251662336\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251660288\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "Calibri-Bold",
+        "Helvetica"
+      ]
+    },
+    {
+      "id": "wordbench-153b511c02",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "445b80f7c742f2ba430b4c6740b97ba52a8104ab0b001719852214231171afe3",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 6,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-164e42c955",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "74716f411c6c38ea2e4a5177eb0c87f25ab616f12b0dd6eee3a32a61639d0ced",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Conditional table styles",
+        "Floating picture positioning and text wrap",
+        "Poppins"
+      ]
+    },
+    {
+      "id": "wordbench-19891583af",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "6afc60383344261ae1a7cb2959dbecad3c1b97fb7d5392d54c15c6044d7ce04c",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"metricconverter\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"110 l\"/></w:smartTagPr><w:r><w:t>110 l</w:t></w:r></w:smart",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"metricconverter\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"1100 l\"/></w:smartTagPr><w:r><w:t>1100 l</w:t></w:r></w:sma"
+      ]
+    },
+    {
+      "id": "wordbench-19d3b7b481",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "3f7b1b4f7b0aad6eea318eb4af2cd80133846d10154c938f36de0af87a871e93",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"45720\" distB=\"45720\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658242\" behindDoc=\"0\" locked=\"0\" layou",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"45720\" distB=\"45720\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658243\" behindDoc=\"0\" locked=\"0\" layou",
+        "Character effects and borders",
+        "Embedded drawings, equations, and text boxes",
+        "Floating picture positioning and text wrap",
+        "Avenir Book",
+        "Helvetica"
+      ]
+    },
+    {
+      "id": "wordbench-1ec984c384",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "74f29c3f9ec927bebddc46b192d9bff2363e65de7443cdb227d35065fd185b0b",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 4
+      },
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wpc\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"1\" locked=\"0\" layoutInCell=",
+        "Georgia",
+        "MS Gothic"
+      ]
+    },
+    {
+      "id": "wordbench-204a1912be",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "c02c7984053ac8c5ecdd6c5c982abffd478cabf4e31a29f95838145d37c7618b",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 6,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "Floating picture positioning and text wrap",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251666432\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251665408\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251661312\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251663360\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell="
+      ]
+    },
+    {
+      "id": "wordbench-21a93ae017",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "ed87068c1e4f935e881f9af11090062c3bff40639035ec4fdc564729b7420c03",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowO",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"251660288\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowO",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"0\" layoutInCell=\"1\" allowO",
+        "Conditional table styles",
+        "Embedded drawings, equations, and text boxes",
+        "Floating table positioning and text wrap"
+      ]
+    },
+    {
+      "id": "wordbench-2227979ecd",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "3663dc603b7ad5d92eefa6c5864d72ae03ceb3ef33feb051598e1b86769779cf",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 2,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Floating picture positioning and text wrap",
+        "Floating table positioning and text wrap"
+      ]
+    },
+    {
+      "id": "wordbench-2559791938",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "abe0c42a4df70274b22db2f6cf04adeb245eabe55ced33869021798e19c09446",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Conditional table styles"
+      ]
+    },
+    {
+      "id": "wordbench-2949680ea3",
+      "status": "passed",
+      "word_pdf": {
+        "sha256": "1a613e4e85b6a16416a795a3bc6cc193516181f05ccf646bd0bf90756edc917a",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 3
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-2c41d57dce",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "6fcd0450dc53b8eaa583c7dfb4bf37eb7ec75f11ddf162f27df537a8011d7cb6",
+        "pdfinfo_pages": 1,
+        "dataset_pages": 1,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 1,
+        "wordcraft_pages": 1
+      },
+      "diagnostics": [
+        "Conditional table styles",
+        "Table cell text direction and fitting",
+        "Vertically merged table cells"
+      ]
+    },
+    {
+      "id": "wordbench-30dde38655",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "8155a404704da160bcc6d41e55b657f4d62c81118865f98c21f40388363c246f",
+        "pdfinfo_pages": 3,
+        "dataset_pages": 3,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 3
+      },
+      "diagnostics": [
+        "Extended paragraph properties"
+      ]
+    },
+    {
+      "id": "wordbench-38366ba69f",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "aad903fbdad154288752de7ecfe2580a2b58bcaff335cc0902631e38ac88c499",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "Vertically merged table cells",
+        "Verdana"
+      ]
+    },
+    {
+      "id": "wordbench-418b154e5c",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "76e9323184248c490451eed2204c9a5f16d531941e5d0cfe78065f9e2b3cf503",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 6,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "Fields other than page and section counters use cached results",
+        "Floating picture positioning and text wrap"
+      ]
+    },
+    {
+      "id": "wordbench-4351ae2564",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "98cd0a31be1fd70f954181678a6e505c3d05adb1a3bf565ebb657c05ed390c09",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 4
+      },
+      "diagnostics": [
+        "Document grid",
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659264\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <w:object w:dxaOrig=\"9855\" w:dyaOrig=\"12963\"><v:shapetype id=\"_x0000_t75\" coordsize=\"21600,21600\" o:spt=\"75\" o:preferrelative=\"t\" path=\"m@4@5l@4@11@9@11@9@5xe\" filled=\"f\" stroked=\"f\"><v:stroke joins",
+        "\u6a19\u6977\u9ad4",
+        "\u65b0\u7d30\u660e\u9ad4"
+      ]
+    },
+    {
+      "id": "wordbench-46860b290e",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "ee770ab1c5e202f1c13671495bbef8544e2c544bcb7fa018fc71a40e932ff7e9",
+        "pdfinfo_pages": 2,
+        "dataset_pages": 2,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 3,
+        "wordcraft_pages": 2
+      },
+      "diagnostics": [
+        "Extended paragraph properties",
+        "Floating picture positioning and text wrap",
+        "Impact"
+      ]
+    },
+    {
+      "id": "wordbench-4b030510c8",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "b4133fe8049833822ddbf4dd544b1130ebbfff652eedd51155283e86a0de1e46",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 6,
+        "wordcraft_pages": 7
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-5aa03735ce",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "082e743343bb6e08a2cc3e9542d761efe5e2731dcf131df11c8df2e2a2eb86bb",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 4,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": [
+        "Embedded drawings, equations, and text boxes",
+        "Extended paragraph properties",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"PersonName\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"la Sezione Provinciale\"/></w:smartTagPr><w:r w:rsidRPr=\"00511569",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251660800\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251661824\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251659776\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"4294967295\" distB=\"4294967295\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658752\" behindDoc=\"0\" locked",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"4294967295\" distB=\"4294967295\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251657728\" behindDoc=\"0\" locked",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"4294967295\" distB=\"4294967295\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251656704\" behindDoc=\"0\" locked",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251652608\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251654656\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251655680\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114299\" distR=\"114299\" simplePos=\"0\" relativeHeight=\"251653632\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251651584\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251650560\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wpc\"><w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"5574665\" cy=\"2646045\"/><wp:effectExtent l=\"24765\" t=\"17780\" r=\"20320\" b=\"2",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251663872\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251662848\" behindDoc=\"0\" locked=\"0\" layoutInCell=",
+        "A <w:sym w:font=\"Symbol\" w:char=\"F07F\"/> object paints as a placeholder",
+        "A <w:smartTag w:uri=\"urn:schemas-microsoft-com:office:smarttags\" w:element=\"PersonName\"><w:smartTagPr><w:attr w:name=\"ProductID\" w:val=\"LA PISCINA\"/></w:smartTagPr><w:r><w:rPr><w:rFonts w:ascii=\"Arial"
+      ]
+    },
+    {
+      "id": "wordbench-636ef078e7",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "02520a1600bc5d4327bbb0f21d6e500d9e1a4f3c26f7cac8970653e940be22ec",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 6,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "Footnote, endnote, and comment stories"
+      ]
+    },
+    {
+      "id": "wordbench-6b651ce4d7",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "5822fe34287aaf7eb15af254b509285447ed989ac64fb34f7fa8778edf34c7ff",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-7e4c9416aa",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "d4dcf9cba958f2ac8d713796aceca8734ee4d86fa7a3dfc523eaece49182f51c",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 4,
+        "wordcraft_pages": 4
+      },
+      "diagnostics": [
+        "Floating picture positioning and text wrap",
+        "Vertically merged table cells"
+      ]
+    },
+    {
+      "id": "wordbench-81f7cad226",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "50ce54d0c8b0fe2b181d931ce53b52939a46512c349c083ab15dcbbbf81deb5b",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 4,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": [
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658241\" behindDoc=\"0\" locked=\"1\" layoutInCell=",
+        "A <mc:AlternateContent><mc:Choice Requires=\"wps\"><w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"1\" layoutInCell=",
+        "Embedded drawings, equations, and text boxes",
+        "Floating picture positioning and text wrap",
+        "Paragraph frames and drop caps",
+        "Verdana"
+      ]
+    },
+    {
+      "id": "wordbench-9861e3ad38",
+      "status": "passed",
+      "word_pdf": {
+        "sha256": "294b2737d17c3d4c9579ae7f236e918767ab2824a7f19a4f9a66ef2f7e5af2fa",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-a05bc8ec1e",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "37cd8a04d4cc9ce2b3efc52addde8cd5df117ff9e9a18e2b81ae69eff61e7892",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 6,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "Footnote, endnote, and comment stories"
+      ]
+    },
+    {
+      "id": "wordbench-b3ff2c3238",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "636fa634608aefe8095cf5ee4dc21233f370eabaf0b7fc7f7b4d8f4de5cd9b65",
+        "pdfinfo_pages": 5,
+        "dataset_pages": 5,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 5,
+        "wordcraft_pages": 5
+      },
+      "diagnostics": []
+    },
+    {
+      "id": "wordbench-d91010d592",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "5da0efacdd7fecf68466e303301fbb372743403945a383d4c0e9a6c42969bb45",
+        "pdfinfo_pages": 6,
+        "dataset_pages": 6,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 7,
+        "wordcraft_pages": 6
+      },
+      "diagnostics": [
+        "Complex-script and bidirectional layout",
+        "SECNaskhArabicUI"
+      ]
+    },
+    {
+      "id": "wordbench-fe882784bb",
+      "status": "failed",
+      "word_pdf": {
+        "sha256": "e15b5ade0c66ea10b3ad7fa6ac118e90b588d8f33e47eb4c3fed2549f8fdbd26",
+        "pdfinfo_pages": 4,
+        "dataset_pages": 4,
+        "dataset_attribution": "Word for Mac print to PDF, as reported by the source corpus",
+        "edgedoc_pages": 4,
+        "wordcraft_pages": 4
+      },
+      "diagnostics": [
+        "A <w:drawing><wp:anchor distT=\"0\" distB=\"0\" distL=\"114300\" distR=\"114300\" simplePos=\"0\" relativeHeight=\"251658240\" behindDoc=\"0\" locked=\"1\" layoutInCell=\"1\" allowOverlap=\"1\" wp14:anchorId=\"0FBC4B57\" w",
+        "Embedded drawings, equations, and text boxes",
+        "Footnote, endnote, and comment stories"
+      ]
+    }
+  ]
+}

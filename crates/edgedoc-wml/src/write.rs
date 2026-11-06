@@ -3,7 +3,7 @@ use std::sync::Arc;
 use edgedoc_model::{
     Block, Borders, CharProps, FormField, FormKind, InlineObject, ListKind, ModelDocument,
     ParaProps, Paragraph, PartKind, Picture, SectionProps, SectionStart, Style, StyleSheet,
-    PAGE_BREAK,
+    COLUMN_BREAK, PAGE_BREAK,
 };
 use edgedoc_opc::escape;
 
@@ -355,8 +355,7 @@ fn retain_relationships(
     };
     for rel in edgedoc_opc::rels_from_el(&root) {
         // A kept drawing points at its original relationship, so that id must stay.
-        let kept_image =
-            rel.rel_type.ends_with("/image") && opaque_ids.iter().any(|id| *id == rel.id);
+        let kept_image = rel.rel_type.ends_with("/image") && opaque_ids.contains(&rel.id);
         let rebuilt = [
             REL_STYLES,
             REL_SETTINGS,
@@ -406,14 +405,20 @@ fn collect_opaque_ids(doc: &ModelDocument) -> Vec<String> {
             match block.as_ref() {
                 Block::Paragraph(para) => {
                     for object in &para.objects {
-                        if let InlineObject::Opaque(xml) = object {
+                        if let InlineObject::Opaque(xml)
+                        | InlineObject::InlineControlBoundary(xml) = object
+                        {
                             scan(xml, ids);
                         }
                     }
                 }
                 Block::Table(table) => {
                     for row in &table.rows {
+                        scan(&row.xml_before, ids);
+                        scan(&row.xml_after, ids);
                         for cell in &row.cells {
+                            scan(&cell.xml_before, ids);
+                            scan(&cell.xml_after, ids);
                             walk(&cell.blocks, ids);
                         }
                     }
@@ -603,19 +608,6 @@ fn paragraph_xml(
             let object = para.objects.get(object_at);
             object_at += 1;
             object_xml(object, &run.props, rels, media, drawings)
-        } else if text.contains(PAGE_BREAK) {
-            let props = rpr(&run.props);
-            let mut piece = String::new();
-            let mut pieces = text.split(PAGE_BREAK).peekable();
-            while let Some(part) = pieces.next() {
-                if !part.is_empty() {
-                    piece.push_str(&text_runs(part, &props));
-                }
-                if pieces.peek().is_some() {
-                    piece.push_str(&format!("<w:r>{props}<w:br w:type=\"page\"/></w:r>"));
-                }
-            }
-            piece
         } else {
             text_runs(text, &rpr(&run.props))
         };
@@ -626,9 +618,14 @@ fn paragraph_xml(
     out
 }
 
-/// Split text at tab and newline characters into `w:tab` and `w:br` runs.
+/// Split text at special characters into their WordprocessingML run elements.
 fn text_runs(text: &str, props: &str) -> String {
-    if !text.contains('\t') && !text.contains('\n') {
+    if !text.chars().any(|c| {
+        matches!(
+            c,
+            '\t' | '\n' | PAGE_BREAK | COLUMN_BREAK | '\u{00AD}' | '\u{2011}'
+        )
+    }) {
         return format!(
             "<w:r>{props}<w:t xml:space=\"preserve\">{}</w:t></w:r>",
             escape(text)
@@ -645,6 +642,20 @@ fn text_runs(text: &str, props: &str) -> String {
             '\n' => {
                 flush_text(&mut out, &mut buffer, props);
                 out.push_str(&format!("<w:r>{props}<w:br/></w:r>"));
+            }
+            '\u{00AD}' | '\u{2011}' => {
+                flush_text(&mut out, &mut buffer, props);
+                let tag = if ch == '\u{00AD}' {
+                    "softHyphen"
+                } else {
+                    "noBreakHyphen"
+                };
+                out.push_str(&format!("<w:r>{props}<w:{tag}/></w:r>"));
+            }
+            PAGE_BREAK | COLUMN_BREAK => {
+                flush_text(&mut out, &mut buffer, props);
+                let kind = if ch == PAGE_BREAK { "page" } else { "column" };
+                out.push_str(&format!("<w:r>{props}<w:br w:type=\"{kind}\"/></w:r>"));
             }
             other => buffer.push(other),
         }
@@ -690,17 +701,27 @@ fn object_xml(
                 None => begin.push_str("/>"),
             }
             format!(
-                "<w:r>{}{begin}</w:r><w:r><w:instrText xml:space=\"preserve\">{}</w:instrText></w:r><w:r><w:fldChar w:fldCharType=\"separate\"/></w:r><w:r><w:t>{}</w:t></w:r><w:r><w:fldChar w:fldCharType=\"end\"/></w:r>",
+                "<w:r>{}{begin}</w:r><w:r><w:instrText xml:space=\"preserve\">{}</w:instrText></w:r><w:r><w:fldChar w:fldCharType=\"separate\"/></w:r>{}<w:r><w:fldChar w:fldCharType=\"end\"/></w:r>",
                 rpr(props),
                 escape(&field.instr),
-                escape(&field.result)
+                text_runs(&field.result, &rpr(props))
             )
         }
+        Some(InlineObject::FieldStart {
+            instr,
+            dirty,
+            locked,
+        }) => {
+            let dirty = if *dirty { " w:dirty=\"true\"" } else { "" };
+            let locked = if *locked { " w:fldLock=\"true\"" } else { "" };
+            format!("<w:r>{}<w:fldChar w:fldCharType=\"begin\"{dirty}{locked}/></w:r><w:r><w:instrText xml:space=\"preserve\">{}</w:instrText></w:r><w:r><w:fldChar w:fldCharType=\"separate\"/></w:r>", rpr(props), escape(instr))
+        }
+        Some(InlineObject::FieldEnd) => "<w:r><w:fldChar w:fldCharType=\"end\"/></w:r>".into(),
         Some(InlineObject::Orphan) => format!(
             "<w:r>{}<w:fldChar w:fldCharType=\"begin\"/></w:r>",
             rpr(props)
         ),
-        Some(InlineObject::Opaque(xml)) => xml.clone(),
+        Some(InlineObject::Opaque(xml) | InlineObject::InlineControlBoundary(xml)) => xml.clone(),
         Some(InlineObject::Picture(picture)) => {
             let id = add_image(rels, media, picture);
             *drawings = drawings.saturating_add(1);
@@ -719,6 +740,14 @@ fn object_xml(
             }
         }
         Some(InlineObject::Note { kind, id }) => {
+            if kind == "footnoteMark" || kind == "endnoteMark" {
+                let element = if kind == "footnoteMark" {
+                    "footnoteRef"
+                } else {
+                    "endnoteRef"
+                };
+                return format!("<w:r>{}<w:{element}/></w:r>", rpr(props));
+            }
             let element = match kind.as_str() {
                 "footnote" => "footnoteReference",
                 "endnote" => "endnoteReference",
@@ -730,6 +759,25 @@ fn object_xml(
                 format_args!("<w:{element} w:id=\"{id}\"/>")
             )
         }
+        Some(InlineObject::NoteSeparator { continuation }) => {
+            let element = if *continuation {
+                "continuationSeparator"
+            } else {
+                "separator"
+            };
+            format!("<w:r>{}<w:{element}/></w:r>", rpr(props))
+        }
+        Some(InlineObject::PositionalTab {
+            alignment,
+            relative_to,
+            leader,
+        }) => format!(
+            "<w:r>{}<w:ptab w:alignment=\"{}\" w:relativeTo=\"{}\" w:leader=\"{}\"/></w:r>",
+            rpr(props),
+            escape(alignment),
+            escape(relative_to),
+            escape(leader.as_deref().unwrap_or("none"))
+        ),
         None => String::new(),
     }
 }
@@ -882,11 +930,27 @@ fn drawing_xml(picture: &Picture, id: &str, doc_pr_id: u32) -> String {
     let doc_pr = format!(
         "<wp:docPr id=\"{doc_pr_id}\" name=\"{name}\" descr=\"{descr}\"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect=\"1\"/></wp:cNvGraphicFramePr>"
     );
+    let crop = if picture.crop == [0; 4] {
+        String::new()
+    } else {
+        let [l, t, r, b] = picture.crop;
+        format!(r#"<a:srcRect l="{l}" t="{t}" r="{r}" b="{b}"/>"#)
+    };
     let graphic = format!(
-        "<a:graphic xmlns:a=\"{A}\"><a:graphicData uri=\"{PIC}\"><pic:pic xmlns:pic=\"{PIC}\"><pic:nvPicPr><pic:cNvPr id=\"{doc_pr_id}\" name=\"{name}\" descr=\"{descr}\"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed=\"{id}\"/></pic:blipFill><pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"{width}\" cy=\"{height}\"/></a:xfrm><a:prstGeom prst=\"rect\"/></pic:spPr></pic:pic></a:graphicData></a:graphic>"
+        "<a:graphic xmlns:a=\"{A}\"><a:graphicData uri=\"{PIC}\"><pic:pic xmlns:pic=\"{PIC}\"><pic:nvPicPr><pic:cNvPr id=\"{doc_pr_id}\" name=\"{name}\" descr=\"{descr}\"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed=\"{id}\"/>{crop}</pic:blipFill><pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"{width}\" cy=\"{height}\"/></a:xfrm><a:prstGeom prst=\"rect\"/></pic:spPr></pic:pic></a:graphicData></a:graphic>"
     );
     match &picture.anchor {
-        None => format!("<w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"{width}\" cy=\"{height}\"/>{doc_pr}{graphic}</wp:inline></w:drawing>"),
+        None => {
+            let effect = picture
+                .effect_extent
+                .map_or_else(String::new, |[l, t, r, b]| {
+                    format!(
+                        "<wp:effectExtent l=\"{}\" t=\"{}\" r=\"{}\" b=\"{}\"/>",
+                        l.0, t.0, r.0, b.0
+                    )
+                });
+            format!("<w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"{width}\" cy=\"{height}\"/>{effect}{doc_pr}{graphic}</wp:inline></w:drawing>")
+        }
         Some(anchor) => {
             let wrap = match anchor.wrap.as_deref() {
                 Some(value) if value.starts_with("square") => {
@@ -904,8 +968,18 @@ fn drawing_xml(picture: &Picture, id: &str, doc_pr_id: u32) -> String {
                 Some("wrapNone") => "<wp:wrapNone/>".into(),
                 _ => "<wp:wrapSquare wrapText=\"bothSides\"/>".into(),
             };
-            let horizontal = position_axis(anchor.h_align.as_deref(), anchor.x.map(|emu| emu.0), "H");
-            let vertical = position_axis(anchor.v_align.as_deref(), anchor.y.map(|emu| emu.0), "V");
+            let horizontal = position_axis(
+                anchor.h_align.as_deref(),
+                anchor.x.map(|emu| emu.0),
+                "H",
+                anchor.h_anchor.as_deref(),
+            );
+            let vertical = position_axis(
+                anchor.v_align.as_deref(),
+                anchor.y.map(|emu| emu.0),
+                "V",
+                anchor.v_anchor.as_deref(),
+            );
             format!(
                 "<w:drawing><wp:anchor distT=\"{}\" distB=\"{}\" distL=\"{}\" distR=\"{}\" simplePos=\"0\" relativeHeight=\"0\" behindDoc=\"{}\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\"><wp:simplePos x=\"0\" y=\"0\"/>{horizontal}{vertical}<wp:extent cx=\"{width}\" cy=\"{height}\"/><wp:effectExtent l=\"0\" t=\"0\" r=\"0\" b=\"0\"/>{wrap}{doc_pr}{graphic}</wp:anchor></w:drawing>",
                 anchor.dist_top.map(|emu| emu.0).unwrap_or(0),
@@ -918,8 +992,13 @@ fn drawing_xml(picture: &Picture, id: &str, doc_pr_id: u32) -> String {
     }
 }
 
-fn position_axis(align: Option<&str>, offset: Option<i64>, axis: &str) -> String {
-    let relative = if axis == "H" { "column" } else { "paragraph" };
+fn position_axis(
+    align: Option<&str>,
+    offset: Option<i64>,
+    axis: &str,
+    relative: Option<&str>,
+) -> String {
+    let relative = escape(relative.unwrap_or(if axis == "H" { "column" } else { "paragraph" }));
     let body = match (align, offset) {
         (Some(value), _) => format!("<wp:align>{}</wp:align>", escape(value)),
         (None, Some(value)) => format!("<wp:posOffset>{value}</wp:posOffset>"),
@@ -953,30 +1032,82 @@ fn ppr(
     doc: &ModelDocument,
     drawings: &mut u32,
 ) -> String {
+    fn on_off(out: &mut String, name: &str, value: bool, present: bool, default: bool) {
+        if present || value != default {
+            if value {
+                out.push_str(&format!("<w:{name}/>"));
+            } else {
+                out.push_str(&format!("<w:{name} w:val=\"0\"/>"));
+            }
+        }
+    }
     let props = &para.props;
     let mut inner = String::new();
     if let Some(style) = &props.style {
         inner.push_str(&format!("<w:pStyle w:val=\"{}\"/>", escape(style)));
     }
-    if props.keep_next {
-        inner.push_str("<w:keepNext/>");
+    let present = |name: &str| props.explicit_on_off.iter().any(|item| item == name);
+    on_off(
+        &mut inner,
+        "keepNext",
+        props.keep_next,
+        present("keepNext"),
+        false,
+    );
+    on_off(
+        &mut inner,
+        "keepLines",
+        props.keep_lines,
+        present("keepLines"),
+        false,
+    );
+    on_off(
+        &mut inner,
+        "pageBreakBefore",
+        props.page_break_before,
+        present("pageBreakBefore"),
+        false,
+    );
+    on_off(
+        &mut inner,
+        "widowControl",
+        props.widow_control,
+        present("widowControl"),
+        true,
+    );
+    on_off(
+        &mut inner,
+        "contextualSpacing",
+        props.contextual_spacing,
+        present("contextualSpacing"),
+        false,
+    );
+    if let Some(value) = props.kinsoku {
+        inner.push_str(if value {
+            "<w:kinsoku/>"
+        } else {
+            "<w:kinsoku w:val=\"0\"/>"
+        });
     }
-    if props.keep_lines {
-        inner.push_str("<w:keepLines/>");
+    if let Some(value) = props.word_wrap {
+        inner.push_str(if value {
+            "<w:wordWrap/>"
+        } else {
+            "<w:wordWrap w:val=\"0\"/>"
+        });
     }
-    if props.page_break_before {
-        inner.push_str("<w:pageBreakBefore/>");
+    on_off(
+        &mut inner,
+        "suppressLineNumbers",
+        props.suppress_line_numbers,
+        present("suppressLineNumbers"),
+        false,
+    );
+    if props.borders_present && props.borders.is_empty() {
+        inner.push_str("<w:pBdr/>");
+    } else {
+        write_borders(&props.borders, "pBdr", &mut inner);
     }
-    if !props.widow_control {
-        inner.push_str("<w:widowControl w:val=\"0\"/>");
-    }
-    if props.contextual_spacing {
-        inner.push_str("<w:contextualSpacing/>");
-    }
-    if props.suppress_line_numbers {
-        inner.push_str("<w:suppressLineNumbers/>");
-    }
-    write_borders(&props.borders, "pBdr", &mut inner);
     if let Some(fill) = &props.shading {
         inner.push_str(&format!(
             "<w:shd w:val=\"clear\" w:fill=\"{}\"/>",
@@ -1051,13 +1182,32 @@ fn ppr(
         }
         inner.push_str("/>");
     }
-    if props.spacing_before.is_some() || props.spacing_after.is_some() || props.line.is_some() {
+    if props.spacing_before.is_some()
+        || props.spacing_after.is_some()
+        || props.line.is_some()
+        || props.spacing_before_auto.is_some()
+        || props.spacing_after_auto.is_some()
+    {
         inner.push_str("<w:spacing");
         if let Some(value) = props.spacing_before {
             inner.push_str(&format!(" w:before=\"{}\"", value.0));
         }
         if let Some(value) = props.spacing_after {
             inner.push_str(&format!(" w:after=\"{}\"", value.0));
+        }
+        if let Some(value) = props.spacing_before_auto {
+            inner.push_str(if value {
+                " w:beforeAutospacing=\"1\""
+            } else {
+                " w:beforeAutospacing=\"0\""
+            });
+        }
+        if let Some(value) = props.spacing_after_auto {
+            inner.push_str(if value {
+                " w:afterAutospacing=\"1\""
+            } else {
+                " w:afterAutospacing=\"0\""
+            });
         }
         if let Some(value) = props.line {
             inner.push_str(&format!(" w:line=\"{}\"", value.0));
@@ -1089,6 +1239,12 @@ fn ppr(
         }
         if let Some(value) = &frame.v_anchor {
             inner.push_str(&format!(" w:vAnchor=\"{}\"", escape(value)));
+        }
+        if let Some(value) = &frame.x_align {
+            inner.push_str(&format!(" w:xAlign=\"{}\"", escape(value)));
+        }
+        if let Some(value) = &frame.y_align {
+            inner.push_str(&format!(" w:yAlign=\"{}\"", escape(value)));
         }
         if let Some(value) = frame.h_space {
             inner.push_str(&format!(" w:hSpace=\"{}\"", value.0));
@@ -1143,8 +1299,46 @@ fn ppr(
     }
 }
 
+fn write_font_attribute(out: &mut String, attribute: &str, font: &str) {
+    let slot = match (font, attribute) {
+        ("+mj-lt", "ascii") => Some("majorAscii"),
+        ("+mj-lt", "hAnsi") => Some("majorHAnsi"),
+        ("+mn-lt", "ascii") => Some("minorAscii"),
+        ("+mn-lt", "hAnsi") => Some("minorHAnsi"),
+        _ => None,
+    };
+    if let Some(slot) = slot {
+        out.push_str(&format!(" w:{attribute}Theme=\"{slot}\""));
+    } else {
+        out.push_str(&format!(" w:{attribute}=\"{}\"", escape(font)));
+    }
+}
+
 fn rpr(props: &CharProps) -> String {
     let mut inner = String::new();
+    for name in &props.explicit_off {
+        let enabled = match name.as_str() {
+            "b" => props.bold,
+            "i" => props.italic,
+            "strike" => props.strike,
+            "dstrike" => props.double_strike,
+            "caps" => props.caps,
+            "smallCaps" => props.small_caps,
+            "emboss" => props.emboss,
+            "imprint" => props.imprint,
+            "outline" => props.outline,
+            "shadow" => props.shadow,
+            "noProof" => props.no_proof,
+            "rtl" => props.rtl,
+            "cs" => props.complex_script,
+            "vanish" => props.vanish,
+            "webHidden" => props.web_hidden,
+            _ => continue,
+        };
+        if !enabled {
+            inner.push_str(&format!("<w:{name} w:val=\"0\"/>"));
+        }
+    }
     if props.style.is_some() {
         inner.push_str(&format!(
             "<w:rStyle w:val=\"{}\"/>",
@@ -1158,10 +1352,10 @@ fn rpr(props: &CharProps) -> String {
     {
         inner.push_str("<w:rFonts");
         if let Some(font) = &props.font {
-            inner.push_str(&format!(" w:ascii=\"{}\"", escape(font)));
+            write_font_attribute(&mut inner, "ascii", font);
         }
         if let Some(font) = props.font_hansi.as_ref().or(props.font.as_ref()) {
-            inner.push_str(&format!(" w:hAnsi=\"{}\"", escape(font)));
+            write_font_attribute(&mut inner, "hAnsi", font);
         }
         if let Some(font) = &props.font_cs {
             inner.push_str(&format!(" w:cs=\"{}\"", escape(font)));
@@ -1428,9 +1622,7 @@ fn table_xml(
     }
     write_borders(&table.borders, "tblBorders", &mut out);
     write_margins(&table.cell_margins, &mut out);
-    if let Some(look) = &table.look {
-        out.push_str(&format!("<w:tblLook w:val=\"{}\"/>", escape(look)));
-    }
+    write_table_look(table, &mut out);
     for extra in &table.extra {
         if !extra.starts_with("<w:tblPrEx") {
             out.push_str(extra);
@@ -1448,7 +1640,9 @@ fn table_xml(
     }
     out.push_str("</w:tblGrid>");
     for row in &table.rows {
+        out.push_str(&row.xml_before);
         out.push_str("<w:tr>");
+        write_row_exception(row, &mut out);
         if row.header
             || row.height.is_some()
             || row.cant_split
@@ -1480,6 +1674,7 @@ fn table_xml(
             out.push_str("</w:trPr>");
         }
         for cell in &row.cells {
+            out.push_str(&cell.xml_before);
             out.push_str("<w:tc>");
             let has_props = cell.span > 1
                 || cell.width.is_some()
@@ -1560,8 +1755,10 @@ fn table_xml(
                 out.push_str("<w:p/>");
             }
             out.push_str("</w:tc>");
+            out.push_str(&cell.xml_after);
         }
         out.push_str("</w:tr>");
+        out.push_str(&row.xml_after);
     }
     out.push_str("</w:tbl>");
     Ok(out)
@@ -1894,6 +2091,53 @@ fn comment_parts(doc: &ModelDocument, drawings: &mut u32) -> WmlResult<Vec<(Stri
     Ok(files)
 }
 
+fn write_row_exception(row: &edgedoc_model::Row, out: &mut String) {
+    let Some(raw) = &row.table_properties_exception else {
+        if !row.exception_borders.is_empty() {
+            out.push_str("<w:tblPrEx>");
+            write_borders(&row.exception_borders, "tblBorders", out);
+            out.push_str("</w:tblPrEx>");
+        }
+        return;
+    };
+    let Ok(root) = edgedoc_opc::xml::parse(raw.as_bytes(), &edgedoc_limit::Budget::default())
+    else {
+        out.push_str(raw);
+        return;
+    };
+    let existing = root.children("tblBorders").next();
+    let old_borders = existing.map(crate::read::read_borders).unwrap_or_default();
+    if old_borders == row.exception_borders {
+        out.push_str(raw);
+        return;
+    }
+    let mut replacement = String::new();
+    write_borders(&row.exception_borders, "tblBorders", &mut replacement);
+    if let Some(existing) = existing {
+        out.push_str(&raw[..existing.span.start]);
+        out.push_str(&replacement);
+        out.push_str(&raw[existing.span.end..]);
+    } else if let Some(close) = raw.rfind("</") {
+        out.push_str(&raw[..close]);
+        out.push_str(&replacement);
+        out.push_str(&raw[close..]);
+    } else if let Some(close) = raw.rfind("/>") {
+        out.push_str(&raw[..close]);
+        out.push('>');
+        out.push_str(&replacement);
+        let name = raw
+            .strip_prefix('<')
+            .and_then(|s| {
+                s.split(|c: char| c.is_whitespace() || c == '/' || c == '>')
+                    .next()
+            })
+            .unwrap_or("w:tblPrEx");
+        out.push_str(&format!("</{name}>"));
+    } else {
+        out.push_str(raw);
+    }
+}
+
 fn write_borders(borders: &Borders, tag: &str, out: &mut String) {
     if borders.is_empty() {
         return;
@@ -1948,6 +2192,31 @@ fn write_margins(margins: &edgedoc_model::CellMargins, out: &mut String) {
         }
     }
     out.push_str("</w:tblCellMar>");
+}
+
+fn write_table_look(table: &edgedoc_model::Table, out: &mut String) {
+    let options = &table.look_options;
+    let switches = [
+        ("firstRow", options.first_row),
+        ("lastRow", options.last_row),
+        ("firstColumn", options.first_column),
+        ("lastColumn", options.last_column),
+        ("noHBand", options.no_h_band),
+        ("noVBand", options.no_v_band),
+    ];
+    if table.look.is_none() && switches.iter().all(|(_, value)| value.is_none()) {
+        return;
+    }
+    out.push_str("<w:tblLook");
+    if let Some(value) = &table.look {
+        out.push_str(&format!(" w:val=\"{}\"", escape(value)));
+    }
+    for (name, value) in switches {
+        if let Some(value) = value {
+            out.push_str(&format!(" w:{name}=\"{}\"", if value { 1 } else { 0 }));
+        }
+    }
+    out.push_str("/>");
 }
 
 fn write_cell_margins(margins: &edgedoc_model::CellMargins, out: &mut String) {
@@ -2047,6 +2316,102 @@ fn style_xml(style: &Style) -> String {
     let run = rpr(&style.char_props);
     if !run.is_empty() {
         out.push_str(&run);
+    }
+    if let Some(table) = &style.table_props {
+        out.push_str("<w:tblPr>");
+        if let Some(style) = &table.style {
+            out.push_str(&format!("<w:tblStyle w:val=\"{}\"/>", escape(style)));
+        }
+        if let Some(position) = &table.position {
+            out.push_str("<w:tblpPr");
+            for (name, value) in [
+                ("leftFromText", position.left_from_text),
+                ("rightFromText", position.right_from_text),
+                ("topFromText", position.top_from_text),
+                ("bottomFromText", position.bottom_from_text),
+                ("tblpX", position.tblp_x),
+                ("tblpY", position.tblp_y),
+            ] {
+                if let Some(value) = value {
+                    out.push_str(&format!(" w:{name}=\"{value}\""));
+                }
+            }
+            for (name, value) in [
+                ("leftFrom", position.left_from.as_deref()),
+                ("topFrom", position.top_from.as_deref()),
+                ("horzAnchor", position.h_anchor.as_deref()),
+                ("vertAnchor", position.v_anchor.as_deref()),
+            ] {
+                if let Some(value) = value {
+                    out.push_str(&format!(" w:{name}=\"{}\"", escape(value)));
+                }
+            }
+            out.push_str("/>");
+        }
+        if let Some(overlap) = &table.overlap {
+            out.push_str(&format!("<w:tblOverlap w:val=\"{}\"/>", escape(overlap)));
+        }
+        if let Some(spec) = &table.width_kind {
+            let (value, kind) = spec.split_once(':').unwrap_or((spec.as_str(), "dxa"));
+            out.push_str(&format!(
+                "<w:tblW w:w=\"{}\" w:type=\"{}\"/>",
+                escape(value),
+                escape(kind)
+            ));
+        }
+        if table.bidi_visual {
+            out.push_str("<w:bidiVisual/>");
+        }
+        if let Some(align) = &table.align {
+            out.push_str(&format!("<w:jc w:val=\"{}\"/>", escape(align)));
+        }
+        if let Some(indent) = table.indent {
+            out.push_str(&format!("<w:tblInd w:w=\"{}\" w:type=\"dxa\"/>", indent.0));
+        }
+        if let Some(layout) = &table.layout {
+            out.push_str(&format!("<w:tblLayout w:type=\"{}\"/>", escape(layout)));
+        }
+        if let Some(space) = table.cell_space {
+            out.push_str(&format!(
+                "<w:tblCellSpacing w:w=\"{}\" w:type=\"dxa\"/>",
+                space.0
+            ));
+        }
+        write_borders(&table.borders, "tblBorders", &mut out);
+        write_margins(&table.cell_margins, &mut out);
+        write_table_look(table, &mut out);
+        for extra in &table.extra {
+            out.push_str(extra);
+        }
+        out.push_str("</w:tblPr>");
+    }
+    for region in &style.table_regions {
+        out.push_str(&format!(
+            "<w:tblStylePr w:type=\"{}\">",
+            escape(&region.kind)
+        ));
+        out.push_str(&ppr_of(&region.para_props));
+        out.push_str(&rpr(&region.char_props));
+        if !region.table_borders.is_empty() {
+            out.push_str("<w:tblPr>");
+            write_borders(&region.table_borders, "tblBorders", &mut out);
+            out.push_str("</w:tblPr>");
+        }
+        if region.shading.is_some() || !region.borders.is_empty() || region.v_align.is_some() {
+            out.push_str("<w:tcPr>");
+            write_borders(&region.borders, "tcBorders", &mut out);
+            if let Some(fill) = &region.shading {
+                out.push_str(&format!(
+                    "<w:shd w:val=\"clear\" w:fill=\"{}\"/>",
+                    escape(fill)
+                ));
+            }
+            if let Some(align) = &region.v_align {
+                out.push_str(&format!("<w:vAlign w:val=\"{}\"/>", escape(align)));
+            }
+            out.push_str("</w:tcPr>");
+        }
+        out.push_str("</w:tblStylePr>");
     }
     out.push_str("</w:style>");
     out
@@ -2174,4 +2539,26 @@ fn content_types_xml(
     }
     out.push_str("</Types>");
     out
+}
+
+#[cfg(test)]
+mod row_exception_tests {
+    use super::*;
+
+    #[test]
+    fn edited_row_exception_borders_preserve_other_properties() {
+        let mut row = edgedoc_model::Row::cells(Vec::<edgedoc_model::Cell>::new());
+        row.table_properties_exception = Some(r#"<w:tblPrEx><w:tblCellSpacing w:w="20" w:type="dxa"/><w:tblBorders><w:insideV w:val="single" w:sz="8"/></w:tblBorders></w:tblPrEx>"#.into());
+        row.exception_borders.inside_v = Some(edgedoc_model::LineBorder {
+            val: "single".into(),
+            size: Some(16),
+            color: None,
+            space: None,
+        });
+        let mut out = String::new();
+        write_row_exception(&row, &mut out);
+        assert!(out.contains("tblCellSpacing"));
+        assert!(out.contains("w:sz=\"16\""));
+        assert!(!out.contains("w:sz=\"8\""));
+    }
 }

@@ -1,0 +1,20 @@
+[
+  {
+    "case": "header-table-two-pages",
+    "page": 1,
+    "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/header-numbering-followup/header-table-two-pages/wordcraft/page-001.png",
+    "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/header-numbering-followup/header-table-two-pages/edgedoc/page-001.png",
+    "wordcraft_sha256": "dc33def31b81854fda100384315755f1f67e76f76ba555e16f801757b9828b6e",
+    "edgedoc_sha256": "dc33def31b81854fda100384315755f1f67e76f76ba555e16f801757b9828b6e",
+    "visually_inspected": true
+  },
+  {
+    "case": "footer-paragraph-two-pages",
+    "page": 2,
+    "wordcraft": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/header-numbering-followup/footer-paragraph-two-pages/wordcraft/page-002.png",
+    "edgedoc": "/Users/raphaelmansuy/Github/03-working/edgedoc/target/wordcraft-parity/header-numbering-followup/footer-paragraph-two-pages/edgedoc/page-002.png",
+    "wordcraft_sha256": "61ae1a75f468e857171e550e365f559638fe01b9e7eb0d2770ad49faeb5204a6",
+    "edgedoc_sha256": "61ae1a75f468e857171e550e365f559638fe01b9e7eb0d2770ad49faeb5204a6",
+    "visually_inspected": true
+  }
+]

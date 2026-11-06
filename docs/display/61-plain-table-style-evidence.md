@@ -1,0 +1,7 @@
+# Plain table-style evidence
+
+EdgeDoc already applied a subset of table-style borders, cell margins, and paragraph spacing, but its diagnostic treated every named table style as an unsupported conditional style. The diagnostic now recognizes only a tightly checked plain-style inheritance chain: supported single borders, bounded cell margins, zero table indent, and supported paragraph spacing. It continues to flag conditional regions, unsupported properties, unknown markup, missing styles, inheritance cycles, and unrecognized or modified border effects. This is a diagnostic refinement; it does not claim support for all table styles.
+
+Two downloaded Apache POI documents, `table-alignment.docx` and `Bug60337.docx`, render within the Wordcraft comparison thresholds and now pass without the unrelated conditional-style warning (`plain-table-style-focused-result.json`, `plain-table-style-poi-extra-result.json`). Their paired pages were visually inspected (`plain-table-style-image-inspection/` and `plain-table-style-poi-extra-image-inspection.json`). Tests exercise supported markup as well as unknown regions, theme borders, and programmatically changed unsupported properties.
+
+The selected current-source run passes 202/202 (`plain-style-202-result.json`). Workspace tests, strict clippy and formatting checks passed; browser checks passed 18/18 interactions and 134/134 checks across 33 corpus documents. The last complete 394-case run before this diagnostic refinement recorded 198 passed, 178 failed, and 18 blocked (`wordwrap-final-394-result.json`).

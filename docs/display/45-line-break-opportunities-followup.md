@@ -1,0 +1,9 @@
+# Line breaks before punctuation
+
+Wordcraft derives line breaks from Unicode line-breaking opportunities. EdgeDoc previously forced a break after every space, including a space before punctuation where Unicode disallows one. The display text engine now respects the Unicode break opportunity instead. A focused regression test checks both an ordinary space and a space before punctuation.
+
+In the downloaded docx4j first-line indentation document, the old rule moved a word onto the previous line and produced different wrapping. The case now passes the strict comparison, with matching glyph positions and line breaks. Its Wordcraft and EdgeDoc pages were visually inspected; small heading-color differences mean the PNG files are not byte-identical (`linebreak-image-inspection.json`). The 14-case focused wrapping comparison has 12 passes and two pre-existing failures, with this document the only improvement.
+
+The wider `linebreak-180-result.json` compares all 178 previously passing cases from the recovered 394-case baseline, plus the negative-margin and indentation documents. All 180 pass. Workspace tests, Clippy and formatting checks pass; the rebuilt viewer passed 18/18 browser checks and 134/134 checks on 33 corpus documents. This covers the cases named in the report, not all DOCX features: the broader baseline still has many failures and blocked cases.
+
+The final 394-case run was re-compared with per-page raster cleanup after the ordinary comparison exhausted disk space. Its complete report is `linebreak-394-streaming-result.json`: 180 passed, 196 failed, and 18 were blocked for missing engine output. Relative to `header-394-combined-status.json`, the negative-margin and first-line indentation documents improved from failed to passed; all other case statuses stayed the same. The original disk-affected report remains in `linebreak-394-result.json`.
