@@ -68,7 +68,7 @@ edgedoc-display = { version = "0.1.1", path = "crates/edgedoc-display" }
 edgedoc-display-wasm = { version = "0.1.1", path = "crates/edgedoc-display-wasm" }
 thiserror = "1.0"
 quick-xml = "0.31"
-zip = { version = "0.6", default-features = false, features = ["deflate"] }
+zip = { version = "9.0", default-features = false, features = ["deflate"] }
 ttf-parser = "0.21"
 rustybuzz = "0.14"
 unicode-bidi = "0.3.13"
