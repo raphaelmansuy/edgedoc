@@ -39,6 +39,52 @@ pub fn merge_csv_bytes(template: &[u8], csv: &[u8]) -> Result<Vec<u8>, String> {
         .map_err(|err| format!("{} {}", err.code, err.message))
 }
 
+/// Read Markdown and return a `.docx` package. Image bytes are supplied by the caller.
+pub fn markdown_to_document(markdown: &str) -> Result<Vec<u8>, AdapterError> {
+    let doc = Document::from_markdown(markdown).map_err(error)?;
+    doc.write_bytes().map_err(error)
+}
+
+/// Read Markdown with images packed as one byte buffer.
+///
+/// `paths.len()` must equal `lengths.len()`. `bytes` is the images concatenated in
+/// the same order, and each length is that image's size.
+pub fn markdown_to_document_with_images(
+    markdown: &str,
+    paths: &[String],
+    bytes: &[u8],
+    lengths: &[u32],
+) -> Result<Vec<u8>, AdapterError> {
+    if paths.len() != lengths.len() {
+        return Err(AdapterError::new(
+            "markdown.image_bytes",
+            "Each image path needs one length. Pass the same number of paths and lengths.",
+        ));
+    }
+    let mut images = Vec::new();
+    let mut offset = 0usize;
+    for (path, length) in paths.iter().zip(lengths) {
+        let end = offset.saturating_add(*length as usize);
+        let slice = bytes.get(offset..end).ok_or_else(|| {
+            AdapterError::new(
+                "markdown.image_bytes",
+                "The image byte buffer is shorter than the lengths say. Pass one concatenated buffer and a length for each path.",
+            )
+        })?;
+        images.push(edgedoc::MarkdownImage::new(path, slice.to_vec()));
+        offset = end;
+    }
+    let options = edgedoc::MarkdownReadOptions::new().images(images);
+    let doc = Document::from_markdown_with(markdown, &options).map_err(error)?;
+    doc.write_bytes().map_err(error)
+}
+
+/// The body text of Markdown, so a caller can check a read without unpacking a document.
+pub fn markdown_text(markdown: &str) -> Result<String, AdapterError> {
+    let doc = Document::from_markdown(markdown).map_err(error)?;
+    Ok(doc.plain_text(StoryRef::Body))
+}
+
 pub fn read_plain(bytes: &[u8]) -> Result<String, String> {
     let doc = Document::read_bytes(bytes).map_err(|err| format!("{} {}", err.code, err.message))?;
     Ok(doc.plain_text(StoryRef::Body))
@@ -281,5 +327,22 @@ mod bind {
     #[wasm_bindgen(js_name = isPasswordProtected)]
     pub fn is_password_protected(bytes: &[u8]) -> bool {
         edgedoc::Document::is_password_protected(bytes)
+    }
+
+    /// Read Markdown and return a `.docx` package.
+    #[wasm_bindgen(js_name = markdownToDocument)]
+    pub fn markdown_to_document(markdown: &str) -> Result<Vec<u8>, JsValue> {
+        super::markdown_to_document(markdown).map_err(message)
+    }
+
+    /// Read Markdown. Image bytes are one buffer, split by `lengths` in path order.
+    #[wasm_bindgen(js_name = markdownToDocumentWithImages)]
+    pub fn markdown_to_document_with_images(
+        markdown: &str,
+        paths: Vec<String>,
+        bytes: &[u8],
+        lengths: Vec<u32>,
+    ) -> Result<Vec<u8>, JsValue> {
+        super::markdown_to_document_with_images(markdown, &paths, bytes, &lengths).map_err(message)
     }
 }

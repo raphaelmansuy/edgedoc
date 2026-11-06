@@ -53,6 +53,7 @@ Each row is a requirement. The test name is the CI name. "Manual" means a Word c
 | `ED-X-43` | Password in a record cell | The error and the log do not add that cell unless the caller asked to debug records | `no_secret_in_error` |
 | `ED-X-44` | Joined result past 200,000 blocks | `merge.limit`. No partial document | `merge_block_budget` |
 | `ED-X-45` | Python and WASM merge | Same records produce the same package bytes as Rust | `adapter_byte_parity` |
+| `ED-X-46` | Markdown round trip | Exported Markdown reads back to the same text. A missing image returns `markdown.image_missing`. A path with `..` returns `markdown.image_dir` | `markdown_reads_back_into_a_document` |
 
 `ED-X-42` adds the code `model.locked` to the error table in [07-adapters.md](07-adapters.md).
 

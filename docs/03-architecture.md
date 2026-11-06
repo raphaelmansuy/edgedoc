@@ -95,6 +95,8 @@ classDiagram
     +write_bytes(options) Result
     +edit(options, closure) Result
     +merge() MergeBuilder
+    +to_markdown(options) Result
+    +from_markdown(text, options) Result
   }
   class DocumentBuilder {
     +page(Page) Self

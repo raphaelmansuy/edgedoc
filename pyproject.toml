@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "edgedoc"
-version = "0.1.0"
+version = "0.1.1"
 description = "Read, create, edit, merge, and save Word documents"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }

@@ -158,6 +158,26 @@ def test_edited_flag(template: bytes) -> None:
     assert edgedoc.is_edited(template) is False
 
 
+def test_markdown_becomes_a_document(tmp_path: Path) -> None:
+    docx = edgedoc.markdown_to_docx("# Hello\n\n**Ada** and $x+y$\n")
+    assert isinstance(docx, bytes)
+    assert docx[:2] == b"PK"
+    text = edgedoc.plain_text(docx)
+    assert "Hello" in text
+    assert "Ada" in text
+
+    with pytest.raises(Exception) as caught:
+        edgedoc.markdown_to_docx("![Gone](images/missing.png)\n")
+    assert str(caught.value).split()[0] == "markdown.image_missing"
+
+    note = tmp_path / "note.md"
+    note.write_text("Look ![Dot](dot.png)\n", encoding="utf-8")
+    (tmp_path / "dot.png").write_bytes(b"PNG-BYTES")
+    opened = edgedoc.open_markdown(str(note))
+    assert opened[:2] == b"PK"
+    assert edgedoc.plain_text(opened).startswith("Look")
+
+
 def test_read_and_write_is_identical() -> None:
     path = EXAMPLES / "letter-template.docx"
     if not path.exists():

@@ -45,6 +45,26 @@ pub fn merge_csv_bytes(template: &[u8], csv: &[u8]) -> Result<Vec<u8>, String> {
         .map_err(|err| err.code.to_string() + " " + &err.message)
 }
 
+/// Read Markdown and return a `.docx` package.
+///
+/// Each image is `(path, bytes)`. The path is the reference in the Markdown, such as
+/// `images/chart.png`.
+pub fn markdown_to_docx(markdown: &str, images: &[(&str, &[u8])]) -> Result<Vec<u8>, AdapterError> {
+    let options = edgedoc::MarkdownReadOptions::new().images(
+        images
+            .iter()
+            .map(|(path, bytes)| edgedoc::MarkdownImage::new(*path, (*bytes).to_vec())),
+    );
+    let doc = Document::from_markdown_with(markdown, &options).map_err(error)?;
+    doc.write_bytes().map_err(error)
+}
+
+/// Read a Markdown file and return a `.docx` package. Images resolve beside the file.
+pub fn open_markdown_file(path: &std::path::Path) -> Result<Vec<u8>, AdapterError> {
+    let doc = Document::open_markdown(path).map_err(error)?;
+    doc.write_bytes().map_err(error)
+}
+
 pub fn read_plain(bytes: &[u8]) -> Result<String, String> {
     let doc = Document::read_bytes(bytes).map_err(|err| format!("{} {}", err.code, err.message))?;
     Ok(doc.plain_text(StoryRef::Body))
@@ -384,6 +404,33 @@ mod py {
         super::is_dirty(bytes).map_err(|err| runtime(err.render()))
     }
 
+    /// Read Markdown and return a `.docx` package.
+    ///
+    /// `images` is a list of `(path, bytes)`. The path matches the Markdown reference.
+    #[pyfunction]
+    #[pyo3(signature = (markdown, images=None))]
+    fn markdown_to_docx(
+        py: Python<'_>,
+        markdown: &str,
+        images: Option<Vec<(String, Vec<u8>)>>,
+    ) -> PyResult<Py<PyBytes>> {
+        let owned = images.unwrap_or_default();
+        let refs: Vec<(&str, &[u8])> = owned
+            .iter()
+            .map(|(path, bytes)| (path.as_str(), bytes.as_slice()))
+            .collect();
+        let out = super::markdown_to_docx(markdown, &refs).map_err(|err| runtime(err.render()))?;
+        Ok(PyBytes::new_bound(py, &out).unbind())
+    }
+
+    /// Read a Markdown file and return a `.docx` package. Images resolve beside the file.
+    #[pyfunction]
+    fn open_markdown(py: Python<'_>, path: &str) -> PyResult<Py<PyBytes>> {
+        let out = super::open_markdown_file(std::path::Path::new(path))
+            .map_err(|err| runtime(err.render()))?;
+        Ok(PyBytes::new_bound(py, &out).unbind())
+    }
+
     #[pymodule]
     fn _native(module: &Bound<'_, PyModule>) -> PyResult<()> {
         module.add_function(wrap_pyfunction!(merge, module)?)?;
@@ -399,6 +446,8 @@ mod py {
         module.add_function(wrap_pyfunction!(is_password_protected, module)?)?;
         module.add_function(wrap_pyfunction!(document_summary, module)?)?;
         module.add_function(wrap_pyfunction!(is_edited, module)?)?;
+        module.add_function(wrap_pyfunction!(markdown_to_docx, module)?)?;
+        module.add_function(wrap_pyfunction!(open_markdown, module)?)?;
         Ok(())
     }
 }

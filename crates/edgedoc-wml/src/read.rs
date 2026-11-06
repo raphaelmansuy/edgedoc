@@ -539,7 +539,7 @@ fn read_paragraph(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument) -> WmlResult<
                 para.retention.revisions = true;
                 read_runs(child, &mut para, &mut field, ctx);
             }
-            "oMath" | "oMathPara" => para.retention.equations = true,
+            "oMath" | "oMathPara" => push_math(&mut para, child, ctx),
             "r" | "fldSimple" => read_run(child, &mut para, &mut field, ctx),
             "sdt" => read_inline_control(child, &mut para, &mut field, ctx),
             other if !crate::catalog::is_owned(other) => {
@@ -648,6 +648,18 @@ fn read_inline_control(el: &El, para: &mut Paragraph, field: &mut FieldContext, 
     );
 }
 
+fn push_math(para: &mut Paragraph, el: &El, ctx: &Ctx<'_>) {
+    para.retention.equations = true;
+    para.push_object(
+        InlineObject::Math {
+            raw: el.raw(ctx.source).to_string(),
+            latex: crate::math::to_latex(el),
+            display: el.name == "oMathPara",
+        },
+        &CharProps::default(),
+    );
+}
+
 fn read_runs(el: &El, para: &mut Paragraph, field: &mut FieldContext, ctx: &Ctx<'_>) {
     for child in el.child_els() {
         if child.name == "r" || child.name == "fldSimple" {
@@ -656,6 +668,8 @@ fn read_runs(el: &El, para: &mut Paragraph, field: &mut FieldContext, ctx: &Ctx<
             read_runs(child, para, field, ctx);
         } else if child.name == "sdt" {
             read_inline_control(child, para, field, ctx);
+        } else if child.name == "oMath" || child.name == "oMathPara" {
+            push_math(para, child, ctx);
         } else if child.name == "hyperlink" {
             let target = child
                 .attr("anchor")

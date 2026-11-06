@@ -96,6 +96,7 @@ pub const OWNED: &[&str] = &[
     "del",
     "commentReference",
     "oMath",
+    "oMathPara",
     "AlternateContent",
     "Choice",
     "Fallback",

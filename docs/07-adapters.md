@@ -29,6 +29,13 @@
 | `merge.limit` | The merge budget failed |
 | `io.destination` | The save path is a link, a directory, or not writable |
 | `unsupported` | The caller asked for a path this version does not write |
+| `markdown.limit` | The Markdown is larger than 32 MiB |
+| `markdown.read` | The Markdown file could not be read |
+| `markdown.utf8` | The Markdown file is not UTF-8 |
+| `markdown.image_missing` | An image has no bytes and no file in the image directory |
+| `markdown.image_dir` | The image path leaves the directory, is a link, or the build has no filesystem |
+| `markdown.image_bytes` | The WebAssembly image buffer does not match the path list |
+| `markdown.image_write` | An exported image could not be written |
 
 `ED-E-02`. Display text names the fact and the next action. Example: `The field "Amount" has no header. Add the header or set MissingField::Empty.`
 
@@ -73,9 +80,9 @@ letters.write_bytes()
 
 ## 14. WebAssembly package
 
-`ED-W-01`. `edgedoc-wasm` targets `wasm32-unknown-unknown`. The npm package name is `edgedoc`. The version equals the facade version.
+`ED-W-01`. `edgedoc-wasm` targets `wasm32-unknown-unknown`. The npm package name is `edgedoc-wasm`. The version equals the facade version. The npm name `edgedoc` belongs to a different project, so this module does not use it.
 
-`ED-W-02`. The module exports `readDocument`, `writeDocument`, `merge`, and `preview`. Arguments and results are bytes, strings, and plain objects. The module does not export the crate graph.
+`ED-W-02`. The module exports `readDocument`, `writeDocument`, `merge`, `preview`, `markdownToDocument`, and `markdownToDocumentWithImages`. Arguments and results are bytes, strings, and plain objects. The module does not export the crate graph. `markdownToDocumentWithImages` takes the image paths, one concatenated byte buffer, and one length per path. It does not read a file.
 
 `ED-W-03`. The caller passes a `Uint8Array`. The module copies those bytes into WASM memory and frees the copy after `writeDocument` returns. The module does not touch the filesystem.
 

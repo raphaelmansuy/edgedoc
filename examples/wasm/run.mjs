@@ -117,7 +117,26 @@ async function main() {
     console.log(`     ${String(error).split("\n")[0]}`);
   }
 
-  step("9. password detection");
+  step("9. read markdown into a document");
+  const fromMarkdown = edgedoc.markdownToDocument("# Hello\n\n**Ada**\n");
+  const fromText = edgedoc.readDocument(fromMarkdown);
+  console.log(`     ${fromMarkdown.length} bytes, text: ${fromText.replace(/\n/g, " | ")}`);
+  if (!fromText.includes("Hello") || !fromText.includes("Ada")) {
+    throw new Error("markdownToDocument dropped the heading or the paragraph");
+  }
+  const image = new TextEncoder().encode("PNG-BYTES");
+  const withImage = edgedoc.markdownToDocumentWithImages(
+    "![Dot](images/dot.png)\n",
+    ["images/dot.png"],
+    image,
+    [image.length],
+  );
+  if (withImage[0] !== 0x50 || withImage[1] !== 0x4b) {
+    throw new Error("markdownToDocumentWithImages did not return a package");
+  }
+  console.log(`     image markdown became ${withImage.length} bytes`);
+
+  step("10. password detection");
   // A protected Word file is a compound file that holds an `EncryptionInfo` stream.
   const cfbSignature = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
   const streamName = Array.from(new TextEncoder().encode("EncryptionInfo")).flatMap((byte) => [byte, 0]);

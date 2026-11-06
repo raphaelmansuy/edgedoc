@@ -1974,7 +1974,8 @@ fn paragraph_of_inner(
                     | InlineObject::Hyperlink { .. }
                     | InlineObject::FieldStart { .. }
                     | InlineObject::FieldEnd
-                    | InlineObject::InlineControlBoundary(_),
+                    | InlineObject::InlineControlBoundary(_)
+                    | InlineObject::Math { .. },
                 ) => {}
                 Some(InlineObject::Opaque(raw)) if nonpainting_markup(raw) => {}
                 Some(InlineObject::PositionalTab {
