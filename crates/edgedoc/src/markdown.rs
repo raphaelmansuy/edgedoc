@@ -79,9 +79,10 @@ impl Document {
 
     /// Convert the body to Markdown, writing images when [`MarkdownOptions::image_dir`] is set.
     ///
-    /// Headings come from a `Heading1`–`Heading9` style or from a Word outline level.
-    /// Lists use the paragraph's list, or the numbering part after a DOCX read.
-    /// Footnotes and endnotes become Markdown footnotes. The link in each image is
+    /// Headings come from a `Heading1`–`Heading9` style, a style based on one, or a
+    /// Word outline level. Lists use the paragraph's list, or the numbering part after
+    /// a DOCX read. A page or column break becomes a thematic break. Footnotes and
+    /// endnotes become Markdown footnotes. The link in each image is
     /// [`ExportedImage::markdown_path`].
     pub fn to_markdown_with(&self, options: &MarkdownOptions) -> Result<MarkdownDocument, Error> {
         let mut export = Export::new(self, options);
@@ -175,6 +176,7 @@ impl<'a> Export<'a> {
             let marker = if bullet { "-" } else { "1." };
             out.push(Piece::List {
                 bullet,
+                level,
                 line: format!("{indent}{marker} {text}"),
             });
             return;
@@ -239,7 +241,7 @@ impl<'a> Export<'a> {
                     }
                 }
                 Block::Table(table) => {
-                    let nested = self.table(table).replace('\n', "<br>");
+                    let nested = self.table(table).replace('|', "\\|").replace('\n', "<br>");
                     if !nested.is_empty() {
                         parts.push(nested);
                     }
@@ -330,6 +332,9 @@ impl<'a> Export<'a> {
                 out.push_str(if cell { "<br>" } else { "  \n" });
             } else if ch == edgedoc_model::PAGE_BREAK || ch == edgedoc_model::COLUMN_BREAK {
                 flush(&mut text, &mut out);
+                if !cell {
+                    out.push_str("\n\n---\n\n");
+                }
             } else {
                 text.push(ch);
             }
@@ -416,7 +421,11 @@ fn arcs_of(blocks: Vec<Block>) -> Vec<std::sync::Arc<Block>> {
 
 enum Piece {
     Block(String),
-    List { bullet: bool, line: String },
+    List {
+        bullet: bool,
+        level: u32,
+        line: String,
+    },
     Rule,
 }
 
@@ -424,13 +433,20 @@ fn join_pieces(pieces: &[Piece]) -> String {
     let mut out = String::new();
     let mut in_list = false;
     let mut last_bullet = false;
+    let mut last_level = 0u32;
     for piece in pieces {
         match piece {
-            Piece::List { bullet, line } => {
-                separate(&mut out, in_list && *bullet == last_bullet);
+            Piece::List {
+                bullet,
+                level,
+                line,
+            } => {
+                let nested = *level > last_level;
+                separate(&mut out, in_list && (*bullet == last_bullet || nested));
                 out.push_str(line);
                 in_list = true;
                 last_bullet = *bullet;
+                last_level = *level;
             }
             Piece::Rule => {
                 separate(&mut out, false);
@@ -683,7 +699,16 @@ fn emphasize(text: &str, props: &CharProps) -> String {
     if text.is_empty() {
         return String::new();
     }
-    let mut out = escape_text(text);
+    // A marker that starts or ends on a space is not emphasis in CommonMark.
+    let core_start = text.len() - text.trim_start_matches([' ', '\t']).len();
+    let core_end = text.trim_end_matches([' ', '\t']).len();
+    if core_start >= core_end {
+        return escape_text(text);
+    }
+    let lead = &text[..core_start];
+    let trail = &text[core_end..];
+    let core = &text[core_start..core_end];
+    let mut out = escape_text(core);
     if props.strike || props.double_strike {
         out = format!("~~{out}~~");
     }
@@ -698,7 +723,7 @@ fn emphasize(text: &str, props: &CharProps) -> String {
     } else if props.vert_align.as_deref() == Some("subscript") {
         out = format!("<sub>{out}</sub>");
     }
-    out
+    format!("{lead}{out}{trail}")
 }
 
 fn escape_text(text: &str) -> String {
