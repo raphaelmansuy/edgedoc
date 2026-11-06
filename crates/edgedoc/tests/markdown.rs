@@ -3,8 +3,8 @@
 use std::path::{Path, PathBuf};
 
 use edgedoc::{
-    CharProps, Document, ListKind, MarkdownOptions, Paragraph, PartKind, Picture, RunBuilder,
-    Style, Table,
+    CharProps, Document, ListKind, MarkdownImage, MarkdownOptions, MarkdownReadOptions, Paragraph,
+    PartKind, Picture, RunBuilder, Style, Table,
 };
 use edgedoc_opc::write_zip;
 
@@ -1638,6 +1638,192 @@ fn office_math_edge_cases() -> Test {
         if !xml.contains(marker) {
             return Err(format!("saved document lost {marker}"));
         }
+    }
+    Ok(())
+}
+
+/// Markdown comes back as a document, and that document exports the same Markdown.
+#[test]
+fn markdown_reads_back_into_a_document() -> Test {
+    let doc = sample()?;
+    let exported = doc.to_markdown().map_err(err)?;
+    let options = MarkdownReadOptions::new().images(exported.images.iter().map(|image| {
+        MarkdownImage::new(&image.markdown_path, image.bytes.clone())
+            .content_type(image.content_type.clone())
+    }));
+    let read = Document::from_markdown_with(&exported.markdown, &options).map_err(err)?;
+    let again = read.to_markdown().map_err(err)?;
+    if again.markdown != exported.markdown {
+        return Err(format!(
+            "round trip\n{}\n---\n{}",
+            again.markdown, exported.markdown
+        ));
+    }
+    let saved = read.write_bytes().map_err(err)?;
+    let reread = Document::read_bytes(&saved).map_err(err)?;
+    let stored = reread.to_markdown().map_err(err)?;
+    for fragment in [
+        "# Overview",
+        "- Apples",
+        "| Pipe \\| here | 2 |",
+        "![Chart]",
+        "![Photo]",
+    ] {
+        if !stored.markdown.contains(fragment) {
+            return Err(format!("saved missing {fragment:?}\n\n{}", stored.markdown));
+        }
+    }
+    let png = stored
+        .images
+        .iter()
+        .any(|image| image.bytes == b"PNG-BYTES");
+    let jpeg = stored
+        .images
+        .iter()
+        .any(|image| image.bytes == b"JPEG-BYTES");
+    if !png || !jpeg {
+        return Err("saved images lost their bytes".into());
+    }
+
+    let source = "\
+# Title
+
+Setext
+=====
+
+Hello **bold** *lean* ~~gone~~ <sub>2</sub><sup>3</sup>
+
+A line  
+break
+
+[Site](https://example.com/a(b))
+
+- Apples
+- Pears
+
+1. First
+  1. Nested
+
+| Name | Note |
+| --- | --- |
+| Pipe \\| here | $x+y$ |
+
+Before
+
+---
+
+After
+
+$$
+\\frac{a}{b}
+$$
+
+See[^4] and more[^end-3].
+
+[^4]: A note
+
+[^end-3]: An end
+";
+    let rich = Document::from_markdown(source).map_err(err)?;
+    let rich_md = rich.to_markdown().map_err(err)?;
+    for fragment in [
+        "# Title",
+        "# Setext",
+        "Hello **bold** *lean* ~~gone~~ <sub>2</sub><sup>3</sup>",
+        "A line  \nbreak",
+        "[Site](https://example.com/a%28b))",
+        "- Apples",
+        "- Pears",
+        "1. First",
+        "  1. Nested",
+        "| Pipe \\| here | $x+y$ |",
+        "---",
+        "$$\n\\frac{a}{b}\n$$",
+        "See[^4]",
+        "[^4]: A note",
+        "[^end-3]: An end",
+    ] {
+        if !rich_md.markdown.contains(fragment) {
+            return Err(format!("missing {fragment:?}\n\n{}", rich_md.markdown));
+        }
+    }
+    let saved = rich.write_bytes().map_err(err)?;
+    let reread = Document::read_bytes(&saved).map_err(err)?;
+    let after = reread.to_markdown().map_err(err)?;
+    for fragment in [
+        "# Title",
+        "- Apples",
+        "| Pipe \\| here | $x+y$ |",
+        "$$\n\\frac{a}{b}\n$$",
+        "[^4]: A note",
+    ] {
+        if !after.markdown.contains(fragment) {
+            return Err(format!("saved missing {fragment:?}\n\n{}", after.markdown));
+        }
+    }
+
+    let dir = scratch("read-md");
+    let image = dir.join("images");
+    std::fs::create_dir_all(&image).map_err(err)?;
+    std::fs::write(image.join("dot.png"), b"PNG-BYTES").map_err(err)?;
+    std::fs::write(dir.join("note.md"), "Look ![Dot](images/dot.png)\n").map_err(err)?;
+    let opened = Document::open_markdown(dir.join("note.md")).map_err(err)?;
+    let opened_md = opened.to_markdown().map_err(err)?;
+    if opened_md.markdown != "Look ![Dot](images/dot.png)\n" {
+        return Err(opened_md.markdown);
+    }
+    if opened_md.images[0].bytes != b"PNG-BYTES" {
+        return Err("the file image was not read".into());
+    }
+
+    match Document::from_markdown("![Gone](images/missing.png)") {
+        Err(failure) if failure.code == "markdown.image_missing" => {}
+        Err(failure) => return Err(failure.to_string()),
+        Ok(_) => return Err("a missing image was accepted".into()),
+    }
+    match Document::from_markdown_with(
+        "![Gone](../secret.png)",
+        &MarkdownReadOptions::new().image_dir(&dir),
+    ) {
+        Err(failure) if failure.code == "markdown.image_dir" => {}
+        Err(failure) => return Err(failure.to_string()),
+        Ok(_) => return Err("a path outside the image directory was accepted".into()),
+    }
+    let opened_docx = edgedoc_py::open_markdown_file(&dir.join("note.md")).map_err(err)?;
+    if !opened_docx.starts_with(b"PK") {
+        return Err("python file read did not return a package".into());
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+
+    let docx = edgedoc_py::markdown_to_docx("# Hello\n\n**Ada**\n", &[]).map_err(err)?;
+    if !docx.starts_with(b"PK") {
+        return Err("python adapter did not return a package".into());
+    }
+    let text =
+        edgedoc_wasm::markdown_text("# Hello\n\n**Ada**\n").map_err(|failure| failure.render())?;
+    if text != "Hello\nAda" {
+        return Err(text);
+    }
+    let packed = edgedoc_wasm::markdown_to_document_with_images(
+        "![Dot](images/dot.png)\n",
+        &["images/dot.png".to_string()],
+        b"PNG-BYTES",
+        &[9],
+    )
+    .map_err(|failure| failure.render())?;
+    if !packed.starts_with(b"PK") {
+        return Err("wasm image read did not return a package".into());
+    }
+    let packed_doc = Document::read_bytes(&packed).map_err(err)?;
+    let packed_md = packed_doc.to_markdown().map_err(err)?;
+    if packed_md.images.first().map(|image| image.bytes.as_slice()) != Some(b"PNG-BYTES".as_slice())
+    {
+        return Err("wasm image bytes were dropped".into());
+    }
+    match edgedoc_wasm::markdown_to_document_with_images("![Dot](x.png)", &[], b"", &[1]) {
+        Err(failure) if failure.render().starts_with("markdown.image_bytes") => {}
+        Err(failure) => return Err(failure.render()),
+        Ok(_) => return Err("a short image buffer was accepted".into()),
     }
     Ok(())
 }

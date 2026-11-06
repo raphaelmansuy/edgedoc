@@ -249,9 +249,28 @@ for image in &exported.images {
 Without `image_dir`, nothing is written and each [`edgedoc::ExportedImage`] still carries
 `bytes` and the `markdown_path` to use when you store the file yourself.
 
+`Document::from_markdown` reads that Markdown back into a document. `open_markdown` reads
+a UTF-8 file and the images beside it. Pass the image bytes with `MarkdownReadOptions`
+when the files are not on disk. A path that leaves the image directory is refused.
+
+```rust
+use edgedoc::{Document, MarkdownImage, MarkdownReadOptions};
+
+let doc = Document::from_markdown_with(
+    "# Notes\n\nSee ![Chart](images/chart.png) and $x^{2}$.\n",
+    &MarkdownReadOptions::new().image(MarkdownImage::new("images/chart.png", chart_png)),
+)?;
+doc.save("notes.docx")?;
+```
+
 An equation is LaTeX. Inline Office Math uses `$...$`. A displayed equation (`m:oMathPara`)
 uses `$$` on its own lines. Fractions, scripts, roots, sums, matrices, delimiters, accents,
 math alphabets, and argument sizes are included. A formula in a nested table keeps its `|`.
+Reading Markdown stores the formula as Office Math, so a saved `.docx` still contains it.
+A later export spells some formulas with the braces the converter writes, such as `{x}^{2}`.
+
+A fenced code block becomes a paragraph. A nested table that the exporter flattened stays
+cell text. Headers, footers, comments, and text boxes are not part of the Markdown body.
 
 ## Example documents
 
@@ -427,6 +446,8 @@ import edgedoc
 
 text = edgedoc.read_plain(open("invoice.docx", "rb").read())
 out = edgedoc.merge_csv(open("template.docx", "rb").read(), b"Name\nAda\n")
+docx = edgedoc.markdown_to_docx("# Hello\n\n**Ada**\n")
+opened = edgedoc.open_markdown("notes.md")
 ```
 
 ```bash
@@ -439,12 +460,26 @@ make python         # build a wheel into target/wheels
 The module takes bytes and returns bytes. No file system, no threads.
 
 ```javascript
-import init, { readDocument, writeDocument, merge, preview } from "edgedoc-wasm";
+import init, {
+  readDocument,
+  writeDocument,
+  merge,
+  preview,
+  markdownToDocument,
+  markdownToDocumentWithImages,
+} from "edgedoc-wasm";
 
 await init();
 
 const text = readDocument(templateBytes);
 const merged = merge(templateBytes, csvBytes);
+const fromMarkdown = markdownToDocument("# Hello\n\n**Ada**\n");
+const withImage = markdownToDocumentWithImages(
+  "![Dot](images/dot.png)\n",
+  ["images/dot.png"],
+  imageBytes,
+  [imageBytes.length],
+);
 ```
 
 ```bash

@@ -34,6 +34,9 @@ The audit found one violation and it is fixed: the Python adapter called
 | Write without an edit | `write_bytes` | `read_and_write` | `writeDocument` |
 | Password detection | `Document::is_password_protected` | `is_password_protected` | `isPasswordProtected` |
 | Edited flag | `Document::is_dirty` | `is_edited` | — |
+| Read Markdown | `Document::from_markdown` | `markdown_to_docx` | `markdownToDocument` |
+| Read a Markdown file | `Document::open_markdown` | `open_markdown` | — |
+| Read Markdown with images | `from_markdown_with` | `markdown_to_docx(markdown, images)` | `markdownToDocumentWithImages` |
 
 A dash means the task is not exposed. Each dash is a deliberate choice, not an oversight.
 A script rarely asks for the story count or the edited flag. A smaller surface is also
@@ -86,7 +89,7 @@ that these adapters produce are checked by another implementation. See
 
 ### Python
 
-`examples/python/test_edgedoc.py` holds 17 cases. They run the installed wheel, not the
+`examples/python/test_edgedoc.py` holds 18 cases. They run the installed wheel, not the
 Rust code, so a binding mistake fails there.
 
 ```bash
@@ -101,7 +104,7 @@ story name, an unknown flavour, and the error code.
 ### WebAssembly
 
 `examples/wasm/run.mjs` builds the module for `wasm32-unknown-unknown`, converts it with
-`wasm-bindgen`, and runs nine examples in Node. It writes `target/examples/wasm-merged.docx`,
+`wasm-bindgen`, and runs ten examples in Node. It writes `target/examples/wasm-merged.docx`,
 which `make verify` then reads with WordCraft.
 
 ```bash

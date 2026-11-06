@@ -4,10 +4,13 @@
 
 mod error;
 mod markdown;
+mod markdown_in;
+mod markdown_omml;
 mod sheet;
 
 pub use error::Error;
 pub use markdown::{ExportedImage, MarkdownDocument, MarkdownOptions};
+pub use markdown_in::{MarkdownImage, MarkdownReadOptions};
 pub use sheet::{records_from_xlsx, xlsx_with_cached_formula as sheet_fixture};
 
 pub use edgedoc_limit::Budget;
@@ -1024,6 +1027,15 @@ impl DocumentBuilder {
             flavor: Flavor::Docx,
             budget: Budget::default(),
         })
+    }
+}
+
+impl Document {
+    pub(crate) fn attach_notes(&mut self, notes: Vec<(PartKind, PartMeta, Vec<Block>)>) {
+        for (kind, meta, blocks) in notes {
+            let blocks = blocks.into_iter().map(Arc::new).collect();
+            self.inner.add_part_with(kind, blocks, meta);
+        }
     }
 }
 

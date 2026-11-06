@@ -25,7 +25,7 @@ When a case has no row, the test fails. When a Test cell has no case, the test f
 
 ## Result
 
-EdgeDoc models the Transitional package, the owned text, tables, sections, fields, pictures, content controls, notes, comments, and mail merge. It keeps macros, themes, charts, equations, metafiles, and conditional table formatting. It refuses binary `.doc`, Word 2003 XML, and encrypted packages.
+EdgeDoc models the Transitional package, the owned text, tables, sections, fields, pictures, content controls, notes, comments, and mail merge. It keeps macros, themes, charts, equations, metafiles, and conditional table formatting. It refuses binary `.doc`, Word 2003 XML, and encrypted packages. Markdown is a body conversion (`to_markdown` and `from_markdown`), not a Word package flavour.
 
 WordCraft also reads binary `.doc`, decrypts a package, rewrites Word 2003 XML, writes Flat OPC, and lays out pages. EdgeDoc does not.
 
@@ -118,5 +118,5 @@ These features are absent or refused. The Test cell is `none` because a success 
 | Table | Floating table, table style, and conditional format | Modeled position and style. Conditional format kept | Modeled | `tbl-clamp` |
 | Section | Page border, gutter, line number, and text direction | Modeled | Modeled | `sect-headers` |
 | Data | Custom XML binding evaluation | Absent. The binding markup stays | Modeled | `none` |
-| File | RTF, ODT, HTML, and Markdown | Absent | Modeled | `none` |
+| File | RTF, ODT, and HTML | Absent | Modeled | `none` |
 | Data | Formula evaluation in a sheet source | Absent. Cached cell values stay | Modeled | `none` |
