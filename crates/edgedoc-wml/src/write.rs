@@ -17,12 +17,13 @@ const WP: &str = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessin
 const A: &str = "http://schemas.openxmlformats.org/drawingml/2006/main";
 const PIC: &str = "http://schemas.openxmlformats.org/drawingml/2006/picture";
 const MC: &str = "http://schemas.openxmlformats.org/markup-compatibility/2006";
+const M: &str = "http://schemas.openxmlformats.org/officeDocument/2006/math";
 
 /// The namespace declarations that every story part root carries.
 ///
 /// A header, a footer, a note, or a comment can hold a drawing, so each one needs the
 /// drawing namespaces. Without them Word reports a corrupt file.
-const NS: &str = " xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"";
+const NS: &str = " xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"";
 
 const REL_STYLES: &str =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles";
@@ -257,7 +258,7 @@ pub fn write_document(
     }
     retain_relationships(&mut doc_rels, kept, &collect_opaque_ids(doc));
     let document = format!(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<w:document xmlns:w=\"{W}\" xmlns:r=\"{R}\" xmlns:wp=\"{WP}\" xmlns:a=\"{A}\" xmlns:pic=\"{PIC}\" xmlns:mc=\"{MC}\"><w:body>{body}</w:body></w:document>"
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<w:document xmlns:w=\"{W}\" xmlns:r=\"{R}\" xmlns:wp=\"{WP}\" xmlns:a=\"{A}\" xmlns:pic=\"{PIC}\" xmlns:mc=\"{MC}\" xmlns:m=\"{M}\"><w:body>{body}</w:body></w:document>"
     );
     let mut files = vec![
         ("word/document.xml".into(), document.into_bytes()),
@@ -767,6 +768,7 @@ fn object_xml(
             };
             format!("<w:r>{}<w:{element}/></w:r>", rpr(props))
         }
+        Some(InlineObject::Math { raw, .. }) => raw.clone(),
         Some(InlineObject::PositionalTab {
             alignment,
             relative_to,

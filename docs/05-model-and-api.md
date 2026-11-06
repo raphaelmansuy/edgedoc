@@ -154,3 +154,22 @@ doc.save("out.docx", &WriteOptions::default())?;
 | `is_dirty` | Whether a save would rewrite the package |
 
 `merge_field_names` follows WordCraft `merge_fields` (`crates/engine/src/cmd/mailings/merge.rs`). A keyword is `MERGEFIELD` only when the next character is whitespace or a quote. `MERGEFIELDX` is a different field.
+
+### 10.5 Markdown
+
+`ED-F-14`. `Document::to_markdown` and `to_markdown_with` export the body. `Document::from_markdown` and `from_markdown_with` read that Markdown. `open_markdown` and `open_markdown_with` read a UTF-8 file and exist only with the `fs` feature.
+
+The reader accepts the Markdown the exporter writes:
+
+- Headings `#` through nine hashes, and a setext underline on the next line.
+- `**bold**`, `*italic*`, `~~strike~~`, `<sub>`, and `<sup>`.
+- Links, footnote `[^id]`, and endnote `[^end-id]`, with the definitions at the end.
+- Bullet and ordered lists, including a nested item indented by two spaces.
+- A GFM table. The first row is the header. `<br>` is a new paragraph in the cell.
+- A thematic break `---` becomes a page break.
+- Inline `$...$` and display `$$` become Office Math. The LaTeX is kept, and the package stores OMML so a saved `.docx` still has the formula.
+- `![alt](path)` becomes a picture. The bytes come from `MarkdownImage` or from `image_dir`.
+
+`ED-F-15`. Image lookup uses the caller-supplied bytes first, matched by the path in the Markdown. A directory read refuses an absolute path, a `..` segment, and a symbolic link (`markdown.image_dir`). A missing file, or an `http` or `https` URL with no bytes, returns `markdown.image_missing`. The library does not download a URL. Text larger than 32 MiB returns `markdown.limit`. A file that is not UTF-8 returns `markdown.utf8`.
+
+A fenced code block becomes one paragraph. A nested table that the exporter flattened stays cell text. Headers, footers, comments, and text boxes are outside the Markdown body in both directions. After a save and a read, a formula can come back with the braces the OMML converter writes, such as `{x}^{2}` for `x^{2}`. The in-memory export, before that save, keeps the LaTeX the caller wrote.

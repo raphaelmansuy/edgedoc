@@ -27,9 +27,10 @@
       <a href="#why">Why</a>
       <a href="#documents">Documents</a>
       <a href="#code">Code</a>
+      <a href="#markdown">Markdown</a>
       <a href="#coverage">Coverage</a>
       <a href="#start">Start</a>
-      <a href="#author">Author</a>
+      <a href="display/">Display</a>
     </nav>
     <a class="gh" href="https://github.com/raphaelmansuy/edgedoc" aria-label="EdgeDoc on GitHub">
       <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
@@ -56,8 +57,8 @@
     </div>
     <ul class="facts">
       <li><b>7</b><span>crates on crates.io</span></li>
+      <li><b>3</b><span>Rust, Python, and WebAssembly</span></li>
       <li><b>12</b><span>example documents</span></li>
-      <li><b>34</b><span>round-trip rules tested</span></li>
       <li><b>0</b><span><code>unsafe</code> blocks</span></li>
     </ul>
   </div>
@@ -79,7 +80,7 @@
       <article class="rule">
         <h3><span class="dot kept"></span>Kept</h3>
         <p>The reader does not model the feature. It holds the markup, and the save copies it.</p>
-        <p class="examples">Macros, charts, equations, tracked changes, themes, custom XML.</p>
+        <p class="examples">Macros, charts, tracked changes, themes, custom XML. Equations also export as LaTeX.</p>
       </article>
       <article class="rule">
         <h3><span class="dot refused"></span>Refused</h3>
@@ -305,17 +306,64 @@ edgedoc.write_path(<span class="s">"invoices.docx"</span>, merged)
     </div>
 
     <div class="panel" role="tabpanel" id="panel-wasm" aria-labelledby="tab-wasm" hidden>
-<pre><code><span class="k">import</span> init, { mergeRecords, documentSummary, textOf } <span class="k">from</span> <span class="s">"./edgedoc.js"</span>;
-
-<span class="k">await</span> init();
+<pre><code><span class="k">const</span> { mergeRecords, markdownToDocument } = require(<span class="s">"edgedoc-wasm"</span>);
 
 <span class="c">// Bytes in, bytes out. No file system, no threads.</span>
 <span class="k">const</span> merged = mergeRecords(templateBytes, csvBytes, <span class="s">"letters"</span>, <span class="s">"auto"</span>, <span class="s">"empty"</span>);
+<span class="k">const</span> fromMarkdown = markdownToDocument(<span class="s">"# Hello\n\n**Ada**\n"</span>);
 
-console.log(documentSummary(templateBytes));
-console.log(textOf(templateBytes, <span class="s">"footer"</span>));</code></pre>
-      <p class="note">Build with <code>make example-wasm</code>, which also runs nine examples in Node.</p>
+console.log(merged.length, fromMarkdown.length);</code></pre>
+      <p class="note">The npm package is <code>edgedoc-wasm</code>. <code>make example-wasm</code> runs ten examples in Node, including Markdown.</p>
     </div>
+  </div>
+</section>
+
+<section id="markdown" class="band">
+  <div class="wrap">
+    <h2>Markdown, both ways</h2>
+    <p class="section-lede">
+      The body becomes Markdown, and that Markdown becomes a document again.
+      Pictures come from a directory or from bytes you pass in. Formulas are LaTeX
+      in the text and Office Math in the saved file.
+    </p>
+    <div class="start-grid">
+      <div class="start">
+        <h3>Rust</h3>
+        <pre><code>let exported = doc.to_markdown()?;
+let back = Document::from_markdown_with(
+    &amp;exported.markdown,
+    &amp;MarkdownReadOptions::new().images(
+        exported.images.iter().map(|image| {
+            MarkdownImage::new(&amp;image.markdown_path, image.bytes.clone())
+        }),
+    ),
+)?;</code></pre>
+      </div>
+      <div class="start">
+        <h3>Python</h3>
+        <pre><code>docx = edgedoc.markdown_to_docx(
+    "# Hello\n\n**Ada**\n",
+    [("images/dot.png", png)],
+)
+opened = edgedoc.open_markdown("notes.md")</code></pre>
+      </div>
+      <div class="start">
+        <h3>WebAssembly</h3>
+        <pre><code>const docx = markdownToDocument("# Hello\n\n**Ada**\n");
+const withImage = markdownToDocumentWithImages(
+  "![Dot](images/dot.png)\n",
+  ["images/dot.png"],
+  imageBytes,
+  [imageBytes.length],
+);</code></pre>
+      </div>
+    </div>
+    <p class="aside">
+      Headings, emphasis, links, lists, tables, footnotes, endnotes, and pictures
+      round-trip. A fenced code block becomes a paragraph. Headers, footers, and
+      comments stay out of the Markdown body. The display viewer is
+      <a href="display/">a separate page</a>.
+    </p>
   </div>
 </section>
 
@@ -339,7 +387,9 @@ console.log(textOf(templateBytes, <span class="s">"footer"</span>));</code></pre
           <tr><td>Fields and content controls</td><td><span class="pill modeled">Modeled</span></td><td>Including legacy form fields and <code>w:ffData</code></td></tr>
           <tr><td>Footnotes, endnotes, comments</td><td><span class="pill modeled">Modeled</span></td><td>Each note and comment is an editable story</td></tr>
           <tr><td>Styles of every kind</td><td><span class="pill modeled">Modeled</span></td><td>Table styles keep their conditional formatting</td></tr>
-          <tr><td>Themes, charts, equations, tracked changes</td><td><span class="pill kept">Kept</span></td><td>The save copies the parts</td></tr>
+          <tr><td>Themes, charts, tracked changes</td><td><span class="pill kept">Kept</span></td><td>The save copies the parts</td></tr>
+          <tr><td>Office Math</td><td><span class="pill modeled">LaTeX</span></td><td>Markdown uses <code>$...$</code> and <code>$$</code>. The package stores OMML</td></tr>
+          <tr><td>Markdown</td><td><span class="pill modeled">Read and write</span></td><td>Body text, lists, tables, notes, pictures, and formulas</td></tr>
           <tr><td>Binary <code>.doc</code>, Word 2003 XML</td><td><span class="pill refused">Refused</span></td><td>A stable error code, never a corrupt file</td></tr>
           <tr><td>Encrypted packages</td><td><span class="pill refused">Refused</span></td><td>Detected and refused; decryption is not in this version</td></tr>
         </tbody>
@@ -370,8 +420,8 @@ console.log(textOf(templateBytes, <span class="s">"footer"</span>));</code></pre
       </div>
       <div class="start">
         <h3>WebAssembly</h3>
-        <pre><code>make example-wasm</code></pre>
-        <p>Builds the <code>wasm32-unknown-unknown</code> module and runs nine examples in Node.</p>
+        <pre><code>make package-wasm</code></pre>
+        <p>Builds <code>edgedoc-wasm</code> for Node. The npm name <code>edgedoc</code> is a different project.</p>
       </div>
     </div>
 

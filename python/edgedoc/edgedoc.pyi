@@ -73,5 +73,21 @@ def write_path(path: str, data: bytes) -> None:
 def read_and_write(path: str) -> bytes:
     """Read a document and write it again in the same flavour."""
 
+def markdown_to_docx(
+    markdown: str,
+    images: list[tuple[str, bytes]] | None = None,
+) -> bytes:
+    """Read Markdown and return a `.docx` package.
+
+    Each image is `(path, bytes)`. The path matches the reference in the Markdown.
+    """
+
+def open_markdown(path: str) -> bytes:
+    """Read a Markdown file and return a `.docx` package.
+
+    Images resolve beside the file. A path that leaves that folder raises
+    `RuntimeError` with code `markdown.image_dir`.
+    """
+
 def error_code(message: str) -> str:
     """The first word of a message, which is the stable error code."""

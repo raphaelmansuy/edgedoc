@@ -1,0 +1,25 @@
+{
+  "name": "edgedoc-wasm",
+  "version": "0.1.1",
+  "description": "Read, create, edit, merge, and save Word documents. The same Rust core as the edgedoc crate, compiled to WebAssembly.",
+  "license": "Apache-2.0",
+  "main": "edgedoc.js",
+  "types": "edgedoc.d.ts",
+  "files": [
+    "edgedoc.js",
+    "edgedoc.d.ts",
+    "edgedoc_bg.wasm",
+    "edgedoc_bg.wasm.d.ts",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raphaelmansuy/edgedoc.git",
+    "directory": "packages/edgedoc-wasm"
+  },
+  "homepage": "https://raphaelmansuy.github.io/edgedoc/",
+  "keywords": ["docx", "word", "markdown", "wasm", "webassembly"],
+  "engines": {
+    "node": ">=18"
+  }
+}

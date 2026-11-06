@@ -92,6 +92,8 @@ This spec was read from `/Users/raphaelmansuy/Github/03-working/wordcraft` at ve
 | `ED-F-08` | 10.3 | WordCraft safe save |
 | `ED-F-09` | 10.3 | WordCraft safe save |
 | `ED-F-10` | 10.4 | N9 getters |
+| `ED-F-14` | 10.5 | Markdown export and read |
+| `ED-F-15` | 10.5 | Markdown image paths and limits |
 | `ED-M-01` | 11.1 | WordCraft `MergeState` |
 | `ED-M-02` | 11.1 | EdgeDoc correction of `refresh` |
 | `ED-M-03` | 11.2 | EdgeDoc rule |

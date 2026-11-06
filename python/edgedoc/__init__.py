@@ -17,10 +17,12 @@ from edgedoc._native import (
     document_summary,
     is_edited,
     is_password_protected,
+    markdown_to_docx,
     merge,
     merge_field_names,
     merge_record,
     merge_records,
+    open_markdown,
     part_names,
     plain_text,
     story_summary,
@@ -28,7 +30,7 @@ from edgedoc._native import (
     write_as_flavor,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 merge_csv = merge
 
@@ -57,11 +59,13 @@ __all__ = [
     "document_summary",
     "is_edited",
     "is_password_protected",
+    "markdown_to_docx",
     "merge",
     "merge_csv",
     "merge_field_names",
     "merge_record",
     "merge_records",
+    "open_markdown",
     "part_names",
     "plain_text",
     "read_and_write",

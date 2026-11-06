@@ -71,8 +71,9 @@ cargo add edgedoc
 pip install edgedoc
 ```
 
-The WebAssembly module builds from this repository with `make wasm`. It is not yet
-published to npm.
+The WebAssembly package name is `edgedoc-wasm`. The npm name `edgedoc` belongs to
+a different project. Build the module with `make package-wasm`. The `v0.1.1` tag
+publishes the seven core crates, the PyPI wheel, and that npm package.
 
 Rust 1.76 or later. The crate uses `quick-xml` and `zip`, and nothing else.
 
@@ -221,6 +222,56 @@ doc.save("updated.docx")?;
 
 The header picture, the numbering definition, the theme, the macros, and the settings
 survive that save.
+
+## Markdown
+
+`Document::to_markdown` turns the body into Markdown. Images stay in memory and the
+Markdown points at `images/<file>`. Set a directory when the files should be written.
+`link_prefix` is the path used in the image links, which can be a relative folder or a URL.
+
+```rust
+use edgedoc::{Document, MarkdownOptions};
+
+let doc = Document::open("report.docx")?;
+let exported = doc.to_markdown_with(
+    &MarkdownOptions::new()
+        .image_dir("out/media")
+        .link_prefix("media"),
+)?;
+
+std::fs::write("out/report.md", &exported.markdown)?;
+assert!(exported.markdown.contains("](media/"));
+for image in &exported.images {
+    let stored = image.stored_at.as_ref().expect("image file");
+    assert_eq!(std::fs::read(stored)?, image.bytes);
+}
+```
+
+Without `image_dir`, nothing is written and each [`edgedoc::ExportedImage`] still carries
+`bytes` and the `markdown_path` to use when you store the file yourself.
+
+`Document::from_markdown` reads that Markdown back into a document. `open_markdown` reads
+a UTF-8 file and the images beside it. Pass the image bytes with `MarkdownReadOptions`
+when the files are not on disk. A path that leaves the image directory is refused.
+
+```rust
+use edgedoc::{Document, MarkdownImage, MarkdownReadOptions};
+
+let doc = Document::from_markdown_with(
+    "# Notes\n\nSee ![Chart](images/chart.png) and $x^{2}$.\n",
+    &MarkdownReadOptions::new().image(MarkdownImage::new("images/chart.png", chart_png)),
+)?;
+doc.save("notes.docx")?;
+```
+
+An equation is LaTeX. Inline Office Math uses `$...$`. A displayed equation (`m:oMathPara`)
+uses `$$` on its own lines. Fractions, scripts, roots, sums, matrices, delimiters, accents,
+math alphabets, and argument sizes are included. A formula in a nested table keeps its `|`.
+Reading Markdown stores the formula as Office Math, so a saved `.docx` still contains it.
+A later export spells some formulas with the braces the converter writes, such as `{x}^{2}`.
+
+A fenced code block becomes a paragraph. A nested table that the exporter flattened stays
+cell text. Headers, footers, comments, and text boxes are not part of the Markdown body.
 
 ## Example documents
 
@@ -396,6 +447,8 @@ import edgedoc
 
 text = edgedoc.read_plain(open("invoice.docx", "rb").read())
 out = edgedoc.merge_csv(open("template.docx", "rb").read(), b"Name\nAda\n")
+docx = edgedoc.markdown_to_docx("# Hello\n\n**Ada**\n")
+opened = edgedoc.open_markdown("notes.md")
 ```
 
 ```bash
@@ -406,14 +459,26 @@ make python         # build a wheel into target/wheels
 ## WebAssembly
 
 The module takes bytes and returns bytes. No file system, no threads.
+npm already has a package named `edgedoc`, owned by another project. This
+module uses the free name `edgedoc-wasm` on npm, crates.io, and PyPI.
 
 ```javascript
-import init, { readDocument, writeDocument, merge, preview } from "edgedoc-wasm";
-
-await init();
+const {
+  readDocument,
+  merge,
+  markdownToDocument,
+  markdownToDocumentWithImages,
+} = require("edgedoc-wasm");
 
 const text = readDocument(templateBytes);
 const merged = merge(templateBytes, csvBytes);
+const fromMarkdown = markdownToDocument("# Hello\n\n**Ada**\n");
+const withImage = markdownToDocumentWithImages(
+  "![Dot](images/dot.png)\n",
+  ["images/dot.png"],
+  imageBytes,
+  [imageBytes.length],
+);
 ```
 
 ```bash
