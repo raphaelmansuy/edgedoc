@@ -1,11 +1,13 @@
-//! EdgeDoc reads, creates, edits, merges, and saves Word documents.
+//! EdgeDoc reads, creates, edits, merges, saves, and exports Word documents.
 //!
 //! Adapters call this crate. They do not call the lower crates.
 
 mod error;
+mod markdown;
 mod sheet;
 
 pub use error::Error;
+pub use markdown::{ExportedImage, MarkdownDocument, MarkdownOptions};
 pub use sheet::{records_from_xlsx, xlsx_with_cached_formula as sheet_fixture};
 
 pub use edgedoc_limit::Budget;
@@ -379,6 +381,14 @@ impl Document {
 
     pub fn plain_text(&self, story: StoryRef) -> String {
         self.inner.plain_text(story)
+    }
+
+    pub(crate) fn body_blocks(&self) -> &[Arc<Block>] {
+        &self.inner.body
+    }
+
+    pub(crate) fn limits(&self) -> &Budget {
+        &self.budget
     }
 
     pub fn merge_field_names(&self) -> Vec<String> {

@@ -222,6 +222,33 @@ doc.save("updated.docx")?;
 The header picture, the numbering definition, the theme, the macros, and the settings
 survive that save.
 
+## Markdown
+
+`Document::to_markdown` turns the body into Markdown. Images stay in memory and the
+Markdown points at `images/<file>`. Set a directory when the files should be written.
+`link_prefix` is the path used in the image links, which can be a relative folder or a URL.
+
+```rust
+use edgedoc::{Document, MarkdownOptions};
+
+let doc = Document::open("report.docx")?;
+let exported = doc.to_markdown_with(
+    &MarkdownOptions::new()
+        .image_dir("out/media")
+        .link_prefix("media"),
+)?;
+
+std::fs::write("out/report.md", &exported.markdown)?;
+assert!(exported.markdown.contains("](media/"));
+for image in &exported.images {
+    let stored = image.stored_at.as_ref().expect("image file");
+    assert_eq!(std::fs::read(stored)?, image.bytes);
+}
+```
+
+Without `image_dir`, nothing is written and each [`edgedoc::ExportedImage`] still carries
+`bytes` and the `markdown_path` to use when you store the file yourself.
+
 ## Example documents
 
 The repository builds twelve real documents. `make examples` writes them to
