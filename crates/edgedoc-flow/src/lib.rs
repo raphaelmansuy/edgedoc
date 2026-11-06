@@ -170,6 +170,28 @@ pub struct FlowSection {
     pub even_and_odd: bool,
     /// Put the inside margin and gutter on the binding side of each page.
     pub mirror_margins: bool,
+    /// `w:lnNumType` for this section. Absent sections do not number lines.
+    pub line_numbers: Option<LineNumbers>,
+    /// `w:pgBorders` painted around the page.
+    pub page_frame: PageFrame,
+}
+
+/// Line numbers in the margin. `distance` is points from the text.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LineNumbers {
+    pub count_by: u32,
+    pub start: u32,
+    pub restart: String,
+    pub distance: f32,
+}
+
+/// Page-border edges. `Border::space` is the inset from the page edge, in points.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct PageFrame {
+    pub top: Option<Border>,
+    pub left: Option<Border>,
+    pub bottom: Option<Border>,
+    pub right: Option<Border>,
 }
 
 /// How a section begins.
@@ -244,6 +266,8 @@ impl Default for FlowSection {
             title_page: false,
             even_and_odd: false,
             mirror_margins: false,
+            line_numbers: None,
+            page_frame: PageFrame::default(),
         }
     }
 }
@@ -540,6 +564,14 @@ pub enum Fragment {
         rect: Rect,
         border: Border,
     },
+    /// A margin label, such as a line number. `baseline` is the glyph baseline.
+    MarginLabel {
+        text: String,
+        rect: Rect,
+        baseline: f32,
+        size: f32,
+        face: u32,
+    },
 }
 
 /// Lines of a paragraph on one page.
@@ -641,7 +673,7 @@ impl PageGeometry {
                 Fragment::Table(t) => t.rect,
                 Fragment::Picture { rect, .. } => *rect,
                 Fragment::Placeholder { rect, .. } => *rect,
-                Fragment::Rule { rect, .. } => *rect,
+                Fragment::Rule { rect, .. } | Fragment::MarginLabel { rect, .. } => *rect,
             };
             out = out.union(&r);
         }
@@ -728,6 +760,10 @@ pub struct Flow<'a, S: Shaper> {
     compatibility_mode: u32,
     /// Per-run page budget, clamped to the hard engine limit.
     pub max_pages: u32,
+    /// Next line number, carried across pages when the section restart says so.
+    line_ordinal: u32,
+    line_ordinal_ready: bool,
+    line_section: usize,
 }
 
 impl<'a, S: Shaper> Flow<'a, S> {
@@ -740,6 +776,9 @@ impl<'a, S: Shaper> Flow<'a, S> {
             counters: ListCounters::default(),
             compatibility_mode: 15,
             max_pages: MAX_PAGES,
+            line_ordinal: 0,
+            line_ordinal_ready: false,
+            line_section: 0,
         }
     }
 
@@ -866,6 +905,9 @@ impl<'a, S: Shaper> Flow<'a, S> {
         for pass in 1..=MAX_TOTAL_PASSES {
             self.counters.clear();
             self.diagnostics.clear();
+            self.line_ordinal = 0;
+            self.line_ordinal_ready = false;
+            self.line_section = 0;
             self.totals = totals.clone();
             let mut pages = Vec::new();
             let mut index = BTreeMap::new();
@@ -1618,7 +1660,9 @@ impl NoteBox {
             .fragments
             .iter()
             .filter_map(|fragment| match fragment {
-                Fragment::Paragraph(_) | Fragment::Rule { .. } => None,
+                Fragment::Paragraph(_) | Fragment::Rule { .. } | Fragment::MarginLabel { .. } => {
+                    None
+                }
                 Fragment::Table(table) => Some(table.rect),
                 Fragment::Picture { rect, .. } | Fragment::Placeholder { rect, .. } => Some(*rect),
             })
@@ -3016,9 +3060,20 @@ impl PageBuilder {
         carry: &mut Vec<NoteBox>,
     ) -> PageGeometry {
         let footnote_ids = self.notes.iter().map(|note| note.id).collect();
+        let body_len = self.fragments.len();
         // Place the notes at the bottom of the body, after the body fragments.
         if !self.notes.is_empty() {
             carry.extend(self.place_notes(flow));
+        }
+        // `both` spreads the body between the top margin and the notes. See DP-L-03.
+        if self.section.v_align == VAlign::Both {
+            let end = body_len.min(self.fragments.len());
+            let floor = if end < self.fragments.len() {
+                fragment_top(&self.fragments[end])
+            } else {
+                self.body.bottom()
+            };
+            justify_body(&mut self.fragments[..end], floor);
         }
         // Vertical alignment moves the body. See DP-L-03.
         if matches!(self.section.v_align, VAlign::Center | VAlign::Bottom)
@@ -3043,6 +3098,13 @@ impl PageBuilder {
                 }
             }
         }
+        let numbered = if self.body_fragments.is_empty() {
+            &self.fragments[..body_len.min(self.fragments.len())]
+        } else {
+            &self.body_fragments[..body_len.min(self.body_fragments.len())]
+        };
+        let line_labels = self.line_number_labels(flow, numbered);
+        let page_rules = page_frame_rules(&self.section);
         let mut fragments = std::mem::take(&mut self.decorations);
         let decoration_count = fragments.len();
         let ordered = if self.body_fragments.is_empty() {
@@ -3058,6 +3120,8 @@ impl PageBuilder {
         }
         fragments.append(&mut behind);
         fragments.append(&mut front);
+        fragments.extend(line_labels);
+        fragments.extend(page_rules);
         if fragments.len() as u32 > MAX_FRAGMENTS_PER_PAGE {
             flow.report(
                 "display.page_too_dense",
@@ -3147,6 +3211,181 @@ impl PageBuilder {
         }
         carry
     }
+
+    /// Paint `w:lnNumType` beside body lines. Notes and suppressed paragraphs are not counted.
+    fn line_number_labels<S: Shaper>(
+        &self,
+        flow: &mut Flow<'_, S>,
+        body: &[Fragment],
+    ) -> Vec<Fragment> {
+        let Some(spec) = self.section.line_numbers.clone() else {
+            return Vec::new();
+        };
+        let count_by = spec.count_by.max(1);
+        let restart = spec.restart.as_str();
+        let reset = match restart {
+            "continuous" => !flow.line_ordinal_ready,
+            "newSection" => !flow.line_ordinal_ready || flow.line_section != self.section_index,
+            _ => true,
+        };
+        if reset {
+            flow.line_ordinal = spec.start;
+        }
+        flow.line_ordinal_ready = true;
+        flow.line_section = self.section_index;
+        let mut out = Vec::new();
+        for_each_numbered_line(body, &mut |baseline, face, size, suppress| {
+            if suppress {
+                return;
+            }
+            let ordinal = flow.line_ordinal;
+            flow.line_ordinal = flow.line_ordinal.saturating_add(1);
+            if ordinal % count_by != 0 {
+                return;
+            }
+            let text = ordinal.to_string();
+            let width: f32 = flow
+                .shaper
+                .shape_run(face, &text, size, false)
+                .iter()
+                .map(|glyph| glyph.advance)
+                .sum();
+            let width = if width > 0.0 {
+                width
+            } else {
+                size * 0.5 * text.chars().count() as f32
+            };
+            let x = (self.body.x - spec.distance - width).max(1.0);
+            out.push(Fragment::MarginLabel {
+                rect: Rect::new(x, baseline - size * 0.8, width.max(1.0), size),
+                text,
+                baseline,
+                size,
+                face,
+            });
+        });
+        out
+    }
+}
+
+fn fragment_top(fragment: &Fragment) -> f32 {
+    match fragment {
+        Fragment::Paragraph(p) => p.rect.y,
+        Fragment::Table(t) => t.rect.y,
+        Fragment::Picture { rect, .. }
+        | Fragment::Placeholder { rect, .. }
+        | Fragment::Rule { rect, .. }
+        | Fragment::MarginLabel { rect, .. } => rect.y,
+    }
+}
+
+fn justify_body(fragments: &mut [Fragment], floor: f32) {
+    let content = fragments.iter().filter(|f| is_body_block(f)).count();
+    if content < 2 {
+        return;
+    }
+    let ink = fragments_rect(fragments);
+    let free = (floor - ink.bottom() - trailing_space(fragments)).max(0.0);
+    if free < 0.5 {
+        return;
+    }
+    let step = free / (content - 1) as f32;
+    let mut seen = 0usize;
+    let mut dy = 0.0;
+    for fragment in fragments.iter_mut() {
+        if is_body_block(fragment) && seen > 0 {
+            dy = step * seen as f32;
+        }
+        if dy > 0.0 {
+            shift_fragment(fragment, 0.0, dy);
+        }
+        if is_body_block(fragment) {
+            seen += 1;
+        }
+    }
+}
+
+fn is_body_block(fragment: &Fragment) -> bool {
+    matches!(
+        fragment,
+        Fragment::Paragraph(_)
+            | Fragment::Table(_)
+            | Fragment::Picture { .. }
+            | Fragment::Placeholder { .. }
+    )
+}
+
+fn for_each_numbered_line(fragments: &[Fragment], visit: &mut dyn FnMut(f32, u32, f32, bool)) {
+    for fragment in fragments {
+        match fragment {
+            Fragment::Paragraph(para) => {
+                let Some(first) = para.layout.lines.get(para.l0) else {
+                    continue;
+                };
+                let style = para.run_styles.first();
+                let face = style.map_or(0, |item| item.face);
+                let size = style.map_or(10.0, |item| item.size);
+                for line in para.layout.lines.iter().take(para.l1).skip(para.l0) {
+                    let baseline = para.rect.y + line.baseline - first.top;
+                    visit(baseline, face, size, para.para.suppress_line_numbers);
+                }
+            }
+            Fragment::Table(table) => for_each_numbered_line(&table.content, visit),
+            Fragment::Picture { .. }
+            | Fragment::Placeholder { .. }
+            | Fragment::Rule { .. }
+            | Fragment::MarginLabel { .. } => {}
+        }
+    }
+}
+
+fn page_frame_rules(section: &FlowSection) -> Vec<Fragment> {
+    let frame = section.page_frame;
+    let mut out = Vec::new();
+    let inset = |edge: Option<Border>| edge.map_or(0.0, |border| border.space);
+    let left = inset(frame.left);
+    let right = inset(frame.right);
+    let top = inset(frame.top);
+    let bottom = inset(frame.bottom);
+    if let Some(border) = frame.top {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(left, top, (section.page_w - left - right).max(width), width),
+            border,
+        });
+    }
+    if let Some(border) = frame.bottom {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(
+                left,
+                (section.page_h - bottom - width).max(0.0),
+                (section.page_w - left - right).max(width),
+                width,
+            ),
+            border,
+        });
+    }
+    if let Some(border) = frame.left {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(left, top, width, (section.page_h - top - bottom).max(width)),
+            border,
+        });
+    }
+    if let Some(border) = frame.right {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(
+                (section.page_w - right - width).max(0.0),
+                top,
+                width,
+                (section.page_h - top - bottom).max(width),
+            ),
+            border,
+        });
+    }
+    out
 }
 
 fn trailing_space(fragments: &[Fragment]) -> f32 {
@@ -3183,7 +3422,7 @@ fn fragments_rect(fragments: &[Fragment]) -> Rect {
             Fragment::Table(t) => t.rect,
             Fragment::Picture { rect, .. } => *rect,
             Fragment::Placeholder { rect, .. } => *rect,
-            Fragment::Rule { rect, .. } => *rect,
+            Fragment::Rule { rect, .. } | Fragment::MarginLabel { rect, .. } => *rect,
         };
         out = if out.w == 0.0 && out.h == 0.0 {
             r
@@ -3224,6 +3463,10 @@ fn shift_fragment(f: &mut Fragment, dx: f32, dy: f32) {
         Fragment::Picture { rect, .. }
         | Fragment::Placeholder { rect, .. }
         | Fragment::Rule { rect, .. } => *rect = rect.translate(dx, dy),
+        Fragment::MarginLabel { rect, baseline, .. } => {
+            *rect = rect.translate(dx, dy);
+            *baseline += dy;
+        }
     }
 }
 
@@ -4438,6 +4681,12 @@ mod tests {
             symbol: None,
             synth_bold: false,
             synth_italic: false,
+            shadow: false,
+            outline: false,
+            emboss: false,
+            imprint: false,
+            border_width: 0.0,
+            border_color: None,
         }
     }
 

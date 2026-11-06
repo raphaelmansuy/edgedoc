@@ -89,8 +89,8 @@ been established. A warning exposes a limitation; it does not close it.
 | 18 | CJK/Latin automatic spacing | Open. Resolve per-paragraph settings and script boundaries. |
 | 19 | Mirror margins | Implemented for the body and header/footer bands; inside/outside floating anchors remain part of row 1. |
 | 20 | Final-column balancing | Implemented with bounded final-page retries. Broader float/note combinations depend on rows 1–3. |
-| 21 | Page borders and color | Open. Render page background and border geometry with their section rules. |
-| 22 | Line numbering | Open. Count placed body lines with restart and suppression rules. |
+| 21 | Page borders and color | Page borders paint from `w:pgBorders` on each edge. Page background colour is still not a section property. |
+| 22 | Line numbering | Implemented. Body lines count with `countBy`, `start`, `distance`, `suppressLineNumbers`, and `newPage` / `newSection` / `continuous` restart. |
 | 23 | Revision author colors | Open. Implement author-specific insert/delete markup and display choices. |
 | 24 | Color glyphs | Open. Render COLR, sbix, and bitmap color glyphs consistently in each painter. |
 | 25 | Obfuscated embedded fonts | Open. Deobfuscate `.odttf`, enforce font embedding rules, and use the embedded face consistently. |
@@ -100,9 +100,10 @@ been established. A warning exposes a limitation; it does not close it.
 | 29 | Positional tabs | Implemented for exercised margin/indent-relative positions and leaders. Ordinary right/center stops and leading tabs have regression coverage. Decimal-stop behavior still differs from this Wordcraft revision; broader wrap/bidi combinations remain open. |
 
 The inventory above is not exhaustive Wordcraft feature coverage. Additional open work includes
-split table rows, vertical merges, cell spacing, table autofit to measured content, inline picture
-placement within text, drawings/charts/equations, full shaping and bidi behavior, character effects,
-and compatibility settings. The older assessment has further partial behaviors in these areas.
+split table rows, cell spacing, table autofit to measured content, inline picture
+placement within text, drawings/charts/equations, full shaping and bidi behavior, and compatibility
+settings. Character shadow, outline, emboss, imprint, and run borders paint with the run. Vertical
+page justification (`w:vAlign` `both`) spreads body blocks. Comment margin stories are still open. The older assessment has further partial behaviors in these areas.
 
 The remaining implementation areas include floating placement and wrap, measured note stories and
 continuation, conditional table styles and merges, text boxes and advanced shaping. Each needs an

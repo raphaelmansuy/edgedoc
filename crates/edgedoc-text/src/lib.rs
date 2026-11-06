@@ -263,6 +263,18 @@ pub struct RunStyle {
     pub synth_bold: bool,
     /// True when the face has no italic sibling, so the painter slants the glyphs.
     pub synth_italic: bool,
+    /// Draw a drop shadow behind the glyphs.
+    pub shadow: bool,
+    /// Draw an outline around the glyphs.
+    pub outline: bool,
+    /// Draw an embossed highlight and shade.
+    pub emboss: bool,
+    /// Draw an imprinted highlight and shade.
+    pub imprint: bool,
+    /// Character-border width in points. Zero paints nothing.
+    pub border_width: f32,
+    /// Character-border colour.
+    pub border_color: Option<edgedoc_geom::Rgba>,
 }
 
 /// A plain 11 pt run, which a missing style falls back to.
@@ -291,6 +303,12 @@ fn default_style() -> RunStyle {
         symbol: None,
         synth_bold: false,
         synth_italic: false,
+        shadow: false,
+        outline: false,
+        emboss: false,
+        imprint: false,
+        border_width: 0.0,
+        border_color: None,
     }
 }
 
@@ -811,6 +829,12 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 symbol: None,
                 synth_bold: false,
                 synth_italic: false,
+                shadow: false,
+                outline: false,
+                emboss: false,
+                imprint: false,
+                border_width: 0.0,
+                border_color: None,
             });
         let (asc, desc) = cluster_metrics(shaper, &style);
         let (ascent, descent, gap) = shaper.line_metrics(style.face, style.line_size);
@@ -1418,6 +1442,12 @@ mod tests {
             symbol: None,
             synth_bold: false,
             synth_italic: false,
+            shadow: false,
+            outline: false,
+            emboss: false,
+            imprint: false,
+            border_width: 0.0,
+            border_color: None,
         }
     }
 

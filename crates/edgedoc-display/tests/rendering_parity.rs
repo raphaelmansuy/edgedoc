@@ -1420,6 +1420,7 @@ fn vertically_merged_cell_spans_rows_and_grows_the_last_row() {
         .find(|p| p.text.as_ref() == "After")
         .unwrap();
     assert!((after.rect.y - merged.rect.bottom()).abs() < 0.01);
+    assert!(!reports_gap(&doc, "Vertically merged table cells"));
 }
 
 #[test]
@@ -3624,4 +3625,283 @@ fn cell_paragraph_spacing_and_zero_row_height_follow_wordcraft() {
     assert!((paragraphs[0].rect.y - table.cells[0].rect.y - 10.0).abs() < 0.01);
     assert!((paragraphs[1].rect.y - paragraphs[0].rect.bottom() - 30.0).abs() < 0.01);
     assert!(table.cells[0].rect.h > 50.0);
+}
+
+fn reports_gap(doc: &DisplayDocument, detail: &str) -> bool {
+    doc.diagnostics()
+        .iter()
+        .any(|item| item.code == "display.unsupported_layout" && item.detail == detail)
+}
+
+fn margin_labels(doc: &DisplayDocument, page: usize) -> Vec<(String, f32, f32)> {
+    doc.pages()[page]
+        .fragments
+        .iter()
+        .filter_map(|fragment| match fragment {
+            Fragment::MarginLabel {
+                text,
+                rect,
+                baseline,
+                ..
+            } => Some((text.clone(), *baseline, rect.right())),
+            _ => None,
+        })
+        .collect()
+}
+
+fn three_lines(first_break: bool) -> String {
+    let mut body = String::new();
+    for (index, text) in ["One", "Two", "Three"].into_iter().enumerate() {
+        if first_break && index == 0 {
+            body.push_str(&format!(
+                r#"<w:p><w:pPr><w:pageBreakBefore/></w:pPr><w:r><w:t>{text}</w:t></w:r></w:p>"#
+            ));
+        } else {
+            body.push_str(&p(text));
+        }
+    }
+    body
+}
+
+/// Line numbers count body lines, honour the interval, and sit `distance` points from the text.
+#[test]
+fn line_numbers_paint_beside_body_lines() {
+    let body: String = ["One", "Two", "Three", "Four", "Five"]
+        .into_iter()
+        .map(p)
+        .collect();
+    let doc = render(
+        &body,
+        r#"<w:lnNumType w:countBy="1" w:start="1" w:distance="240"/>"#,
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Line numbering"));
+    let labels = margin_labels(&doc, 0);
+    assert_eq!(
+        labels
+            .iter()
+            .map(|(text, _, _)| text.as_str())
+            .collect::<Vec<_>>(),
+        ["1", "2", "3", "4", "5"]
+    );
+    let body_x = doc.pages()[0].body.x;
+    for (_, _, right) in &labels {
+        assert!(
+            (right - (body_x - 12.0)).abs() < 1.5,
+            "right {right} body {body_x}"
+        );
+    }
+    let painted = doc.page(0).unwrap().ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text == "1" && glyph.x + 1.0 < body_x)
+    });
+    assert!(painted, "the line number must reach the display list");
+
+    let counted = render(
+        &body,
+        r#"<w:lnNumType w:countBy="5" w:start="1"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(
+        margin_labels(&counted, 0)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["5"]
+    );
+
+    let started = render(
+        &three_lines(false),
+        r#"<w:lnNumType w:countBy="1" w:start="2"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(
+        margin_labels(&started, 0)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["2", "3", "4"]
+    );
+}
+
+/// Restart policies reset on each page, carry across pages, or reset at a section.
+#[test]
+fn line_number_restart_follows_the_section() {
+    let mut body = three_lines(false);
+    body.push_str(&three_lines(true));
+    let restarted = render(
+        &body,
+        r#"<w:lnNumType w:countBy="1" w:restart="newPage"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(restarted.pages().len(), 2);
+    for page in 0..2 {
+        assert_eq!(
+            margin_labels(&restarted, page)
+                .into_iter()
+                .map(|(text, _, _)| text)
+                .collect::<Vec<_>>(),
+            ["1", "2", "3"]
+        );
+    }
+    let continuous = render(
+        &body,
+        r#"<w:lnNumType w:countBy="1" w:restart="continuous"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(
+        margin_labels(&continuous, 1)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["4", "5", "6"]
+    );
+
+    let split = format!(
+        "{}{}<w:p><w:pPr><w:sectPr><w:lnNumType w:countBy=\"1\" w:restart=\"continuous\"/></w:sectPr></w:pPr></w:p>{}",
+        p("One"),
+        p("Two"),
+        p("Three")
+    );
+    let sectioned = render(
+        &split,
+        r#"<w:lnNumType w:countBy="1" w:restart="newSection"/>"#,
+        "",
+        &[],
+    );
+    assert!(sectioned.pages().len() >= 2);
+    let last = sectioned.pages().len() - 1;
+    assert_eq!(
+        margin_labels(&sectioned, last)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["1"]
+    );
+}
+
+/// A paragraph marked `w:suppressLineNumbers` is omitted from the count.
+#[test]
+fn suppressed_paragraphs_are_omitted_from_line_numbers() {
+    let body = format!(
+        r#"<w:p><w:pPr><w:suppressLineNumbers/></w:pPr><w:r><w:t>Skip</w:t></w:r></w:p>{}{}"#,
+        p("Keep"),
+        p("Also")
+    );
+    let doc = render(&body, r#"<w:lnNumType w:countBy="1"/>"#, "", &[]);
+    let labels = margin_labels(&doc, 0);
+    assert_eq!(
+        labels
+            .iter()
+            .map(|(text, _, _)| text.as_str())
+            .collect::<Vec<_>>(),
+        ["1", "2"]
+    );
+    let paras = paragraphs(&doc, 0);
+    let keep_baseline = {
+        let para = paras
+            .iter()
+            .find(|para| para.text.contains("Keep"))
+            .unwrap();
+        let first = &para.layout.lines[para.l0];
+        para.rect.y + first.baseline - first.top
+    };
+    assert!((labels[0].1 - keep_baseline).abs() < 0.5);
+}
+
+/// `w:pgBorders` become strokes inset by the edge's `w:space`.
+#[test]
+fn page_borders_paint_inset_from_the_page_edge() {
+    let doc = render(
+        &p("Inside"),
+        r#"<w:pgBorders><w:top w:val="single" w:sz="24" w:space="24" w:color="FF0000"/><w:left w:val="single" w:sz="16" w:space="12" w:color="0000FF"/></w:pgBorders>"#,
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Page borders"));
+    let red = edgedoc_display::Rgba::opaque(0xFF, 0, 0);
+    let blue = edgedoc_display::Rgba::opaque(0, 0, 0xFF);
+    let fills: Vec<_> = doc
+        .page(0)
+        .unwrap()
+        .ops
+        .iter()
+        .filter_map(|op| match op {
+            edgedoc_display::Op::FillRect { rect, paint } => Some((*rect, paint.clone())),
+            _ => None,
+        })
+        .collect();
+    let top = fills
+        .iter()
+        .find(|(_, paint)| *paint == edgedoc_display::Paint::Solid(red));
+    let left = fills
+        .iter()
+        .find(|(_, paint)| *paint == edgedoc_display::Paint::Solid(blue));
+    let (top, _) = top.expect("red top border");
+    let (left, _) = left.expect("blue left border");
+    assert!((top.y - 24.0).abs() < 0.1, "top y {}", top.y);
+    assert!((top.h - 3.0).abs() < 0.1, "top thickness {}", top.h);
+    assert!((left.x - 12.0).abs() < 0.1, "left x {}", left.x);
+    assert!((left.w - 2.0).abs() < 0.1, "left thickness {}", left.w);
+}
+
+/// `w:vAlign` `both` distributes free space between body blocks down to the bottom margin.
+#[test]
+fn vertical_page_justification_spreads_body_blocks() {
+    let body = format!("{}{}", p("Alpha"), p("Beta"));
+    let top = render(&body, "", "", &[]);
+    let both = render(&body, r#"<w:vAlign w:val="both"/>"#, "", &[]);
+    assert!(!reports_gap(&both, "Vertical page justification"));
+    let top_ps = paragraphs(&top, 0);
+    let both_ps = paragraphs(&both, 0);
+    assert!((both_ps[0].rect.y - top_ps[0].rect.y).abs() < 0.5);
+    assert!(both_ps[1].rect.y > top_ps[1].rect.y + 100.0);
+    assert!(
+        (both_ps[1].rect.bottom() + both_ps[1].para.space_after - both.pages()[0].body.bottom())
+            .abs()
+            < 0.5
+    );
+}
+
+/// Shadow, emboss, and a character border reach the display list.
+#[test]
+fn character_effects_and_borders_paint() {
+    let body = r#"<w:p><w:r><w:rPr><w:shadow/><w:bdr w:val="single" w:sz="16" w:space="0" w:color="FF0000"/></w:rPr><w:t>Shadowed</w:t></w:r></w:p><w:p><w:r><w:rPr><w:emboss/></w:rPr><w:t>Raised</w:t></w:r></w:p><w:p><w:r><w:rPr><w:outline/></w:rPr><w:t>Hollow</w:t></w:r></w:p>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(&doc, "Character effects and borders"));
+    let ops = &doc.page(0).unwrap().ops;
+    let shadowed = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("Shadowed") => Some(glyph.y),
+        _ => None,
+    });
+    let shadowed = shadowed.expect("shadowed text");
+    let shadow = ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text.is_empty()
+                && glyph.paint == edgedoc_display::Rgba::opaque(0x88, 0x88, 0x88)
+                && glyph.y > shadowed)
+    });
+    assert!(shadow, "shadow glyphs paint below the text");
+    let red = edgedoc_display::Rgba::opaque(0xFF, 0, 0);
+    assert!(ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::FillRect { paint, .. }
+            if *paint == edgedoc_display::Paint::Solid(red))
+    }));
+    assert!(ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text.is_empty() && glyph.paint == edgedoc_display::Rgba::opaque(0xFF, 0xFF, 0xFF))
+    }));
+    let hollow = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("Hollow") => Some(glyph.paint),
+        _ => None,
+    });
+    assert!(ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text.is_empty() && glyph.paint == hollow.unwrap())
+    }));
 }

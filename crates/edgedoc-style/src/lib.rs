@@ -62,6 +62,8 @@ pub struct ComputedPara {
     pub borders: ParagraphBorders,
     pub list: Option<ListRef>,
     pub snap_to_grid: bool,
+    /// `w:suppressLineNumbers` on this paragraph.
+    pub suppress_line_numbers: bool,
 }
 
 impl Default for ComputedPara {
@@ -99,6 +101,7 @@ impl Default for ComputedPara {
             borders: ParagraphBorders::default(),
             list: None,
             snap_to_grid: true,
+            suppress_line_numbers: false,
         }
     }
 }
@@ -223,6 +226,10 @@ pub struct ComputedRun {
     pub synth_bold: bool,
     /// True when the document asks for italic and the face has no italic sibling.
     pub synth_italic: bool,
+    /// Character border width in points. Zero paints nothing.
+    pub border_width: f32,
+    /// Character border colour. Absent uses the run colour.
+    pub border_color: Option<Rgba>,
 }
 
 /// Vertical position of a run.
@@ -264,6 +271,8 @@ impl Default for ComputedRun {
             symbol: None,
             synth_bold: false,
             synth_italic: false,
+            border_width: 0.0,
+            border_color: None,
         }
     }
 }
@@ -851,6 +860,9 @@ fn apply_para(out: &mut ComputedPara, props: &ParaProps) {
     if props.contextual_spacing || explicit("contextualSpacing") {
         out.contextual_spacing = props.contextual_spacing;
     }
+    if props.suppress_line_numbers || explicit("suppressLineNumbers") {
+        out.suppress_line_numbers = props.suppress_line_numbers;
+    }
     if let Some(shading) = props.shading.as_deref().and_then(Rgba::parse_hex) {
         out.shading = Some(shading);
     }
@@ -1036,6 +1048,23 @@ fn apply_run(out: &mut ComputedRun, props: &CharProps) {
     }
     if props.shadow {
         out.shadow = true;
+    }
+    if let Some(border) = &props.border {
+        if BorderStyle::parse(&border.val).is_visible() {
+            out.border_width = border
+                .size
+                .map_or(0.5, |size| (size as f32 / 8.0).max(0.25));
+            out.border_color = Some(
+                border
+                    .color
+                    .as_deref()
+                    .and_then(Rgba::parse_hex)
+                    .unwrap_or(Rgba::BLACK),
+            );
+        } else {
+            out.border_width = 0.0;
+            out.border_color = None;
+        }
     }
 }
 

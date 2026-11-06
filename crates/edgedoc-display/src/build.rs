@@ -414,9 +414,6 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 }
                 for run in &p.runs {
                     let r = &run.props;
-                    if r.emboss || r.imprint || r.outline || r.shadow || r.border.is_some() {
-                        features.insert("Character effects and borders");
-                    }
                     if r.east_asian_layout.is_some()
                         || r.fit_text.is_some()
                         || r.extra.iter().any(|raw| {
@@ -435,8 +432,8 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                         InlineObject::Picture(pic) if pic.anchor.is_some() => {
                             features.insert("Floating picture positioning and text wrap");
                         }
-                        InlineObject::Note { .. } => {
-                            features.insert("Footnote, endnote, and comment stories");
+                        InlineObject::Note { kind, .. } if kind == "comment" => {
+                            features.insert("Comment margin stories");
                         }
                         InlineObject::Opaque(xml) if !nonpainting_markup(xml) => {
                             features.insert("Embedded drawings, equations, and text boxes");
@@ -490,9 +487,6 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 }
                 for row in &t.rows {
                     for cell in &row.cells {
-                        if cell.v_merge.is_some() {
-                            features.insert("Vertically merged table cells");
-                        }
                         if cell.text_direction.is_some() || cell.fit_text || cell.no_wrap {
                             features.insert("Table cell text direction and fitting");
                         }
@@ -525,17 +519,8 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
         {
             features.insert("Document grid");
         }
-        if s.line_numbering.is_some() {
-            features.insert("Line numbering");
-        }
-        if !s.page_borders.is_empty() {
-            features.insert("Page borders");
-        }
         if s.text_direction.as_deref().is_some_and(|v| v != "lrTb") {
             features.insert("Vertical section text");
-        }
-        if s.v_align.as_deref() == Some("both") {
-            features.insert("Vertical page justification");
         }
     }
     let mut features = BTreeSet::new();
@@ -1560,7 +1545,27 @@ fn section_of(s: &SectionProps) -> FlowSection {
         title_page: s.title_page,
         even_and_odd: false,
         mirror_margins: false,
+        line_numbers: s
+            .line_numbering
+            .as_ref()
+            .map(|item| edgedoc_flow::LineNumbers {
+                count_by: item.count_by.max(1),
+                start: item.start,
+                restart: item.restart.clone().unwrap_or_else(|| "newPage".into()),
+                distance: item.distance.map_or(18.0, |value| value.to_pt()),
+            }),
+        page_frame: edgedoc_flow::PageFrame {
+            top: page_edge(&s.page_borders.top),
+            left: page_edge(&s.page_borders.left),
+            bottom: page_edge(&s.page_borders.bottom),
+            right: page_edge(&s.page_borders.right),
+        },
     }
+}
+
+fn page_edge(line: &Option<edgedoc_model::LineBorder>) -> Option<Border> {
+    let border = border_of(line.as_ref()?);
+    (border.style.is_visible() && border.width > 0.0).then_some(border)
 }
 
 fn build_one(
