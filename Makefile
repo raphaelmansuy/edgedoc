@@ -187,7 +187,14 @@ corpus-external-check: ## Verify downloaded DOCX integrity and exercise bounded 
 .PHONY: wasm
 wasm: ## Build the WebAssembly module
 	@printf '%s→%s cargo build --target wasm32-unknown-unknown\n' '$(BLUE)' '$(RESET)'
-	@$(CARGO) build --target wasm32-unknown-unknown -p edgedoc-wasm
+	@$(CARGO) build --target wasm32-unknown-unknown -p edgedoc-wasm --features wasm
+
+.PHONY: package-wasm
+package-wasm: ## Build the npm package in packages/edgedoc-wasm
+	@printf '%s→%s wasm-bindgen into packages/edgedoc-wasm\n' '$(BLUE)' '$(RESET)'
+	@$(CARGO) build --release --target wasm32-unknown-unknown -p edgedoc-wasm --features wasm
+	@wasm-bindgen --target nodejs --out-dir packages/edgedoc-wasm --out-name edgedoc \
+		target/wasm32-unknown-unknown/release/edgedoc_wasm.wasm
 
 .PHONY: python
 python: ## Build the Python wheel with maturin

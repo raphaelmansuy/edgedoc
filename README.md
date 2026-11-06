@@ -71,8 +71,9 @@ cargo add edgedoc
 pip install edgedoc
 ```
 
-The WebAssembly module builds from this repository with `make wasm`. It is not yet
-published to npm.
+The WebAssembly package name is `edgedoc-wasm`. The npm name `edgedoc` belongs to
+a different project. Build the module with `make package-wasm`. The `v0.1.1` tag
+publishes the seven core crates, the PyPI wheel, and that npm package.
 
 Rust 1.76 or later. The crate uses `quick-xml` and `zip`, and nothing else.
 
@@ -458,18 +459,16 @@ make python         # build a wheel into target/wheels
 ## WebAssembly
 
 The module takes bytes and returns bytes. No file system, no threads.
+npm already has a package named `edgedoc`, owned by another project. This
+module uses the free name `edgedoc-wasm` on npm, crates.io, and PyPI.
 
 ```javascript
-import init, {
+const {
   readDocument,
-  writeDocument,
   merge,
-  preview,
   markdownToDocument,
   markdownToDocumentWithImages,
-} from "edgedoc-wasm";
-
-await init();
+} = require("edgedoc-wasm");
 
 const text = readDocument(templateBytes);
 const merged = merge(templateBytes, csvBytes);

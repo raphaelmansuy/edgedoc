@@ -145,6 +145,9 @@ h2 {
   letter-spacing: -.025em; font-weight: 800;
 }
 .section-lede { max-width: 48rem; color: var(--ink-soft); margin: 0 0 2.5rem; font-size: 1.02rem; }
+#markdown .start pre { min-height: 11rem; }
+#markdown .aside a { color: var(--blue); }
+
 .aside { color: var(--muted); font-size: .9rem; margin-top: 1.75rem; }
 .aside strong { color: var(--ink-soft); }
 

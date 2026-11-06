@@ -113,6 +113,7 @@ make example-wasm
 ```
 
 The module needs no file system and no threads. The `fs` feature stays off.
+The npm package name is `edgedoc-wasm`. `make package-wasm` writes it.
 
 ## What the adapters do not expose
 

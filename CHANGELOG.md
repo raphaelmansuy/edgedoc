@@ -8,6 +8,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Markdown read and write. `Document::to_markdown` exports the body, and
+  `Document::from_markdown` reads it back. `open_markdown` reads a UTF-8 file.
+  Office Math is LaTeX in the text and OMML in the saved package.
+- Python `markdown_to_docx` and `open_markdown`. WebAssembly
+  `markdownToDocument` and `markdownToDocumentWithImages`.
+- The npm package name is `edgedoc-wasm`. The name `edgedoc` on npm is a
+  different project.
+- A release workflow publishes the seven core crates, the PyPI wheel, and
+  `edgedoc-wasm` from a `v*` tag.
+
 - A rendering parity ledger at `docs/display/20-rendering-parity.md`, with 49
   exercised OOXML regression tests and an explicit inventory of remaining Wordcraft parity work.
 - An independent Wordcraft 0.15.1 differential gate with source/font fingerprints, glyph geometry,

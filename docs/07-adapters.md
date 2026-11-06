@@ -80,7 +80,7 @@ letters.write_bytes()
 
 ## 14. WebAssembly package
 
-`ED-W-01`. `edgedoc-wasm` targets `wasm32-unknown-unknown`. The npm package name is `edgedoc`. The version equals the facade version.
+`ED-W-01`. `edgedoc-wasm` targets `wasm32-unknown-unknown`. The npm package name is `edgedoc-wasm`. The version equals the facade version. The npm name `edgedoc` belongs to a different project, so this module does not use it.
 
 `ED-W-02`. The module exports `readDocument`, `writeDocument`, `merge`, `preview`, `markdownToDocument`, and `markdownToDocumentWithImages`. Arguments and results are bytes, strings, and plain objects. The module does not export the crate graph. `markdownToDocumentWithImages` takes the image paths, one concatenated byte buffer, and one length per path. It does not read a file.
 
