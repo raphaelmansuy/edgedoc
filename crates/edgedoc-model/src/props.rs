@@ -52,6 +52,8 @@ pub struct CharProps {
     /// Character width in percent, as `w:w/@w:val` stores it.
     pub scale: Option<u32>,
     pub border: Option<LineBorder>,
+    /// `ins` or `del` when the run sits inside a tracked change.
+    pub revision: Option<String>,
     /// `w:eastAsianLayout`: two lines in one, or horizontal text in a vertical run.
     pub east_asian_layout: Option<EastAsianLayout>,
     /// `w:fitText/@w:val`: the width in twips that the text is squeezed into.

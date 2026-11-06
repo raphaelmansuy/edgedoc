@@ -174,6 +174,10 @@ pub struct FlowSection {
     pub line_numbers: Option<LineNumbers>,
     /// `w:pgBorders` painted around the page.
     pub page_frame: PageFrame,
+    /// Document-grid line pitch in points. Zero does not snap lines.
+    pub grid_pitch: f32,
+    /// Extra character pitch from `w:docGrid/@w:charSpace`, in points.
+    pub grid_char_space: f32,
 }
 
 /// Line numbers in the margin. `distance` is points from the text.
@@ -268,6 +272,8 @@ impl Default for FlowSection {
             mirror_margins: false,
             line_numbers: None,
             page_frame: PageFrame::default(),
+            grid_pitch: 0.0,
+            grid_char_space: 0.0,
         }
     }
 }
@@ -454,6 +460,8 @@ pub struct FlowTable {
     pub borders: [Option<Border>; 4],
     pub inside_h: Option<Border>,
     pub inside_v: Option<Border>,
+    /// `w:tblCellSpacing`, in points, inserted between cells.
+    pub cell_spacing: f32,
     /// True when the table floats beside the text.
     pub floating: bool,
     /// The float anchor, when it floats.
@@ -1484,7 +1492,9 @@ fn apply_line_spacing<S: Shaper>(
     shaper: &S,
     styles: &[RunStyle],
 ) {
-    if para.line_height <= 0.0 || !para.line_height.is_finite() {
+    let has_line = para.line_height > 0.0 && para.line_height.is_finite();
+    let snap = para.snap_to_grid && para.grid_pitch > 1.0;
+    if !has_line && !snap {
         return;
     }
     let mut top = 0.0;
@@ -1512,7 +1522,9 @@ fn apply_line_spacing<S: Shaper>(
                 }
             }
         }
-        let height = if para.line_exact {
+        let mut height = if !has_line {
+            natural
+        } else if para.line_exact {
             para.line_height.max(1.0)
         } else if para.line_at_least {
             natural.max(para.line_height)
@@ -1526,14 +1538,20 @@ fn apply_line_spacing<S: Shaper>(
                 (natural * para.line_height / 12.0).max(1.0)
             }
         };
+        if snap && !para.line_exact && !para.line_at_least {
+            let steps = (height / para.grid_pitch).ceil().max(1.0);
+            height = steps * para.grid_pitch;
+        }
         let ascent = line.baseline - line.top;
         line.top = top;
         // Wordcraft para::lines::baseline_offset: fixed/minimum spacing keeps the font's
         // descent below the baseline; multiple spacing above single adds leading below it.
         line.baseline = if para.line_exact || para.line_at_least {
             top + height - line.text_desc
-        } else {
+        } else if has_line {
             top + ascent * (para.line_height / 12.0).min(1.0)
+        } else {
+            top + ascent
         };
         line.height = height;
         top += height;
@@ -2828,18 +2846,31 @@ impl PageBuilder {
             }
         }
         if t.floating {
-            // A floating table takes its own space in version 1, at the current position.
+            // `w:tblpX` and `w:tblpY` move the table from the current margin. Text
+            // continues below the shifted table.
+            let dx = t
+                .anchor
+                .as_ref()
+                .and_then(|anchor| anchor.offset_x)
+                .unwrap_or(0.0);
+            let dy = t
+                .anchor
+                .as_ref()
+                .and_then(|anchor| anchor.offset_y)
+                .unwrap_or(0.0);
+            let x = (column.x + dx).clamp(0.0, (self.section.page_w - 20.0).max(0.0));
+            let y = (self.y + dy).clamp(0.0, (self.section.page_h - 20.0).max(0.0));
             let (fragment, height) = build_table_fragment(
                 flow,
                 t,
-                Rect::new(column.x, self.y, column.w, 0.0),
+                Rect::new(x, y, column.w, 0.0),
                 0,
                 t.rows.len(),
                 false,
                 &self.list_labels,
             );
             self.fragments.push(Fragment::Table(fragment));
-            self.y += height;
+            self.y = y + height;
             return true;
         }
         let grid_width: f32 = t.widths.iter().sum();
@@ -4095,7 +4126,15 @@ fn build_table_fragment<S: Shaper>(
     labels: &BTreeMap<String, String>,
 ) -> (TableFragment, f32) {
     let width = origin.w.max(1.0);
+    let gap = t.cell_spacing.max(0.0);
     let widths = column_widths(t, width);
+    let between = gap * widths.len().saturating_sub(1) as f32;
+    let widths = if between > 0.0 && width > between + widths.len() as f32 {
+        let scale = (width - between) / width;
+        widths.into_iter().map(|value| value * scale).collect()
+    } else {
+        widths
+    };
     let row_heights = table_row_heights(flow, t, width, labels);
     let mut cells = Vec::new();
     let mut content = Vec::new();
@@ -4132,7 +4171,7 @@ fn build_table_fragment<S: Shaper>(
             .fold(0.0f32, f32::max);
         let mut x = origin.x + widths.iter().take(row.grid_before).sum::<f32>();
         let mut col = row.grid_before;
-        for cell in &row.cells {
+        for (cell_index, cell) in row.cells.iter().enumerate() {
             let span = cell.span.max(1);
             let w: f32 = widths.iter().skip(col).take(span).sum();
             let row_rect = Rect::new(x, y, w.max(1.0), h);
@@ -4337,9 +4376,15 @@ fn build_table_fragment<S: Shaper>(
                 }
             }
             x += w;
+            if cell_index + 1 < row.cells.len() {
+                x += gap;
+            }
             col += span;
         }
         y += h;
+        if drawn_rows.last().is_some_and(|last| *last != r) {
+            y += gap;
+        }
     }
     // Table-level borders and inside rules.
     let full = Rect::new(origin.x, origin.y, width, (y - origin.y).max(1.0));
@@ -4687,6 +4732,8 @@ mod tests {
             imprint: false,
             border_width: 0.0,
             border_color: None,
+            fit_width: None,
+            revision: 0,
         }
     }
 
@@ -4900,6 +4947,7 @@ mod tests {
             borders: [Some(border); 4],
             inside_h: Some(border),
             inside_v: Some(border),
+            cell_spacing: 0.0,
             floating: false,
             anchor: None,
             bidi: false,

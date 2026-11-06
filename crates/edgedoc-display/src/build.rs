@@ -134,6 +134,26 @@ pub fn prepare(
         section,
     });
     for group in &mut groups {
+        let pitch = group.section.grid_pitch;
+        let char_space = group.section.grid_char_space;
+        if pitch > 0.0 || char_space != 0.0 {
+            apply_document_grid(&mut group.blocks, pitch, char_space);
+            for part in [
+                &mut group.section.header,
+                &mut group.section.footer,
+                &mut group.section.header_first,
+                &mut group.section.footer_first,
+                &mut group.section.header_even,
+                &mut group.section.footer_even,
+            ]
+            .into_iter()
+            .flatten()
+            {
+                apply_document_grid(part, pitch, char_space);
+            }
+        }
+    }
+    for group in &mut groups {
         join_simple_paragraph_borders(&mut group.blocks);
     }
     for d in cascade.diagnostics.iter() {
@@ -399,7 +419,9 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 {
                     features.insert("Complex-script and bidirectional layout");
                 }
-                if p.props.frame.is_some() {
+                if p.props.frame.as_ref().is_some_and(|frame| {
+                    !matches!(frame.drop_cap.as_deref(), Some("drop" | "margin"))
+                }) {
                     features.insert("Paragraph frames and drop caps");
                 }
                 if p.props
@@ -409,13 +431,9 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 {
                     features.insert("Extended paragraph properties");
                 }
-                if p.retention.revisions {
-                    features.insert("Tracked revision presentation");
-                }
                 for run in &p.runs {
                     let r = &run.props;
                     if r.east_asian_layout.is_some()
-                        || r.fit_text.is_some()
                         || r.extra.iter().any(|raw| {
                             !edgedoc_opc::xml::parse(raw.as_bytes(), &edgedoc::Budget::default())
                                 .ok()
@@ -473,7 +491,10 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 }
             }
             Block::Table(t) => {
-                if t.position.is_some() {
+                if t.position
+                    .as_ref()
+                    .is_some_and(|position| position.tblp_x.is_none() && position.tblp_y.is_none())
+                {
                     features.insert("Floating table positioning and text wrap");
                 }
                 if t.style
@@ -481,9 +502,6 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                     .is_some_and(|id| !supported_plain_table_style(styles, id))
                 {
                     features.insert("Conditional table styles");
-                }
-                if t.cell_space.is_some_and(|v| v.0 != 0) {
-                    features.insert("Table cell spacing");
                 }
                 for row in &t.rows {
                     for cell in &row.cells {
@@ -515,7 +533,9 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
         if s.doc_grid
             .as_ref()
             .and_then(|grid| grid.grid_type.as_deref())
-            .is_some_and(|kind| kind != "default")
+            .is_some_and(|kind| {
+                !matches!(kind, "default" | "lines" | "linesAndChars" | "snapToChars")
+            })
         {
             features.insert("Document grid");
         }
@@ -1560,6 +1580,70 @@ fn section_of(s: &SectionProps) -> FlowSection {
             bottom: page_edge(&s.page_borders.bottom),
             right: page_edge(&s.page_borders.right),
         },
+        grid_pitch: document_grid_pitch(s),
+        grid_char_space: document_grid_char_space(s),
+    }
+}
+
+fn document_grid_pitch(section: &SectionProps) -> f32 {
+    let Some(grid) = &section.doc_grid else {
+        return 0.0;
+    };
+    if matches!(grid.grid_type.as_deref(), Some("default") | None) {
+        return 0.0;
+    }
+    grid.line_pitch
+        .filter(|pitch| *pitch > 0)
+        .map(|pitch| pitch as f32 / 20.0)
+        .unwrap_or(0.0)
+}
+
+fn document_grid_char_space(section: &SectionProps) -> f32 {
+    let Some(grid) = &section.doc_grid else {
+        return 0.0;
+    };
+    if !matches!(
+        grid.grid_type.as_deref(),
+        Some("linesAndChars" | "snapToChars")
+    ) {
+        return 0.0;
+    }
+    let points = grid.char_space.unwrap_or(0) as f32 / 20.0;
+    if points.abs() > 12.0 {
+        0.0
+    } else {
+        points
+    }
+}
+
+fn apply_document_grid(blocks: &mut [edgedoc_flow::FlowBlock], pitch: f32, char_space: f32) {
+    for block in blocks {
+        match block {
+            edgedoc_flow::FlowBlock::Paragraph(paragraph) => {
+                if pitch > 0.0 && paragraph.para.snap_to_grid {
+                    paragraph.para.grid_pitch = pitch;
+                }
+                if char_space != 0.0 {
+                    for style in &mut paragraph.run_styles {
+                        style.letter_spacing += char_space;
+                    }
+                }
+            }
+            edgedoc_flow::FlowBlock::Table(table) => {
+                for row in &mut table.rows {
+                    for cell in &mut row.cells {
+                        apply_document_grid(&mut cell.blocks, pitch, char_space);
+                    }
+                }
+            }
+            edgedoc_flow::FlowBlock::EndnoteSeparator { blocks, .. } => {
+                let mut owned = blocks.to_vec();
+                apply_document_grid(&mut owned, pitch, char_space);
+                *blocks = std::sync::Arc::from(owned);
+            }
+            edgedoc_flow::FlowBlock::Picture { .. }
+            | edgedoc_flow::FlowBlock::Placeholder { .. } => {}
+        }
     }
 }
 
@@ -2045,6 +2129,17 @@ fn paragraph_of_inner(
     let mark_style = styles.len() as u32;
     let mark = cascade.run(para, &para.props.mark);
     styles.push(run_style_of(&mark));
+    if let Some(frame) = &para.props.frame {
+        if matches!(frame.drop_cap.as_deref(), Some("drop" | "margin")) {
+            let lines = frame.lines.unwrap_or(3).clamp(1, 10);
+            computed.drop_lines = lines;
+            let scale = lines as f32;
+            for style in &mut styles {
+                style.size *= scale;
+                style.line_size *= scale;
+            }
+        }
+    }
     FlowParagraph {
         path: block_path_len(index),
         text,
@@ -2204,7 +2299,18 @@ struct StyleSets {
 }
 
 fn revision_of(para: &Paragraph) -> Option<RevisionKind> {
-    if para.retention.revisions {
+    let mut insert = false;
+    let mut delete = false;
+    for run in &para.runs {
+        match run.props.revision.as_deref() {
+            Some("del") => delete = true,
+            Some("ins") => insert = true,
+            _ => {}
+        }
+    }
+    if delete && !insert {
+        Some(RevisionKind::Delete)
+    } else if insert || para.retention.revisions {
         Some(RevisionKind::Insert)
     } else {
         None
@@ -2804,6 +2910,10 @@ fn table_of(table: &Table, cascade: &mut Cascade, index: usize) -> FlowTable {
         ],
         inside_h: table.borders.inside_h.as_ref().map(border_of),
         inside_v: table.borders.inside_v.as_ref().map(border_of),
+        cell_spacing: table
+            .cell_space
+            .map(|value| edgedoc_geom::twips(value.0))
+            .unwrap_or(0.0),
         floating: table.position.is_some(),
         anchor: table.position.as_ref().map(|p| FloatAnchor {
             behind_text: false,

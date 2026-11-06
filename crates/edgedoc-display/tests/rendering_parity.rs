@@ -1601,12 +1601,13 @@ fn page_limit_also_applies_between_sections() {
 
 #[test]
 fn known_fidelity_gaps_are_reported_and_relayout_does_not_duplicate_diagnostics() {
-    let body = r#"<w:p><w:pPr><w:framePr w:dropCap="drop" w:lines="3"/></w:pPr><w:r><w:t>Drop cap</w:t></w:r></w:p>"#;
-    let mut doc = render(body, "", "", &[]);
+    let body = r#"<w:p><w:r><w:t>Vertical</w:t></w:r></w:p>"#;
+    let mut doc = render(body, r#"<w:textDirection w:val="tbRl"/>"#, "", &[]);
     assert!(doc
         .diagnostics()
         .iter()
-        .any(|d| d.code == "display.unsupported_layout" && d.detail.contains("drop caps")));
+        .any(|d| d.code == "display.unsupported_layout"
+            && d.detail.contains("Vertical section text")));
     let before = doc.diagnostics().to_vec();
     doc.layout().unwrap();
     assert_eq!(doc.diagnostics(), before);
@@ -2181,16 +2182,26 @@ fn only_enabled_document_grids_request_unsupported_layout() {
             .iter()
             .any(|d| d.detail == "Document grid"));
     }
+    let plain = render(&p("Active grid"), "", "", &[]);
+    let natural = paragraphs(&plain, 0)[0].layout.lines[0].height;
     let active = render(
         &p("Active grid"),
         r#"<w:docGrid w:type="lines" w:linePitch="360"/>"#,
         "",
         &[],
     );
-    assert!(active
-        .diagnostics()
-        .iter()
-        .any(|d| d.detail == "Document grid"));
+    assert!(!reports_gap(&active, "Document grid"));
+    let snapped = paragraphs(&active, 0)[0].layout.lines[0].height;
+    assert!(snapped + 0.05 >= natural);
+    assert!((snapped / 18.0).round() * 18.0 - snapped < 0.05);
+    assert!(snapped >= 18.0 - 0.05);
+    let loose = render(
+        r#"<w:p><w:pPr><w:rPr><w:snapToGrid w:val="0"/></w:rPr></w:pPr><w:r><w:t>Active grid</w:t></w:r></w:p>"#,
+        r#"<w:docGrid w:type="lines" w:linePitch="360"/>"#,
+        "",
+        &[],
+    );
+    assert!((paragraphs(&loose, 0)[0].layout.lines[0].height - natural).abs() < 0.05);
 }
 
 #[test]
@@ -3904,4 +3915,138 @@ fn character_effects_and_borders_paint() {
         matches!(op, edgedoc_display::Op::Glyphs(glyph)
             if glyph.text.is_empty() && glyph.paint == hollow.unwrap())
     }));
+}
+
+/// A lines grid stretches auto line spacing up to the line pitch, unless the paragraph opts out.
+#[test]
+fn document_grid_character_pitch_widens_the_run() {
+    let body = &p("Hello");
+    let plain = render(body, "", "", &[]);
+    let spaced = render(
+        body,
+        r#"<w:docGrid w:type="linesAndChars" w:linePitch="360" w:charSpace="40"/>"#,
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&spaced, "Document grid"));
+    let width = |doc: &DisplayDocument| paragraphs(doc, 0)[0].layout.max_width;
+    assert!(width(&spaced) > width(&plain) + 6.0);
+}
+
+/// `w:tblCellSpacing` separates neighbouring cells.
+#[test]
+fn table_cell_spacing_opens_a_gap_between_cells() {
+    let body = r#"<w:tbl><w:tblPr><w:tblW w:w="4000" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblCellSpacing w:w="200" w:type="dxa"/></w:tblPr><w:tblGrid><w:gridCol w:w="2000"/><w:gridCol w:w="2000"/></w:tblGrid><w:tr><w:tc><w:p><w:r><w:t>A</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>B</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(&doc, "Table cell spacing"));
+    let table = doc.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Table(table) => Some(table),
+            _ => None,
+        })
+        .unwrap();
+    let left = table.cells.iter().find(|cell| cell.col == 0).unwrap();
+    let right = table.cells.iter().find(|cell| cell.col == 1).unwrap();
+    assert!(
+        (right.rect.x - left.rect.right() - 10.0).abs() < 0.6,
+        "gap {} between {:?} and {:?}",
+        right.rect.x - left.rect.right(),
+        left.rect,
+        right.rect
+    );
+}
+
+/// `w:fitText` compresses the run into the requested width.
+#[test]
+fn fit_text_compresses_a_run_to_the_requested_width() {
+    let fitted = render(
+        r#"<w:p><w:r><w:rPr><w:fitText w:val="720"/></w:rPr><w:t>ABCDEFGHIJKLMNOP</w:t></w:r></w:p>"#,
+        "",
+        "",
+        &[],
+    );
+    let plain = render(&p("ABCDEFGHIJKLMNOP"), "", "", &[]);
+    assert!(!reports_gap(&fitted, "Extended character typography"));
+    let fitted_width = paragraphs(&fitted, 0)[0].layout.max_width;
+    let plain_width = paragraphs(&plain, 0)[0].layout.max_width;
+    assert!(fitted_width + 1.0 < plain_width);
+    assert!(
+        (fitted_width - 36.0).abs() < 2.0,
+        "fitted width {fitted_width}"
+    );
+}
+
+/// A drop cap enlarges its letter by the number of lines it spans.
+#[test]
+fn drop_caps_enlarge_the_letter() {
+    let dropped = render(
+        r#"<w:p><w:pPr><w:framePr w:dropCap="drop" w:lines="3"/></w:pPr><w:r><w:t>W</w:t></w:r></w:p>"#,
+        "",
+        "",
+        &[],
+    );
+    let plain = render(&p("W"), "", "", &[]);
+    assert!(!reports_gap(&dropped, "Paragraph frames and drop caps"));
+    let size = |doc: &DisplayDocument| {
+        doc.page(0)
+            .unwrap()
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains('W') => Some(glyph.size),
+                _ => None,
+            })
+            .unwrap()
+    };
+    assert!(size(&dropped) > size(&plain) * 2.5);
+}
+
+/// Insertions underline in red and deletions strike in red.
+#[test]
+fn tracked_revisions_paint_insertions_and_deletions() {
+    let body = r#"<w:p><w:ins w:id="1" w:author="Ada"><w:r><w:t>Added</w:t></w:r></w:ins></w:p><w:p><w:del w:id="2" w:author="Ada"><w:r><w:delText>Gone</w:delText></w:r></w:del></w:p>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(&doc, "Tracked revision presentation"));
+    assert!(doc.page_text(0).unwrap().contains("Added"));
+    assert!(doc.page_text(0).unwrap().contains("Gone"));
+    let red = edgedoc_display::Rgba::opaque(0xC0, 0x1B, 0x1B);
+    let red_fills = doc.page(0).unwrap().ops.iter().filter(|op| {
+        matches!(op, edgedoc_display::Op::FillRect { paint, .. } if *paint == edgedoc_display::Paint::Solid(red))
+    }).count();
+    assert!(
+        red_fills >= 2,
+        "insert underline and delete strike, saw {red_fills}"
+    );
+}
+
+/// `w:tblpX` and `w:tblpY` move a floating table from the margin.
+#[test]
+fn floating_tables_honor_their_page_offsets() {
+    let body = r#"<w:tbl><w:tblPr><w:tblW w:w="2000" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblpPr w:horzAnchor="margin" w:vertAnchor="text" w:tblpX="720" w:tblpY="360"/></w:tblPr><w:tblGrid><w:gridCol w:w="2000"/></w:tblGrid><w:tr><w:tc><w:p><w:r><w:t>Float</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(
+        &doc,
+        "Floating table positioning and text wrap"
+    ));
+    let table = doc.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Table(table) => Some(table),
+            _ => None,
+        })
+        .unwrap();
+    let body = doc.pages()[0].body;
+    assert!(
+        (table.rect.x - (body.x + 36.0)).abs() < 1.0,
+        "x {}",
+        table.rect.x
+    );
+    assert!(
+        (table.rect.y - (body.y + 18.0)).abs() < 1.0,
+        "y {}",
+        table.rect.y
+    );
 }

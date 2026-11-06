@@ -674,6 +674,28 @@ impl<S: Shaper> Lowerer<'_, S> {
                 }
             }
         }
+        if self.options.markup && style.revision == 1 {
+            self.ops.push(Op::FillRect {
+                rect: Rect::new(
+                    first_x,
+                    baseline + style.size * 0.12,
+                    width.max(1.0),
+                    (style.size * 0.06).max(0.6),
+                ),
+                paint: Paint::solid(Rgba::opaque(0xC0, 0x1B, 0x1B)),
+            });
+        }
+        if self.options.markup && style.revision == 2 {
+            self.ops.push(Op::FillRect {
+                rect: Rect::new(
+                    first_x,
+                    baseline - style.size * 0.28,
+                    width.max(1.0),
+                    (style.size * 0.06).max(0.6),
+                ),
+                paint: Paint::solid(Rgba::opaque(0xC0, 0x1B, 0x1B)),
+            });
+        }
         if style.border_width > 0.0 {
             let color = style.border_color.unwrap_or(style.color);
             let stroke = style.border_width;
@@ -1129,5 +1151,7 @@ pub fn run_style_of(run: &ComputedRun, face: u32) -> RunStyle {
         imprint: run.imprint,
         border_width: run.border_width,
         border_color: run.border_color,
+        fit_width: run.fit_width,
+        revision: run.revision,
     }
 }

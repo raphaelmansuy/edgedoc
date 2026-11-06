@@ -537,7 +537,14 @@ fn read_paragraph(el: &El, ctx: &Ctx<'_>, doc: &mut ModelDocument) -> WmlResult<
             ),
             "ins" | "del" => {
                 para.retention.revisions = true;
+                let before = para.runs.len();
                 read_runs(child, &mut para, &mut field, ctx);
+                let kind = if child.name == "del" { "del" } else { "ins" };
+                for run in para.runs.iter_mut().skip(before) {
+                    if run.props.revision.is_none() {
+                        run.props.revision = Some(kind.to_string());
+                    }
+                }
             }
             "oMath" | "oMathPara" => para.retention.equations = true,
             "r" | "fldSimple" => read_run(child, &mut para, &mut field, ctx),
@@ -744,7 +751,7 @@ fn read_run(el: &El, para: &mut Paragraph, field: &mut FieldContext, ctx: &Ctx<'
     for child in el.child_els() {
         match child.name.as_str() {
             "rPr" => {}
-            "t" => push_field_text(para, field, &child.text(), &props),
+            "t" | "delText" => push_field_text(para, field, &child.text(), &props),
             "softHyphen" => push_field_text(para, field, "\u{00AD}", &props),
             "noBreakHyphen" => push_field_text(para, field, "\u{2011}", &props),
             "instrText" => {
