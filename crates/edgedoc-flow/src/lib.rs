@@ -170,6 +170,32 @@ pub struct FlowSection {
     pub even_and_odd: bool,
     /// Put the inside margin and gutter on the binding side of each page.
     pub mirror_margins: bool,
+    /// `w:lnNumType` for this section. Absent sections do not number lines.
+    pub line_numbers: Option<LineNumbers>,
+    /// `w:pgBorders` painted around the page.
+    pub page_frame: PageFrame,
+    /// Document-grid line pitch in points. Zero does not snap lines.
+    pub grid_pitch: f32,
+    /// Extra character pitch from `w:docGrid/@w:charSpace`, in points.
+    pub grid_char_space: f32,
+}
+
+/// Line numbers in the margin. `distance` is points from the text.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LineNumbers {
+    pub count_by: u32,
+    pub start: u32,
+    pub restart: String,
+    pub distance: f32,
+}
+
+/// Page-border edges. `Border::space` is the inset from the page edge, in points.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct PageFrame {
+    pub top: Option<Border>,
+    pub left: Option<Border>,
+    pub bottom: Option<Border>,
+    pub right: Option<Border>,
 }
 
 /// How a section begins.
@@ -244,6 +270,10 @@ impl Default for FlowSection {
             title_page: false,
             even_and_odd: false,
             mirror_margins: false,
+            line_numbers: None,
+            page_frame: PageFrame::default(),
+            grid_pitch: 0.0,
+            grid_char_space: 0.0,
         }
     }
 }
@@ -389,6 +419,12 @@ pub struct FlowCell {
     pub v_merge_continue: bool,
     /// True when the cell starts a vertical merge.
     pub v_merge_start: bool,
+    /// `w:noWrap`: the cell text stays on one line.
+    pub no_wrap: bool,
+    /// `w:fitText`: a line wider than the cell is compressed to the cell width.
+    pub fit_text: bool,
+    /// `w:textDirection` as a clockwise page angle. `90` is `tbRl`, `-90` is `btLr`.
+    pub rotation: i16,
 }
 
 /// A table row.
@@ -430,6 +466,8 @@ pub struct FlowTable {
     pub borders: [Option<Border>; 4],
     pub inside_h: Option<Border>,
     pub inside_v: Option<Border>,
+    /// `w:tblCellSpacing`, in points, inserted between cells.
+    pub cell_spacing: f32,
     /// True when the table floats beside the text.
     pub floating: bool,
     /// The float anchor, when it floats.
@@ -540,6 +578,14 @@ pub enum Fragment {
         rect: Rect,
         border: Border,
     },
+    /// A margin label, such as a line number. `baseline` is the glyph baseline.
+    MarginLabel {
+        text: String,
+        rect: Rect,
+        baseline: f32,
+        size: f32,
+        face: u32,
+    },
 }
 
 /// Lines of a paragraph on one page.
@@ -568,6 +614,8 @@ pub struct ParagraphFragment {
     pub revision: Option<RevisionKind>,
     /// The link rectangles, resolved to page coordinates.
     pub links: Vec<(Rect, String)>,
+    /// Clockwise page rotation for vertical cell text. Zero is horizontal.
+    pub rotation: i16,
 }
 
 /// A table on one page.
@@ -641,7 +689,7 @@ impl PageGeometry {
                 Fragment::Table(t) => t.rect,
                 Fragment::Picture { rect, .. } => *rect,
                 Fragment::Placeholder { rect, .. } => *rect,
-                Fragment::Rule { rect, .. } => *rect,
+                Fragment::Rule { rect, .. } | Fragment::MarginLabel { rect, .. } => *rect,
             };
             out = out.union(&r);
         }
@@ -728,6 +776,10 @@ pub struct Flow<'a, S: Shaper> {
     compatibility_mode: u32,
     /// Per-run page budget, clamped to the hard engine limit.
     pub max_pages: u32,
+    /// Next line number, carried across pages when the section restart says so.
+    line_ordinal: u32,
+    line_ordinal_ready: bool,
+    line_section: usize,
 }
 
 impl<'a, S: Shaper> Flow<'a, S> {
@@ -740,6 +792,9 @@ impl<'a, S: Shaper> Flow<'a, S> {
             counters: ListCounters::default(),
             compatibility_mode: 15,
             max_pages: MAX_PAGES,
+            line_ordinal: 0,
+            line_ordinal_ready: false,
+            line_section: 0,
         }
     }
 
@@ -866,6 +921,9 @@ impl<'a, S: Shaper> Flow<'a, S> {
         for pass in 1..=MAX_TOTAL_PASSES {
             self.counters.clear();
             self.diagnostics.clear();
+            self.line_ordinal = 0;
+            self.line_ordinal_ready = false;
+            self.line_section = 0;
             self.totals = totals.clone();
             let mut pages = Vec::new();
             let mut index = BTreeMap::new();
@@ -1442,7 +1500,9 @@ fn apply_line_spacing<S: Shaper>(
     shaper: &S,
     styles: &[RunStyle],
 ) {
-    if para.line_height <= 0.0 || !para.line_height.is_finite() {
+    let has_line = para.line_height > 0.0 && para.line_height.is_finite();
+    let snap = para.snap_to_grid && para.grid_pitch > 1.0;
+    if !has_line && !snap {
         return;
     }
     let mut top = 0.0;
@@ -1470,7 +1530,9 @@ fn apply_line_spacing<S: Shaper>(
                 }
             }
         }
-        let height = if para.line_exact {
+        let mut height = if !has_line {
+            natural
+        } else if para.line_exact {
             para.line_height.max(1.0)
         } else if para.line_at_least {
             natural.max(para.line_height)
@@ -1484,14 +1546,20 @@ fn apply_line_spacing<S: Shaper>(
                 (natural * para.line_height / 12.0).max(1.0)
             }
         };
+        if snap && !para.line_exact && !para.line_at_least {
+            let steps = (height / para.grid_pitch).ceil().max(1.0);
+            height = steps * para.grid_pitch;
+        }
         let ascent = line.baseline - line.top;
         line.top = top;
         // Wordcraft para::lines::baseline_offset: fixed/minimum spacing keeps the font's
         // descent below the baseline; multiple spacing above single adds leading below it.
         line.baseline = if para.line_exact || para.line_at_least {
             top + height - line.text_desc
-        } else {
+        } else if has_line {
             top + ascent * (para.line_height / 12.0).min(1.0)
+        } else {
+            top + ascent
         };
         line.height = height;
         top += height;
@@ -1618,7 +1686,9 @@ impl NoteBox {
             .fragments
             .iter()
             .filter_map(|fragment| match fragment {
-                Fragment::Paragraph(_) | Fragment::Rule { .. } => None,
+                Fragment::Paragraph(_) | Fragment::Rule { .. } | Fragment::MarginLabel { .. } => {
+                    None
+                }
                 Fragment::Table(table) => Some(table.rect),
                 Fragment::Picture { rect, .. } | Fragment::Placeholder { rect, .. } => Some(*rect),
             })
@@ -1969,8 +2039,13 @@ impl PageBuilder {
                         if !p.para.footer_page_frame {
                             y += p.para.space_before;
                         }
-                        let (layout, left, label_rect) =
-                            cell_paragraph_layout(flow, p, band.w, Some(&label));
+                        let (layout, left, label_rect) = cell_paragraph_layout(
+                            flow,
+                            p,
+                            band.w,
+                            Some(&label),
+                            CellShape::default(),
+                        );
                         let height = layout.height;
                         let rect = Rect::new(
                             band.x + left,
@@ -1996,6 +2071,7 @@ impl PageBuilder {
                             rtl: p.para.bidi,
                             revision: p.revision,
                             links: Vec::new(),
+                            rotation: 0,
                         }));
                         out.extend(pictures);
                         if !p.para.footer_page_frame {
@@ -2042,6 +2118,7 @@ impl PageBuilder {
                         rtl: p.para.bidi,
                         revision: p.revision,
                         links: Vec::new(),
+                        rotation: 0,
                     }));
                     out.extend(pictures);
                     if !p.para.footer_page_frame {
@@ -2673,6 +2750,7 @@ impl PageBuilder {
             rtl: p.para.bidi,
             revision: p.revision,
             links: link_rects(&layout, &p.links, rect),
+            rotation: 0,
         }));
         self.fragments.extend(inline_picture_fragments(
             p, &layout, rect, start_line, line_index,
@@ -2784,18 +2862,31 @@ impl PageBuilder {
             }
         }
         if t.floating {
-            // A floating table takes its own space in version 1, at the current position.
+            // `w:tblpX` and `w:tblpY` move the table from the current margin. Text
+            // continues below the shifted table.
+            let dx = t
+                .anchor
+                .as_ref()
+                .and_then(|anchor| anchor.offset_x)
+                .unwrap_or(0.0);
+            let dy = t
+                .anchor
+                .as_ref()
+                .and_then(|anchor| anchor.offset_y)
+                .unwrap_or(0.0);
+            let x = (column.x + dx).clamp(0.0, (self.section.page_w - 20.0).max(0.0));
+            let y = (self.y + dy).clamp(0.0, (self.section.page_h - 20.0).max(0.0));
             let (fragment, height) = build_table_fragment(
                 flow,
                 t,
-                Rect::new(column.x, self.y, column.w, 0.0),
+                Rect::new(x, y, column.w, 0.0),
                 0,
                 t.rows.len(),
                 false,
                 &self.list_labels,
             );
             self.fragments.push(Fragment::Table(fragment));
-            self.y += height;
+            self.y = y + height;
             return true;
         }
         let grid_width: f32 = t.widths.iter().sum();
@@ -3016,9 +3107,20 @@ impl PageBuilder {
         carry: &mut Vec<NoteBox>,
     ) -> PageGeometry {
         let footnote_ids = self.notes.iter().map(|note| note.id).collect();
+        let body_len = self.fragments.len();
         // Place the notes at the bottom of the body, after the body fragments.
         if !self.notes.is_empty() {
             carry.extend(self.place_notes(flow));
+        }
+        // `both` spreads the body between the top margin and the notes. See DP-L-03.
+        if self.section.v_align == VAlign::Both {
+            let end = body_len.min(self.fragments.len());
+            let floor = if end < self.fragments.len() {
+                fragment_top(&self.fragments[end])
+            } else {
+                self.body.bottom()
+            };
+            justify_body(&mut self.fragments[..end], floor);
         }
         // Vertical alignment moves the body. See DP-L-03.
         if matches!(self.section.v_align, VAlign::Center | VAlign::Bottom)
@@ -3043,6 +3145,13 @@ impl PageBuilder {
                 }
             }
         }
+        let numbered = if self.body_fragments.is_empty() {
+            &self.fragments[..body_len.min(self.fragments.len())]
+        } else {
+            &self.body_fragments[..body_len.min(self.body_fragments.len())]
+        };
+        let line_labels = self.line_number_labels(flow, numbered);
+        let page_rules = page_frame_rules(&self.section);
         let mut fragments = std::mem::take(&mut self.decorations);
         let decoration_count = fragments.len();
         let ordered = if self.body_fragments.is_empty() {
@@ -3058,6 +3167,8 @@ impl PageBuilder {
         }
         fragments.append(&mut behind);
         fragments.append(&mut front);
+        fragments.extend(line_labels);
+        fragments.extend(page_rules);
         if fragments.len() as u32 > MAX_FRAGMENTS_PER_PAGE {
             flow.report(
                 "display.page_too_dense",
@@ -3147,6 +3258,181 @@ impl PageBuilder {
         }
         carry
     }
+
+    /// Paint `w:lnNumType` beside body lines. Notes and suppressed paragraphs are not counted.
+    fn line_number_labels<S: Shaper>(
+        &self,
+        flow: &mut Flow<'_, S>,
+        body: &[Fragment],
+    ) -> Vec<Fragment> {
+        let Some(spec) = self.section.line_numbers.clone() else {
+            return Vec::new();
+        };
+        let count_by = spec.count_by.max(1);
+        let restart = spec.restart.as_str();
+        let reset = match restart {
+            "continuous" => !flow.line_ordinal_ready,
+            "newSection" => !flow.line_ordinal_ready || flow.line_section != self.section_index,
+            _ => true,
+        };
+        if reset {
+            flow.line_ordinal = spec.start;
+        }
+        flow.line_ordinal_ready = true;
+        flow.line_section = self.section_index;
+        let mut out = Vec::new();
+        for_each_numbered_line(body, &mut |baseline, face, size, suppress| {
+            if suppress {
+                return;
+            }
+            let ordinal = flow.line_ordinal;
+            flow.line_ordinal = flow.line_ordinal.saturating_add(1);
+            if ordinal % count_by != 0 {
+                return;
+            }
+            let text = ordinal.to_string();
+            let width: f32 = flow
+                .shaper
+                .shape_run(face, &text, size, false)
+                .iter()
+                .map(|glyph| glyph.advance)
+                .sum();
+            let width = if width > 0.0 {
+                width
+            } else {
+                size * 0.5 * text.chars().count() as f32
+            };
+            let x = (self.body.x - spec.distance - width).max(1.0);
+            out.push(Fragment::MarginLabel {
+                rect: Rect::new(x, baseline - size * 0.8, width.max(1.0), size),
+                text,
+                baseline,
+                size,
+                face,
+            });
+        });
+        out
+    }
+}
+
+fn fragment_top(fragment: &Fragment) -> f32 {
+    match fragment {
+        Fragment::Paragraph(p) => p.rect.y,
+        Fragment::Table(t) => t.rect.y,
+        Fragment::Picture { rect, .. }
+        | Fragment::Placeholder { rect, .. }
+        | Fragment::Rule { rect, .. }
+        | Fragment::MarginLabel { rect, .. } => rect.y,
+    }
+}
+
+fn justify_body(fragments: &mut [Fragment], floor: f32) {
+    let content = fragments.iter().filter(|f| is_body_block(f)).count();
+    if content < 2 {
+        return;
+    }
+    let ink = fragments_rect(fragments);
+    let free = (floor - ink.bottom() - trailing_space(fragments)).max(0.0);
+    if free < 0.5 {
+        return;
+    }
+    let step = free / (content - 1) as f32;
+    let mut seen = 0usize;
+    let mut dy = 0.0;
+    for fragment in fragments.iter_mut() {
+        if is_body_block(fragment) && seen > 0 {
+            dy = step * seen as f32;
+        }
+        if dy > 0.0 {
+            shift_fragment(fragment, 0.0, dy);
+        }
+        if is_body_block(fragment) {
+            seen += 1;
+        }
+    }
+}
+
+fn is_body_block(fragment: &Fragment) -> bool {
+    matches!(
+        fragment,
+        Fragment::Paragraph(_)
+            | Fragment::Table(_)
+            | Fragment::Picture { .. }
+            | Fragment::Placeholder { .. }
+    )
+}
+
+fn for_each_numbered_line(fragments: &[Fragment], visit: &mut dyn FnMut(f32, u32, f32, bool)) {
+    for fragment in fragments {
+        match fragment {
+            Fragment::Paragraph(para) => {
+                let Some(first) = para.layout.lines.get(para.l0) else {
+                    continue;
+                };
+                let style = para.run_styles.first();
+                let face = style.map_or(0, |item| item.face);
+                let size = style.map_or(10.0, |item| item.size);
+                for line in para.layout.lines.iter().take(para.l1).skip(para.l0) {
+                    let baseline = para.rect.y + line.baseline - first.top;
+                    visit(baseline, face, size, para.para.suppress_line_numbers);
+                }
+            }
+            Fragment::Table(table) => for_each_numbered_line(&table.content, visit),
+            Fragment::Picture { .. }
+            | Fragment::Placeholder { .. }
+            | Fragment::Rule { .. }
+            | Fragment::MarginLabel { .. } => {}
+        }
+    }
+}
+
+fn page_frame_rules(section: &FlowSection) -> Vec<Fragment> {
+    let frame = section.page_frame;
+    let mut out = Vec::new();
+    let inset = |edge: Option<Border>| edge.map_or(0.0, |border| border.space);
+    let left = inset(frame.left);
+    let right = inset(frame.right);
+    let top = inset(frame.top);
+    let bottom = inset(frame.bottom);
+    if let Some(border) = frame.top {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(left, top, (section.page_w - left - right).max(width), width),
+            border,
+        });
+    }
+    if let Some(border) = frame.bottom {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(
+                left,
+                (section.page_h - bottom - width).max(0.0),
+                (section.page_w - left - right).max(width),
+                width,
+            ),
+            border,
+        });
+    }
+    if let Some(border) = frame.left {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(left, top, width, (section.page_h - top - bottom).max(width)),
+            border,
+        });
+    }
+    if let Some(border) = frame.right {
+        let width = border.width.max(0.25);
+        out.push(Fragment::Rule {
+            rect: Rect::new(
+                (section.page_w - right - width).max(0.0),
+                top,
+                width,
+                (section.page_h - top - bottom).max(width),
+            ),
+            border,
+        });
+    }
+    out
 }
 
 fn trailing_space(fragments: &[Fragment]) -> f32 {
@@ -3183,7 +3469,7 @@ fn fragments_rect(fragments: &[Fragment]) -> Rect {
             Fragment::Table(t) => t.rect,
             Fragment::Picture { rect, .. } => *rect,
             Fragment::Placeholder { rect, .. } => *rect,
-            Fragment::Rule { rect, .. } => *rect,
+            Fragment::Rule { rect, .. } | Fragment::MarginLabel { rect, .. } => *rect,
         };
         out = if out.w == 0.0 && out.h == 0.0 {
             r
@@ -3224,6 +3510,10 @@ fn shift_fragment(f: &mut Fragment, dx: f32, dy: f32) {
         Fragment::Picture { rect, .. }
         | Fragment::Placeholder { rect, .. }
         | Fragment::Rule { rect, .. } => *rect = rect.translate(dx, dy),
+        Fragment::MarginLabel { rect, baseline, .. } => {
+            *rect = rect.translate(dx, dy);
+            *baseline += dy;
+        }
     }
 }
 
@@ -3586,13 +3876,39 @@ fn assign_table_list_labels<S: Shaper>(
     }
 }
 
+/// How a table cell asks for its paragraph to be shaped.
+#[derive(Clone, Copy, Default)]
+struct CellShape {
+    no_wrap: bool,
+    fit_text: bool,
+    rotation: i16,
+}
+
+fn cell_shape(cell: &FlowCell) -> CellShape {
+    CellShape {
+        no_wrap: cell.no_wrap,
+        fit_text: cell.fit_text,
+        rotation: cell.rotation,
+    }
+}
+
+fn block_extent(layout: &ParagraphLayout, rotation: i16) -> f32 {
+    if rotation == 0 {
+        layout.height
+    } else {
+        layout.max_width.max(layout.height)
+    }
+}
+
 /// Shape a cell paragraph with the same list-label geometry used in the body.
 fn cell_paragraph_layout<S: Shaper>(
     flow: &mut Flow<'_, S>,
     p: &FlowParagraph,
     width: f32,
     label: Option<&str>,
+    shape: CellShape,
 ) -> (std::sync::Arc<ParagraphLayout>, f32, Option<(f32, f32)>) {
+    let single_line = shape.no_wrap || shape.fit_text || shape.rotation != 0;
     let Some((list, label)) = p
         .list
         .as_ref()
@@ -3601,11 +3917,16 @@ fn cell_paragraph_layout<S: Shaper>(
     else {
         let left = p.para.indent_left;
         let text_width = (width - left - p.para.indent_right).max(1.0);
-        return (
-            flow.paragraph_layout(p, text_width, &[], p.para.indent_first),
-            left,
-            None,
-        );
+        let measure = if single_line { 100_000.0 } else { text_width };
+        let mut layout = flow.paragraph_layout(p, measure, &[], p.para.indent_first);
+        if single_line {
+            let fitted = std::sync::Arc::make_mut(&mut layout);
+            settle_unwrapped_line(fitted, p.para.align, text_width);
+            if shape.fit_text && shape.rotation == 0 {
+                fit_lines_to_width(fitted, text_width);
+            }
+        }
+        return (layout, left, None);
     };
     let size = p
         .para
@@ -3655,13 +3976,73 @@ fn cell_paragraph_layout<S: Shaper>(
     let left = p.para.indent_left;
     let text_width = (width - left - p.para.indent_right).max(1.0);
     let first_indent = text_x - left;
-    let layout = flow.paragraph_layout(p, text_width, &[], first_indent);
+    let measure = if single_line { 100_000.0 } else { text_width };
+    let mut layout = flow.paragraph_layout(p, measure, &[], first_indent);
+    if single_line {
+        let fitted = std::sync::Arc::make_mut(&mut layout);
+        settle_unwrapped_line(fitted, p.para.align, text_width);
+        if shape.fit_text && shape.rotation == 0 {
+            fit_lines_to_width(fitted, text_width);
+        }
+    }
     let shift = layout
         .lines
         .first()
         .and_then(|line| line.xs.first())
         .map_or(0.0, |x| x - first_indent);
     (layout, left, Some((label_x + shift, glyph_width + 6.0)))
+}
+
+/// Pull a line shaped in an inflated measure width back into the cell.
+fn settle_unwrapped_line(layout: &mut ParagraphLayout, align: edgedoc_text::Align, target: f32) {
+    for line in &mut layout.lines {
+        let start = line.xs.first().copied().unwrap_or(0.0);
+        let end = line.xs.last().copied().unwrap_or(start);
+        let ink = (end - start).max(0.0);
+        let origin = match align {
+            edgedoc_text::Align::Right => (target - ink).max(0.0),
+            edgedoc_text::Align::Center => ((target - ink) * 0.5).max(0.0),
+            _ => 0.0,
+        };
+        let delta = origin - start;
+        if delta.abs() > 0.01 {
+            for x in &mut line.xs {
+                *x += delta;
+            }
+        }
+    }
+    layout.max_width = layout
+        .lines
+        .iter()
+        .map(edgedoc_text::Line::width)
+        .fold(0.0, f32::max);
+}
+
+/// Compress every line that is wider than `target` so it fits the cell.
+fn fit_lines_to_width(layout: &mut ParagraphLayout, target: f32) {
+    if target < 1.0 {
+        return;
+    }
+    for line in &mut layout.lines {
+        let start = line.xs.first().copied().unwrap_or(0.0);
+        let end = line.xs.last().copied().unwrap_or(start);
+        let ink = end - start;
+        if ink <= target + 0.25 || ink < 0.5 {
+            continue;
+        }
+        let scale = target / ink;
+        for x in &mut line.xs {
+            *x = start + (*x - start) * scale;
+        }
+        if line.right > line.left {
+            line.right = line.left + (line.right - line.left) * scale;
+        }
+    }
+    layout.max_width = layout
+        .lines
+        .iter()
+        .map(edgedoc_text::Line::width)
+        .fold(0.0, f32::max);
 }
 
 fn row_height<S: Shaper>(
@@ -3732,10 +4113,16 @@ fn cell_content_height<S: Shaper>(
         match block {
             FlowBlock::EndnoteSeparator { .. } => h += 20.0,
             FlowBlock::Paragraph(p) => {
-                let (layout, _, _) =
-                    cell_paragraph_layout(flow, p, width, labels.get(&p.path).map(String::as_str));
+                let shape = cell_shape(cell);
+                let (layout, _, _) = cell_paragraph_layout(
+                    flow,
+                    p,
+                    width,
+                    labels.get(&p.path).map(String::as_str),
+                    shape,
+                );
                 h += spacing.before(p, index == 0)
-                    + layout.height
+                    + block_extent(&layout, shape.rotation)
                     + spacing.after(p, index + 1 == cell.blocks.len());
             }
             FlowBlock::Picture { height, .. } | FlowBlock::Placeholder { height, .. } => {
@@ -3852,7 +4239,15 @@ fn build_table_fragment<S: Shaper>(
     labels: &BTreeMap<String, String>,
 ) -> (TableFragment, f32) {
     let width = origin.w.max(1.0);
+    let gap = t.cell_spacing.max(0.0);
     let widths = column_widths(t, width);
+    let between = gap * widths.len().saturating_sub(1) as f32;
+    let widths = if between > 0.0 && width > between + widths.len() as f32 {
+        let scale = (width - between) / width;
+        widths.into_iter().map(|value| value * scale).collect()
+    } else {
+        widths
+    };
     let row_heights = table_row_heights(flow, t, width, labels);
     let mut cells = Vec::new();
     let mut content = Vec::new();
@@ -3889,7 +4284,7 @@ fn build_table_fragment<S: Shaper>(
             .fold(0.0f32, f32::max);
         let mut x = origin.x + widths.iter().take(row.grid_before).sum::<f32>();
         let mut col = row.grid_before;
-        for cell in &row.cells {
+        for (cell_index, cell) in row.cells.iter().enumerate() {
             let span = cell.span.max(1);
             let w: f32 = widths.iter().skip(col).take(span).sum();
             let row_rect = Rect::new(x, y, w.max(1.0), h);
@@ -3952,18 +4347,30 @@ fn build_table_fragment<S: Shaper>(
                     FlowBlock::Paragraph(p) => {
                         cy += spacing.before(p, index == 0);
                         let label = labels.get(&p.path);
-                        let (layout, left, label_rect) =
-                            cell_paragraph_layout(flow, p, inner_w, label.map(String::as_str));
+                        let shape = cell_shape(cell);
+                        let (layout, left, label_rect) = cell_paragraph_layout(
+                            flow,
+                            p,
+                            inner_w,
+                            label.map(String::as_str),
+                            shape,
+                        );
                         let hh = layout.height;
+                        let extent = block_extent(&layout, shape.rotation);
                         let text_width = (inner_w - left - p.para.indent_right).max(1.0);
-                        let text_rect = Rect::new(inner_x + left, cy, text_width, hh);
+                        let text_y = if shape.rotation < 0 {
+                            cy + extent - hh
+                        } else {
+                            cy
+                        };
+                        let text_rect = Rect::new(inner_x + left, text_y, text_width, hh);
                         let pictures =
                             inline_picture_fragments(p, &layout, text_rect, 0, layout.lines.len());
                         content.push(Fragment::Paragraph(ParagraphFragment {
                             path: p.path.clone(),
                             text: std::sync::Arc::from(p.text.as_str()),
                             label: label.zip(label_rect).map(|(text, (x, w))| {
-                                (text.clone(), Rect::new(inner_x + x, cy, w, hh))
+                                (text.clone(), Rect::new(inner_x + x, text_y, w, hh))
                             }),
                             rect: text_rect,
                             l0: 0,
@@ -3976,9 +4383,10 @@ fn build_table_fragment<S: Shaper>(
                             rtl: p.para.bidi,
                             revision: p.revision,
                             links: Vec::new(),
+                            rotation: shape.rotation,
                         }));
                         content.extend(pictures);
-                        cy += hh + spacing.after(p, index + 1 == cell.blocks.len());
+                        cy += extent + spacing.after(p, index + 1 == cell.blocks.len());
                     }
                     FlowBlock::Picture {
                         height,
@@ -4094,9 +4502,15 @@ fn build_table_fragment<S: Shaper>(
                 }
             }
             x += w;
+            if cell_index + 1 < row.cells.len() {
+                x += gap;
+            }
             col += span;
         }
         y += h;
+        if drawn_rows.last().is_some_and(|last| *last != r) {
+            y += gap;
+        }
     }
     // Table-level borders and inside rules.
     let full = Rect::new(origin.x, origin.y, width, (y - origin.y).max(1.0));
@@ -4438,6 +4852,14 @@ mod tests {
             symbol: None,
             synth_bold: false,
             synth_italic: false,
+            shadow: false,
+            outline: false,
+            emboss: false,
+            imprint: false,
+            border_width: 0.0,
+            border_color: None,
+            fit_width: None,
+            revision: 0,
         }
     }
 
@@ -4620,6 +5042,9 @@ mod tests {
                         borders: [None; 4],
                         v_merge_continue: false,
                         v_merge_start: false,
+                        no_wrap: false,
+                        fit_text: false,
+                        rotation: 0,
                     },
                     FlowCell {
                         blocks: vec![FlowBlock::Paragraph(paragraph("B"))],
@@ -4631,6 +5056,9 @@ mod tests {
                         borders: [None; 4],
                         v_merge_continue: false,
                         v_merge_start: false,
+                        no_wrap: false,
+                        fit_text: false,
+                        rotation: 0,
                     },
                 ],
                 grid_before: 0,
@@ -4651,6 +5079,7 @@ mod tests {
             borders: [Some(border); 4],
             inside_h: Some(border),
             inside_v: Some(border),
+            cell_spacing: 0.0,
             floating: false,
             anchor: None,
             bidi: false,

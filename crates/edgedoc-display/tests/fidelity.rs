@@ -254,7 +254,8 @@ fn every_fragment_is_inside_the_page() {
                 edgedoc_flow::Fragment::Table(t) => t.rect,
                 edgedoc_flow::Fragment::Picture { rect, .. } => *rect,
                 edgedoc_flow::Fragment::Placeholder { rect, .. } => *rect,
-                edgedoc_flow::Fragment::Rule { rect, .. } => *rect,
+                edgedoc_flow::Fragment::Rule { rect, .. }
+                | edgedoc_flow::Fragment::MarginLabel { rect, .. } => *rect,
             };
             // A header and a footer sit in the margins, so the check allows the page, not the
             // body area.
@@ -281,6 +282,7 @@ fn f_kind(f: &edgedoc_flow::Fragment) -> &'static str {
         edgedoc_flow::Fragment::Picture { .. } => "picture",
         edgedoc_flow::Fragment::Placeholder { .. } => "placeholder",
         edgedoc_flow::Fragment::Rule { .. } => "rule",
+        edgedoc_flow::Fragment::MarginLabel { .. } => "margin",
     }
 }
 

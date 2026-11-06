@@ -62,6 +62,12 @@ pub struct ComputedPara {
     pub borders: ParagraphBorders,
     pub list: Option<ListRef>,
     pub snap_to_grid: bool,
+    /// `w:suppressLineNumbers` on this paragraph.
+    pub suppress_line_numbers: bool,
+    /// Document-grid line pitch in points. Zero leaves the line at its natural height.
+    pub grid_pitch: f32,
+    /// Drop-cap line span. Zero is an ordinary paragraph.
+    pub drop_lines: u32,
 }
 
 impl Default for ComputedPara {
@@ -99,6 +105,9 @@ impl Default for ComputedPara {
             borders: ParagraphBorders::default(),
             list: None,
             snap_to_grid: true,
+            suppress_line_numbers: false,
+            grid_pitch: 0.0,
+            drop_lines: 0,
         }
     }
 }
@@ -223,6 +232,14 @@ pub struct ComputedRun {
     pub synth_bold: bool,
     /// True when the document asks for italic and the face has no italic sibling.
     pub synth_italic: bool,
+    /// Character border width in points. Zero paints nothing.
+    pub border_width: f32,
+    /// Character border colour. Absent uses the run colour.
+    pub border_color: Option<Rgba>,
+    /// `w:fitText` width in points. The run is scaled to this width.
+    pub fit_width: Option<f32>,
+    /// `1` for an insertion and `2` for a deletion.
+    pub revision: u8,
 }
 
 /// Vertical position of a run.
@@ -264,6 +281,10 @@ impl Default for ComputedRun {
             symbol: None,
             synth_bold: false,
             synth_italic: false,
+            border_width: 0.0,
+            border_color: None,
+            fit_width: None,
+            revision: 0,
         }
     }
 }
@@ -851,6 +872,9 @@ fn apply_para(out: &mut ComputedPara, props: &ParaProps) {
     if props.contextual_spacing || explicit("contextualSpacing") {
         out.contextual_spacing = props.contextual_spacing;
     }
+    if props.suppress_line_numbers || explicit("suppressLineNumbers") {
+        out.suppress_line_numbers = props.suppress_line_numbers;
+    }
     if let Some(shading) = props.shading.as_deref().and_then(Rgba::parse_hex) {
         out.shading = Some(shading);
     }
@@ -1036,6 +1060,34 @@ fn apply_run(out: &mut ComputedRun, props: &CharProps) {
     }
     if props.shadow {
         out.shadow = true;
+    }
+    if let Some(width) = props.fit_text {
+        let points = width.to_pt();
+        if points > 0.0 {
+            out.fit_width = Some(points);
+        }
+    }
+    out.revision = match props.revision.as_deref() {
+        Some("del") => 2,
+        Some("ins") => 1,
+        _ => out.revision,
+    };
+    if let Some(border) = &props.border {
+        if BorderStyle::parse(&border.val).is_visible() {
+            out.border_width = border
+                .size
+                .map_or(0.5, |size| (size as f32 / 8.0).max(0.25));
+            out.border_color = Some(
+                border
+                    .color
+                    .as_deref()
+                    .and_then(Rgba::parse_hex)
+                    .unwrap_or(Rgba::BLACK),
+            );
+        } else {
+            out.border_width = 0.0;
+            out.border_color = None;
+        }
     }
 }
 

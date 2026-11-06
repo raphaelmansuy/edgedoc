@@ -85,13 +85,13 @@ been established. A warning exposes a limitation; it does not close it.
 | 14 | Vertical text | Open. Implement vertical section, paragraph, cell, and run placement. |
 | 15 | Ligature switches | Open. Contextual run shaping now retains ligatures and kerning. Explicit ligature switches, script-specific features, fallback segmentation and broader complex-script parity still need coverage. |
 | 16 | Automatic paragraph spacing | Open. Read and cascade before/after automatic spacing. |
-| 17 | Document grid | Open. Apply line pitch, character pitch, and per-paragraph/run snapping rules. |
+| 17 | Document grid | Line pitch snaps auto line spacing for `lines`, `linesAndChars`, and `snapToChars`. Character pitch adds letter spacing for the last two. `snapToGrid` off keeps the natural line. |
 | 18 | CJK/Latin automatic spacing | Open. Resolve per-paragraph settings and script boundaries. |
 | 19 | Mirror margins | Implemented for the body and header/footer bands; inside/outside floating anchors remain part of row 1. |
 | 20 | Final-column balancing | Implemented with bounded final-page retries. Broader float/note combinations depend on rows 1–3. |
-| 21 | Page borders and color | Open. Render page background and border geometry with their section rules. |
-| 22 | Line numbering | Open. Count placed body lines with restart and suppression rules. |
-| 23 | Revision author colors | Open. Implement author-specific insert/delete markup and display choices. |
+| 21 | Page borders and color | Page borders paint from `w:pgBorders` on each edge. Page background colour is still not a section property. |
+| 22 | Line numbering | Implemented. Body lines count with `countBy`, `start`, `distance`, `suppressLineNumbers`, and `newPage` / `newSection` / `continuous` restart. |
+| 23 | Revision author colors | Insertions underline and deletions strike. Author-specific colours are still one shared red. |
 | 24 | Color glyphs | Open. Render COLR, sbix, and bitmap color glyphs consistently in each painter. |
 | 25 | Obfuscated embedded fonts | Open. Deobfuscate `.odttf`, enforce font embedding rules, and use the embedded face consistently. |
 | 26 | Automatic hyphenation | Open. Dictionary hyphenation is not connected; requesting the public option produces a diagnostic. |
@@ -100,13 +100,16 @@ been established. A warning exposes a limitation; it does not close it.
 | 29 | Positional tabs | Implemented for exercised margin/indent-relative positions and leaders. Ordinary right/center stops and leading tabs have regression coverage. Decimal-stop behavior still differs from this Wordcraft revision; broader wrap/bidi combinations remain open. |
 
 The inventory above is not exhaustive Wordcraft feature coverage. Additional open work includes
-split table rows, vertical merges, cell spacing, table autofit to measured content, inline picture
-placement within text, drawings/charts/equations, full shaping and bidi behavior, character effects,
-and compatibility settings. The older assessment has further partial behaviors in these areas.
+split table rows, table autofit to measured content, inline picture
+placement within text, drawings/charts/equations, full shaping and bidi behavior, and compatibility
+settings. Character shadow, outline, emboss, imprint, and run borders paint with the run. Vertical
+page justification (`w:vAlign` `both`) spreads body blocks. Comment margin stories are still open. The older assessment has further partial behaviors in these areas.
 
-The remaining implementation areas include floating placement and wrap, measured note stories and
-continuation, conditional table styles and merges, text boxes and advanced shaping. Each needs an
-exercised regression fixture and independent Wordcraft comparison before it can close.
+The remaining implementation areas include floating wrap beside text, measured note stories and
+continuation, conditional table styles, text boxes, and advanced shaping. Cell `w:noWrap` keeps
+text on one line, `w:fitText` compresses a line into the cell, and `tbRl` / `btLr` rotate the
+cell text. Each remaining area needs an exercised regression fixture and independent Wordcraft
+comparison before it can close.
 
 ## Validation
 

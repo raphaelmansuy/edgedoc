@@ -263,6 +263,22 @@ pub struct RunStyle {
     pub synth_bold: bool,
     /// True when the face has no italic sibling, so the painter slants the glyphs.
     pub synth_italic: bool,
+    /// Draw a drop shadow behind the glyphs.
+    pub shadow: bool,
+    /// Draw an outline around the glyphs.
+    pub outline: bool,
+    /// Draw an embossed highlight and shade.
+    pub emboss: bool,
+    /// Draw an imprinted highlight and shade.
+    pub imprint: bool,
+    /// Character-border width in points. Zero paints nothing.
+    pub border_width: f32,
+    /// Character-border colour.
+    pub border_color: Option<edgedoc_geom::Rgba>,
+    /// Width in points that `w:fitText` assigns to this run.
+    pub fit_width: Option<f32>,
+    /// `1` insertion, `2` deletion, `0` none.
+    pub revision: u8,
 }
 
 /// A plain 11 pt run, which a missing style falls back to.
@@ -291,6 +307,14 @@ fn default_style() -> RunStyle {
         symbol: None,
         synth_bold: false,
         synth_italic: false,
+        shadow: false,
+        outline: false,
+        emboss: false,
+        imprint: false,
+        border_width: 0.0,
+        border_color: None,
+        fit_width: None,
+        revision: 0,
     }
 }
 
@@ -538,6 +562,7 @@ fn contextual_shape<S: Shaper>(shaper: &S, input: &BreakInput<'_>, clusters: &mu
         }
         i = j;
     }
+    apply_fit_widths(&mut out, input.styles);
     let mut g0 = 0;
     for c in &mut out {
         c.g0 = g0;
@@ -767,6 +792,39 @@ fn band_at(exclusions: &[Rect], y: f32, height: f32, left: f32, right: f32) -> V
 }
 
 /// The line height of a cluster, from its face metrics and its style.
+fn apply_fit_widths(clusters: &mut [Cluster], styles: &[RunStyle]) {
+    let mut index = 0;
+    while index < clusters.len() {
+        let style_index = clusters[index].style;
+        let Some(width) = styles
+            .get(style_index as usize)
+            .and_then(|style| style.fit_width)
+            .filter(|width| *width > 0.0)
+        else {
+            index += 1;
+            continue;
+        };
+        let mut end = index + 1;
+        while end < clusters.len() && clusters[end].style == style_index {
+            end += 1;
+        }
+        let sum: f32 = clusters[index..end].iter().map(|cluster| cluster.adv).sum();
+        if sum > 0.5 {
+            let scale = (width / sum).clamp(0.15, 4.0);
+            if (scale - 1.0).abs() > 0.01 {
+                for cluster in &mut clusters[index..end] {
+                    cluster.adv *= scale;
+                    for glyph in &mut cluster.glyphs {
+                        glyph.advance *= scale;
+                        glyph.dx *= scale;
+                    }
+                }
+            }
+        }
+        index = end;
+    }
+}
+
 fn cluster_metrics<S: Shaper>(shaper: &S, style: &RunStyle) -> (f32, f32) {
     let (asc, desc, _) = shaper.line_metrics(style.face, style.line_size);
     (asc, desc)
@@ -811,6 +869,14 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 symbol: None,
                 synth_bold: false,
                 synth_italic: false,
+                shadow: false,
+                outline: false,
+                emboss: false,
+                imprint: false,
+                border_width: 0.0,
+                border_color: None,
+                fit_width: None,
+                revision: 0,
             });
         let (asc, desc) = cluster_metrics(shaper, &style);
         let (ascent, descent, gap) = shaper.line_metrics(style.face, style.line_size);
@@ -1418,6 +1484,14 @@ mod tests {
             symbol: None,
             synth_bold: false,
             synth_italic: false,
+            shadow: false,
+            outline: false,
+            emboss: false,
+            imprint: false,
+            border_width: 0.0,
+            border_color: None,
+            fit_width: None,
+            revision: 0,
         }
     }
 

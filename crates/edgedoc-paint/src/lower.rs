@@ -153,6 +153,13 @@ impl<S: Shaper> Lowerer<'_, S> {
                 }
             }
             Fragment::Placeholder { rect, kind, label } => self.placeholder(*rect, kind, label),
+            Fragment::MarginLabel {
+                text,
+                rect,
+                baseline,
+                size,
+                face,
+            } => self.margin_label(text, *rect, *baseline, *size, *face),
             Fragment::Rule { rect, border } => {
                 let (paint, _) = border_paint(*border);
                 if paint.a > 0 {
@@ -212,7 +219,62 @@ impl<S: Shaper> Lowerer<'_, S> {
         });
     }
 
+    /// A line number or other margin label, shaped in the run's face.
+    fn margin_label(&mut self, text: &str, rect: Rect, baseline: f32, size: f32, face: u32) {
+        let shaped = self.shaper.shape_run(face, text, size, false);
+        let mut pen = rect.x;
+        for (i, glyph) in shaped.iter().enumerate() {
+            self.push_run(
+                face,
+                size,
+                pen,
+                baseline,
+                vec![glyph.gid],
+                vec![glyph.advance],
+                vec![(glyph.dx, glyph.dy)],
+                vec![0],
+                Rgba::BLACK,
+                0,
+                false,
+                false,
+                1.0,
+                text.chars()
+                    .nth(i)
+                    .map_or_else(String::new, |ch| ch.to_string()),
+                None,
+                false,
+                None,
+            );
+            pen += glyph.advance;
+        }
+    }
+
     fn paragraph(&mut self, p: &ParagraphFragment) {
+        if p.rotation != 0 {
+            // The rotation turns the line box onto its side. Shift by the line height so the
+            // baseline and the descent stay inside the cell instead of landing in the margin.
+            let line_h = p
+                .layout
+                .lines
+                .get(p.l0)
+                .map(|line| line.height)
+                .unwrap_or(p.rect.h)
+                .max(0.0);
+            let rotate = if p.rotation > 0 {
+                crate::Affine::rotate_about(f32::from(p.rotation), p.rect.x, p.rect.y)
+            } else {
+                crate::Affine::rotate_about(f32::from(p.rotation), p.rect.x, p.rect.bottom())
+            };
+            let placed = rotate.then(&crate::Affine::translate(line_h, 0.0));
+            self.ops.push(Op::PushTransform(placed));
+        }
+        self.paint_paragraph(p);
+        if p.rotation != 0 {
+            self.ops.push(Op::PopTransform);
+        }
+    }
+
+    fn paint_paragraph(&mut self, p: &ParagraphFragment) {
         let layout = &p.layout;
         // Paragraph background shading covers every line of this fragment.
         if let Some(shading) = p.para.shading {
@@ -637,8 +699,115 @@ impl<S: Shaper> Lowerer<'_, S> {
                 }
             }
         }
+        if self.options.markup && style.revision == 1 {
+            self.ops.push(Op::FillRect {
+                rect: Rect::new(
+                    first_x,
+                    baseline + style.size * 0.12,
+                    width.max(1.0),
+                    (style.size * 0.06).max(0.6),
+                ),
+                paint: Paint::solid(Rgba::opaque(0xC0, 0x1B, 0x1B)),
+            });
+        }
+        if self.options.markup && style.revision == 2 {
+            self.ops.push(Op::FillRect {
+                rect: Rect::new(
+                    first_x,
+                    baseline - style.size * 0.28,
+                    width.max(1.0),
+                    (style.size * 0.06).max(0.6),
+                ),
+                paint: Paint::solid(Rgba::opaque(0xC0, 0x1B, 0x1B)),
+            });
+        }
+        if style.border_width > 0.0 {
+            let color = style.border_color.unwrap_or(style.color);
+            let stroke = style.border_width;
+            let x = run_rect.x - 1.0;
+            let y = run_rect.y - 1.0;
+            let rw = run_rect.w + 2.0;
+            let rh = run_rect.h + 2.0;
+            for rect in [
+                Rect::new(x, y, rw, stroke),
+                Rect::new(x, y + rh - stroke, rw, stroke),
+                Rect::new(x, y, stroke, rh),
+                Rect::new(x + rw - stroke, y, stroke, rh),
+            ] {
+                self.ops.push(Op::FillRect {
+                    rect,
+                    paint: Paint::solid(color),
+                });
+            }
+        }
         let level = line_bidi_level(layout, i);
         let run_ordinal = self.run_ordinal;
+        let offset = (style.size * 0.06).max(0.4);
+        if style.shadow {
+            self.echo_glyphs(
+                style,
+                first_x + offset,
+                baseline + offset,
+                &glyphs,
+                &advances,
+                &offsets,
+                &clusters,
+                Rgba::opaque(0x88, 0x88, 0x88),
+                level,
+                hidden,
+                revision_of(p),
+            );
+        }
+        if style.outline {
+            for (dx, dy) in [(offset, 0.0), (-offset, 0.0), (0.0, offset), (0.0, -offset)] {
+                self.echo_glyphs(
+                    style,
+                    first_x + dx,
+                    baseline + dy,
+                    &glyphs,
+                    &advances,
+                    &offsets,
+                    &clusters,
+                    style.color,
+                    level,
+                    hidden,
+                    revision_of(p),
+                );
+            }
+        }
+        if style.emboss || style.imprint {
+            let (light, dark) = if style.emboss {
+                ((-offset, -offset), (offset, offset))
+            } else {
+                ((offset, offset), (-offset, -offset))
+            };
+            self.echo_glyphs(
+                style,
+                first_x + light.0,
+                baseline + light.1,
+                &glyphs,
+                &advances,
+                &offsets,
+                &clusters,
+                Rgba::opaque(0xFF, 0xFF, 0xFF),
+                level,
+                hidden,
+                revision_of(p),
+            );
+            self.echo_glyphs(
+                style,
+                first_x + dark.0,
+                baseline + dark.1,
+                &glyphs,
+                &advances,
+                &offsets,
+                &clusters,
+                Rgba::opaque(0x66, 0x66, 0x66),
+                level,
+                hidden,
+                revision_of(p),
+            );
+        }
         self.push_run(
             style.face,
             style.size,
@@ -676,6 +845,42 @@ impl<S: Shaper> Lowerer<'_, S> {
                 hidden,
             });
         }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn echo_glyphs(
+        &mut self,
+        style: &RunStyle,
+        x: f32,
+        y: f32,
+        glyphs: &[u16],
+        advances: &[f32],
+        offsets: &[(f32, f32)],
+        clusters: &[u32],
+        paint: Rgba,
+        level: u8,
+        hidden: bool,
+        revision: Option<u8>,
+    ) {
+        self.push_run(
+            style.face,
+            style.size,
+            x,
+            y,
+            glyphs.to_vec(),
+            advances.to_vec(),
+            offsets.to_vec(),
+            clusters.to_vec(),
+            paint,
+            level,
+            style.synth_bold,
+            style.synth_italic,
+            style.x_scale,
+            String::new(),
+            None,
+            hidden,
+            revision,
+        );
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -965,5 +1170,13 @@ pub fn run_style_of(run: &ComputedRun, face: u32) -> RunStyle {
         symbol: run.symbol.clone(),
         synth_bold: false,
         synth_italic: false,
+        shadow: run.shadow,
+        outline: run.outline,
+        emboss: run.emboss,
+        imprint: run.imprint,
+        border_width: run.border_width,
+        border_color: run.border_color,
+        fit_width: run.fit_width,
+        revision: run.revision,
     }
 }

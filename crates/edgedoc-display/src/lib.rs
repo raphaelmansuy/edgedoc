@@ -504,7 +504,8 @@ impl DisplayDocument {
                     }
                     edgedoc_flow::Fragment::Picture { .. }
                     | edgedoc_flow::Fragment::Placeholder { .. }
-                    | edgedoc_flow::Fragment::Rule { .. } => {}
+                    | edgedoc_flow::Fragment::Rule { .. }
+                    | edgedoc_flow::Fragment::MarginLabel { .. } => {}
                 }
             }
         }

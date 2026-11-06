@@ -4,7 +4,7 @@
 use std::io::{Cursor, Read, Write};
 
 use edgedoc_display::{DisplayDocument, OpenOptions};
-use edgedoc_flow::{Fragment, ParagraphFragment};
+use edgedoc_flow::{Fragment, ParagraphFragment, TableFragment};
 
 const W: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const R: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -1420,6 +1420,7 @@ fn vertically_merged_cell_spans_rows_and_grows_the_last_row() {
         .find(|p| p.text.as_ref() == "After")
         .unwrap();
     assert!((after.rect.y - merged.rect.bottom()).abs() < 0.01);
+    assert!(!reports_gap(&doc, "Vertically merged table cells"));
 }
 
 #[test]
@@ -1600,12 +1601,13 @@ fn page_limit_also_applies_between_sections() {
 
 #[test]
 fn known_fidelity_gaps_are_reported_and_relayout_does_not_duplicate_diagnostics() {
-    let body = r#"<w:p><w:pPr><w:framePr w:dropCap="drop" w:lines="3"/></w:pPr><w:r><w:t>Drop cap</w:t></w:r></w:p>"#;
-    let mut doc = render(body, "", "", &[]);
+    let body = r#"<w:p><w:r><w:t>Vertical</w:t></w:r></w:p>"#;
+    let mut doc = render(body, r#"<w:textDirection w:val="tbRl"/>"#, "", &[]);
     assert!(doc
         .diagnostics()
         .iter()
-        .any(|d| d.code == "display.unsupported_layout" && d.detail.contains("drop caps")));
+        .any(|d| d.code == "display.unsupported_layout"
+            && d.detail.contains("Vertical section text")));
     let before = doc.diagnostics().to_vec();
     doc.layout().unwrap();
     assert_eq!(doc.diagnostics(), before);
@@ -2180,16 +2182,26 @@ fn only_enabled_document_grids_request_unsupported_layout() {
             .iter()
             .any(|d| d.detail == "Document grid"));
     }
+    let plain = render(&p("Active grid"), "", "", &[]);
+    let natural = paragraphs(&plain, 0)[0].layout.lines[0].height;
     let active = render(
         &p("Active grid"),
         r#"<w:docGrid w:type="lines" w:linePitch="360"/>"#,
         "",
         &[],
     );
-    assert!(active
-        .diagnostics()
-        .iter()
-        .any(|d| d.detail == "Document grid"));
+    assert!(!reports_gap(&active, "Document grid"));
+    let snapped = paragraphs(&active, 0)[0].layout.lines[0].height;
+    assert!(snapped + 0.05 >= natural);
+    assert!((snapped / 18.0).round() * 18.0 - snapped < 0.05);
+    assert!(snapped >= 18.0 - 0.05);
+    let loose = render(
+        r#"<w:p><w:pPr><w:rPr><w:snapToGrid w:val="0"/></w:rPr></w:pPr><w:r><w:t>Active grid</w:t></w:r></w:p>"#,
+        r#"<w:docGrid w:type="lines" w:linePitch="360"/>"#,
+        "",
+        &[],
+    );
+    assert!((paragraphs(&loose, 0)[0].layout.lines[0].height - natural).abs() < 0.05);
 }
 
 #[test]
@@ -3624,4 +3636,575 @@ fn cell_paragraph_spacing_and_zero_row_height_follow_wordcraft() {
     assert!((paragraphs[0].rect.y - table.cells[0].rect.y - 10.0).abs() < 0.01);
     assert!((paragraphs[1].rect.y - paragraphs[0].rect.bottom() - 30.0).abs() < 0.01);
     assert!(table.cells[0].rect.h > 50.0);
+}
+
+fn reports_gap(doc: &DisplayDocument, detail: &str) -> bool {
+    doc.diagnostics()
+        .iter()
+        .any(|item| item.code == "display.unsupported_layout" && item.detail == detail)
+}
+
+fn margin_labels(doc: &DisplayDocument, page: usize) -> Vec<(String, f32, f32)> {
+    doc.pages()[page]
+        .fragments
+        .iter()
+        .filter_map(|fragment| match fragment {
+            Fragment::MarginLabel {
+                text,
+                rect,
+                baseline,
+                ..
+            } => Some((text.clone(), *baseline, rect.right())),
+            _ => None,
+        })
+        .collect()
+}
+
+fn three_lines(first_break: bool) -> String {
+    let mut body = String::new();
+    for (index, text) in ["One", "Two", "Three"].into_iter().enumerate() {
+        if first_break && index == 0 {
+            body.push_str(&format!(
+                r#"<w:p><w:pPr><w:pageBreakBefore/></w:pPr><w:r><w:t>{text}</w:t></w:r></w:p>"#
+            ));
+        } else {
+            body.push_str(&p(text));
+        }
+    }
+    body
+}
+
+/// Line numbers count body lines, honour the interval, and sit `distance` points from the text.
+#[test]
+fn line_numbers_paint_beside_body_lines() {
+    let body: String = ["One", "Two", "Three", "Four", "Five"]
+        .into_iter()
+        .map(p)
+        .collect();
+    let doc = render(
+        &body,
+        r#"<w:lnNumType w:countBy="1" w:start="1" w:distance="240"/>"#,
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Line numbering"));
+    let labels = margin_labels(&doc, 0);
+    assert_eq!(
+        labels
+            .iter()
+            .map(|(text, _, _)| text.as_str())
+            .collect::<Vec<_>>(),
+        ["1", "2", "3", "4", "5"]
+    );
+    let body_x = doc.pages()[0].body.x;
+    for (_, _, right) in &labels {
+        assert!(
+            (right - (body_x - 12.0)).abs() < 1.5,
+            "right {right} body {body_x}"
+        );
+    }
+    let painted = doc.page(0).unwrap().ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text == "1" && glyph.x + 1.0 < body_x)
+    });
+    assert!(painted, "the line number must reach the display list");
+
+    let counted = render(
+        &body,
+        r#"<w:lnNumType w:countBy="5" w:start="1"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(
+        margin_labels(&counted, 0)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["5"]
+    );
+
+    let started = render(
+        &three_lines(false),
+        r#"<w:lnNumType w:countBy="1" w:start="2"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(
+        margin_labels(&started, 0)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["2", "3", "4"]
+    );
+}
+
+/// Restart policies reset on each page, carry across pages, or reset at a section.
+#[test]
+fn line_number_restart_follows_the_section() {
+    let mut body = three_lines(false);
+    body.push_str(&three_lines(true));
+    let restarted = render(
+        &body,
+        r#"<w:lnNumType w:countBy="1" w:restart="newPage"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(restarted.pages().len(), 2);
+    for page in 0..2 {
+        assert_eq!(
+            margin_labels(&restarted, page)
+                .into_iter()
+                .map(|(text, _, _)| text)
+                .collect::<Vec<_>>(),
+            ["1", "2", "3"]
+        );
+    }
+    let continuous = render(
+        &body,
+        r#"<w:lnNumType w:countBy="1" w:restart="continuous"/>"#,
+        "",
+        &[],
+    );
+    assert_eq!(
+        margin_labels(&continuous, 1)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["4", "5", "6"]
+    );
+
+    let split = format!(
+        "{}{}<w:p><w:pPr><w:sectPr><w:lnNumType w:countBy=\"1\" w:restart=\"continuous\"/></w:sectPr></w:pPr></w:p>{}",
+        p("One"),
+        p("Two"),
+        p("Three")
+    );
+    let sectioned = render(
+        &split,
+        r#"<w:lnNumType w:countBy="1" w:restart="newSection"/>"#,
+        "",
+        &[],
+    );
+    assert!(sectioned.pages().len() >= 2);
+    let last = sectioned.pages().len() - 1;
+    assert_eq!(
+        margin_labels(&sectioned, last)
+            .into_iter()
+            .map(|(text, _, _)| text)
+            .collect::<Vec<_>>(),
+        ["1"]
+    );
+}
+
+/// A paragraph marked `w:suppressLineNumbers` is omitted from the count.
+#[test]
+fn suppressed_paragraphs_are_omitted_from_line_numbers() {
+    let body = format!(
+        r#"<w:p><w:pPr><w:suppressLineNumbers/></w:pPr><w:r><w:t>Skip</w:t></w:r></w:p>{}{}"#,
+        p("Keep"),
+        p("Also")
+    );
+    let doc = render(&body, r#"<w:lnNumType w:countBy="1"/>"#, "", &[]);
+    let labels = margin_labels(&doc, 0);
+    assert_eq!(
+        labels
+            .iter()
+            .map(|(text, _, _)| text.as_str())
+            .collect::<Vec<_>>(),
+        ["1", "2"]
+    );
+    let paras = paragraphs(&doc, 0);
+    let keep_baseline = {
+        let para = paras
+            .iter()
+            .find(|para| para.text.contains("Keep"))
+            .unwrap();
+        let first = &para.layout.lines[para.l0];
+        para.rect.y + first.baseline - first.top
+    };
+    assert!((labels[0].1 - keep_baseline).abs() < 0.5);
+}
+
+/// `w:pgBorders` become strokes inset by the edge's `w:space`.
+#[test]
+fn page_borders_paint_inset_from_the_page_edge() {
+    let doc = render(
+        &p("Inside"),
+        r#"<w:pgBorders><w:top w:val="single" w:sz="24" w:space="24" w:color="FF0000"/><w:left w:val="single" w:sz="16" w:space="12" w:color="0000FF"/></w:pgBorders>"#,
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Page borders"));
+    let red = edgedoc_display::Rgba::opaque(0xFF, 0, 0);
+    let blue = edgedoc_display::Rgba::opaque(0, 0, 0xFF);
+    let fills: Vec<_> = doc
+        .page(0)
+        .unwrap()
+        .ops
+        .iter()
+        .filter_map(|op| match op {
+            edgedoc_display::Op::FillRect { rect, paint } => Some((*rect, paint.clone())),
+            _ => None,
+        })
+        .collect();
+    let top = fills
+        .iter()
+        .find(|(_, paint)| *paint == edgedoc_display::Paint::Solid(red));
+    let left = fills
+        .iter()
+        .find(|(_, paint)| *paint == edgedoc_display::Paint::Solid(blue));
+    let (top, _) = top.expect("red top border");
+    let (left, _) = left.expect("blue left border");
+    assert!((top.y - 24.0).abs() < 0.1, "top y {}", top.y);
+    assert!((top.h - 3.0).abs() < 0.1, "top thickness {}", top.h);
+    assert!((left.x - 12.0).abs() < 0.1, "left x {}", left.x);
+    assert!((left.w - 2.0).abs() < 0.1, "left thickness {}", left.w);
+}
+
+/// `w:vAlign` `both` distributes free space between body blocks down to the bottom margin.
+#[test]
+fn vertical_page_justification_spreads_body_blocks() {
+    let body = format!("{}{}", p("Alpha"), p("Beta"));
+    let top = render(&body, "", "", &[]);
+    let both = render(&body, r#"<w:vAlign w:val="both"/>"#, "", &[]);
+    assert!(!reports_gap(&both, "Vertical page justification"));
+    let top_ps = paragraphs(&top, 0);
+    let both_ps = paragraphs(&both, 0);
+    assert!((both_ps[0].rect.y - top_ps[0].rect.y).abs() < 0.5);
+    assert!(both_ps[1].rect.y > top_ps[1].rect.y + 100.0);
+    assert!(
+        (both_ps[1].rect.bottom() + both_ps[1].para.space_after - both.pages()[0].body.bottom())
+            .abs()
+            < 0.5
+    );
+}
+
+/// Shadow, emboss, and a character border reach the display list.
+#[test]
+fn character_effects_and_borders_paint() {
+    let body = r#"<w:p><w:r><w:rPr><w:shadow/><w:bdr w:val="single" w:sz="16" w:space="0" w:color="FF0000"/></w:rPr><w:t>Shadowed</w:t></w:r></w:p><w:p><w:r><w:rPr><w:emboss/></w:rPr><w:t>Raised</w:t></w:r></w:p><w:p><w:r><w:rPr><w:outline/></w:rPr><w:t>Hollow</w:t></w:r></w:p>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(&doc, "Character effects and borders"));
+    let ops = &doc.page(0).unwrap().ops;
+    let shadowed = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("Shadowed") => Some(glyph.y),
+        _ => None,
+    });
+    let shadowed = shadowed.expect("shadowed text");
+    let shadow = ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text.is_empty()
+                && glyph.paint == edgedoc_display::Rgba::opaque(0x88, 0x88, 0x88)
+                && glyph.y > shadowed)
+    });
+    assert!(shadow, "shadow glyphs paint below the text");
+    let red = edgedoc_display::Rgba::opaque(0xFF, 0, 0);
+    assert!(ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::FillRect { paint, .. }
+            if *paint == edgedoc_display::Paint::Solid(red))
+    }));
+    assert!(ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text.is_empty() && glyph.paint == edgedoc_display::Rgba::opaque(0xFF, 0xFF, 0xFF))
+    }));
+    let hollow = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("Hollow") => Some(glyph.paint),
+        _ => None,
+    });
+    assert!(ops.iter().any(|op| {
+        matches!(op, edgedoc_display::Op::Glyphs(glyph)
+            if glyph.text.is_empty() && glyph.paint == hollow.unwrap())
+    }));
+}
+
+/// A lines grid stretches auto line spacing up to the line pitch, unless the paragraph opts out.
+#[test]
+fn document_grid_character_pitch_widens_the_run() {
+    let body = &p("Hello");
+    let plain = render(body, "", "", &[]);
+    let spaced = render(
+        body,
+        r#"<w:docGrid w:type="linesAndChars" w:linePitch="360" w:charSpace="40"/>"#,
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&spaced, "Document grid"));
+    let width = |doc: &DisplayDocument| paragraphs(doc, 0)[0].layout.max_width;
+    assert!(width(&spaced) > width(&plain) + 6.0);
+}
+
+/// `w:tblCellSpacing` separates neighbouring cells.
+#[test]
+fn table_cell_spacing_opens_a_gap_between_cells() {
+    let body = r#"<w:tbl><w:tblPr><w:tblW w:w="4000" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblCellSpacing w:w="200" w:type="dxa"/></w:tblPr><w:tblGrid><w:gridCol w:w="2000"/><w:gridCol w:w="2000"/></w:tblGrid><w:tr><w:tc><w:p><w:r><w:t>A</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>B</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(&doc, "Table cell spacing"));
+    let table = doc.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Table(table) => Some(table),
+            _ => None,
+        })
+        .unwrap();
+    let left = table.cells.iter().find(|cell| cell.col == 0).unwrap();
+    let right = table.cells.iter().find(|cell| cell.col == 1).unwrap();
+    assert!(
+        (right.rect.x - left.rect.right() - 10.0).abs() < 0.6,
+        "gap {} between {:?} and {:?}",
+        right.rect.x - left.rect.right(),
+        left.rect,
+        right.rect
+    );
+}
+
+/// `w:fitText` compresses the run into the requested width.
+#[test]
+fn fit_text_compresses_a_run_to_the_requested_width() {
+    let fitted = render(
+        r#"<w:p><w:r><w:rPr><w:fitText w:val="720"/></w:rPr><w:t>ABCDEFGHIJKLMNOP</w:t></w:r></w:p>"#,
+        "",
+        "",
+        &[],
+    );
+    let plain = render(&p("ABCDEFGHIJKLMNOP"), "", "", &[]);
+    assert!(!reports_gap(&fitted, "Extended character typography"));
+    let fitted_width = paragraphs(&fitted, 0)[0].layout.max_width;
+    let plain_width = paragraphs(&plain, 0)[0].layout.max_width;
+    assert!(fitted_width + 1.0 < plain_width);
+    assert!(
+        (fitted_width - 36.0).abs() < 2.0,
+        "fitted width {fitted_width}"
+    );
+}
+
+/// A drop cap enlarges its letter by the number of lines it spans.
+#[test]
+fn drop_caps_enlarge_the_letter() {
+    let dropped = render(
+        r#"<w:p><w:pPr><w:framePr w:dropCap="drop" w:lines="3"/></w:pPr><w:r><w:t>W</w:t></w:r></w:p>"#,
+        "",
+        "",
+        &[],
+    );
+    let plain = render(&p("W"), "", "", &[]);
+    assert!(!reports_gap(&dropped, "Paragraph frames and drop caps"));
+    let size = |doc: &DisplayDocument| {
+        doc.page(0)
+            .unwrap()
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains('W') => Some(glyph.size),
+                _ => None,
+            })
+            .unwrap()
+    };
+    assert!(size(&dropped) > size(&plain) * 2.5);
+}
+
+/// Insertions underline in red and deletions strike in red.
+#[test]
+fn tracked_revisions_paint_insertions_and_deletions() {
+    let body = r#"<w:p><w:ins w:id="1" w:author="Ada"><w:r><w:t>Added</w:t></w:r></w:ins></w:p><w:p><w:del w:id="2" w:author="Ada"><w:r><w:delText>Gone</w:delText></w:r></w:del></w:p>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(&doc, "Tracked revision presentation"));
+    assert!(doc.page_text(0).unwrap().contains("Added"));
+    assert!(doc.page_text(0).unwrap().contains("Gone"));
+    let red = edgedoc_display::Rgba::opaque(0xC0, 0x1B, 0x1B);
+    let red_fills = doc.page(0).unwrap().ops.iter().filter(|op| {
+        matches!(op, edgedoc_display::Op::FillRect { paint, .. } if *paint == edgedoc_display::Paint::Solid(red))
+    }).count();
+    assert!(
+        red_fills >= 2,
+        "insert underline and delete strike, saw {red_fills}"
+    );
+}
+
+/// `w:tblpX` and `w:tblpY` move a floating table from the margin.
+#[test]
+fn floating_tables_honor_their_page_offsets() {
+    let body = r#"<w:tbl><w:tblPr><w:tblW w:w="2000" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblpPr w:horzAnchor="margin" w:vertAnchor="text" w:tblpX="720" w:tblpY="360"/></w:tblPr><w:tblGrid><w:gridCol w:w="2000"/></w:tblGrid><w:tr><w:tc><w:p><w:r><w:t>Float</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#;
+    let doc = render(body, "", "", &[]);
+    assert!(!reports_gap(
+        &doc,
+        "Floating table positioning and text wrap"
+    ));
+    let table = doc.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Table(table) => Some(table),
+            _ => None,
+        })
+        .unwrap();
+    let body = doc.pages()[0].body;
+    assert!(
+        (table.rect.x - (body.x + 36.0)).abs() < 1.0,
+        "x {}",
+        table.rect.x
+    );
+    assert!(
+        (table.rect.y - (body.y + 18.0)).abs() < 1.0,
+        "y {}",
+        table.rect.y
+    );
+}
+
+fn narrow_cell(text: &str, cell_pr: &str) -> String {
+    format!(
+        r#"<w:tbl><w:tblPr><w:tblW w:w="1440" w:type="dxa"/><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="1440"/></w:tblGrid><w:tr><w:tc><w:tcPr>{cell_pr}<w:tcMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:r><w:t>{text}</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#
+    )
+}
+
+fn table_paragraph<'a>(doc: &'a DisplayDocument) -> (&'a TableFragment, &'a ParagraphFragment) {
+    let table = doc.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Table(table) => Some(table),
+            _ => None,
+        })
+        .unwrap();
+    let paragraph = table
+        .content
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Paragraph(paragraph) => Some(paragraph),
+            _ => None,
+        })
+        .unwrap();
+    (table, paragraph)
+}
+
+/// `w:noWrap` keeps a long cell string on one line, wider than the cell.
+#[test]
+fn table_cell_no_wrap_keeps_one_line() {
+    let text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let wrapped = render(&narrow_cell(text, ""), "", "", &[]);
+    let plain = render(&narrow_cell(text, "<w:noWrap/>"), "", "", &[]);
+    assert!(!reports_gap(&plain, "Table cell text direction"));
+    let (_, wrapped_para) = table_paragraph(&wrapped);
+    let (_, plain_para) = table_paragraph(&plain);
+    assert!(wrapped_para.layout.lines.len() > 1);
+    assert_eq!(plain_para.layout.lines.len(), 1);
+    assert!(plain_para.layout.max_width > 72.0);
+    assert!(plain_para.layout.max_width > wrapped_para.layout.max_width + 20.0);
+}
+
+/// `w:fitText` compresses that line into the cell width.
+#[test]
+fn table_cell_fit_text_compresses_into_the_cell() {
+    let text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let fitted = render(&narrow_cell(text, "<w:fitText/>"), "", "", &[]);
+    assert!(!reports_gap(&fitted, "Table cell text direction"));
+    let (table, paragraph) = table_paragraph(&fitted);
+    assert_eq!(paragraph.layout.lines.len(), 1);
+    let cell_w = table.cells[0].rect.w;
+    assert!(
+        paragraph.layout.max_width <= cell_w + 0.6,
+        "fitted {} into {cell_w}",
+        paragraph.layout.max_width
+    );
+    assert!(paragraph.layout.max_width > cell_w * 0.9);
+}
+
+/// `tbRl` rotates cell text clockwise so the string runs down the cell.
+#[test]
+fn table_cell_text_direction_rotates_down() {
+    let doc = render(
+        &narrow_cell("VERTICAL", r#"<w:textDirection w:val="tbRl"/>"#),
+        "",
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Table cell text direction"));
+    let (table, paragraph) = table_paragraph(&doc);
+    assert_eq!(paragraph.rotation, 90);
+    assert_eq!(paragraph.layout.lines.len(), 1);
+    let ops = &doc.page(0).unwrap().ops;
+    let transform = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::PushTransform(affine) => Some(affine),
+        _ => None,
+    });
+    let affine = transform.expect("vertical text rotates");
+    let glyph = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("VERTICAL") => Some(glyph),
+        _ => None,
+    });
+    let glyph = glyph.expect("vertical text");
+    let start = affine.apply(glyph.x, glyph.y);
+    let end = affine.apply(glyph.x + glyph.advances.iter().sum::<f32>(), glyph.y);
+    assert!(
+        (end.1 - start.1).abs() > (end.0 - start.0).abs() + 10.0,
+        "text runs vertically from {start:?} to {end:?}"
+    );
+    assert!(end.1 > start.1, "tbRl reads downward");
+    let cell = table.cells[0].rect;
+    assert!(
+        start.0 >= cell.x - 1.0 && start.0 <= cell.right() + 1.0,
+        "start {start:?} end {end:?} cell {cell:?} glyph ({}, {}) matrix {:?}",
+        glyph.x,
+        glyph.y,
+        affine.0
+    );
+    assert!(
+        start.1 >= cell.y - 1.0 && end.1 <= cell.bottom() + 1.0,
+        "start {start:?} end {end:?} cell {cell:?}"
+    );
+}
+
+/// `btLr` rotates the same string so it reads upward.
+#[test]
+fn table_cell_text_direction_rotates_up() {
+    let doc = render(
+        &narrow_cell("VERTICAL", r#"<w:textDirection w:val="btLr"/>"#),
+        "",
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Table cell text direction"));
+    let (table, paragraph) = table_paragraph(&doc);
+    assert_eq!(paragraph.rotation, -90);
+    let ops = &doc.page(0).unwrap().ops;
+    let affine = ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::PushTransform(affine) => Some(affine),
+            _ => None,
+        })
+        .unwrap();
+    let glyph = ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("VERTICAL") => Some(glyph),
+            _ => None,
+        })
+        .unwrap();
+    let start = affine.apply(glyph.x, glyph.y);
+    let end = affine.apply(glyph.x + glyph.advances.iter().sum::<f32>(), glyph.y);
+    assert!(
+        start.1 > end.1,
+        "btLr reads upward from {start:?} to {end:?}"
+    );
+    let cell = table.cells[0].rect;
+    assert!(
+        start.0 >= cell.x - 1.0
+            && start.0 <= cell.right() + 1.0
+            && end.1 >= cell.y - 1.0
+            && start.1 <= cell.bottom() + 1.0,
+        "start {start:?} end {end:?} cell {cell:?}"
+    );
+}
+
+/// An unknown direction is still reported.
+#[test]
+fn unknown_cell_text_direction_is_reported() {
+    let doc = render(
+        &narrow_cell("Sideways", r#"<w:textDirection w:val="wordArtVert"/>"#),
+        "",
+        "",
+        &[],
+    );
+    assert!(reports_gap(&doc, "Table cell text direction"));
 }
