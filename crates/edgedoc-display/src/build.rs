@@ -505,8 +505,12 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 }
                 for row in &t.rows {
                     for cell in &row.cells {
-                        if cell.text_direction.is_some() || cell.fit_text || cell.no_wrap {
-                            features.insert("Table cell text direction and fitting");
+                        if cell
+                            .text_direction
+                            .as_deref()
+                            .is_some_and(|value| cell_rotation(value).is_none())
+                        {
+                            features.insert("Table cell text direction");
                         }
                         for b in &cell.blocks {
                             scan(b, styles, features);
@@ -2807,6 +2811,13 @@ fn table_of(table: &Table, cascade: &mut Cascade, index: usize) -> FlowTable {
                 ],
                 v_merge_continue: cell.v_merge.as_deref() == Some("continue"),
                 v_merge_start: cell.v_merge.as_deref() == Some("restart"),
+                no_wrap: cell.no_wrap,
+                fit_text: cell.fit_text,
+                rotation: cell
+                    .text_direction
+                    .as_deref()
+                    .and_then(cell_rotation)
+                    .unwrap_or(0),
             });
         }
         rows.push(FlowRow {
@@ -2946,6 +2957,16 @@ fn assign_cell_paths(table: &mut FlowTable, path: &str) {
                 }
             }
         }
+    }
+}
+
+/// Clockwise angle for a cell `w:textDirection`. Unknown values stay horizontal and diagnosed.
+fn cell_rotation(value: &str) -> Option<i16> {
+    match value {
+        "lrTb" | "lrTbV" => Some(0),
+        "tbRl" | "tbRlV" => Some(90),
+        "btLr" | "btLrV" => Some(-90),
+        _ => None,
     }
 }
 

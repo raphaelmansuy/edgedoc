@@ -105,9 +105,11 @@ placement within text, drawings/charts/equations, full shaping and bidi behavior
 settings. Character shadow, outline, emboss, imprint, and run borders paint with the run. Vertical
 page justification (`w:vAlign` `both`) spreads body blocks. Comment margin stories are still open. The older assessment has further partial behaviors in these areas.
 
-The remaining implementation areas include floating placement and wrap, measured note stories and
-continuation, conditional table styles and merges, text boxes and advanced shaping. Each needs an
-exercised regression fixture and independent Wordcraft comparison before it can close.
+The remaining implementation areas include floating wrap beside text, measured note stories and
+continuation, conditional table styles, text boxes, and advanced shaping. Cell `w:noWrap` keeps
+text on one line, `w:fitText` compresses a line into the cell, and `tbRl` / `btLr` rotate the
+cell text. Each remaining area needs an exercised regression fixture and independent Wordcraft
+comparison before it can close.
 
 ## Validation
 

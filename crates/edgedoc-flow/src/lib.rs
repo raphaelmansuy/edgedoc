@@ -419,6 +419,12 @@ pub struct FlowCell {
     pub v_merge_continue: bool,
     /// True when the cell starts a vertical merge.
     pub v_merge_start: bool,
+    /// `w:noWrap`: the cell text stays on one line.
+    pub no_wrap: bool,
+    /// `w:fitText`: a line wider than the cell is compressed to the cell width.
+    pub fit_text: bool,
+    /// `w:textDirection` as a clockwise page angle. `90` is `tbRl`, `-90` is `btLr`.
+    pub rotation: i16,
 }
 
 /// A table row.
@@ -608,6 +614,8 @@ pub struct ParagraphFragment {
     pub revision: Option<RevisionKind>,
     /// The link rectangles, resolved to page coordinates.
     pub links: Vec<(Rect, String)>,
+    /// Clockwise page rotation for vertical cell text. Zero is horizontal.
+    pub rotation: i16,
 }
 
 /// A table on one page.
@@ -2031,8 +2039,13 @@ impl PageBuilder {
                         if !p.para.footer_page_frame {
                             y += p.para.space_before;
                         }
-                        let (layout, left, label_rect) =
-                            cell_paragraph_layout(flow, p, band.w, Some(&label));
+                        let (layout, left, label_rect) = cell_paragraph_layout(
+                            flow,
+                            p,
+                            band.w,
+                            Some(&label),
+                            CellShape::default(),
+                        );
                         let height = layout.height;
                         let rect = Rect::new(
                             band.x + left,
@@ -2058,6 +2071,7 @@ impl PageBuilder {
                             rtl: p.para.bidi,
                             revision: p.revision,
                             links: Vec::new(),
+                            rotation: 0,
                         }));
                         out.extend(pictures);
                         if !p.para.footer_page_frame {
@@ -2104,6 +2118,7 @@ impl PageBuilder {
                         rtl: p.para.bidi,
                         revision: p.revision,
                         links: Vec::new(),
+                        rotation: 0,
                     }));
                     out.extend(pictures);
                     if !p.para.footer_page_frame {
@@ -2735,6 +2750,7 @@ impl PageBuilder {
             rtl: p.para.bidi,
             revision: p.revision,
             links: link_rects(&layout, &p.links, rect),
+            rotation: 0,
         }));
         self.fragments.extend(inline_picture_fragments(
             p, &layout, rect, start_line, line_index,
@@ -3860,13 +3876,39 @@ fn assign_table_list_labels<S: Shaper>(
     }
 }
 
+/// How a table cell asks for its paragraph to be shaped.
+#[derive(Clone, Copy, Default)]
+struct CellShape {
+    no_wrap: bool,
+    fit_text: bool,
+    rotation: i16,
+}
+
+fn cell_shape(cell: &FlowCell) -> CellShape {
+    CellShape {
+        no_wrap: cell.no_wrap,
+        fit_text: cell.fit_text,
+        rotation: cell.rotation,
+    }
+}
+
+fn block_extent(layout: &ParagraphLayout, rotation: i16) -> f32 {
+    if rotation == 0 {
+        layout.height
+    } else {
+        layout.max_width.max(layout.height)
+    }
+}
+
 /// Shape a cell paragraph with the same list-label geometry used in the body.
 fn cell_paragraph_layout<S: Shaper>(
     flow: &mut Flow<'_, S>,
     p: &FlowParagraph,
     width: f32,
     label: Option<&str>,
+    shape: CellShape,
 ) -> (std::sync::Arc<ParagraphLayout>, f32, Option<(f32, f32)>) {
+    let single_line = shape.no_wrap || shape.fit_text || shape.rotation != 0;
     let Some((list, label)) = p
         .list
         .as_ref()
@@ -3875,11 +3917,16 @@ fn cell_paragraph_layout<S: Shaper>(
     else {
         let left = p.para.indent_left;
         let text_width = (width - left - p.para.indent_right).max(1.0);
-        return (
-            flow.paragraph_layout(p, text_width, &[], p.para.indent_first),
-            left,
-            None,
-        );
+        let measure = if single_line { 100_000.0 } else { text_width };
+        let mut layout = flow.paragraph_layout(p, measure, &[], p.para.indent_first);
+        if single_line {
+            let fitted = std::sync::Arc::make_mut(&mut layout);
+            settle_unwrapped_line(fitted, p.para.align, text_width);
+            if shape.fit_text && shape.rotation == 0 {
+                fit_lines_to_width(fitted, text_width);
+            }
+        }
+        return (layout, left, None);
     };
     let size = p
         .para
@@ -3929,13 +3976,73 @@ fn cell_paragraph_layout<S: Shaper>(
     let left = p.para.indent_left;
     let text_width = (width - left - p.para.indent_right).max(1.0);
     let first_indent = text_x - left;
-    let layout = flow.paragraph_layout(p, text_width, &[], first_indent);
+    let measure = if single_line { 100_000.0 } else { text_width };
+    let mut layout = flow.paragraph_layout(p, measure, &[], first_indent);
+    if single_line {
+        let fitted = std::sync::Arc::make_mut(&mut layout);
+        settle_unwrapped_line(fitted, p.para.align, text_width);
+        if shape.fit_text && shape.rotation == 0 {
+            fit_lines_to_width(fitted, text_width);
+        }
+    }
     let shift = layout
         .lines
         .first()
         .and_then(|line| line.xs.first())
         .map_or(0.0, |x| x - first_indent);
     (layout, left, Some((label_x + shift, glyph_width + 6.0)))
+}
+
+/// Pull a line shaped in an inflated measure width back into the cell.
+fn settle_unwrapped_line(layout: &mut ParagraphLayout, align: edgedoc_text::Align, target: f32) {
+    for line in &mut layout.lines {
+        let start = line.xs.first().copied().unwrap_or(0.0);
+        let end = line.xs.last().copied().unwrap_or(start);
+        let ink = (end - start).max(0.0);
+        let origin = match align {
+            edgedoc_text::Align::Right => (target - ink).max(0.0),
+            edgedoc_text::Align::Center => ((target - ink) * 0.5).max(0.0),
+            _ => 0.0,
+        };
+        let delta = origin - start;
+        if delta.abs() > 0.01 {
+            for x in &mut line.xs {
+                *x += delta;
+            }
+        }
+    }
+    layout.max_width = layout
+        .lines
+        .iter()
+        .map(edgedoc_text::Line::width)
+        .fold(0.0, f32::max);
+}
+
+/// Compress every line that is wider than `target` so it fits the cell.
+fn fit_lines_to_width(layout: &mut ParagraphLayout, target: f32) {
+    if target < 1.0 {
+        return;
+    }
+    for line in &mut layout.lines {
+        let start = line.xs.first().copied().unwrap_or(0.0);
+        let end = line.xs.last().copied().unwrap_or(start);
+        let ink = end - start;
+        if ink <= target + 0.25 || ink < 0.5 {
+            continue;
+        }
+        let scale = target / ink;
+        for x in &mut line.xs {
+            *x = start + (*x - start) * scale;
+        }
+        if line.right > line.left {
+            line.right = line.left + (line.right - line.left) * scale;
+        }
+    }
+    layout.max_width = layout
+        .lines
+        .iter()
+        .map(edgedoc_text::Line::width)
+        .fold(0.0, f32::max);
 }
 
 fn row_height<S: Shaper>(
@@ -4006,10 +4113,16 @@ fn cell_content_height<S: Shaper>(
         match block {
             FlowBlock::EndnoteSeparator { .. } => h += 20.0,
             FlowBlock::Paragraph(p) => {
-                let (layout, _, _) =
-                    cell_paragraph_layout(flow, p, width, labels.get(&p.path).map(String::as_str));
+                let shape = cell_shape(cell);
+                let (layout, _, _) = cell_paragraph_layout(
+                    flow,
+                    p,
+                    width,
+                    labels.get(&p.path).map(String::as_str),
+                    shape,
+                );
                 h += spacing.before(p, index == 0)
-                    + layout.height
+                    + block_extent(&layout, shape.rotation)
                     + spacing.after(p, index + 1 == cell.blocks.len());
             }
             FlowBlock::Picture { height, .. } | FlowBlock::Placeholder { height, .. } => {
@@ -4234,18 +4347,30 @@ fn build_table_fragment<S: Shaper>(
                     FlowBlock::Paragraph(p) => {
                         cy += spacing.before(p, index == 0);
                         let label = labels.get(&p.path);
-                        let (layout, left, label_rect) =
-                            cell_paragraph_layout(flow, p, inner_w, label.map(String::as_str));
+                        let shape = cell_shape(cell);
+                        let (layout, left, label_rect) = cell_paragraph_layout(
+                            flow,
+                            p,
+                            inner_w,
+                            label.map(String::as_str),
+                            shape,
+                        );
                         let hh = layout.height;
+                        let extent = block_extent(&layout, shape.rotation);
                         let text_width = (inner_w - left - p.para.indent_right).max(1.0);
-                        let text_rect = Rect::new(inner_x + left, cy, text_width, hh);
+                        let text_y = if shape.rotation < 0 {
+                            cy + extent - hh
+                        } else {
+                            cy
+                        };
+                        let text_rect = Rect::new(inner_x + left, text_y, text_width, hh);
                         let pictures =
                             inline_picture_fragments(p, &layout, text_rect, 0, layout.lines.len());
                         content.push(Fragment::Paragraph(ParagraphFragment {
                             path: p.path.clone(),
                             text: std::sync::Arc::from(p.text.as_str()),
                             label: label.zip(label_rect).map(|(text, (x, w))| {
-                                (text.clone(), Rect::new(inner_x + x, cy, w, hh))
+                                (text.clone(), Rect::new(inner_x + x, text_y, w, hh))
                             }),
                             rect: text_rect,
                             l0: 0,
@@ -4258,9 +4383,10 @@ fn build_table_fragment<S: Shaper>(
                             rtl: p.para.bidi,
                             revision: p.revision,
                             links: Vec::new(),
+                            rotation: shape.rotation,
                         }));
                         content.extend(pictures);
-                        cy += hh + spacing.after(p, index + 1 == cell.blocks.len());
+                        cy += extent + spacing.after(p, index + 1 == cell.blocks.len());
                     }
                     FlowBlock::Picture {
                         height,
@@ -4916,6 +5042,9 @@ mod tests {
                         borders: [None; 4],
                         v_merge_continue: false,
                         v_merge_start: false,
+                        no_wrap: false,
+                        fit_text: false,
+                        rotation: 0,
                     },
                     FlowCell {
                         blocks: vec![FlowBlock::Paragraph(paragraph("B"))],
@@ -4927,6 +5056,9 @@ mod tests {
                         borders: [None; 4],
                         v_merge_continue: false,
                         v_merge_start: false,
+                        no_wrap: false,
+                        fit_text: false,
+                        rotation: 0,
                     },
                 ],
                 grid_before: 0,

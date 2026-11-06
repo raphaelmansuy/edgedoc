@@ -4,7 +4,7 @@
 use std::io::{Cursor, Read, Write};
 
 use edgedoc_display::{DisplayDocument, OpenOptions};
-use edgedoc_flow::{Fragment, ParagraphFragment};
+use edgedoc_flow::{Fragment, ParagraphFragment, TableFragment};
 
 const W: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const R: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -4049,4 +4049,162 @@ fn floating_tables_honor_their_page_offsets() {
         "y {}",
         table.rect.y
     );
+}
+
+fn narrow_cell(text: &str, cell_pr: &str) -> String {
+    format!(
+        r#"<w:tbl><w:tblPr><w:tblW w:w="1440" w:type="dxa"/><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="1440"/></w:tblGrid><w:tr><w:tc><w:tcPr>{cell_pr}<w:tcMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:r><w:t>{text}</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#
+    )
+}
+
+fn table_paragraph<'a>(doc: &'a DisplayDocument) -> (&'a TableFragment, &'a ParagraphFragment) {
+    let table = doc.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Table(table) => Some(table),
+            _ => None,
+        })
+        .unwrap();
+    let paragraph = table
+        .content
+        .iter()
+        .find_map(|fragment| match fragment {
+            Fragment::Paragraph(paragraph) => Some(paragraph),
+            _ => None,
+        })
+        .unwrap();
+    (table, paragraph)
+}
+
+/// `w:noWrap` keeps a long cell string on one line, wider than the cell.
+#[test]
+fn table_cell_no_wrap_keeps_one_line() {
+    let text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let wrapped = render(&narrow_cell(text, ""), "", "", &[]);
+    let plain = render(&narrow_cell(text, "<w:noWrap/>"), "", "", &[]);
+    assert!(!reports_gap(&plain, "Table cell text direction"));
+    let (_, wrapped_para) = table_paragraph(&wrapped);
+    let (_, plain_para) = table_paragraph(&plain);
+    assert!(wrapped_para.layout.lines.len() > 1);
+    assert_eq!(plain_para.layout.lines.len(), 1);
+    assert!(plain_para.layout.max_width > 72.0);
+    assert!(plain_para.layout.max_width > wrapped_para.layout.max_width + 20.0);
+}
+
+/// `w:fitText` compresses that line into the cell width.
+#[test]
+fn table_cell_fit_text_compresses_into_the_cell() {
+    let text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let fitted = render(&narrow_cell(text, "<w:fitText/>"), "", "", &[]);
+    assert!(!reports_gap(&fitted, "Table cell text direction"));
+    let (table, paragraph) = table_paragraph(&fitted);
+    assert_eq!(paragraph.layout.lines.len(), 1);
+    let cell_w = table.cells[0].rect.w;
+    assert!(
+        paragraph.layout.max_width <= cell_w + 0.6,
+        "fitted {} into {cell_w}",
+        paragraph.layout.max_width
+    );
+    assert!(paragraph.layout.max_width > cell_w * 0.9);
+}
+
+/// `tbRl` rotates cell text clockwise so the string runs down the cell.
+#[test]
+fn table_cell_text_direction_rotates_down() {
+    let doc = render(
+        &narrow_cell("VERTICAL", r#"<w:textDirection w:val="tbRl"/>"#),
+        "",
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Table cell text direction"));
+    let (table, paragraph) = table_paragraph(&doc);
+    assert_eq!(paragraph.rotation, 90);
+    assert_eq!(paragraph.layout.lines.len(), 1);
+    let ops = &doc.page(0).unwrap().ops;
+    let transform = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::PushTransform(affine) => Some(affine),
+        _ => None,
+    });
+    let affine = transform.expect("vertical text rotates");
+    let glyph = ops.iter().find_map(|op| match op {
+        edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("VERTICAL") => Some(glyph),
+        _ => None,
+    });
+    let glyph = glyph.expect("vertical text");
+    let start = affine.apply(glyph.x, glyph.y);
+    let end = affine.apply(glyph.x + glyph.advances.iter().sum::<f32>(), glyph.y);
+    assert!(
+        (end.1 - start.1).abs() > (end.0 - start.0).abs() + 10.0,
+        "text runs vertically from {start:?} to {end:?}"
+    );
+    assert!(end.1 > start.1, "tbRl reads downward");
+    let cell = table.cells[0].rect;
+    assert!(
+        start.0 >= cell.x - 1.0 && start.0 <= cell.right() + 1.0,
+        "start {start:?} end {end:?} cell {cell:?} glyph ({}, {}) matrix {:?}",
+        glyph.x,
+        glyph.y,
+        affine.0
+    );
+    assert!(
+        start.1 >= cell.y - 1.0 && end.1 <= cell.bottom() + 1.0,
+        "start {start:?} end {end:?} cell {cell:?}"
+    );
+}
+
+/// `btLr` rotates the same string so it reads upward.
+#[test]
+fn table_cell_text_direction_rotates_up() {
+    let doc = render(
+        &narrow_cell("VERTICAL", r#"<w:textDirection w:val="btLr"/>"#),
+        "",
+        "",
+        &[],
+    );
+    assert!(!reports_gap(&doc, "Table cell text direction"));
+    let (table, paragraph) = table_paragraph(&doc);
+    assert_eq!(paragraph.rotation, -90);
+    let ops = &doc.page(0).unwrap().ops;
+    let affine = ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::PushTransform(affine) => Some(affine),
+            _ => None,
+        })
+        .unwrap();
+    let glyph = ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(glyph) if glyph.text.contains("VERTICAL") => Some(glyph),
+            _ => None,
+        })
+        .unwrap();
+    let start = affine.apply(glyph.x, glyph.y);
+    let end = affine.apply(glyph.x + glyph.advances.iter().sum::<f32>(), glyph.y);
+    assert!(
+        start.1 > end.1,
+        "btLr reads upward from {start:?} to {end:?}"
+    );
+    let cell = table.cells[0].rect;
+    assert!(
+        start.0 >= cell.x - 1.0
+            && start.0 <= cell.right() + 1.0
+            && end.1 >= cell.y - 1.0
+            && start.1 <= cell.bottom() + 1.0,
+        "start {start:?} end {end:?} cell {cell:?}"
+    );
+}
+
+/// An unknown direction is still reported.
+#[test]
+fn unknown_cell_text_direction_is_reported() {
+    let doc = render(
+        &narrow_cell("Sideways", r#"<w:textDirection w:val="wordArtVert"/>"#),
+        "",
+        "",
+        &[],
+    );
+    assert!(reports_gap(&doc, "Table cell text direction"));
 }

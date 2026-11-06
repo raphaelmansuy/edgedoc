@@ -250,6 +250,31 @@ impl<S: Shaper> Lowerer<'_, S> {
     }
 
     fn paragraph(&mut self, p: &ParagraphFragment) {
+        if p.rotation != 0 {
+            // The rotation turns the line box onto its side. Shift by the line height so the
+            // baseline and the descent stay inside the cell instead of landing in the margin.
+            let line_h = p
+                .layout
+                .lines
+                .get(p.l0)
+                .map(|line| line.height)
+                .unwrap_or(p.rect.h)
+                .max(0.0);
+            let rotate = if p.rotation > 0 {
+                crate::Affine::rotate_about(f32::from(p.rotation), p.rect.x, p.rect.y)
+            } else {
+                crate::Affine::rotate_about(f32::from(p.rotation), p.rect.x, p.rect.bottom())
+            };
+            let placed = rotate.then(&crate::Affine::translate(line_h, 0.0));
+            self.ops.push(Op::PushTransform(placed));
+        }
+        self.paint_paragraph(p);
+        if p.rotation != 0 {
+            self.ops.push(Op::PopTransform);
+        }
+    }
+
+    fn paint_paragraph(&mut self, p: &ParagraphFragment) {
         let layout = &p.layout;
         // Paragraph background shading covers every line of this fragment.
         if let Some(shading) = p.para.shading {
