@@ -82,7 +82,9 @@ impl Document {
     /// Headings come from a `Heading1`–`Heading9` style, a style based on one, or a
     /// Word outline level. Lists use the paragraph's list, or the numbering part after
     /// a DOCX read. A page or column break becomes a thematic break. An equation becomes
-    /// LaTeX, with `$` for inline math and `$$` for a displayed equation. Footnotes and
+    /// LaTeX, with `$` for inline math and `$$` for a displayed equation. Scripts, radicals,
+    /// matrices, delimiters, accents, and the other Office Math structures are included.
+    /// Footnotes and
     /// endnotes become Markdown footnotes. The link in each image is
     /// [`ExportedImage::markdown_path`].
     pub fn to_markdown_with(&self, options: &MarkdownOptions) -> Result<MarkdownDocument, Error> {
@@ -162,7 +164,8 @@ impl<'a> Export<'a> {
             out.push(Piece::Rule);
             return;
         }
-        let inline = self.inline(para, false);
+        let flat = heading_of(self.doc, para).is_none() && list_of(para, &self.bullets).is_some();
+        let inline = self.inline(para, false, flat);
         let text = inline.trim();
         if text.is_empty() {
             return;
@@ -229,7 +232,7 @@ impl<'a> Export<'a> {
         for block in blocks {
             match block.as_ref() {
                 Block::Paragraph(para) => {
-                    let text = self.inline(para, true);
+                    let text = self.inline(para, true, false);
                     let text = text.replace('\n', " ").trim().to_string();
                     if text.is_empty() {
                         continue;
@@ -242,7 +245,8 @@ impl<'a> Export<'a> {
                     }
                 }
                 Block::Table(table) => {
-                    let nested = self.table(table).replace('|', "\\|").replace('\n', "<br>");
+                    let nested =
+                        escape_pipes_outside_math(&self.table(table)).replace('\n', "<br>");
                     if !nested.is_empty() {
                         parts.push(nested);
                     }
@@ -265,7 +269,7 @@ impl<'a> Export<'a> {
         parts.join("<br>")
     }
 
-    fn inline(&mut self, para: &Paragraph, cell: bool) -> String {
+    fn inline(&mut self, para: &Paragraph, cell: bool, flat: bool) -> String {
         let mut objects = para.objects.iter();
         let mut cursor = 0usize;
         let mut chunks: Vec<(Option<String>, String)> = Vec::new();
@@ -281,13 +285,14 @@ impl<'a> Export<'a> {
                 }
                 continue;
             }
-            let body = self.slice(slice, &run.props, &mut objects, cell);
+            let body = self.slice(slice, &run.props, &mut objects, cell, flat);
             if body.is_empty() {
                 continue;
             }
             let link = run.props.link.clone();
             if let Some((current, acc)) = chunks.last_mut() {
                 if *current == link {
+                    separate_math(acc, &body);
                     acc.push_str(&body);
                     continue;
                 }
@@ -303,6 +308,7 @@ impl<'a> Export<'a> {
                 out.push_str(&escape_url(&url));
                 out.push(')');
             } else {
+                separate_math(&mut out, &body);
                 out.push_str(&body);
             }
         }
@@ -315,6 +321,7 @@ impl<'a> Export<'a> {
         props: &CharProps,
         objects: &mut std::slice::Iter<'_, InlineObject>,
         cell: bool,
+        flat: bool,
     ) -> String {
         let mut out = String::new();
         let mut text = String::new();
@@ -327,7 +334,11 @@ impl<'a> Export<'a> {
         for ch in slice.chars() {
             if ch == edgedoc_model::OBJ {
                 flush(&mut text, &mut out);
-                out.push_str(&self.object(objects.next(), cell));
+                let piece = self.object(objects.next(), cell || flat);
+                if out.ends_with('$') && piece.starts_with('$') {
+                    out.push(' ');
+                }
+                out.push_str(&piece);
             } else if ch == '\n' {
                 flush(&mut text, &mut out);
                 out.push_str(if cell { "<br>" } else { "  \n" });
@@ -697,6 +708,41 @@ fn math_markdown(latex: &str, display: bool, cell: bool) -> String {
     } else {
         format!("${latex}$")
     }
+}
+
+fn separate_math(out: &mut String, next: &str) {
+    if out.ends_with('$') && next.starts_with('$') {
+        out.push(' ');
+    }
+}
+
+/// A nested table is one cell. Its column pipes are escaped, and pipes inside `$...$` stay.
+fn escape_pipes_outside_math(text: &str) -> String {
+    let mut out = String::new();
+    let mut math = false;
+    let mut chars = text.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '\\' {
+            out.push('\\');
+            if let Some(next) = chars.next() {
+                out.push(next);
+            }
+            continue;
+        }
+        if ch == '$' {
+            out.push('$');
+            if chars.peek() == Some(&'$') {
+                out.push(chars.next().unwrap_or('$'));
+            }
+            math = !math;
+            continue;
+        }
+        if ch == '|' && !math {
+            out.push('\\');
+        }
+        out.push(ch);
+    }
+    out
 }
 
 fn note_marker(kind: &str, id: i32) -> String {

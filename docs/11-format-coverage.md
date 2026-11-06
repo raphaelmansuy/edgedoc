@@ -58,7 +58,7 @@ Owned character, paragraph, and table properties also round-trip in `owned_featu
 | Text | Endnote mark and endnotes part | Modeled | Modeled | `text-endnote-ref` |
 | Text | Comment mark and comments part | Modeled | Modeled | `text-comment` |
 | Text | Tracked insertion | Kept. An edit asks for consent | Modeled | `text-revision` |
-| Text | Equation markup | Kept. Markdown export is LaTeX. An edit asks for consent | Modeled | `text-equation` |
+| Text | Equation markup | Kept. Markdown export is LaTeX, including scripts, radicals, n-ary operators, matrices, delimiters, alphabets, and argument size. An edit asks for consent | Modeled | `text-equation` |
 | Text | Bookmark | Modeled | Modeled | `text-bookmark` |
 | Text | External hyperlink | Modeled | Modeled | `text-hyperlink` |
 | Text | PAGE field | Kept. The cached result stays | Editor updates the result | `text-page-field` |

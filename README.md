@@ -250,7 +250,8 @@ Without `image_dir`, nothing is written and each [`edgedoc::ExportedImage`] stil
 `bytes` and the `markdown_path` to use when you store the file yourself.
 
 An equation is LaTeX. Inline Office Math uses `$...$`. A displayed equation (`m:oMathPara`)
-uses `$$` on its own lines.
+uses `$$` on its own lines. Fractions, scripts, roots, sums, matrices, delimiters, accents,
+math alphabets, and argument sizes are included. A formula in a nested table keeps its `|`.
 
 ## Example documents
 

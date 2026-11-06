@@ -14,19 +14,10 @@ fn convert(el: &El) -> String {
         "sSup" => scripts(&part(el, "e"), "", &part(el, "sup")),
         "sSub" => scripts(&part(el, "e"), &part(el, "sub"), ""),
         "sSubSup" => scripts(&part(el, "e"), &part(el, "sub"), &part(el, "sup")),
-        "sPre" => {
-            let base = part(el, "e");
-            let sub = part(el, "sub");
-            let sup = part(el, "sup");
-            let mut out = String::from("{}");
-            if !sub.is_empty() {
-                out.push_str(&format!("_{{{sub}}}"));
-            }
-            if !sup.is_empty() {
-                out.push_str(&format!("^{{{sup}}}"));
-            }
-            out.push_str(&format!("{{{base}}}"));
-            out
+        "sPre" => convert_pre(el),
+        "oMathPara" => convert_display(el),
+        "e" | "sup" | "sub" | "num" | "den" | "deg" | "lim" | "fName" => {
+            sized(el, convert_children(el))
         }
         "rad" => convert_radical(el),
         "nary" => convert_nary(el),
@@ -42,7 +33,7 @@ fn convert(el: &El) -> String {
             format!("{cmd}{{{}}}", part(el, "e"))
         }
         "groupChr" => convert_group(el),
-        "borderBox" => format!("\\boxed{{{}}}", part(el, "e")),
+        "borderBox" => convert_border(el),
         "phant" => convert_phantom(el),
         "eqArr" => {
             let rows: Vec<String> = el
@@ -98,7 +89,14 @@ fn prop_val(el: &El, name: &str) -> Option<String> {
 
 /// A present flag is on unless its value says otherwise. A missing flag is off.
 fn flag(el: &El, name: &str) -> bool {
-    prop(el, name).is_some_and(|child| !matches!(child.attr("val"), Some("0" | "false" | "off")))
+    flag_on(el, name, false)
+}
+
+fn flag_on(el: &El, name: &str, default: bool) -> bool {
+    match prop(el, name) {
+        None => default,
+        Some(child) => !matches!(child.attr("val"), Some("0" | "false" | "off")),
+    }
 }
 
 fn convert_run(el: &El) -> String {
@@ -108,6 +106,11 @@ fn convert_run(el: &El) -> String {
             child.name == "nor" && !matches!(child.attr("val"), Some("0" | "false" | "off"))
         })
     });
+    let literal = pr.is_some_and(|pr| {
+        pr.child_els().any(|child| {
+            child.name == "lit" && !matches!(child.attr("val"), Some("0" | "false" | "off"))
+        })
+    });
     let style = pr
         .and_then(|pr| {
             pr.child_els()
@@ -115,32 +118,84 @@ fn convert_run(el: &El) -> String {
                 .and_then(|child| child.attr("val"))
         })
         .unwrap_or("i");
+    let script = pr.and_then(|pr| {
+        pr.child_els()
+            .find(|child| child.name == "scr")
+            .and_then(|child| child.attr("val"))
+            .map(str::to_string)
+    });
+    let mut out = String::new();
     let mut text = String::new();
+    let flush = |text: &mut String, out: &mut String| {
+        if text.is_empty() {
+            return;
+        }
+        out.push_str(&style_text(
+            text,
+            normal || literal,
+            style,
+            script.as_deref(),
+        ));
+        text.clear();
+    };
     for child in el.child_els() {
-        if child.name == "t" {
-            text.push_str(&child.text());
+        match child.name.as_str() {
+            "rPr" => {}
+            "t" => text.push_str(&child.text()),
+            "aln" => {
+                flush(&mut text, &mut out);
+                out.push('&');
+            }
+            "brk" => {
+                flush(&mut text, &mut out);
+                out.push_str("\\\\");
+            }
+            _ => {
+                flush(&mut text, &mut out);
+                out.push_str(&convert(child));
+            }
         }
     }
-    if text.is_empty() {
-        return String::new();
+    flush(&mut text, &mut out);
+    out
+}
+
+fn style_text(text: &str, literal: bool, style: &str, script: Option<&str>) -> String {
+    if literal {
+        return format!("\\text{{{}}}", text_mode(text));
     }
-    if normal {
-        return format!("\\text{{{}}}", text_mode(&text));
-    }
-    if style == "p" {
+    let roman = matches!(script, None | Some("roman"));
+    if style == "p" && roman {
         if let Some(cmd) = function_command(text.trim()) {
             return cmd.to_string();
         }
     }
-    let mapped = math_text(&text);
+    let mapped = math_text(text);
     if mapped.contains('\\') {
         return mapped;
     }
-    match style {
-        "p" => format!("\\mathrm{{{mapped}}}"),
-        "b" => format!("\\mathbf{{{mapped}}}"),
-        "bi" => format!("\\boldsymbol{{{mapped}}}"),
-        _ => mapped,
+    wrap_alphabet(style, script, &mapped)
+}
+
+fn wrap_alphabet(style: &str, script: Option<&str>, mapped: &str) -> String {
+    let script = script.unwrap_or("");
+    let cmd = match script {
+        "double-struck" => "\\mathbb",
+        "script" => "\\mathcal",
+        "fraktur" => "\\mathfrak",
+        "sans-serif" => "\\mathsf",
+        "monospace" => "\\mathtt",
+        _ => match style {
+            "p" => "\\mathrm",
+            "b" => "\\mathbf",
+            "bi" => "\\boldsymbol",
+            _ => return mapped.to_string(),
+        },
+    };
+    if matches!(style, "b" | "bi") && !matches!(script, "" | "roman") {
+        format!("\\boldsymbol{{{cmd}{{{mapped}}}}}")
+    } else {
+        format!("{cmd}{{{mapped}}}")
     }
 }
 
@@ -196,7 +251,11 @@ fn convert_nary(el: &El) -> String {
         }
     }
     out.push_str(&format!("{{{}}}", part(el, "e")));
-    out
+    if flag_on(el, "grow", true) {
+        out
+    } else {
+        format!("{{\\textstyle {out}}}")
+    }
 }
 
 fn nary_command(chr: Option<&str>) -> String {
@@ -258,29 +317,71 @@ fn fence(ch: &str) -> String {
         "{" => "\\{".to_string(),
         "}" => "\\}".to_string(),
         "‖" | "||" => "\\|".to_string(),
-        "⟨" => "\\langle".to_string(),
-        "⟩" => "\\rangle".to_string(),
-        "⌈" => "\\lceil".to_string(),
-        "⌉" => "\\rceil".to_string(),
-        "⌊" => "\\lfloor".to_string(),
-        "⌋" => "\\rfloor".to_string(),
+        "⟨" => "\\langle ".to_string(),
+        "⟩" => "\\rangle ".to_string(),
+        "⌈" => "\\lceil ".to_string(),
+        "⌉" => "\\rceil ".to_string(),
+        "⌊" => "\\lfloor ".to_string(),
+        "⌋" => "\\rfloor ".to_string(),
         other => math_text(other),
     }
 }
 
 fn convert_matrix(el: &El) -> String {
+    let spec = matrix_spec(el);
     let rows: Vec<String> = el
         .child_els()
         .filter(|child| child.name == "mr")
         .map(|row| {
-            row.child_els()
+            let mut cells: Vec<String> = row
+                .child_els()
                 .filter(|child| child.name == "e")
                 .map(convert)
-                .collect::<Vec<_>>()
-                .join("&")
+                .collect();
+            if cells.len() < spec.len() {
+                cells.resize(spec.len(), String::new());
+            }
+            cells.join("&")
         })
         .collect();
-    format!("\\begin{{matrix}}{}\\end{{matrix}}", rows.join("\\\\"))
+    let body = rows.join("\\\\");
+    if spec.is_empty() || spec.iter().all(|align| *align == 'c') {
+        format!("\\begin{{matrix}}{body}\\end{{matrix}}")
+    } else {
+        let cols: String = spec.into_iter().collect();
+        format!("\\begin{{array}}{{{cols}}}{body}\\end{{array}}")
+    }
+}
+
+fn matrix_spec(el: &El) -> Vec<char> {
+    let mut spec = Vec::new();
+    let Some(pr) = props(el) else {
+        return spec;
+    };
+    let Some(mcs) = pr.child_els().find(|child| child.name == "mcs") else {
+        return spec;
+    };
+    for mc in mcs.child_els().filter(|child| child.name == "mc") {
+        let pr = mc.child_els().find(|child| child.name == "mcPr");
+        let count = pr
+            .and_then(|pr| pr.child_els().find(|child| child.name == "count"))
+            .and_then(|child| child.attr("val"))
+            .and_then(|value| value.parse::<usize>().ok())
+            .unwrap_or(1)
+            .clamp(1, 64);
+        let align = pr
+            .and_then(|pr| pr.child_els().find(|child| child.name == "mcJc"))
+            .and_then(|child| child.attr("val"));
+        let column = match align {
+            Some("left") => 'l',
+            Some("right") => 'r',
+            _ => 'c',
+        };
+        for _ in 0..count {
+            spec.push(column);
+        }
+    }
+    spec
 }
 
 fn convert_accent(el: &El) -> String {
@@ -333,14 +434,114 @@ fn convert_phantom(el: &El) -> String {
     if show {
         return body;
     }
-    let cmd = if flag(el, "zeroWid") && !flag(el, "zeroAsc") && !flag(el, "zeroDesc") {
-        "\\vphantom"
-    } else if !flag(el, "zeroWid") && (flag(el, "zeroAsc") || flag(el, "zeroDesc")) {
-        "\\hphantom"
+    let width = flag(el, "zeroWid");
+    let ascent = flag(el, "zeroAsc");
+    let descent = flag(el, "zeroDesc");
+    if width && ascent && descent {
+        return String::new();
+    }
+    if width && ascent && !descent {
+        return format!("\\smash[t]{{\\vphantom{{{body}}}}}");
+    }
+    if width && !ascent && descent {
+        return format!("\\smash[b]{{\\vphantom{{{body}}}}}");
+    }
+    if width {
+        return format!("\\vphantom{{{body}}}");
+    }
+    if ascent && descent {
+        return format!("\\hphantom{{{body}}}");
+    }
+    if ascent {
+        return format!("\\smash[t]{{\\phantom{{{body}}}}}");
+    }
+    if descent {
+        return format!("\\smash[b]{{\\phantom{{{body}}}}}");
+    }
+    format!("\\phantom{{{body}}}")
+}
+
+fn convert_pre(el: &El) -> String {
+    let base = part(el, "e");
+    let sub = part(el, "sub");
+    let sup = part(el, "sup");
+    if sub.is_empty() && sup.is_empty() {
+        return base;
+    }
+    let mut out = String::from("{}");
+    if !sub.is_empty() {
+        out.push_str(&format!("_{{{sub}}}"));
+    }
+    if !sup.is_empty() {
+        out.push_str(&format!("^{{{sup}}}"));
+    }
+    out.push_str(&format!("{{{base}}}"));
+    out
+}
+
+fn convert_display(el: &El) -> String {
+    let body = convert_children(el);
+    match prop_val(el, "jc").as_deref() {
+        Some("left") => format!("\\begin{{aligned}}&{body}\\end{{aligned}}"),
+        Some("right") => format!("\\begin{{aligned}}{body}&\\end{{aligned}}"),
+        _ => body,
+    }
+}
+
+fn convert_border(el: &El) -> String {
+    let body = part(el, "e");
+    let top = !flag(el, "hideTop");
+    let bottom = !flag(el, "hideBot");
+    let left = !flag(el, "hideLeft");
+    let right = !flag(el, "hideRight");
+    let mut out = if top && bottom && left && right {
+        format!("\\boxed{{{body}}}")
+    } else if top && !bottom && !left && !right {
+        format!("\\overline{{{body}}}")
+    } else if bottom && !top && !left && !right {
+        format!("\\underline{{{body}}}")
+    } else if top && bottom && !left && !right {
+        format!("\\overline{{\\underline{{{body}}}}}")
+    } else if !top && !bottom && !left && !right {
+        body
     } else {
-        "\\phantom"
+        format!("\\boxed{{{body}}}")
     };
-    format!("{cmd}{{{body}}}")
+    if flag(el, "strikeTLBR") && flag(el, "strikeBLTR") {
+        out = format!("\\xcancel{{{out}}}");
+    } else if flag(el, "strikeTLBR") {
+        out = format!("\\cancel{{{out}}}");
+    } else if flag(el, "strikeBLTR") {
+        out = format!("\\bcancel{{{out}}}");
+    }
+    if flag(el, "strikeH") {
+        out = format!("\\overline{{\\underline{{{out}}}}}");
+    }
+    if flag(el, "strikeV") {
+        out = format!("\\left.{out}\\middle|\\right.");
+    }
+    out
+}
+
+fn sized(el: &El, body: String) -> String {
+    let Some(raw) = prop_val(el, "argSz") else {
+        return body;
+    };
+    let Ok(size) = raw.parse::<i32>() else {
+        return body;
+    };
+    let style = if size <= -2 {
+        "\\scriptscriptstyle"
+    } else if size == -1 {
+        "\\scriptstyle"
+    } else if size == 1 {
+        "\\textstyle"
+    } else if size >= 2 {
+        "\\displaystyle"
+    } else {
+        return body;
+    };
+    format!("{{{style} {body}}}")
 }
 
 fn function_command(text: &str) -> Option<&'static str> {
@@ -487,12 +688,67 @@ fn push_math_char(out: &mut String, ch: char) {
         '∫' => "\\int ",
         '√' => "\\sqrt ",
         '′' => "\\prime ",
+        '″' => "''",
+        '∴' => "\\therefore ",
+        '∵' => "\\because ",
+        '≪' => "\\ll ",
+        '≫' => "\\gg ",
+        'ℕ' => "\\mathbb{N}",
+        'ℤ' => "\\mathbb{Z}",
+        'ℚ' => "\\mathbb{Q}",
+        'ℝ' => "\\mathbb{R}",
+        'ℂ' => "\\mathbb{C}",
+        'ℍ' => "\\mathbb{H}",
+        'ℙ' => "\\mathbb{P}",
+        'ℓ' => "\\ell ",
+        'ℏ' => "\\hbar ",
+        '℘' => "\\wp ",
+        'ℑ' => "\\Im ",
+        'ℜ' => "\\Re ",
+        '°' => "^{\\circ}",
         _ => {
-            out.push(ch);
+            if let Some(styled) = styled_letter(ch) {
+                out.push_str(&styled);
+            } else {
+                out.push(ch);
+            }
             return;
         }
     };
     out.push_str(command);
+}
+
+fn styled_letter(ch: char) -> Option<String> {
+    let code = ch as u32;
+    let (cmd, start, origin) = if (0x1D400..=0x1D419).contains(&code) {
+        ("\\mathbf", 0x1D400, 'A')
+    } else if (0x1D41A..=0x1D433).contains(&code) {
+        ("\\mathbf", 0x1D41A, 'a')
+    } else if (0x1D434..=0x1D44D).contains(&code) {
+        ("", 0x1D434, 'A')
+    } else if (0x1D44E..=0x1D467).contains(&code) {
+        ("", 0x1D44E, 'a')
+    } else if (0x1D468..=0x1D481).contains(&code) {
+        ("\\boldsymbol", 0x1D468, 'A')
+    } else if (0x1D482..=0x1D49B).contains(&code) {
+        ("\\boldsymbol", 0x1D482, 'a')
+    } else if (0x1D5A0..=0x1D5B9).contains(&code) {
+        ("\\mathsf", 0x1D5A0, 'A')
+    } else if (0x1D5BA..=0x1D5D3).contains(&code) {
+        ("\\mathsf", 0x1D5BA, 'a')
+    } else if (0x1D670..=0x1D689).contains(&code) {
+        ("\\mathtt", 0x1D670, 'A')
+    } else if (0x1D68A..=0x1D6A3).contains(&code) {
+        ("\\mathtt", 0x1D68A, 'a')
+    } else {
+        return None;
+    };
+    let letter = char::from_u32(u32::from(origin) + (code - start))?;
+    if cmd.is_empty() {
+        Some(letter.to_string())
+    } else {
+        Some(format!("{cmd}{{{letter}}}"))
+    }
 }
 
 fn text_mode(text: &str) -> String {

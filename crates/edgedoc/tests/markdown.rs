@@ -894,7 +894,7 @@ fn equations_become_latex() -> Test {
         ),
         (
             shown(&format!(
-                "<m:phant><m:phantPr><m:show m:val=\"0\"/><m:zeroAsc m:val=\"1\"/></m:phantPr><m:e>{}</m:e></m:phant>",
+                "<m:phant><m:phantPr><m:show m:val=\"0\"/><m:zeroAsc m:val=\"1\"/><m:zeroDesc m:val=\"1\"/></m:phantPr><m:e>{}</m:e></m:phant>",
                 run("x")
             )),
             "$\\hphantom{x}$",
@@ -1002,6 +1002,639 @@ fn equations_become_latex() -> Test {
         .ok_or("the saved package has no document")?;
     let xml = String::from_utf8_lossy(&document.bytes);
     for marker in ["<m:f", "<m:nary", "<m:rad", "xmlns:m="] {
+        if !xml.contains(marker) {
+            return Err(format!("saved document lost {marker}"));
+        }
+    }
+    Ok(())
+}
+
+/// Office Math edges: alphabets, argument size, alignment, breaks, borders,
+/// phantoms, and formulas that sit in a list, a cell, or next to each other.
+#[test]
+fn office_math_edge_cases() -> Test {
+    fn run(text: &str) -> String {
+        format!("<m:r><m:t xml:space=\"preserve\">{text}</m:t></m:r>")
+    }
+    fn om(inner: &str) -> String {
+        format!(
+            "<m:oMath xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">{inner}</m:oMath>"
+        )
+    }
+    fn para(inner: &str) -> String {
+        format!("<w:p>{inner}</w:p>")
+    }
+    fn shown(inner: &str) -> String {
+        para(&om(inner))
+    }
+    fn alphabet(script: &str, style: &str, text: &str) -> String {
+        let style = if style.is_empty() {
+            String::new()
+        } else {
+            format!("<m:sty m:val=\"{style}\"/>")
+        };
+        let script = if script.is_empty() {
+            String::new()
+        } else {
+            format!("<m:scr m:val=\"{script}\"/>")
+        };
+        format!("<m:r><m:rPr>{style}{script}</m:rPr><m:t xml:space=\"preserve\">{text}</m:t></m:r>")
+    }
+    fn frac(num: &str, den: &str) -> String {
+        format!("<m:f><m:num>{num}</m:num><m:den>{den}</m:den></m:f>")
+    }
+    fn sized(size: &str, num: &str, den: &str) -> String {
+        format!(
+            "<m:f><m:num><m:argPr><m:argSz m:val=\"{size}\"/></m:argPr>{}</m:num><m:den>{}</m:den></m:f>",
+            run(num),
+            run(den)
+        )
+    }
+    fn nary(chr: Option<&str>, flags: &str, sub: &str, sup: &str, body: &str) -> String {
+        let chr = match chr {
+            None => String::new(),
+            Some(value) => format!("<m:chr m:val=\"{value}\"/>"),
+        };
+        let sub = if sub.is_empty() {
+            String::new()
+        } else {
+            format!("<m:sub>{}</m:sub>", run(sub))
+        };
+        let sup = if sup.is_empty() {
+            String::new()
+        } else {
+            format!("<m:sup>{}</m:sup>", run(sup))
+        };
+        format!(
+            "<m:nary><m:naryPr>{chr}{flags}</m:naryPr>{sub}{sup}<m:e>{}</m:e></m:nary>",
+            run(body)
+        )
+    }
+    fn display(jc: &str, inner: &str) -> String {
+        let pr = if jc.is_empty() {
+            String::new()
+        } else {
+            format!("<m:oMathParaPr><m:jc m:val=\"{jc}\"/></m:oMathParaPr>")
+        };
+        para(&format!(
+            "<m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">{pr}<m:oMath>{inner}</m:oMath></m:oMathPara>"
+        ))
+    }
+    fn border(flags: &str, body: &str) -> String {
+        let pr = if flags.is_empty() {
+            String::new()
+        } else {
+            format!("<m:borderBoxPr>{flags}</m:borderBoxPr>")
+        };
+        format!("<m:borderBox>{pr}<m:e>{}</m:e></m:borderBox>", run(body))
+    }
+    fn phant(flags: &str, body: &str) -> String {
+        format!(
+            "<m:phant><m:phantPr>{flags}</m:phantPr><m:e>{}</m:e></m:phant>",
+            run(body)
+        )
+    }
+    fn delim(pr: &str, args: &[&str]) -> String {
+        let pr = if pr.is_empty() {
+            String::new()
+        } else {
+            format!("<m:dPr>{pr}</m:dPr>")
+        };
+        let args: String = args
+            .iter()
+            .map(|arg| format!("<m:e>{}</m:e>", run(arg)))
+            .collect();
+        format!("<m:d>{pr}{args}</m:d>")
+    }
+    let cases = vec![
+        (shown(&alphabet("double-struck", "", "R")), "$\\mathbb{R}$"),
+        (shown(&alphabet("script", "", "L")), "$\\mathcal{L}$"),
+        (shown(&alphabet("fraktur", "", "g")), "$\\mathfrak{g}$"),
+        (shown(&alphabet("sans-serif", "", "A")), "$\\mathsf{A}$"),
+        (shown(&alphabet("monospace", "", "n")), "$\\mathtt{n}$"),
+        (
+            shown(&alphabet("script", "b", "L")),
+            "$\\boldsymbol{\\mathcal{L}}$",
+        ),
+        (
+            shown(&alphabet("fraktur", "bi", "h")),
+            "$\\boldsymbol{\\mathfrak{h}}$",
+        ),
+        (shown(&alphabet("script", "p", "sin")), "$\\mathcal{sin}$"),
+        (shown(&alphabet("", "b", "sin")), "$\\mathbf{sin}$"),
+        (shown(&alphabet("", "p", "Sin")), "$\\mathrm{Sin}$"),
+        (
+            shown(&format!("{}{}", alphabet("", "p", "sin"), run("x"))),
+            "$\\sin x$",
+        ),
+        (
+            shown(&format!(
+                "<m:r><m:rPr><m:lit/></m:rPr><m:t xml:space=\"preserve\">×</m:t></m:r>"
+            )),
+            "$\\text{×}$",
+        ),
+        (
+            shown(&format!(
+                "<m:r><m:rPr><m:nor m:val=\"0\"/></m:rPr><m:t xml:space=\"preserve\">×</m:t></m:r>"
+            )),
+            "$\\times$",
+        ),
+        (shown(&sized("-1", "x", "y")), "$\\frac{{\\scriptstyle x}}{y}$"),
+        (
+            shown(&sized("-2", "u", "v")),
+            "$\\frac{{\\scriptscriptstyle u}}{v}$",
+        ),
+        (shown(&sized("1", "p", "q")), "$\\frac{{\\textstyle p}}{q}$"),
+        (
+            shown(&sized("2", "r", "s")),
+            "$\\frac{{\\displaystyle r}}{s}$",
+        ),
+        (shown(&sized("0", "m7", "n7")), "$\\frac{m7}{n7}$"),
+        (shown(&sized("abc", "m8", "n8")), "$\\frac{m8}{n8}$"),
+        (
+            shown(&format!("<m:r><m:t>a</m:t><m:brk/><m:t>b</m:t></m:r>")),
+            "$a\\\\b$",
+        ),
+        (
+            shown(&format!(
+                "<m:box><m:e>{}</m:e><m:brk/><m:e>{}</m:e></m:box>",
+                run("p"),
+                run("q")
+            )),
+            "$p\\\\q$",
+        ),
+        (
+            shown(&format!(
+                "<m:eqArr><m:e><m:r><m:t>a</m:t><m:aln/><m:t>b</m:t><m:brk/><m:t>c</m:t></m:r></m:e><m:e>{}</m:e></m:eqArr>",
+                run("d")
+            )),
+            "$\\begin{aligned}a&b\\\\c\\\\d\\end{aligned}$",
+        ),
+        (
+            shown(&format!(
+                "<m:sPre><m:sub></m:sub><m:sup></m:sup><m:e>{}</m:e></m:sPre>",
+                run("pre")
+            )),
+            "$pre$",
+        ),
+        (
+            shown(&format!(
+                "<m:sPre><m:sub>{}</m:sub><m:sup></m:sup><m:e>{}</m:e></m:sPre>",
+                run("n"),
+                run("C")
+            )),
+            "${}_{n}{C}$",
+        ),
+        (
+            shown(&format!(
+                "<m:sSup><m:e></m:e><m:sup>{}</m:sup></m:sSup>",
+                run("2")
+            )),
+            "${}^{2}$",
+        ),
+        (
+            shown(&nary(
+                Some("∫"),
+                "<m:subHide m:val=\"1\"/><m:supHide m:val=\"1\"/>",
+                "0",
+                "1",
+                "x",
+            )),
+            "$\\int{x}$",
+        ),
+        (
+            shown(&nary(Some("∫"), "<m:subHide m:val=\"1\"/>", "0", "1", "x")),
+            "$\\int^{1}{x}$",
+        ),
+        (
+            shown(&nary(Some("∫"), "<m:supHide m:val=\"1\"/>", "0", "1", "x")),
+            "$\\int_{0}{x}$",
+        ),
+        (
+            shown(&nary(Some(""), "", "i", "", "i")),
+            "$_{i}{i}$",
+        ),
+        (
+            shown(&nary(Some("∑"), "<m:grow m:val=\"0\"/>", "i", "", "i")),
+            "${\\textstyle \\sum_{i}{i}}$",
+        ),
+        (
+            shown(&nary(
+                Some("∑"),
+                "<m:limLoc m:val=\"subSup\"/>",
+                "i",
+                "n",
+                "i",
+            )),
+            "$\\sum_{i}^{n}{i}$",
+        ),
+        (
+            shown(&nary(Some("∬"), "", "0", "1", "x")),
+            "$\\iint_{0}^{1}{x}$",
+        ),
+        (shown(&nary(Some("∮"), "", "", "", "y")), "$\\oint{y}$"),
+        (
+            shown(&format!(
+                "<m:rad><m:radPr><m:degHide m:val=\"0\"/></m:radPr><m:deg>{}</m:deg><m:e>{}</m:e></m:rad>",
+                run("5"),
+                run("y")
+            )),
+            "$\\sqrt[5]{y}$",
+        ),
+        (
+            shown(&format!(
+                "<m:rad><m:deg></m:deg><m:e>{}</m:e></m:rad>",
+                run("w")
+            )),
+            "$\\sqrt{w}$",
+        ),
+        (
+            shown(&frac(
+                &frac(&run("a"), &run("b")),
+                &run("c"),
+            )),
+            "$\\frac{\\frac{a}{b}}{c}$",
+        ),
+        (
+            shown(&format!(
+                "<m:m><m:mPr><m:mcs><m:mc><m:mcPr><m:mcJc m:val=\"right\"/></m:mcPr></m:mc><m:mc><m:mcPr><m:mcJc m:val=\"left\"/></m:mcPr></m:mc></m:mcs></m:mPr><m:mr><m:e>{}</m:e><m:e>{}</m:e></m:mr></m:m>",
+                run("a"),
+                run("b")
+            )),
+            "$\\begin{array}{rl}a&b\\end{array}$",
+        ),
+        (
+            shown(&format!(
+                "<m:m><m:mPr><m:mcs><m:mc><m:mcPr><m:count m:val=\"2\"/><m:mcJc m:val=\"left\"/></m:mcPr></m:mc></m:mcs></m:mPr><m:mr><m:e>{}</m:e></m:mr></m:m>",
+                run("a")
+            )),
+            "$\\begin{array}{ll}a&\\end{array}$",
+        ),
+        (
+            shown(&format!(
+                "<m:m><m:mPr><m:mcs><m:mc><m:mcPr><m:count m:val=\"0\"/><m:mcJc m:val=\"left\"/></m:mcPr></m:mc></m:mcs></m:mPr><m:mr><m:e>{}</m:e></m:mr></m:m>",
+                run("z")
+            )),
+            "$\\begin{array}{l}z\\end{array}$",
+        ),
+        (
+            shown(&format!(
+                "<m:m><m:mPr><m:mcs><m:mc><m:mcPr><m:mcJc m:val=\"center\"/></m:mcPr></m:mc></m:mcs></m:mPr><m:mr><m:e>{}</m:e></m:mr></m:m>",
+                run("a")
+            )),
+            "$\\begin{matrix}a\\end{matrix}$",
+        ),
+        (
+            shown(&format!(
+                "<m:m><m:mr><m:e>{}</m:e><m:e></m:e><m:e>{}</m:e></m:mr></m:m>",
+                run("a"),
+                run("c")
+            )),
+            "$\\begin{matrix}a&&c\\end{matrix}$",
+        ),
+        (
+            shown(&format!(
+                "<m:d><m:e><m:m><m:mr><m:e>{}</m:e><m:e>{}</m:e></m:mr><m:mr><m:e>{}</m:e><m:e>{}</m:e></m:mr></m:m></m:e></m:d>",
+                run("a"),
+                run("b"),
+                run("c"),
+                run("d")
+            )),
+            "$\\left(\\begin{matrix}a&b\\\\c&d\\end{matrix}\\right)$",
+        ),
+        (
+            shown(&delim(
+                "<m:begChr m:val=\"|\"/><m:endChr m:val=\"|\"/>",
+                &["v"],
+            )),
+            "$\\left|v\\right|$",
+        ),
+        (
+            shown(&delim(
+                "<m:begChr m:val=\"‖\"/><m:endChr m:val=\"‖\"/>",
+                &["w2"],
+            )),
+            "$\\left\\|w2\\right\\|$",
+        ),
+        (
+            shown(&delim("<m:sepChr m:val=\"|\"/>", &["a", "b", "c"])),
+            "$\\left(a|b|c\\right)$",
+        ),
+        (
+            shown(&delim("<m:sepChr m:val=\"\"/>", &["a", "b", "c"])),
+            "$\\left(abc\\right)$",
+        ),
+        (shown(&delim("<m:grow/>", &["q"])), "$\\left(q\\right)$"),
+        (shown(&delim("<m:grow m:val=\"0\"/>", &["g"])), "$(g)$"),
+        (shown(&delim("<m:begChr/>", &["x"])), "$\\left.x\\right)$"),
+        (
+            shown(&delim("<m:begChr m:val=\"\"/>", &["e2"])),
+            "$\\left.e2\\right)$",
+        ),
+        (
+            shown(&delim(
+                "<m:begChr m:val=\"⟨\"/><m:endChr m:val=\"⟩\"/>",
+                &["v"],
+            )),
+            "$\\left\\langle v\\right\\rangle$",
+        ),
+        (
+            shown(&delim(
+                "<m:begChr m:val=\"⌊\"/><m:endChr m:val=\"⌋\"/>",
+                &["v"],
+            )),
+            "$\\left\\lfloor v\\right\\rfloor$",
+        ),
+        (
+            shown(&delim(
+                "<m:begChr m:val=\"⌈\"/><m:endChr m:val=\"⌉\"/>",
+                &["v"],
+            )),
+            "$\\left\\lceil v\\right\\rceil$",
+        ),
+        (
+            display("left", &frac(&run("a"), &run("b"))),
+            "$$\n\\begin{aligned}&\\frac{a}{b}\\end{aligned}\n$$",
+        ),
+        (
+            display("right", &frac(&run("c"), &run("d"))),
+            "$$\n\\begin{aligned}\\frac{c}{d}&\\end{aligned}\n$$",
+        ),
+        (shown(&run("a^b")), "$a\\^{}b$"),
+        (shown(&run("a&amp;b")), "$a\\&b$"),
+        (shown(&run("a\\b")), "$a\\backslash b$"),
+        (shown(&run("\u{1D400}")), "$\\mathbf{A}$"),
+        (shown(&run("\u{1D45E}")), "$q$"),
+        (shown(&run("\u{1D5A1}")), "$\\mathsf{B}$"),
+        (shown(&run("\u{1D672}")), "$\\mathtt{C}$"),
+        (shown(&run("\u{1D482}")), "$\\boldsymbol{a}$"),
+        (shown(&run("ℕ")), "$\\mathbb{N}$"),
+        (shown(&run("ℓ")), "$\\ell$"),
+        (shown(&run("ℏ")), "$\\hbar$"),
+        (shown(&run("℘")), "$\\wp$"),
+        (shown(&run("ℑ")), "$\\Im$"),
+        (shown(&run("ℜ")), "$\\Re$"),
+        (shown(&run("∴")), "$\\therefore$"),
+        (shown(&run("∵")), "$\\because$"),
+        (shown(&run("≪")), "$\\ll$"),
+        (shown(&run("≫")), "$\\gg$"),
+        (shown(&run("x″")), "$x''$"),
+        (shown(&run("90°")), "$90^{\\circ}$"),
+        (
+            shown(&run("±∓÷·∞∂∀∃∅⊕⊗⊥∠…←↔⇒")),
+            "$\\pm \\mp \\div \\cdot \\infty \\partial \\forall \\exists \\emptyset \\oplus \\otimes \\perp \\angle \\ldots \\leftarrow \\leftrightarrow \\Rightarrow$",
+        ),
+        (shown(&run("εϵ")), "$\\varepsilon \\epsilon$"),
+        (
+            shown(&phant("<m:show m:val=\"0\"/><m:zeroAsc m:val=\"1\"/>", "xa")),
+            "$\\smash[t]{\\phantom{xa}}$",
+        ),
+        (
+            shown(&phant(
+                "<m:show m:val=\"0\"/><m:zeroWid m:val=\"1\"/><m:zeroAsc m:val=\"1\"/>",
+                "x",
+            )),
+            "$\\smash[t]{\\vphantom{x}}$",
+        ),
+        (
+            shown(&phant(
+                "<m:show m:val=\"0\"/><m:zeroWid m:val=\"1\"/><m:zeroDesc m:val=\"1\"/>",
+                "x",
+            )),
+            "$\\smash[b]{\\vphantom{x}}$",
+        ),
+        (
+            shown(&phant("<m:show m:val=\"0\"/><m:zeroDesc m:val=\"1\"/>", "x")),
+            "$\\smash[b]{\\phantom{x}}$",
+        ),
+        (
+            shown(&phant("<m:show m:val=\"0\"/><m:zeroWid m:val=\"1\"/>", "h")),
+            "$\\vphantom{h}$",
+        ),
+        (
+            shown(&phant("<m:show m:val=\"0\"/>", "ph")),
+            "$\\phantom{ph}$",
+        ),
+        (
+            shown(&phant(
+                "<m:show m:val=\"1\"/><m:zeroWid m:val=\"1\"/>",
+                "see",
+            )),
+            "$see$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/>",
+                "bare",
+            )),
+            "$bare$",
+        ),
+        (
+            shown(&border("<m:hideLeft m:val=\"1\"/>", "side")),
+            "$\\boxed{side}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/>",
+                "top",
+            )),
+            "$\\overline{top}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/>",
+                "bot",
+            )),
+            "$\\underline{bot}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/>",
+                "tb",
+            )),
+            "$\\overline{\\underline{tb}}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/><m:strikeTLBR m:val=\"1\"/>",
+                "s1",
+            )),
+            "$\\cancel{s1}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/><m:strikeBLTR m:val=\"1\"/>",
+                "s2",
+            )),
+            "$\\bcancel{s2}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/><m:strikeTLBR m:val=\"1\"/><m:strikeBLTR m:val=\"1\"/>",
+                "s3",
+            )),
+            "$\\xcancel{s3}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/><m:strikeH m:val=\"1\"/>",
+                "sh",
+            )),
+            "$\\overline{\\underline{sh}}$",
+        ),
+        (
+            shown(&border(
+                "<m:hideTop m:val=\"1\"/><m:hideBot m:val=\"1\"/><m:hideLeft m:val=\"1\"/><m:hideRight m:val=\"1\"/><m:strikeV m:val=\"1\"/>",
+                "sv",
+            )),
+            "$\\left.sv\\middle|\\right.$",
+        ),
+        (
+            shown(&border("<m:strikeTLBR m:val=\"1\"/>", "bx")),
+            "$\\cancel{\\boxed{bx}}$",
+        ),
+        (shown("<m:custom><m:r><m:t>z9</m:t></m:r></m:custom>"), "$z9$"),
+    ];
+    let mut body = String::from(
+        "<?xml version=\"1.0\"?><w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><w:body>",
+    );
+    for (block, _) in &cases {
+        body.push_str(block);
+    }
+    body.push_str(&format!(
+        "<w:p><w:r><w:t>Keep</w:t></w:r>{}<w:r><w:t>End</w:t></w:r></w:p>",
+        om(&phant(
+            "<m:show m:val=\"0\"/><m:zeroWid m:val=\"1\"/><m:zeroAsc m:val=\"1\"/><m:zeroDesc m:val=\"1\"/>",
+            "x"
+        ))
+    ));
+    body.push_str(&format!(
+        "<w:p><w:r><w:t xml:space=\"preserve\">Hello </w:t></w:r>{}<w:r><w:t>there</w:t></w:r></w:p>",
+        om("")
+    ));
+    body.push_str(&format!(
+        "<w:p><w:r><w:t xml:space=\"preserve\">Pad </w:t></w:r>{}<w:r><w:t>side</w:t></w:r></w:p>",
+        om(&run("   "))
+    ));
+    body.push_str(&para(&format!("{}{}", om(&run("aa")), om(&run("bb")))));
+    body.push_str("<w:p><w:r><w:t>BEFORE</w:t></w:r></w:p>");
+    body.push_str(&display("", ""));
+    body.push_str("<w:p><w:r><w:t>AFTER</w:t></w:r></w:p>");
+    body.push_str(&format!(
+        "<w:p><w:pPr><w:numPr><w:ilvl w:val=\"0\"/><w:numId w:val=\"1\"/></w:numPr></w:pPr><m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><m:oMath>{}</m:oMath></m:oMathPara></w:p>",
+        frac(&run("1"), &run("2"))
+    ));
+    body.push_str(&format!(
+        "<w:p><w:r><w:t xml:space=\"preserve\">in </w:t></w:r><w:sdt><w:sdtContent>{}</w:sdtContent></w:sdt></w:p>",
+        om(&run("k"))
+    ));
+    body.push_str(&format!(
+        "<w:p><w:r><w:t xml:space=\"preserve\">new </w:t></w:r><w:ins w:id=\"1\" w:author=\"Ada\">{}</w:ins></w:p>",
+        om(&run("w"))
+    ));
+    body.push_str(&format!(
+        "<w:p><w:r><w:t xml:space=\"preserve\">Eq </w:t></w:r><m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><m:oMath>{}</m:oMath></m:oMathPara></w:p>",
+        frac(&run("9"), &run("8"))
+    ));
+    body.push_str(
+        "<w:p><w:r><w:t>End</w:t></w:r><w:r><w:endnoteReference w:id=\"3\"/></w:r></w:p>",
+    );
+    body.push_str(
+        "<w:p><w:r><w:t>Noted</w:t></w:r><w:r><w:commentReference w:id=\"1\"/></w:r></w:p>",
+    );
+    body.push_str(&format!(
+        "<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Cell</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:tc><w:p><m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><m:oMath>{}</m:oMath></m:oMathPara></w:p></w:tc></w:tr></w:tbl>",
+        frac(&run("3"), &run("4"))
+    ));
+    body.push_str(&format!(
+        "<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Nest</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:tc><w:tbl><w:tr><w:tc><w:p>{}</w:p></w:tc></w:tr><w:tr><w:tc><w:p><w:r><w:t>Eq</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:tc></w:tr></w:tbl>",
+        om(&delim(
+            "<m:begChr m:val=\"|\"/><m:endChr m:val=\"|\"/>",
+            &["n"]
+        ))
+    ));
+    body.push_str("<w:sectPr><w:headerReference w:type=\"default\" r:id=\"rIdH\"/><w:footerReference w:type=\"default\" r:id=\"rIdFoot\"/></w:sectPr></w:body></w:document>");
+    let numbering = r#"<?xml version="1.0"?><w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="1"><w:lvl w:ilvl="0"><w:numFmt w:val="bullet"/></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num></w:numbering>"#;
+    let endnotes = format!(
+        "<?xml version=\"1.0\"?><w:endnotes xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:endnote w:id=\"3\"><w:p>{}</w:p></w:endnote></w:endnotes>",
+        om(&run("e"))
+    );
+    let header = format!(
+        "<?xml version=\"1.0\"?><w:hdr xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:p>{}</w:p></w:hdr>",
+        om(&run("HEADERONLY"))
+    );
+    let footer = format!(
+        "<?xml version=\"1.0\"?><w:ftr xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:p>{}</w:p></w:ftr>",
+        om(&run("FOOTERONLY"))
+    );
+    let comments = format!(
+        "<?xml version=\"1.0\"?><w:comments xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:comment w:id=\"1\" w:author=\"Ada\"><w:p>{}</w:p></w:comment></w:comments>",
+        om(&run("COMMENTONLY"))
+    );
+    let bytes = package(
+        &body,
+        r#"<Relationship Id="rIdN" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/><Relationship Id="rIdE" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes" Target="endnotes.xml"/><Relationship Id="rIdH" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rIdFoot" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rIdC" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="comments.xml"/>"#,
+        &[
+            ("word/numbering.xml", numbering.as_bytes()),
+            ("word/endnotes.xml", endnotes.as_bytes()),
+            ("word/header1.xml", header.as_bytes()),
+            ("word/footer1.xml", footer.as_bytes()),
+            ("word/comments.xml", comments.as_bytes()),
+        ],
+    )?;
+    let doc = Document::read_bytes(&bytes).map_err(err)?;
+    let exported = doc.to_markdown().map_err(err)?;
+    let markdown = exported.markdown.as_str();
+    for (_, fragment) in &cases {
+        if !markdown.contains(fragment) {
+            return Err(format!("missing {fragment:?}\n\n{markdown}"));
+        }
+    }
+    for fragment in [
+        "KeepEnd",
+        "Hello there",
+        "Pad side",
+        "$aa$ $bb$",
+        "BEFORE\n\nAFTER",
+        "- $$\\frac{1}{2}$$",
+        "in $k$",
+        "new $w$",
+        "Eq \n\n$$\n\\frac{9}{8}\n$$",
+        "End[^end-3]",
+        "[^end-3]: $e$",
+        "Noted",
+        "| $$\\frac{3}{4}$$ |",
+        "\\| $\\left|n\\right|$ \\|<br>\\| --- \\|<br>\\| Eq \\|",
+    ] {
+        if !markdown.contains(fragment) {
+            return Err(format!("missing {fragment:?}\n\n{markdown}"));
+        }
+    }
+    for absent in ["HEADERONLY", "FOOTERONLY", "COMMENTONLY", "$$$$"] {
+        if markdown.contains(absent) {
+            return Err(format!("{absent} leaked\n\n{markdown}"));
+        }
+    }
+    if markdown.contains("\\limits") && markdown.contains("\\sum_{i}^{n}") {
+        return Err(format!(
+            "an explicit side limit gained \\limits\n\n{markdown}"
+        ));
+    }
+    let saved = doc.write_bytes().map_err(err)?;
+    let package = edgedoc_opc::read_zip(&saved, &edgedoc::Budget::default()).map_err(err)?;
+    let document = package
+        .part("word/document.xml")
+        .ok_or("the saved package has no document")?;
+    let xml = String::from_utf8_lossy(&document.bytes);
+    for marker in [
+        "<m:scr",
+        "<m:argSz",
+        "<m:mcs",
+        "<m:brk",
+        "<m:aln",
+        "<m:borderBox",
+        "xmlns:m=",
+    ] {
         if !xml.contains(marker) {
             return Err(format!("saved document lost {marker}"));
         }
