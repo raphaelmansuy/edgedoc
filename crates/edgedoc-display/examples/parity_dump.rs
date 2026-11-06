@@ -7,7 +7,7 @@ use edgedoc_display::{DisplayDocument, Op, OpenOptions};
 use serde_json::json;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut args = std::env::args().skip(1);
+    let mut args = std::env::args().skip(1).peekable();
     let input = PathBuf::from(args.next().ok_or("Missing input DOCX")?);
     let out = PathBuf::from(args.next().ok_or("Missing output directory")?);
     let mut doc = DisplayDocument::open(&std::fs::read(&input)?, &OpenOptions::default())?;
@@ -21,11 +21,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             _ => return Err(format!("Unknown option {option}").into()),
         };
         let path = args.next().ok_or("Missing font path")?;
+        let index: u32 = if args.peek().is_some_and(|value| value == "--font-index") {
+            args.next();
+            args.next().ok_or("Missing collection index")?.parse()?
+        } else {
+            0
+        };
         let id = doc
             .fonts_mut()
-            .load(std::fs::read(&path)?, None, bold, italic, false)
+            .load_indexed(std::fs::read(&path)?, index, None, bold, italic, false)
             .ok_or_else(|| format!("Cannot load font {path}"))?;
-        loaded_fonts.push(json!({ "path": path, "id": id, "bold": bold, "italic": italic }));
+        loaded_fonts.push(
+            json!({ "path": path, "id": id, "index": index, "bold": bold, "italic": italic }),
+        );
     }
     let report = doc.layout()?;
     let font_sources: std::collections::BTreeMap<_, _> = doc
@@ -36,7 +44,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             loaded_fonts.iter().find_map(|loaded| {
                 let id = loaded["id"].as_u64()? as u32;
                 let supplied = doc.fonts().face(id)?;
-                (face.data() == supplied.data()).then(|| (face.id, loaded["path"].clone()))
+                (face.data() == supplied.data() && face.index == supplied.index)
+                    .then(|| (face.id, loaded["path"].clone()))
             })
         })
         .collect();
@@ -89,9 +98,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let (dx, dy) = run.offsets.get(i).copied().unwrap_or_default();
                     chars.push(
                         json!({ "text": shown.unwrap_or(""), "x": x + dx, "baseline": run.y + dy,
-                        "size": run.size, "font": face.family, "bold": face.bold || run.synth_bold,
-                        "italic": face.italic || run.synth_italic, "advance": run.advances.get(i),
-                        "gid": gid, "font_path": font_sources.get(&face.id) }),
+                        "size": run.size, "font": face.family, "bold": face.weight >= 700 || run.synth_bold,
+                        "italic": face.intrinsic_italic || run.synth_italic, "advance": run.advances.get(i),
+                        "gid": gid, "font_index": face.index, "font_path": font_sources.get(&face.id) }),
                     );
                     x += run.advances.get(i).copied().unwrap_or_default();
                 }

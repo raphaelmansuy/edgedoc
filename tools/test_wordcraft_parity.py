@@ -116,7 +116,7 @@ class ParityGateTests(unittest.TestCase):
             edge = {"source_sha256": source_hash, "build_inputs_sha256": "build", "diagnostics": [],
                     "fonts": [{"path": str(font), "sha256": font_hash}], "pages": [copy.deepcopy(page)]}
             reference = {"source_sha256": source_hash, "reference": {"test": True},
-                         "fonts": [{"sha256": font_hash}], "pages": [copy.deepcopy(page)]}
+                         "fonts": [{"sha256": font_hash, "index": 0}], "pages": [copy.deepcopy(page)]}
             if mutate:
                 mutate(edge, reference)
             parity.save_json(case / "edgedoc/layout.json", edge)
@@ -214,6 +214,21 @@ class ParityGateTests(unittest.TestCase):
         char = lambda text, x: {"text": text, "x": x, "baseline": 10}
         self.assertNotEqual(parity.lines([char("ab", 0)])[0]["text"],
                             parity.lines([char("a", 0), char(" ", 1), char("b", 2)])[0]["text"])
+
+
+class ReferenceFaceEvidenceTest(unittest.TestCase):
+    def test_requires_the_exact_collection_face_and_reports_missing_evidence(self):
+        supplied = [{"sha256": "font-a"}, {"sha256": "font-b"}]
+        reference = [
+            {"sha256": "font-a", "index": 0},
+            {"sha256": "font-b", "index": 1},
+            {"sha256": "font-c", "index": 0},
+            {"sha256": "font-a"},
+        ]
+        self.assertEqual(parity.missing_reference_faces(reference, supplied), reference[1:])
+        supplied.append({"sha256": "font-b", "index": 1})
+        self.assertEqual(parity.missing_reference_faces(reference, supplied), reference[2:])
+
 
 
 if __name__ == "__main__":

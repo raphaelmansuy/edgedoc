@@ -72,11 +72,17 @@ def render(out, case, fonts):
     font_hashes = {}
     for font in fonts:
         style, path = font.split("=", 1)
+        style, _, index = style.partition(":")
+        index = int(index or 0)
         if style not in options:
             raise ValueError(f"Unknown font style {style}")
+        if index < 0:
+            raise ValueError("Font collection index must be nonnegative")
         path = str(Path(path).resolve())
         font_hashes[path] = digest(Path(path))
         command.extend([options[style], path])
+        if index:
+            command.extend(["--font-index", str(index)])
     if not font_hashes:
         raise ValueError("Supply --font regular=/path/to/font.ttf and any required bold/italic faces")
     renderer_command(command, "EdgeDoc", cwd=ROOT, env={**os.environ, "CARGO_TARGET_DIR": str(ROOT / "target")})
@@ -303,9 +309,10 @@ def reusable_reference(out, case, fonts):
         expected = []
         for argument in fonts:
             style, name = argument.split("=", 1)
+            style, _, index = style.partition(":")
             path = Path(name).resolve()
-            expected.append((str(path), digest(path), *styles[style]))
-        actual = [(str(Path(font["path"]).resolve()), font["sha256"], font["bold"], font["italic"]) for font in prior_edge["fonts"]]
+            expected.append((str(path), digest(path), *styles[style], int(index or 0)))
+        actual = [(str(Path(font["path"]).resolve()), font["sha256"], font["bold"], font["italic"], font.get("index", 0)) for font in prior_edge["fonts"]]
         return bool(expected) and sorted(actual) == sorted(expected) and bool(reference["pages"]) and all(
             (folder / "wordcraft" / f"page-{index:03}.svg").exists()
             for index in range(1, len(reference["pages"]) + 1))
@@ -371,6 +378,12 @@ def image_evidence(folder, index, raster):
     return bool(visible_images("wordcraft") & visible_images("edgedoc"))
 
 
+def missing_reference_faces(reference_fonts, supplied_fonts):
+    """Find Wordcraft layout faces absent from EdgeDoc's supplied fonts."""
+    supplied = {(f["sha256"], f.get("index", 0)) for f in supplied_fonts}
+    return [f for f in reference_fonts if (f["sha256"], f.get("index")) not in supplied]
+
+
 def compare_case(out, entry):
     folder = out / entry["id"]
     evidence = [folder / p for p in ["input.docx", "wordcraft/layout.json", "edgedoc/layout.json"]]
@@ -396,9 +409,11 @@ def compare_case(out, entry):
     fonts = edge["fonts"]
     if not fonts or any(f.get("sha256") != digest(Path(f["path"])) for f in fonts):
         errors.append("Comparison fonts missing or changed since rendering")
-    supplied = {f["sha256"] for f in fonts}
-    if any(f["sha256"] not in supplied for f in reference["fonts"]):
-        errors.append({"reference_used_other_font_data": reference["fonts"]})
+    # Compare collection indices as well as bytes, including paragraph-mark faces
+    # that emitted no glyphs.
+    missing_faces = missing_reference_faces(reference["fonts"], fonts)
+    if missing_faces:
+        errors.append({"reference_used_other_font_data": missing_faces})
     if len(reference["pages"]) != len(edge["pages"]):
         errors.append({"page_count": {"wordcraft": len(reference["pages"]), "edgedoc": len(edge["pages"])}})
     text_evidence = bool(reference["pages"] and edge["pages"] and
@@ -425,7 +440,7 @@ def compare_case(out, entry):
                 for rc, ec in zip(rr["chars"], er["chars"]):
                     delta = max(abs(rc["x"] - ec["x"]), abs(rc["baseline"] - ec["baseline"]))
                     max_position = max(max_position, delta)
-                    if rc["font_sha256"] != ec.get("font_sha256") or rc["gid"] != ec.get("gid") or font_family(rc["font"]) != font_family(ec["font"]) or rc["bold"] != ec["bold"] or rc["italic"] != ec["italic"]:
+                    if rc["font_sha256"] != ec.get("font_sha256") or rc.get("font_index") != ec.get("font_index") or rc["gid"] != ec.get("gid") or font_family(rc["font"]) != font_family(ec["font"]) or rc["bold"] != ec["bold"] or rc["italic"] != ec["italic"]:
                         page_errors.append({"font_or_style_mismatch": [rc, ec]})
                         break
                     if abs(rc["size"] - ec["size"]) > SIZE_PT:

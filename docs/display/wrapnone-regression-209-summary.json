@@ -1,0 +1,1485 @@
+{
+  "source_report_sha256": "2cb5e34317a8ab2daebaf321ac09f63c35c59db015a88feeeb3f81b0c5b589de",
+  "source_manifest_sha256": "428cf78835cf60cb03fbe49342e17e09bfb18e0c6da8b8176f5c7e748e137eea",
+  "font_profile_sha256": "bf7a7ec4086c56b05317fb390a29a0a650177b76e94fc4ed2315a0fd784650dd",
+  "comparison_tool_sha256": "20dba900a13a67c46f47d21dbaba878b169925ba7580cbc70a4a58778ed777a6",
+  "edgedoc_build_inputs_sha256": "09a79ee1271e87f131a0bb64f5264b1483e080c8beea7fd325ae2989932078b1",
+  "reference": {
+    "engine": "Wordcraft",
+    "checkout": "/Users/raphaelmansuy/Github/03-working/wordcraft",
+    "commit": "1c7b5013fab765f204cf435b9f8814b46b7c1278",
+    "dirty": false,
+    "source_sha256": "d9dfcdbb23a4717a5486cf32f473e34036c501cc62ee100d681f3c3e9ba425c0",
+    "adapter_sha256": "71d11e2b83360651cdd55d63a5a87577c3b4511c8fb8edabc131cf381876c85c",
+    "adapter_lock_sha256": "c388e8e88c06283c98b7a436d18e6b32031c0b4f3b72cceb63716278d20673d1",
+    "adapter_manifest_sha256": "4402f6ec8ccedb1cf6c21598c31a6d82d91ce26466bb822f7cc0bcabcf92fa7d"
+  },
+  "counts": {
+    "passed": 209
+  },
+  "cases": [
+    {
+      "id": "a_column_break_survives_an_edited_save-0f6df3fc921617f1",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "a_long_paragraph_continues_without_repeating_or_dropping_lines-8ad99c4c125c4545",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "a_multi_page_table_keeps_each_row_once_and_repeats_its_header-392f8516a232609c",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "balancing_the_last_page_preserves_a_paragraph_continued_from_an_earlier_page-08362fd45718e7b9",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "bottom_vertical_alignment_reaches_the_bottom_margin-f569de52225d6067",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "changing_fonts_invalidates_previous_layout-7621e5a46e342c81",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "continuous_column_changes_start_below_the_previous_column_set-a55edd1dac74210e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "continuous_sections_keep_the_current_page-cdd50cbbc843d683",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "core-layout",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "docx4j-05-compatsetting",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-10-different_first_page",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-11-odd_even",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-12-odd_even_different_first_page",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-14-sections_multiple",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-15-simple_hf_long",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-16-simple_hf_margin",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-17-simple_hf_negative",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-18-indentation_firstline",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-19-indentation_hanging",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-20-numbering_indentation",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-21-numbering_indentation_firstline",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-22-numberingimplicitnumid",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "docx4j-23-startoverride",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-24-article-section-islgl",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-35-inheritance",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "docx4j-extra-1e7d1d3efb87",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-1f20434b03a2",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-20ef77f77b6b",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-26a250b12d9e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-34c8105d8043",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-369f021993fd",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-3cb15414a412",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-40691fdb124e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-55d8615cc8b6",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-56cde1f750d1",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-5aeabaa6f7ce",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-5f88fa6951eb",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-638f7b5cdcfd",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-6eab0083efbc",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-781a065b2c97",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-7d3c41011a95",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-8144f451fd39",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-81d125b255ce",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-870fd1736e4e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-8d47c7fd5e25",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-8dfa675f6d80",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-9696b8ddce24",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri",
+        "Consolas"
+      ]
+    },
+    {
+      "id": "docx4j-extra-9adcf9b83290",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-a2da07fc299b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-bd04d7268f51",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-c1f28cd154cf",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-c4b3fba53439",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-ccdc62fe92eb",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-dabd9ba10828",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-f749038ff223",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "docx4j-extra-f97992ae2270",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "final_columns_balance_before_a_continuous_section-a55edd1dac74210e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-3f215bb4aa1275f0",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-b3b5a094580df065",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-b62b11dbab321b12",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "fixed_and_multiple_spacing_follow_wordcraft_baseline_rules-f13fabc411d03322",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "footer-paragraph-two-pages",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "grid-offset",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "half-percent-table",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "header-paragraph-two-pages",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "header-table-numbering",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "header-table-two-pages",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "header_and_footer_distances_are_measured_from_the_page_edges-df611536eddfc950",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "header_references_choose_variants_by_id_and_link_to_previous-6f70d2a973a67e34",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "identical_text_with_different_alignment_does_not_share_the_wrong_layout-b124d1abf40d0188",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "inline_page_and_column_breaks_change_the_flow-0f6df3fc921617f1",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "inline_page_and_column_breaks_change_the_flow-648cb50776287869",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "keep_with_next_moves_the_heading_with_its_following_paragraph-28021ee5d8b11fd8",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "ligatures_and_kerning_survive_layout_and_paint-185f3dca73c2301b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-817f20ba56cad56f",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-bf96f3099e4c6a3b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-d00df35b4648c335",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-fa16a42b8388c59e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "line_spacing_exact_at_least_and_multiple_reach_geometry-fd63cb0a011c777f",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "literal-percent-table",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "mirror_margins_move_the_inside_gutter_on_even_pages-0fe7037a055c498a",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "mirror_margins_move_the_inside_gutter_on_even_pages-d8054e17a6d7f053",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "nested-percent-table",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "numbered-header-two-sections",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "omitted_import_properties_follow_wordcraft_defaults-7eae5c39be2b8c3e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "over-percent-table",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "page_budget_is_enforced_and_hidden_text_can_be_shown-357232373f590274",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "page_budget_is_enforced_and_hidden_text_can_be_shown-d3870bae2e8374b4",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "page_limit_also_applies_between_sections-a4d3f69ddf27c6b2",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "painted_baselines_use_one_line_offset_and_respect_justified_positions-adc9ceac6ece36bd",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-01-complexnumberedlists",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-03-numberingwoverrides",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-05-difffirstpageheadfoot",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-06-fancyfoot",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-07-fieldcodes",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-08-fldsimple",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-09-headerfooterunicode",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-10-headers",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-11-illustrativecases",
+      "status": "passed",
+      "diagnostics": [
+        "Albertus Medium",
+        "Perpetua"
+      ]
+    },
+    {
+      "id": "poi-14-simpleheadthreecolfoot",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-15-styles",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-18-threecolfoot",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-19-threecolhead",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-20-threecolheadfoot",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-21-withtabs",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-26-headerfooter",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-27-headerpic",
+      "status": "passed",
+      "diagnostics": [
+        "Baltica"
+      ]
+    },
+    {
+      "id": "poi-29-sample",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-30-table-alignment",
+      "status": "passed",
+      "diagnostics": [
+        "Aptos"
+      ]
+    },
+    {
+      "id": "poi-31-table-indent",
+      "status": "passed",
+      "diagnostics": [
+        "Liberation Serif"
+      ]
+    },
+    {
+      "id": "poi-34-bug-paragraph-alignment",
+      "status": "passed",
+      "diagnostics": [
+        "Liberation Sans"
+      ]
+    },
+    {
+      "id": "poi-35-bug56075-changetracking_on",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-38-saut_page",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-01aeac572095",
+      "status": "passed",
+      "diagnostics": [
+        "Liberation Serif"
+      ]
+    },
+    {
+      "id": "poi-extra-0a64a8d86368",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-1962f4225443",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-29edb04b1174",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-2b9113f42ae4",
+      "status": "passed",
+      "diagnostics": [
+        "Liberation Serif"
+      ]
+    },
+    {
+      "id": "poi-extra-3e6e8e14b42a",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-3f9c9c787331",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-51b3af13ac07",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-52104d1357d4",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-56844fc65fc3",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-extra-6028920f22c7",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-62a6f4519bd5",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-6a6413f93cdd",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-6bd18ab3b455",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-6fd23c221b39",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-78a320dfb1f7",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-797bfdf13936",
+      "status": "passed",
+      "diagnostics": [
+        "Frutiger 55 Roman",
+        "Frutiger 45 Light"
+      ]
+    },
+    {
+      "id": "poi-extra-7f3e67a254ad",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-80ffb7986b23",
+      "status": "passed",
+      "diagnostics": [
+        "Liberation Serif"
+      ]
+    },
+    {
+      "id": "poi-extra-8895c0d98d26",
+      "status": "passed",
+      "diagnostics": [
+        "Liberation Serif"
+      ]
+    },
+    {
+      "id": "poi-extra-8e6608aa6526",
+      "status": "passed",
+      "diagnostics": [
+        "Cambria",
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-934359602172",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-946c228566ef",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-a27a2c2fb6b2",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-a6b2fc152435",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-a9e8fecc9e87",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-b6ce5cb05bd7",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-bad58e840052",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-bb1b8bd67870",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-cf380cd9dbe4",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-d81b24672f09",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-dac79ab57e4a",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-defcb06c352c",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri",
+        "Cambria"
+      ]
+    },
+    {
+      "id": "poi-extra-df49cb615afe",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-e035c87ed031",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-f7873179ad5d",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "poi-extra-fcd5027c3c76",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "poi-extra-ff44c21938b2",
+      "status": "passed",
+      "diagnostics": [
+        "Aptos"
+      ]
+    },
+    {
+      "id": "regression-a_column_break_survives_an_edited_save-3b1292818740b96b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-a_localized_default_style_applies_when_the_paragraph_omits_pstyle-f509c02fcf4648c0",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-a_paragraph_with_only_superscript_uses_its_shifted_line_metrics-d6b148a149487676",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-a_table_without_rows_does_not_create_endless_pages-83a1d7802f33716c",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-automatic_paragraph_spacing_overrides_numeric_spacing_and_survives_save-e6ad39054adcebd8",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-bullet_without_a_level_font_uses_the_paragraph_mark_face-1f5a083ecf55254d",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-bullet_without_a_level_font_uses_the_paragraph_text_face-f0d3d73b7df05547",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-cell_content_control_renders_as_a_table_cell-3bab4942affe1a76",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-cell_paragraph_spacing_and_zero_row_height_follow_wordcraft-69a0e63dd3c855bf",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-document_defaults_are_cascaded_without_rewriting_the_preserved_markup-f47a32be8c7145fa",
+      "status": "passed",
+      "diagnostics": []
+    },
+    {
+      "id": "regression-exact_line_spacing_must_fit_above_the_bottom_margin-819632974b3e5fb5",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-explicit_and_default_tabs_are_measured_from_the_column_margin_with_indents-ad1e5a5ef27a3c7b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-explicit_cell_borders_paint_shared_edges_without_table_inside_rules-e84212e7d41cd348",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-explicit_off_character_properties_override_inherited_formatting_after_save-ca4e3d61e214cce2",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-extra_multiple_spacing_may_extend_into_the_bottom_margin-5ae13eb4ef7b0257",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-7301662067fc3068",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-fields_keep_the_result_runs_font_and_do_not_display_xml_indentation-9437217bacf43520",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-final_hard_break_keeps_an_empty_line_before_the_next_paragraph-9785a5f361740687",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-footer_borders_keep_their_width_and_distance_from_text-9ed06cbba35249e0",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-inline_content_controls_render_their_runs_in_body_and_header-23a70d5b0fcc65d1",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-leader_glyphs_paint_without_polluting_the_text_layer-06fe6a73e472ab3b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-leading_tabs_preserve_the_first_glyph_origin_across_style_changes-bee7b308327b7408",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-missing_styles_defaults_survive_an_edited_save-64486a7d16359091",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-numbering_formats_and_start_overrides_are_read_from_their_elements-5ebfc6581d26980b",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-only_enabled_document_grids_request_unsupported_layout-bfa7cc5ac12d47b2",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-only_enabled_document_grids_request_unsupported_layout-cc12ec7510a828e0",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_border_spacing_takes_space_in_the_body_flow-0c5858946e0d597f",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_border_spacing_takes_space_in_the_body_flow-241a1f27e1b785cb",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_border_spacing_takes_space_in_the_body_flow-e0557c2b0b94bcd5",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_borders_cascade_by_side_without_losing_inherited_lines-8ee8dc7f6d5604f6",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_borders_inherit_until_an_explicit_set_replaces_them-86b23b43bd8a4dcc",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_space_before_is_retained_at_document_start-eca50350ac63efa5",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-paragraph_spacing_precedes_a_table_with_a_wide_preferred_grid-e36aa970eb07363e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-positional_tabs_align_to_margins_or_indents_and_roundtrip-0791e8291d633286",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-positional_tabs_align_to_margins_or_indents_and_roundtrip-d09984cdc951ac5c",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-proofing_and_bookmark_markers_do_not_insert_visible_object_widths-0f4876ce437410ac",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-proofing_and_bookmark_markers_do_not_insert_visible_object_widths-ec37702d476f2f0e",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-right_center_and_decimal_tabs_measure_the_text_that_follows-54acf73fb7ef87d8",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-right_center_and_decimal_tabs_measure_the_text_that_follows-72255c745b8a4f92",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-row_content_controls_render_once_and_survive_an_edited_save-4428a8cb3e5d0011",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-soft_hyphen_can_break_a_word_without_a_placeholder-ad0e1d79cc4607cd",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-space_before_after_explicit_breaks_follows_compatibility_mode-5a08c7ddedec066d",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-space_before_after_explicit_breaks_follows_compatibility_mode-b3ab95e85b519800",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-space_before_after_explicit_breaks_follows_compatibility_mode-dac25b3f6b66eef6",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-superscript_and_subscript_use_wordcraft_glyph_sizes-9b72fb15e93a1001",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-table_row_height_includes_cell_insets_and_border_bands-43dbb91a81bec4fa",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-theme_fonts_override_literal_names_and_survive_an_edited_save-42ab7909b8a239c5",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "regression-utf8_bom_does_not_truncate_preserved_style_defaults-9fed94e588304c1a",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "row-border-exception",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "section_properties_apply_to_the_section_they_end-2c5984a696f0ed99",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "sections_sharing_a_page_each_count_that_page-46d4eaaf7de0d606",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "separate_clipped_paragraphs_have_distinct_svg_clip_paths-fa6222773c8d3bf8",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "table-numbering-continuity",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "table-numbering-repeated-header",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-34a503e15750bf2a",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "table_compatibility_mode_controls_whether_text_or_border_aligns_to_margin-fa3203eb4cb612ed",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "tall_headers_and_footers_reserve_body_space_and_keep_all_their_lines-177986df98cc47f7",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    },
+    {
+      "id": "wide-explicit-table",
+      "status": "passed",
+      "diagnostics": [
+        "Calibri"
+      ]
+    }
+  ]
+}

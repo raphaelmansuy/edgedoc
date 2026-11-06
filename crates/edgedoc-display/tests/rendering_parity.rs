@@ -419,6 +419,30 @@ fn continuous_sections_keep_the_current_page() {
 }
 
 #[test]
+fn header_bottom_border_reserves_space_before_the_next_paragraph() {
+    let section = r#"<w:headerReference w:type="default" r:id="header"/>"#;
+    let border = r#"<w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="0"/></w:pBdr></w:pPr><w:r><w:t>First header line</w:t></w:r></w:p>"#;
+    let bordered = format!("{border}{}", p("Second header line"));
+    let plain = format!("{}{}", p("First header line"), p("Second header line"));
+    let a = render(&p("Body"), section, "", &[("header", &bordered)]);
+    let b = render(&p("Body"), section, "", &[("header", &plain)]);
+    let baseline = |doc: &DisplayDocument| {
+        doc.page(0)
+            .unwrap()
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_display::Op::Glyphs(g) if g.text.contains("Second header line") => {
+                    Some(g.y)
+                }
+                _ => None,
+            })
+            .unwrap()
+    };
+    assert!((baseline(&a) - baseline(&b) - 1.0).abs() < 0.01);
+}
+
+#[test]
 fn header_and_footer_distances_are_measured_from_the_page_edges() {
     let doc = render(
         &p("Body"),
@@ -531,6 +555,42 @@ fn painted_baselines_use_one_line_offset_and_respect_justified_positions() {
                 pen += g.advances[i];
             }
         }
+    }
+}
+
+#[test]
+fn explicitly_sized_margin_floating_table_wraps_following_text() {
+    let table = r#"<w:tbl><w:tblPr><w:tblW w:w="2400" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblpPr w:leftFromText="180" w:rightFromText="180" w:vertAnchor="text" w:horzAnchor="margin" w:tblpX="0" w:tblpY="0"/></w:tblPr><w:tblGrid><w:gridCol w:w="1200"/><w:gridCol w:w="1200"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="1200" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>Left</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1200" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>Right</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#;
+    for fixed in [false, true] {
+        let table = if fixed {
+            table.to_string()
+        } else {
+            table.replace(r#"<w:tblLayout w:type="fixed"/>"#, "")
+        };
+        let body = format!(
+            "{}{table}{}",
+            p("Before the table."),
+            p("Text beside this floating table continues around it.")
+        );
+        let display = render(&body, "", "", &[]);
+        let fragments = &display.pages()[0].fragments;
+        let rect = fragments
+            .iter()
+            .find_map(|f| match f {
+                Fragment::Table(t) => Some(t.rect),
+                _ => None,
+            })
+            .unwrap();
+        let text = fragments
+            .iter()
+            .find_map(|f| match f {
+                Fragment::Paragraph(p) if p.text.contains("Text beside") => Some(p),
+                _ => None,
+            })
+            .unwrap();
+        assert!((rect.w - 120.0).abs() < 0.01);
+        assert!(text.rect.y < rect.bottom());
+        assert!(text.rect.x + text.layout.lines[0].xs[0] >= rect.right() + 9.0 - 0.01);
     }
 }
 
@@ -968,6 +1028,524 @@ fn behind_page_anchored_image_does_not_consume_line_space_and_round_trips() {
 }
 
 #[test]
+fn foreground_page_anchored_image_paints_after_text_without_consuming_space() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="page"><wp:posOffset>914400</wp:posOffset></wp:positionH><wp:positionV relativeFrom="page"><wp:posOffset>914400</wp:posOffset></wp:positionV><wp:wrapNone/>"#);
+        value.replace("</wp:inline>", "</wp:anchor>")
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    display.layout().unwrap();
+    assert!(!display
+        .diagnostics()
+        .iter()
+        .any(|d| d.code == "display.unsupported_layout" && d.detail.contains("Floating picture")));
+    let page = display.page(0).unwrap();
+    let image_index = page
+        .ops
+        .iter()
+        .position(|op| matches!(op, edgedoc_display::Op::Image { .. }))
+        .expect("foreground image");
+    let text_index = page.ops.iter().position(|op| matches!(op, edgedoc_display::Op::Glyphs(g) if g.text.contains("This is my chunk"))).expect("text");
+    assert!(
+        image_index > text_index,
+        "foreground image must paint after its anchor paragraph"
+    );
+    let later_text = page
+        .ops
+        .iter()
+        .position(
+            |op| matches!(op, edgedoc_display::Op::Glyphs(g) if g.text.contains("End of chunk")),
+        )
+        .expect("later paragraph");
+    assert!(
+        later_text > image_index,
+        "later paragraphs retain Wordcraft's paint order"
+    );
+    if let edgedoc_display::Op::Image { rect, .. } = &page.ops[image_index] {
+        assert!(
+            (rect.x - 72.0).abs() < 0.01 && (rect.y - 72.0).abs() < 0.01,
+            "{rect:?}"
+        );
+    }
+}
+
+#[test]
+fn object_only_margin_square_anchor_keeps_its_paragraph_and_stays_diagnosed() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="margin"><wp:align>center</wp:align></wp:positionH><wp:positionV relativeFrom="margin"><wp:align>top</wp:align></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+        value = value.replace("</wp:inline>", "</wp:anchor>");
+        value.replace(r#"</w:drawing></w:r><w:r><w:t xml:space="preserve">    This is my chunk.</w:t></w:r></w:p>"#, r#"</w:drawing></w:r></w:p><w:p><w:r><w:t>This is my chunk with enough text to wrap around the central picture.</w:t></w:r></w:p>"#)
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    display.layout().unwrap();
+    assert!(display
+        .diagnostics()
+        .iter()
+        .any(|d| d.code == "display.unsupported_layout" && d.detail.contains("Floating picture")));
+    let page = display.page(0).unwrap();
+    let rect = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .expect("margin-anchored picture");
+    assert!((rect.y - 72.0).abs() < 0.01, "{rect:?}");
+    assert!(
+        (rect.x + rect.w / 2.0 - page.w / 2.0).abs() < 0.01,
+        "{rect:?}"
+    );
+    assert!(
+        display.pages()[0].fragments.iter().any(
+            |f| matches!(f, edgedoc_flow::Fragment::Paragraph(p) if p.text.contains('\u{fffc}'))
+        ),
+        "the anchor paragraph must remain in flow"
+    );
+    let paragraph = display.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|f| match f {
+            edgedoc_flow::Fragment::Paragraph(p) if p.text.contains("enough text") => Some(p),
+            _ => None,
+        })
+        .expect("wrapped paragraph");
+    let line = &paragraph.layout.lines[0];
+    let positions: Vec<_> = (line.c0..line.c1)
+        .filter(|k| {
+            matches!(
+                paragraph.layout.clusters[*k].kind,
+                edgedoc_text::ClusterKind::Text
+            )
+        })
+        .map(|k| paragraph.rect.x + line.xs[k - line.c0])
+        .collect();
+    assert!(positions.iter().any(|x| *x < rect.x));
+    assert!(positions.iter().any(|x| *x >= rect.right()));
+    assert!(
+        positions.iter().all(|x| *x < rect.x || *x >= rect.right()),
+        "text must not enter the image: {positions:?}"
+    );
+}
+
+#[test]
+fn square_wrap_aligns_each_clear_band_independently() {
+    for alignment in ["center", "right"] {
+        let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+        let bytes = replace_part(bytes, "word/document.xml", |xml| {
+            let start = xml.find("<wp:inline ").unwrap();
+            let end = xml[start..].find('>').unwrap() + start + 1;
+            let mut value = xml.to_string();
+            value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="margin"><wp:align>center</wp:align></wp:positionH><wp:positionV relativeFrom="margin"><wp:align>top</wp:align></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+            value = value.replace("</wp:inline>", "</wp:anchor>");
+            value.replace(r#"</w:drawing></w:r><w:r><w:t xml:space="preserve">    This is my chunk.</w:t></w:r></w:p>"#, &format!(r#"</w:drawing></w:r></w:p><w:p><w:pPr><w:jc w:val="{alignment}"/></w:pPr><w:r><w:t>This is my chunk with enough text to wrap around the central picture.</w:t></w:r></w:p>"#))
+        });
+        let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+        display.layout().unwrap();
+        let image = display
+            .page(0)
+            .unwrap()
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+                _ => None,
+            })
+            .unwrap();
+        let paragraph = display.pages()[0]
+            .fragments
+            .iter()
+            .find_map(|f| match f {
+                edgedoc_flow::Fragment::Paragraph(p) if p.text.contains("enough text") => Some(p),
+                _ => None,
+            })
+            .unwrap();
+        let line = &paragraph.layout.lines[0];
+        let positions: Vec<_> = (line.c0..line.c1)
+            .filter_map(|k| {
+                let cluster = &paragraph.layout.clusters[k];
+                matches!(cluster.kind, edgedoc_text::ClusterKind::Text).then(|| {
+                    let x = paragraph.rect.x + line.xs[k - line.c0];
+                    (x, x + cluster.adv)
+                })
+            })
+            .collect();
+        for (left, right) in [
+            (paragraph.rect.x, image.x),
+            (image.right(), paragraph.rect.right()),
+        ] {
+            let band: Vec<_> = positions
+                .iter()
+                .filter(|(x, _)| *x >= left - 0.01 && *x < right)
+                .collect();
+            assert!(!band.is_empty(), "{alignment}: {positions:?}");
+            let first = band.first().unwrap().0;
+            let last = band.last().unwrap().1;
+            if alignment == "center" {
+                assert!(
+                    ((first - left) - (right - last)).abs() < 0.1,
+                    "{alignment}: {band:?}"
+                );
+            } else {
+                assert!((right - last).abs() < 0.1, "{alignment}: {band:?}");
+            }
+        }
+    }
+}
+
+#[test]
+fn early_square_float_reflows_an_earlier_paragraph() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="margin"><wp:align>left</wp:align></wp:positionH><wp:positionV relativeFrom="margin"><wp:align>top</wp:align></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+        value = value.replace("</wp:inline>", "</wp:anchor>");
+        value.replace(r#"</w:drawing></w:r><w:r><w:t xml:space="preserve">    This is my chunk.</w:t></w:r></w:p>"#, r#"</w:drawing></w:r></w:p><w:p><w:r><w:t>This is my chunk with enough text to wrap around the central picture.</w:t></w:r></w:p>"#)
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    let report = display.layout().unwrap();
+    assert!(report.passes >= 2, "an early float needs a bounded reflow");
+    let page = display.page(0).unwrap();
+    let image = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .unwrap();
+    let text = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(g) if g.text.contains("Start of Chunk") => Some(g),
+            _ => None,
+        })
+        .unwrap();
+    assert!(
+        text.x >= image.right() - 0.01,
+        "earlier text must clear the image"
+    );
+    assert!(!report
+        .diagnostics
+        .iter()
+        .any(|d| d.code == "display.float_wrap_unstable"));
+}
+
+#[test]
+fn paragraph_anchored_square_picture_wraps_its_own_text() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+        value.replace("</wp:inline>", "</wp:anchor>")
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    let report = display.layout().unwrap();
+    assert!(report.passes >= 2);
+    let page = display.page(0).unwrap();
+    let pictures: Vec<_> = page
+        .ops
+        .iter()
+        .filter_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(pictures.len(), 1);
+    let text = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(g) if g.text.contains("This is my chunk") => Some(g),
+            _ => None,
+        })
+        .unwrap();
+    assert!(text.x >= pictures[0].right() - 0.01);
+    assert!(text.y < pictures[0].bottom());
+    assert!(!report
+        .diagnostics
+        .iter()
+        .any(|d| d.code == "display.float_wrap_unstable"));
+}
+
+#[test]
+fn top_bottom_picture_moves_its_paragraph_text_below_the_image() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV><wp:wrapTopAndBottom/>"#);
+        value.replace("</wp:inline>", "</wp:anchor>")
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    let report = display.layout().unwrap();
+    let page = display.page(0).unwrap();
+    let picture = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .unwrap();
+    let text = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(g) if g.text.contains("This is my chunk") => Some(g),
+            _ => None,
+        })
+        .unwrap();
+    assert!(text.y >= picture.bottom());
+    assert!(!report
+        .diagnostics
+        .iter()
+        .any(|d| d.code == "display.float_wrap_unstable"));
+}
+
+#[test]
+fn paragraph_float_uses_preceding_after_spacing_before_its_own_space() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+        value = value.replace("</wp:inline>", "</wp:anchor>");
+        value = value.replace(
+            "<w:p><w:r><w:t>Start of Chunk",
+            r#"<w:p><w:pPr><w:spacing w:after="400"/></w:pPr><w:r><w:t>Start of Chunk"#,
+        );
+        value.replace("</w:t></w:r></w:p><w:p><w:r><w:rPr><w:noProof/>", r#"</w:t></w:r></w:p><w:p><w:pPr><w:spacing w:before="300"/></w:pPr><w:r><w:rPr><w:noProof/>"#)
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    display.layout().unwrap();
+    let page = display.page(0).unwrap();
+    let picture = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .unwrap();
+    let previous = display.pages()[0]
+        .fragments
+        .iter()
+        .find_map(|f| match f {
+            edgedoc_flow::Fragment::Paragraph(p) if p.text.contains("Start of Chunk") => {
+                Some(p.rect)
+            }
+            _ => None,
+        })
+        .unwrap();
+    assert!((picture.y - previous.bottom() - 20.0).abs() < 0.01);
+}
+
+#[test]
+fn square_wrap_honors_the_requested_side_for_earlier_text() {
+    for (side, text_left) in [("left", true), ("right", false), ("largest", true)] {
+        let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+        let bytes = replace_part(bytes, "word/document.xml", |xml| {
+            let start = xml.find("<wp:inline ").unwrap();
+            let end = xml[start..].find('>').unwrap() + start + 1;
+            let mut value = xml.to_string();
+            value.replace_range(start..end, &format!(r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="margin"><wp:align>center</wp:align></wp:positionH><wp:positionV relativeFrom="margin"><wp:align>top</wp:align></wp:positionV><wp:wrapSquare wrapText="{side}"/>"#));
+            value = value.replace("</wp:inline>", "</wp:anchor>");
+            value.replace(r#"</w:drawing></w:r><w:r><w:t xml:space="preserve">    This is my chunk.</w:t></w:r></w:p>"#, r#"</w:drawing></w:r></w:p><w:p><w:r><w:t>This is my chunk with enough text to wrap around the central picture.</w:t></w:r></w:p>"#)
+        });
+        let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+        let report = display.layout().unwrap();
+        assert!(report.passes >= 2);
+        let page = display.page(0).unwrap();
+        let image = page
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+                _ => None,
+            })
+            .unwrap();
+        let text = page
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                edgedoc_display::Op::Glyphs(g) if g.text.contains("Start of Chunk") => Some(g),
+                _ => None,
+            })
+            .unwrap();
+        if text_left {
+            assert!(text.x < image.x, "{side}: {} >= {}", text.x, image.x);
+        } else {
+            assert!(
+                text.x >= image.right() - 0.01,
+                "{side}: {} < {}",
+                text.x,
+                image.right()
+            );
+        }
+    }
+}
+
+#[test]
+fn fully_blocked_square_float_moves_earlier_text_below_image() {
+    let bytes = include_bytes!("fixtures/inline-picture/wordcraft-case.docx");
+    let bytes = replace_part(bytes, "word/document.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="margin"><wp:align>left</wp:align></wp:positionH><wp:positionV relativeFrom="margin"><wp:align>top</wp:align></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+        value = value.replace("</wp:inline>", "</wp:anchor>");
+        value = value.replace(r#"<wp:extent cx="609600""#, r#"<wp:extent cx="6096000""#);
+        value.replace(r#"</w:drawing></w:r><w:r><w:t xml:space="preserve">    This is my chunk.</w:t></w:r></w:p>"#, r#"</w:drawing></w:r></w:p><w:p><w:r><w:t>This is my chunk with enough text to wrap around the central picture.</w:t></w:r></w:p>"#)
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    let report = display.layout().unwrap();
+    assert!(report.passes >= 2, "an early float needs a bounded reflow");
+    let page = display.page(0).unwrap();
+    let image = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .unwrap();
+    let text = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(g) if g.text.contains("Start of Chunk") => Some(g),
+            _ => None,
+        })
+        .unwrap();
+    assert!(
+        text.y >= image.bottom(),
+        "earlier text must move below the image"
+    );
+    assert!(!report
+        .diagnostics
+        .iter()
+        .any(|d| d.code == "display.float_wrap_unstable"));
+}
+
+#[test]
+fn header_paragraph_float_wraps_text_without_reserving_body_height() {
+    let bytes = include_bytes!("fixtures/inline-picture/header.docx");
+    let floated = replace_part(bytes, "word/headerInline.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV><wp:wrapSquare wrapText="bothSides"/>"#);
+        value.replace("</wp:inline>", "</wp:anchor>")
+    });
+    let no_picture = replace_part(bytes, "word/headerInline.xml", |xml| {
+        let start = xml.find("<w:drawing>").unwrap();
+        let end = xml[start..].find("</w:drawing>").unwrap() + start + "</w:drawing>".len();
+        let mut value = xml.to_string();
+        value.replace_range(start..end, "");
+        value
+    });
+    let mut floating = open_document(&floated, &OpenOptions::default()).unwrap();
+    floating.layout().unwrap();
+    let mut baseline = open_document(&no_picture, &OpenOptions::default()).unwrap();
+    baseline.layout().unwrap();
+    let page = floating.page(0).unwrap();
+    let picture = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Image { rect, .. } => Some(*rect),
+            _ => None,
+        })
+        .unwrap();
+    let text = page
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::Glyphs(g) if g.text.contains("This is my chunk") => Some(g),
+            _ => None,
+        })
+        .unwrap();
+    assert!(text.x >= picture.right() - 0.01);
+    let body_y = |display: &DisplayDocument| {
+        display.pages()[0]
+            .fragments
+            .iter()
+            .find_map(|f| match f {
+                Fragment::Paragraph(p) if p.text.contains("Start of Chunk") => Some(p.rect.y),
+                _ => None,
+            })
+            .unwrap()
+    };
+    assert!((body_y(&floating) - body_y(&baseline)).abs() < 0.01);
+}
+
+#[test]
+fn column_paragraph_no_wrap_pictures_respect_paint_order() {
+    for (header, behind) in [(false, false), (false, true), (true, false), (true, true)] {
+        let bytes = if header {
+            include_bytes!("fixtures/inline-picture/header.docx").as_slice()
+        } else {
+            include_bytes!("fixtures/inline-picture/wordcraft-case.docx").as_slice()
+        };
+        let part = if header {
+            "word/headerInline.xml"
+        } else {
+            "word/document.xml"
+        };
+        let bytes = replace_part(bytes, part, |xml| {
+            let start = xml.find("<wp:inline ").unwrap();
+            let end = xml[start..].find('>').unwrap() + start + 1;
+            let mut value = xml.to_string();
+            value.replace_range(start..end, &format!(r#"<wp:anchor behindDoc="{}"><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV><wp:wrapNone/>"#, u8::from(behind)));
+            value.replace("</wp:inline>", "</wp:anchor>")
+        });
+        let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+        display.layout().unwrap();
+        let ops = &display.page(0).unwrap().ops;
+        let image = ops
+            .iter()
+            .position(|op| matches!(op, edgedoc_display::Op::Image { .. }))
+            .unwrap();
+        let text = ops.iter().position(|op| matches!(op, edgedoc_display::Op::Glyphs(g) if g.text.contains("This is my chunk"))).unwrap();
+        assert_eq!(image < text, behind, "header={header}, behind={behind}");
+    }
+}
+
+#[test]
+fn page_anchored_images_in_headers_remain_diagnosed() {
+    let bytes = include_bytes!("fixtures/inline-picture/header.docx");
+    let bytes = replace_part(bytes, "word/headerInline.xml", |xml| {
+        let start = xml.find("<wp:inline ").unwrap();
+        let end = xml[start..].find('>').unwrap() + start + 1;
+        let mut value = xml.to_string();
+        value.replace_range(start..end, r#"<wp:anchor behindDoc="0"><wp:positionH relativeFrom="page"><wp:posOffset>914400</wp:posOffset></wp:positionH><wp:positionV relativeFrom="page"><wp:posOffset>914400</wp:posOffset></wp:positionV><wp:wrapNone/>"#);
+        value.replace("</wp:inline>", "</wp:anchor>")
+    });
+    let mut display = open_document(&bytes, &OpenOptions::default()).unwrap();
+    display.layout().unwrap();
+    assert!(display
+        .diagnostics()
+        .iter()
+        .any(|d| d.code == "display.unsupported_layout" && d.detail.contains("Floating picture")));
+}
+
+#[test]
 fn inline_pictures_share_lines_in_headers_and_table_cells() {
     for bytes in [
         include_bytes!("fixtures/inline-picture/header.docx").as_slice(),
@@ -1055,6 +1633,118 @@ fn small_caps_shape_lowercase_letters_as_smaller_capitals() {
         })
         .collect::<String>();
     assert!(text.contains("SMALL CAPS"));
+}
+
+#[test]
+fn unsupported_underline_patterns_are_diagnosed() {
+    for (underline, unsupported) in [
+        ("single", false),
+        ("double", false),
+        ("dotted", false),
+        ("wave", false),
+        ("customPattern", true),
+    ] {
+        let body = format!(
+            r#"<w:p><w:r><w:rPr><w:u w:val="{underline}"/></w:rPr><w:t>Text</w:t></w:r></w:p>"#
+        );
+        let bytes = package(&body, "", "", &[]);
+        let mut doc = open_document(&bytes, &OpenOptions::default()).unwrap();
+        doc.layout().unwrap();
+        assert_eq!(
+            doc.diagnostics()
+                .iter()
+                .any(|d| d.code == "display.unsupported_layout"
+                    && d.detail.contains("Extended character typography")),
+            unsupported,
+            "{underline}"
+        );
+    }
+}
+
+#[test]
+fn patterned_underlines_paint_the_requested_geometry() {
+    for (underline, dash_on) in [("dotted", 1.0f32), ("dash", 4.0)] {
+        let body = format!(
+            r#"<w:p><w:r><w:rPr><w:u w:val="{underline}"/></w:rPr><w:t>Alpha Beta</w:t></w:r></w:p>"#
+        );
+        let bytes = package(&body, "", "", &[]);
+        let mut doc = open_document(&bytes, &OpenOptions::default()).unwrap();
+        doc.layout().unwrap();
+        let styles: Vec<_> = doc
+            .page(0)
+            .unwrap()
+            .ops
+            .iter()
+            .filter_map(|op| match op {
+                edgedoc_display::Op::StrokePath { style, .. } if style.dash_len == 2 => Some(style),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(styles.len(), 1, "{underline}");
+        assert!((styles[0].dash[0] - styles[0].width * dash_on).abs() < 0.01);
+        assert!((styles[0].dash[1] - styles[0].width * 2.0).abs() < 0.01);
+    }
+}
+
+#[test]
+fn word_only_underlines_leave_spaces_unpainted() {
+    let body = r#"<w:p><w:r><w:rPr><w:u w:val="words"/></w:rPr><w:t>A B</w:t></w:r></w:p>"#;
+    let bytes = package(body, "", "", &[]);
+    let mut doc = open_document(&bytes, &OpenOptions::default()).unwrap();
+    doc.layout().unwrap();
+    let paths: Vec<_> = doc
+        .page(0)
+        .unwrap()
+        .ops
+        .iter()
+        .filter_map(|op| match op {
+            edgedoc_display::Op::StrokePath { segs, .. } => Some(segs),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(paths.len(), 2, "{paths:?}");
+    let (end, start) = match (&paths[0][1], &paths[1][0]) {
+        (edgedoc_paint::PathSeg::Line(end, _), edgedoc_paint::PathSeg::Move(start, _)) => {
+            (end, start)
+        }
+        pair => panic!("unexpected underline paths: {pair:?}"),
+    };
+    assert!(start > end, "the space between words must remain unpainted");
+}
+
+#[test]
+fn wavy_underline_paints_alternating_quadratic_curves() {
+    let body =
+        r#"<w:p><w:r><w:rPr><w:u w:val="wave"/></w:rPr><w:t>Wavy underline</w:t></w:r></w:p>"#;
+    let bytes = package(body, "", "", &[]);
+    let mut doc = open_document(&bytes, &OpenOptions::default()).unwrap();
+    doc.layout().unwrap();
+    let segs = doc
+        .page(0)
+        .unwrap()
+        .ops
+        .iter()
+        .find_map(|op| match op {
+            edgedoc_display::Op::StrokePath { segs, .. }
+                if segs
+                    .iter()
+                    .any(|s| matches!(s, edgedoc_paint::PathSeg::Quad(..))) =>
+            {
+                Some(segs)
+            }
+            _ => None,
+        })
+        .expect("wavy underline path");
+    let controls: Vec<_> = segs
+        .iter()
+        .filter_map(|s| match s {
+            edgedoc_paint::PathSeg::Quad(_, y, _, _) => Some(*y),
+            _ => None,
+        })
+        .take(2)
+        .collect();
+    assert_eq!(controls.len(), 2);
+    assert_ne!(controls[0], controls[1]);
 }
 
 #[test]

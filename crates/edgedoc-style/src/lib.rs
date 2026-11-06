@@ -194,6 +194,7 @@ pub struct ComputedRun {
     pub italic: bool,
     pub underline: bool,
     pub double_underline: bool,
+    pub underline_pattern: edgedoc_text::UnderlinePattern,
     pub strike: bool,
     pub double_strike: bool,
     pub size: f32,
@@ -241,6 +242,7 @@ impl Default for ComputedRun {
             italic: false,
             underline: false,
             double_underline: false,
+            underline_pattern: edgedoc_text::UnderlinePattern::Solid,
             strike: false,
             double_strike: false,
             size: 11.0,
@@ -948,6 +950,17 @@ fn apply_run(out: &mut ComputedRun, props: &CharProps) {
     }
     if let Some(value) = props.underline_val.as_deref() {
         out.double_underline = value == "double";
+        out.underline_pattern = match value {
+            "words" => edgedoc_text::UnderlinePattern::Words,
+            "wave" | "wavyDouble" | "wavyHeavy" => edgedoc_text::UnderlinePattern::Wave,
+            "thick" => edgedoc_text::UnderlinePattern::Thick,
+            "dotted" | "dottedHeavy" => edgedoc_text::UnderlinePattern::Dotted,
+            "dash" | "dotDash" | "dotDotDash" | "thickDash" | "dashLong" | "dashedHeavy"
+            | "dashLongHeavy" | "dashDotHeavy" | "dashDotDotHeavy" => {
+                edgedoc_text::UnderlinePattern::Dashed
+            }
+            _ => edgedoc_text::UnderlinePattern::Solid,
+        };
     }
     if props
         .underline_val

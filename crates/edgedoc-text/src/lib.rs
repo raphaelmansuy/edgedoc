@@ -217,6 +217,18 @@ impl Line {
     }
 }
 
+/// Underline stroke variants supported by the display list.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum UnderlinePattern {
+    #[default]
+    Solid,
+    Words,
+    Wave,
+    Thick,
+    Dotted,
+    Dashed,
+}
+
 /// One style of run, as the layout sees it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RunStyle {
@@ -233,6 +245,7 @@ pub struct RunStyle {
     pub underline: bool,
     /// Draw two underline strokes when the document requests a double underline.
     pub double_underline: bool,
+    pub underline_pattern: UnderlinePattern,
     /// Explicit underline colour; absent uses the text colour.
     pub underline_color: Option<edgedoc_geom::Rgba>,
     /// True when the run shows a single strikethrough.
@@ -276,6 +289,7 @@ fn default_style() -> RunStyle {
         color: edgedoc_geom::Rgba::BLACK,
         underline: false,
         double_underline: false,
+        underline_pattern: UnderlinePattern::Solid,
         underline_color: None,
         strike: false,
         double_strike: false,
@@ -336,6 +350,9 @@ pub struct BreakInput<'a> {
     pub default_tab: f32,
     /// Exclusions from floating objects, in paragraph coordinates.
     pub exclusions: &'a [Rect],
+    /// Line spacing used to locate exclusion bands before final line spacing is applied.
+    /// The tuple contains the spacing value, exact flag, and minimum flag.
+    pub exclusion_line_spacing: Option<(f32, bool, bool)>,
     /// True when a line may break between any two East Asian characters.
     pub word_wrap_off: bool,
     /// True when kinsoku applies: no line starts with a closing mark.
@@ -741,7 +758,7 @@ pub fn build_clusters<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Vec<Clus
 fn band_at(exclusions: &[Rect], y: f32, height: f32, left: f32, right: f32) -> Vec<(f32, f32)> {
     let mut blocked: Vec<(f32, f32)> = exclusions
         .iter()
-        .filter(|r| y < r.bottom() && r.y < y + height)
+        .filter(|r| y < r.bottom() && r.y < y + height && r.x < right && r.right() > left)
         .map(|r| (r.x, r.right()))
         .collect();
     if blocked.is_empty() {
@@ -756,13 +773,14 @@ fn band_at(exclusions: &[Rect], y: f32, height: f32, left: f32, right: f32) -> V
         }
         cursor = cursor.max(br);
         if cursor >= right {
-            return out;
+            break;
         }
     }
     if cursor < right {
         out.push((cursor, right));
     }
-    out.retain(|(a, b)| b - a > 0.5);
+    // Wordcraft requires at least 20 points of clear space beside a float.
+    out.retain(|(a, b)| b - a >= 20.0);
     out
 }
 
@@ -770,6 +788,65 @@ fn band_at(exclusions: &[Rect], y: f32, height: f32, left: f32, right: f32) -> V
 fn cluster_metrics<S: Shaper>(shaper: &S, style: &RunStyle) -> (f32, f32) {
     let (asc, desc, _) = shaper.line_metrics(style.face, style.line_size);
     (asc, desc)
+}
+
+/// Align the text in one clear band without moving text in earlier bands.
+fn align_float_band(
+    xs: &mut [f32],
+    clusters: &[Cluster],
+    line_start: usize,
+    from: usize,
+    to: usize,
+    right: f32,
+    align: Align,
+) -> f32 {
+    let mut visible = to;
+    while visible > from && matches!(clusters[visible - 1].kind, ClusterKind::Space) {
+        visible -= 1;
+    }
+    if visible == from {
+        return 0.0;
+    }
+    let end =
+        xs.get(visible - line_start - 1).copied().unwrap_or(right) + clusters[visible - 1].adv;
+    let free = (right - end).max(0.0);
+    let after_tab = clusters[from..to]
+        .iter()
+        .rposition(|c| matches!(c.kind, ClusterKind::Tab))
+        .map_or(from, |k| from + k + 1);
+    if align == Align::Justify {
+        let count = clusters[after_tab..visible]
+            .iter()
+            .filter(|c| matches!(c.kind, ClusterKind::Space))
+            .count();
+        if count == 0 {
+            return 0.0;
+        }
+        let per = free / count as f32;
+        let mut added = 0.0;
+        for (k, cluster) in clusters.iter().enumerate().take(to).skip(after_tab) {
+            if let Some(x) = xs.get_mut(k - line_start) {
+                *x += added;
+            }
+            if k < visible && matches!(cluster.kind, ClusterKind::Space) {
+                added += per;
+            }
+        }
+        return added;
+    }
+    let shift = match align {
+        Align::Center => free / 2.0,
+        Align::Right => free,
+        _ => 0.0,
+    };
+    for x in xs
+        .iter_mut()
+        .take(to - line_start)
+        .skip(after_tab - line_start)
+    {
+        *x += shift;
+    }
+    shift
 }
 
 /// Break a paragraph into lines. See `DP-F-47` and `DP-F-50`.
@@ -796,6 +873,7 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 color: edgedoc_geom::Rgba::BLACK,
                 underline: false,
                 double_underline: false,
+                underline_pattern: UnderlinePattern::Solid,
                 underline_color: None,
                 strike: false,
                 double_strike: false,
@@ -842,6 +920,22 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         };
     }
     let mut guard = 0usize;
+    let mut band_y = y;
+    // Wordcraft estimates the line height from the paragraph mark when deciding
+    // whether a floating shape overlaps a row.
+    let probe_height = input
+        .styles
+        .get(input.mark_style as usize)
+        .map_or(14.0, |style| {
+            let (asc, desc, gap) = shaper.line_metrics(style.face, style.line_size);
+            let natural = (asc + desc + gap.max(0.0)).max(1.0);
+            match input.exclusion_line_spacing {
+                Some((spacing, false, false)) if spacing.is_finite() && spacing > 0.0 => {
+                    (natural * spacing / 12.0).max(1.0)
+                }
+                _ => natural,
+            }
+        });
     while index < count {
         guard += 1;
         if guard > count + 4 {
@@ -855,8 +949,39 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         let line_left = indent;
         let line_right = input.indent_left + content_width;
         // The band is the full width unless an exclusion crosses the line.
-        let bands = band_at(input.exclusions, y, 1.0, line_left, line_right);
+        let mut bands = band_at(
+            input.exclusions,
+            band_y,
+            probe_height,
+            line_left,
+            line_right,
+        );
+        while bands.is_empty() {
+            let next = input
+                .exclusions
+                .iter()
+                .filter(|r| {
+                    band_y < r.bottom()
+                        && r.y < band_y + probe_height
+                        && r.x < line_right
+                        && r.right() > line_left
+                })
+                .map(|r| r.bottom())
+                .filter(|bottom| bottom.is_finite() && *bottom > band_y + 0.001)
+                .reduce(f32::min);
+            let Some(next) = next else { break };
+            y += next - band_y;
+            band_y = next;
+            bands = band_at(
+                input.exclusions,
+                band_y,
+                probe_height,
+                line_left,
+                line_right,
+            );
+        }
         let (band_left, mut band_right) = bands.first().copied().unwrap_or((line_left, line_right));
+        let mut remaining_bands = bands.into_iter().skip(1);
         let mut xs: Vec<f32> = Vec::new();
         let mut pen = band_left;
         let mut used = 0.0f32;
@@ -870,9 +995,11 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         let start_index = index;
         let mut cursor = band_left;
         let mut j = index;
+        let mut segment_from = index;
         let mut space_width = 0.0f32;
         let mut word_from = cursor;
         let mut has_tab = false;
+        let mut retry_below = None;
         while j < count {
             let Some(cluster) = clusters.get(j) else {
                 break;
@@ -986,7 +1113,7 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 // word. See DP-F-23 and DP-F-27.
                 if !matches!(cluster.kind, ClusterKind::Space) {
                     let mut cut = None;
-                    for k in (start_index..j).rev() {
+                    for k in (segment_from..j).rev() {
                         if clusters.get(k).is_some_and(|c| c.break_after)
                             && !matches!(
                                 clusters.get(k).map(|c| c.kind),
@@ -997,10 +1124,65 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                             break;
                         }
                     }
+                    // Continue the same row in another clear band, aligning each band
+                    // independently as Wordcraft does for square wrapping.
+                    if matches!(
+                        input.align,
+                        Align::Left | Align::Center | Align::Right | Align::Justify
+                    ) {
+                        if let Some((next_left, next_right)) = remaining_bands.next() {
+                            // If no word fits in this band, retry the entire word
+                            // in the next band rather than splitting it.
+                            let k = cut.unwrap_or(segment_from);
+                            xs.truncate(k - start_index);
+                            align_float_band(
+                                &mut xs,
+                                &clusters,
+                                start_index,
+                                segment_from,
+                                k,
+                                band_right,
+                                input.align,
+                            );
+                            j = k;
+                            segment_from = k;
+                            cursor = next_left;
+                            pen = cursor;
+                            used = cursor - band_left;
+                            band_right = next_right;
+                            last_fit = j;
+                            has_tab = true; // Do not shrink justified spaces across a float.
+                            continue;
+                        }
+                    }
                     // With no earlier opportunity, one word is wider than the band, so it
                     // overflows. See DP-F-27.
                     if let Some(k) = cut {
                         j = k;
+                    } else if segment_from > start_index {
+                        // A word that cannot fit in the last band starts on the
+                        // next row; keep the text already placed in earlier bands.
+                        j = segment_from;
+                        xs.truncate(j - start_index);
+                        cursor = xs.last().copied().unwrap_or(band_left)
+                            + clusters.get(j.saturating_sub(1)).map_or(0.0, |c| c.adv);
+                        pen = cursor;
+                        used = cursor - band_left;
+                    } else {
+                        // No clear band can hold the first word. Try below the
+                        // first intersecting float rather than splitting it.
+                        retry_below = input
+                            .exclusions
+                            .iter()
+                            .filter(|r| {
+                                band_y < r.bottom()
+                                    && r.y < band_y + probe_height
+                                    && r.x < line_right
+                                    && r.right() > line_left
+                            })
+                            .map(|r| r.bottom())
+                            .filter(|bottom| bottom.is_finite() && *bottom > band_y + 0.001)
+                            .reduce(f32::min);
                     }
                     break;
                 }
@@ -1021,6 +1203,11 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
             used = cursor - band_left;
             j += 1;
             last_fit = j;
+        }
+        if let Some(next) = retry_below {
+            y += next - band_y;
+            band_y = next;
+            continue;
         }
         let shrink_line =
             input.shrink_justified_spaces && input.align == Align::Justify && !has_tab;
@@ -1104,12 +1291,30 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
         let is_justified = matches!(input.align, Align::Justify | Align::Distribute)
             && !is_last
             && !matches!(end, LineEnd::LineBreak)
-            && free > 0.01;
+            && free > 0.01
+            && !(segment_from > start_index && input.align == Align::Justify);
         let mut shift = 0.0f32;
         match input.align {
             Align::Center => shift = (free / 2.0).max(0.0),
             Align::Right => shift = free.max(0.0),
             _ => {}
+        }
+        if segment_from > start_index
+            && (matches!(input.align, Align::Center | Align::Right)
+                || (input.align == Align::Justify && !is_last && matches!(end, LineEnd::Wrap)))
+        {
+            let added = align_float_band(
+                &mut xs,
+                &clusters,
+                start_index,
+                segment_from,
+                j,
+                band_right,
+                input.align,
+            );
+            cursor += added;
+            pen = cursor;
+            shift = 0.0;
         }
         if shrink_line && free < -0.001 {
             let total: f32 = clusters[start_index..visible_end]
@@ -1134,13 +1339,24 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
                 pen -= taken;
             }
         } else if is_justified {
-            // Stretch spaces and tabs. See DP-F-28 and DP-F-31.
+            // Wordcraft justifies only the part after the last tab, leaving the
+            // tab and everything before it anchored.
+            let align_from = clusters[start_index..j]
+                .iter()
+                .rposition(|c| matches!(c.kind, ClusterKind::Tab))
+                .map_or(0, |i| i + 1);
             let stretchable: Vec<usize> = clusters
                 .get(start_index..visible_end)
                 .unwrap_or(&[])
                 .iter()
                 .enumerate()
-                .filter(|(_, c)| c.is_stretchable())
+                .filter(|(i, c)| {
+                    if input.align == Align::Justify {
+                        *i >= align_from && matches!(c.kind, ClusterKind::Space)
+                    } else {
+                        c.is_stretchable()
+                    }
+                })
                 .map(|(i, _)| i)
                 .collect();
             let per = if stretchable.is_empty() {
@@ -1233,6 +1449,14 @@ pub fn layout_paragraph<S: Shaper>(shaper: &S, input: &BreakInput<'_>) -> Paragr
             leaders,
         });
         y += height;
+        band_y += match input.exclusion_line_spacing {
+            Some((spacing, true, _)) if spacing.is_finite() && spacing > 0.0 => spacing.max(1.0),
+            Some((spacing, _, true)) if spacing.is_finite() && spacing > 0.0 => height.max(spacing),
+            Some((spacing, _, _)) if spacing.is_finite() && spacing > 0.0 => {
+                (height * spacing / 12.0).max(1.0)
+            }
+            _ => height,
+        };
         index = j;
         first_line = false;
     }
@@ -1403,6 +1627,7 @@ mod tests {
             color: edgedoc_geom::Rgba::BLACK,
             underline: false,
             double_underline: false,
+            underline_pattern: UnderlinePattern::Solid,
             underline_color: None,
             strike: false,
             double_strike: false,
@@ -1442,6 +1667,7 @@ mod tests {
             tabs: &[],
             default_tab: 36.0,
             exclusions: &[],
+            exclusion_line_spacing: None,
             word_wrap_off: false,
             kinsoku: true,
             objects: &[],
@@ -1675,6 +1901,29 @@ mod tests {
     }
 
     #[test]
+    fn justification_keeps_text_before_the_last_tab_anchored() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "alpha beta\t \t\t\tmore";
+        let runs = [(0usize, text.len(), 0u32)];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 100.0;
+        let left = layout_paragraph(&shaper, &inp);
+        inp.align = Align::Justify;
+        let justified = layout_paragraph(&shaper, &inp);
+        let line = &justified.lines[0];
+        let tab = justified.clusters[line.c0..line.c1]
+            .iter()
+            .rposition(|c| matches!(c.kind, ClusterKind::Tab))
+            .unwrap();
+        assert!(justified.lines.len() > 1);
+        for i in 0..=tab {
+            assert!((line.xs[i] - left.lines[0].xs[i]).abs() < 0.01);
+        }
+    }
+
+    #[test]
     fn the_last_line_is_not_justified() {
         let db = db();
         let shaper = DbShaper { db: &db };
@@ -1899,6 +2148,88 @@ mod tests {
         assert!(layout.lines.len() > 1);
         // The first lines sit beside the float, so they are narrower than the full width.
         assert!(layout.lines[0].ink_width() <= 200.5);
+    }
+
+    #[test]
+    fn exclusion_bands_follow_final_line_spacing() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "The quick brown fox jumps over the lazy dog and keeps running along the road";
+        let runs = [(0usize, text.len(), 0u32)];
+        let exclusions = [Rect::new(0.0, 0.0, 100.0, 30.0)];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 200.0;
+        inp.exclusions = &exclusions;
+        inp.exclusion_line_spacing = Some((40.0, true, false));
+        let layout = layout_paragraph(&shaper, &inp);
+        assert!(layout.lines.len() > 1);
+        assert_eq!(layout.lines[0].left, 100.0);
+        assert_eq!(layout.lines[1].left, 0.0);
+    }
+
+    #[test]
+    fn narrow_float_gap_moves_text_below_the_exclusion() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "Start of Chunk";
+        let runs = [(0usize, text.len(), 0u32)];
+        let exclusions = [Rect::new(10.0, 0.0, 190.0, 30.0)];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 200.0;
+        inp.exclusions = &exclusions;
+        let layout = layout_paragraph(&shaper, &inp);
+        assert_eq!(layout.lines.len(), 1);
+        assert_eq!(layout.lines[0].top, 30.0);
+    }
+
+    #[test]
+    fn a_float_starting_within_a_line_blocks_that_line() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "Start of Chunk";
+        let runs = [(0usize, text.len(), 0u32)];
+        let exclusions = [Rect::new(0.0, 8.0, 200.0, 22.0)];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 200.0;
+        inp.exclusions = &exclusions;
+        let layout = layout_paragraph(&shaper, &inp);
+        assert_eq!(layout.lines[0].top, 30.0);
+    }
+
+    #[test]
+    fn a_word_that_does_not_fit_the_first_band_uses_the_next_band() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "continue on the next line";
+        let runs = [(0usize, text.len(), 0u32)];
+        let exclusions = [Rect::new(25.0, 0.0, 100.0, 30.0)];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 200.0;
+        inp.exclusions = &exclusions;
+        let layout = layout_paragraph(&shaper, &inp);
+        let first = &layout.lines[0];
+        assert!(first.xs[0] >= 125.0);
+        assert!(first.stop >= "continue".len());
+    }
+
+    #[test]
+    fn a_word_that_fits_neither_band_moves_below_the_float() {
+        let db = db();
+        let shaper = DbShaper { db: &db };
+        let styles = [style(11.0)];
+        let text = "Supercalifragilisticexpialidocious next";
+        let runs = [(0usize, text.len(), 0u32)];
+        let exclusions = [Rect::new(25.0, 0.0, 140.0, 30.0)];
+        let mut inp = input(text, &styles, &runs);
+        inp.width = 200.0;
+        inp.exclusions = &exclusions;
+        let layout = layout_paragraph(&shaper, &inp);
+        assert_eq!(layout.lines[0].top, 30.0);
+        assert!(layout.lines[0].stop >= "Supercalifragilisticexpialidocious".len());
     }
 
     #[test]

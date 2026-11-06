@@ -613,6 +613,92 @@ impl<S: Shaper> Lowerer<'_, S> {
                             paint: Paint::solid(style.underline_color.unwrap_or(ink)),
                         });
                     }
+                } else if style.underline_pattern == edgedoc_text::UnderlinePattern::Wave {
+                    let thickness = (style.size / 18.0).max(0.5);
+                    let amplitude = (thickness * 1.2).max(0.8);
+                    let extent = width.clamp(1.0, 20_000.0);
+                    let mut segs = vec![PathSeg::Move(first_x, y)];
+                    let mut from = 0.0f32;
+                    let mut up = true;
+                    while from < extent {
+                        let to = (from + amplitude * 2.0).min(extent);
+                        if to <= from {
+                            break;
+                        }
+                        let control_y = y + if up { -amplitude } else { amplitude };
+                        segs.push(PathSeg::Quad(
+                            first_x + (from + to) / 2.0,
+                            control_y,
+                            first_x + to,
+                            y,
+                        ));
+                        from = to;
+                        up = !up;
+                    }
+                    self.ops.push(Op::StrokePath {
+                        segs,
+                        paint: style.underline_color.unwrap_or(ink),
+                        style: StrokeStyle {
+                            width: thickness * 0.8,
+                            ..Default::default()
+                        },
+                    });
+                } else if style.underline_pattern == edgedoc_text::UnderlinePattern::Words {
+                    let line_width = (style.size / 18.0).max(0.5);
+                    for k in i..j {
+                        let Some(cluster) = layout.clusters.get(k) else {
+                            continue;
+                        };
+                        if !matches!(cluster.kind, edgedoc_text::ClusterKind::Text) {
+                            continue;
+                        }
+                        let left = line.xs.get(k - line.c0).copied().unwrap_or(0.0) + x0;
+                        let right = line
+                            .xs
+                            .get(k + 1 - line.c0)
+                            .copied()
+                            .unwrap_or(left - x0 + cluster.adv)
+                            + x0;
+                        if right > left {
+                            self.ops.push(Op::StrokePath {
+                                segs: vec![PathSeg::Move(left, y), PathSeg::Line(right, y)],
+                                paint: style.underline_color.unwrap_or(ink),
+                                style: StrokeStyle {
+                                    width: line_width,
+                                    ..Default::default()
+                                },
+                            });
+                        }
+                    }
+                } else if matches!(
+                    style.underline_pattern,
+                    edgedoc_text::UnderlinePattern::Dotted | edgedoc_text::UnderlinePattern::Dashed
+                ) {
+                    let line_width = (style.size / 18.0).max(0.5);
+                    let on = if style.underline_pattern == edgedoc_text::UnderlinePattern::Dotted {
+                        1.0
+                    } else {
+                        4.0
+                    };
+                    self.ops.push(Op::StrokePath {
+                        segs: vec![
+                            PathSeg::Move(first_x, y),
+                            PathSeg::Line(first_x + width.max(1.0), y),
+                        ],
+                        paint: style.underline_color.unwrap_or(ink),
+                        style: StrokeStyle {
+                            width: line_width,
+                            dash: [line_width * on, line_width * 2.0, 0.0, 0.0],
+                            dash_len: 2,
+                            ..Default::default()
+                        },
+                    });
+                } else if style.underline_pattern == edgedoc_text::UnderlinePattern::Thick {
+                    let line_width = (style.size / 18.0).max(0.5) * 2.0;
+                    self.ops.push(Op::FillRect {
+                        rect: Rect::new(first_x, y - line_width / 2.0, width.max(1.0), line_width),
+                        paint: Paint::solid(style.underline_color.unwrap_or(ink)),
+                    });
                 } else {
                     self.ops.push(Op::FillRect {
                         rect: Rect::new(first_x, y, width.max(1.0), (style.size * 0.06).max(0.5)),
@@ -950,6 +1036,7 @@ pub fn run_style_of(run: &ComputedRun, face: u32) -> RunStyle {
         color: run.color,
         underline: run.underline,
         double_underline: run.double_underline,
+        underline_pattern: run.underline_pattern,
         underline_color: run.underline_color,
         strike: run.strike,
         double_strike: run.double_strike,

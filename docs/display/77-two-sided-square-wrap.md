@@ -1,0 +1,7 @@
+# Two-sided square wrapping, initial scope
+
+For an object-only body paragraph whose picture is anchored to both page margins with square wrapping on both sides, EdgeDoc records the picture's exclusion rectangle and uses the clear bands for subsequent left-aligned paragraphs. When text crosses the first band, it can continue in the second band on the same row. The anchor paragraph's spacing and the picture's paint order are retained.
+
+A controlled centered-picture document that previously drew text through the image now matches Wordcraft's page image, with zero unmatched ink and no glyph-position difference; the two images were inspected. The six-page ASIC document `418b154e5c` continues to match on all page images. The strict gate still reports floating-picture layout as unsupported: reflow of earlier paragraphs, fully blocked bands, non-left alignment, other anchor types, and more complex wrapping require further work. A left-anchored variant demonstrates the earlier-paragraph limitation; the right-anchored variant matches visually. The test checks that text appears on both sides without entering the image.
+
+The 48-document benchmark recorded 12 passes, 34 failures, and 2 blocked reference timeouts. All 209 selected previous passes passed again. Exact-source results are in `word-benchmark-48-square-wrap-summary.json` and `square-wrap-regression-209-summary.json`. The workspace passed 412 tests and strict Clippy.

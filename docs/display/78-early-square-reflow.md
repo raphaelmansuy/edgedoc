@@ -1,0 +1,7 @@
+# Reflow for square floats above their anchors
+
+EdgeDoc now makes bounded layout passes when a supported margin-anchored square picture reaches above its anchor paragraph. A later pass seeds the exclusion area on the affected page, allowing earlier left-aligned paragraphs to reflow around it. If the areas do not settle within the pass limit, the renderer reports an instability diagnostic. General floating-picture support remains diagnosed, including fully blocked bands and other anchor and alignment combinations.
+
+Controlled centered, left, and right margin-anchor documents were compared with Wordcraft. All three page images match with zero unmatched ink and no glyph-position difference; the left-anchor image pair was inspected. The pinned six-page ASIC document `418b154e5c` continues to match all page images, while the strict result remains a failure because floating-picture and field support are still diagnosed. A regression tests that an early picture triggers a settling reflow and that preceding text clears it.
+
+The 48-document benchmark recorded 12 passes, 34 failures, and 2 blocked Wordcraft reference timeouts. All 209 selected previous passes passed again. Exact-source summaries are in `word-benchmark-48-early-square-summary.json` and `early-square-regression-209-summary.json`. The workspace passed 413 tests and strict Clippy; the rebuilt browser passed 18 interaction checks and 134 checks across 33 documents.

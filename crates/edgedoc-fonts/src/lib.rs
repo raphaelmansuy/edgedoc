@@ -31,17 +31,24 @@ fn ascii_mac_name(platform: ttf_parser::PlatformId, encoding: u16, bytes: &[u8])
     }
 }
 
-/// Largest font file the library accepts, in bytes.
-pub const MAX_FONT_BYTES: usize = 8 << 20;
+/// Largest font file the library accepts, in bytes. CJK system font collections
+/// can exceed Wordcraft's 50 MiB user-font limit; macOS PingFang is about 75 MiB.
+pub const MAX_FONT_BYTES: usize = 96 << 20;
 
 /// A face that the database holds.
 #[derive(Debug, Clone)]
 pub struct FontFace {
     pub id: u32,
+    /// Face index within a TrueType or OpenType collection.
+    pub index: u32,
     /// The family name from the face, which is what a document asks for.
     pub family: String,
     pub bold: bool,
     pub italic: bool,
+    /// Weight declared by the selected font face (independent of registration aliases).
+    pub weight: u16,
+    /// Whether the font face itself is slanted (independent of registration aliases).
+    pub intrinsic_italic: bool,
     /// The `unitsPerEm` value.
     pub units_per_em: f32,
     pub ascender: f32,
@@ -101,7 +108,7 @@ impl FontFace {
 
     /// The glyph for a character, or glyph 0 when the face has none.
     pub fn glyph_for(&self, c: char) -> Option<u16> {
-        let face = Face::parse(self.bytes.as_slice(), 0).ok()?;
+        let face = Face::parse(self.bytes.as_slice(), self.index).ok()?;
         face.glyph_index(c).map(|g| g.0).filter(|g| *g != 0)
     }
 
@@ -118,7 +125,7 @@ impl FontFace {
 
     /// The outline of a glyph in font units, as a path of line and curve segments.
     pub fn outline(&self, gid: u16) -> Vec<PathSeg> {
-        let Ok(face) = Face::parse(self.bytes.as_slice(), 0) else {
+        let Ok(face) = Face::parse(self.bytes.as_slice(), self.index) else {
             return Vec::new();
         };
         let mut out = Vec::new();
@@ -237,10 +244,23 @@ impl FontDb {
         italic: bool,
         substituted: bool,
     ) -> Option<u32> {
+        self.load_indexed(bytes, 0, requested, bold, italic, substituted)
+    }
+
+    /// Load a specific face from a font collection. Standalone fonts use index zero.
+    pub fn load_indexed(
+        &mut self,
+        bytes: Vec<u8>,
+        index: u32,
+        requested: Option<&str>,
+        bold: bool,
+        italic: bool,
+        substituted: bool,
+    ) -> Option<u32> {
         if bytes.is_empty() || bytes.len() > MAX_FONT_BYTES {
             return None;
         }
-        let face = Face::parse(bytes.as_slice(), 0).ok()?;
+        let face = Face::parse(bytes.as_slice(), index).ok()?;
         let mut advances = Vec::with_capacity(usize::from(face.number_of_glyphs()));
         let mut bboxes = Vec::with_capacity(usize::from(face.number_of_glyphs()));
         for gid in 0..face.number_of_glyphs() {
@@ -285,13 +305,18 @@ impl FontDb {
             (0.8 * upem, 0.2 * upem, 0.0)
         };
         let glyph_count = face.number_of_glyphs();
+        let weight = face.weight().to_number();
+        let intrinsic_italic = face.is_italic() || face.is_oblique();
         let id = self.faces.len() as u32;
         let requested_name = requested.map_or_else(|| family.clone(), ToString::to_string);
         self.faces.push(FontFace {
             id,
+            index,
             family: family.clone(),
             bold,
             italic,
+            weight,
+            intrinsic_italic,
             units_per_em: upem,
             ascender,
             descender,
@@ -523,7 +548,7 @@ pub fn shape(face: &FontFace, text: &str, rtl: bool, features: &[&str]) -> Shape
 }
 
 fn shape_chunk(face: &FontFace, text: &str, rtl: bool, features: &[&str]) -> ShapedRun {
-    let Ok(parsed) = Face::parse(face_bytes(face), 0) else {
+    let Ok(parsed) = Face::parse(face_bytes(face), face.index) else {
         return fallback_advances(face, text);
     };
     let mut buffer = rustybuzz::UnicodeBuffer::new();
@@ -680,6 +705,50 @@ mod tests {
         db.load(CARLITO.to_vec(), Some("Carlito"), false, false, false);
         db.load(CARLITO_BOLD.to_vec(), Some("Carlito"), true, false, false);
         db
+    }
+
+    fn test_collection() -> Vec<u8> {
+        let mut out = b"ttcf\0\x01\0\0\0\0\0\x02\0\0\0\0\0\0\0\0".to_vec();
+        for (i, source) in [CARLITO, CARLITO_BOLD].into_iter().enumerate() {
+            while out.len() % 4 != 0 {
+                out.push(0);
+            }
+            let base = out.len();
+            out[12 + i * 4..16 + i * 4].copy_from_slice(&(base as u32).to_be_bytes());
+            out.extend_from_slice(source);
+            let count = u16::from_be_bytes([source[4], source[5]]) as usize;
+            for table in 0..count {
+                let position = base + 12 + table * 16 + 8;
+                let offset = u32::from_be_bytes(out[position..position + 4].try_into().unwrap());
+                out[position..position + 4].copy_from_slice(&(offset + base as u32).to_be_bytes());
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn an_explicit_collection_index_drives_glyphs_outlines_and_shaping() {
+        let bytes = test_collection();
+        let mut db = FontDb::new();
+        let index = db
+            .load_indexed(bytes.clone(), 1, None, true, false, false)
+            .unwrap();
+        let standalone = db
+            .load(CARLITO_BOLD.to_vec(), None, true, false, false)
+            .unwrap();
+        assert_eq!(db.face(index).unwrap().index, 1);
+        let selected = db.face(index).unwrap();
+        let expected = db.face(standalone).unwrap();
+        let gid = selected.glyph_for('A').unwrap();
+        assert_eq!(Some(gid), expected.glyph_for('A'));
+        assert_eq!(selected.outline(gid), expected.outline(gid));
+        let a = shape(selected, "AVATAR", false, &[]);
+        let b = shape(expected, "AVATAR", false, &[]);
+        assert_eq!(a.glyphs.len(), b.glyphs.len());
+        assert_eq!(a.glyphs[0].advance, b.glyphs[0].advance);
+        assert!(db
+            .load_indexed(bytes, 2, None, false, false, false)
+            .is_none());
     }
 
     #[test]

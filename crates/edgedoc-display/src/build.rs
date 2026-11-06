@@ -384,6 +384,7 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
         block: &Block,
         styles: &edgedoc_model::StyleSheet,
         features: &mut BTreeSet<&'static str>,
+        body_page_anchors: bool,
     ) {
         match block {
             Block::Paragraph(p) => {
@@ -419,6 +420,33 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                     }
                     if r.east_asian_layout.is_some()
                         || r.fit_text.is_some()
+                        || r.underline_val.as_deref().is_some_and(|value| {
+                            !matches!(
+                                value,
+                                "single"
+                                    | "words"
+                                    | "wave"
+                                    | "wavyDouble"
+                                    | "wavyHeavy"
+                                    | "double"
+                                    | "thick"
+                                    | "dotted"
+                                    | "dottedHeavy"
+                                    | "dash"
+                                    | "dotDash"
+                                    | "dotDotDash"
+                                    | "thickDash"
+                                    | "dashLong"
+                                    | "dashedHeavy"
+                                    | "dashLongHeavy"
+                                    | "dashDotHeavy"
+                                    | "dashDotDotHeavy"
+                                    | "none"
+                                    | "0"
+                                    | "false"
+                                    | "off"
+                            )
+                        })
                         || r.extra.iter().any(|raw| {
                             !edgedoc_opc::xml::parse(raw.as_bytes(), &edgedoc::Budget::default())
                                 .ok()
@@ -432,7 +460,10 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                 }
                 for object in &p.objects {
                     match object {
-                        InlineObject::Picture(pic) if pic.anchor.is_some() => {
+                        InlineObject::Picture(pic)
+                            if pic.anchor.is_some()
+                                && (!body_page_anchors || page_anchor(pic).is_none()) =>
+                        {
                             features.insert("Floating picture positioning and text wrap");
                         }
                         InlineObject::Note { .. } => {
@@ -497,19 +528,19 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
                             features.insert("Table cell text direction and fitting");
                         }
                         for b in &cell.blocks {
-                            scan(b, styles, features);
+                            scan(b, styles, features, false);
                         }
                     }
                 }
             }
             Block::Control(c) => {
                 for b in &c.blocks {
-                    scan(b, styles, features);
+                    scan(b, styles, features, body_page_anchors);
                 }
             }
             Block::Alternate { choice, .. } => {
                 for b in choice {
-                    scan(b, styles, features);
+                    scan(b, styles, features, body_page_anchors);
                 }
             }
             Block::Opaque(_) => {
@@ -541,7 +572,7 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
     let mut features = BTreeSet::new();
     section(doc.section(), &mut features);
     for block in body {
-        scan(block, doc.styles(), &mut features);
+        scan(block, doc.styles(), &mut features, true);
         if let Block::Paragraph(p) = block {
             if let Some(break_) = &p.section {
                 section(&break_.props, &mut features);
@@ -551,7 +582,7 @@ fn diagnose_layout_gaps(doc: &Document, body: &[Block], diagnostics: &mut Vec<Di
     for kind in [PartKind::Header, PartKind::Footer] {
         for id in doc.parts(kind) {
             for block in doc.part_blocks(id) {
-                scan(&block, doc.styles(), &mut features);
+                scan(&block, doc.styles(), &mut features, false);
             }
         }
     }
@@ -1447,7 +1478,10 @@ fn build_story_parts(
                     false
                 };
                 let index = blocks.len();
-                build_one(&mut cascade, block, &mut blocks, diagnostics, false);
+                let header_float = kind == PartKind::Header
+                    && matches!(block, Block::Paragraph(para) if para.objects.iter().filter(|o| matches!(o, InlineObject::Picture(_))).count() == 1
+                        && para.objects.iter().any(|o| matches!(o, InlineObject::Picture(p) if picture_anchor(p, false, true).is_some_and(|a| a.paragraph_relative))));
+                build_one(&mut cascade, block, &mut blocks, diagnostics, header_float);
                 if footer_frame {
                     if let Some(FlowBlock::Paragraph(para)) = blocks.get_mut(index) {
                         para.para.footer_page_frame = true;
@@ -1576,9 +1610,16 @@ fn build_one(
             // supported. Inline pictures stay in the paragraph, including picture-only ones,
             // so their line retains the paragraph mark's descent and spacing.
             let standalone = !para.objects.is_empty() && para.text.chars().all(|c| c == '\u{FFFC}');
+            let partial_square = standalone && para.objects.len() == 1;
+            let one_picture = para
+                .objects
+                .iter()
+                .filter(|o| matches!(o, InlineObject::Picture(_)))
+                .count()
+                == 1;
             if standalone
                 && para.objects.iter().all(
-                    |o| matches!(o, InlineObject::Picture(picture) if picture.anchor.is_some() && !(page_anchors && page_anchor(picture).is_some())),
+                    |o| matches!(o, InlineObject::Picture(picture) if picture.anchor.is_some() && !(page_anchors && picture_anchor(picture, partial_square, one_picture).is_some())),
                 )
             {
                 for (i, object) in para.objects.iter().enumerate() {
@@ -1615,7 +1656,9 @@ fn build_one(
                 match object {
                     InlineObject::Picture(picture)
                         if picture.anchor.is_some()
-                            && !(page_anchors && page_anchor(picture).is_some()) =>
+                            && !(page_anchors
+                                && picture_anchor(picture, partial_square, one_picture)
+                                    .is_some()) =>
                     {
                         let w = picture.width.map_or(120.0, |v| edgedoc_geom::emu(v.0));
                         let h = picture.height.map_or(80.0, |v| edgedoc_geom::emu(v.0));
@@ -1686,14 +1729,40 @@ fn picture_source(picture: &edgedoc_model::Picture) -> [f32; 4] {
 }
 
 // Wordcraft aligns page-relative, non-wrapping floats independently of the line box.
-// Restrict this first implementation to behind-text pictures in the body.
+// Restrict this implementation to page-relative pictures in the body.
 fn page_anchor(picture: &edgedoc_model::Picture) -> Option<edgedoc_flow::PageAnchorPicture> {
+    picture_anchor(picture, false, false)
+}
+
+// Only the explicitly modeled page, margin, and column/paragraph anchor subsets
+// are positioned here. Other floating-picture combinations remain diagnosed.
+fn picture_anchor(
+    picture: &edgedoc_model::Picture,
+    partial_square: bool,
+    paragraph_square_allowed: bool,
+) -> Option<edgedoc_flow::PageAnchorPicture> {
     let a = picture.anchor.as_ref()?;
-    if !a.behind_text
-        || a.wrap.as_deref() != Some("wrapNone")
-        || a.h_anchor.as_deref() != Some("page")
-        || a.v_anchor.as_deref() != Some("page")
-    {
+    let page = a.wrap.as_deref() == Some("wrapNone")
+        && a.h_anchor.as_deref() == Some("page")
+        && a.v_anchor.as_deref() == Some("page");
+    let square_side = match a.wrap.as_deref() {
+        Some("square:bothSides") => Some(edgedoc_flow::SquareWrapSide::Both),
+        Some("square:left") => Some(edgedoc_flow::SquareWrapSide::Left),
+        Some("square:right") => Some(edgedoc_flow::SquareWrapSide::Right),
+        Some("square:largest") => Some(edgedoc_flow::SquareWrapSide::Largest),
+        Some("wrapTopAndBottom") => Some(edgedoc_flow::SquareWrapSide::TopAndBottom),
+        _ => None,
+    };
+    let margin_square = partial_square
+        && square_side.is_some()
+        && a.h_anchor.as_deref() == Some("margin")
+        && a.v_anchor.as_deref() == Some("margin");
+    let paragraph_anchor = paragraph_square_allowed
+        && (square_side.is_some() || a.wrap.as_deref() == Some("wrapNone"))
+        && a.h_anchor.as_deref() == Some("column")
+        && a.v_anchor.as_deref() == Some("paragraph")
+        && matches!(a.v_align.as_deref(), None | Some("top"));
+    if !page && !margin_square && !paragraph_anchor {
         return None;
     }
     fn axis(
@@ -1722,6 +1791,14 @@ fn page_anchor(picture: &edgedoc_model::Picture) -> Option<edgedoc_flow::PageAnc
             .map_or(18.0, |v| edgedoc_geom::emu(v.0))
             .clamp(1.0, 2000.0),
         alt: picture.alt.clone().unwrap_or_default(),
+        behind_text: a.behind_text,
+        margin_relative: margin_square,
+        paragraph_relative: paragraph_anchor,
+        square_distances: (margin_square || paragraph_anchor && square_side.is_some()).then(|| {
+            [a.dist_top, a.dist_bottom, a.dist_left, a.dist_right]
+                .map(|d| d.map_or(0.0, |v| edgedoc_geom::emu(v.0).max(0.0)))
+        }),
+        square_side: square_side.unwrap_or_default(),
         x: axis(
             a.h_align.as_deref(),
             a.x.map(|v| edgedoc_geom::emu(v.0)),
@@ -1831,6 +1908,13 @@ fn paragraph_of_inner(
     let mut objects: Vec<(f32, f32)> = Vec::new();
     let mut inline_pictures = Vec::new();
     let mut page_pictures = Vec::new();
+    let partial_square = para.objects.len() == 1 && para.text.chars().all(|c| c == '\u{FFFC}');
+    let one_picture = para
+        .objects
+        .iter()
+        .filter(|o| matches!(o, InlineObject::Picture(_)))
+        .count()
+        == 1;
     let mut notes = Vec::new();
     let mut hyphen_styles = std::collections::BTreeMap::new();
     let mut small_caps_styles = std::collections::BTreeMap::new();
@@ -1872,8 +1956,9 @@ fn paragraph_of_inner(
                             effect_left: left,
                             effect_bottom: bottom,
                         }));
-                    } else if let Some(anchored) =
-                        page_anchors.then(|| page_anchor(picture)).flatten()
+                    } else if let Some(anchored) = page_anchors
+                        .then(|| picture_anchor(picture, partial_square, one_picture))
+                        .flatten()
                     {
                         page_pictures.push((objects.len(), anchored));
                         objects.push((0.0, 0.0));
@@ -2805,10 +2890,18 @@ fn table_of(table: &Table, cascade: &mut Cascade, index: usize) -> FlowTable {
             wrap: WrapMode::Square,
             offset_x: p.tblp_x.map(|v| v as f32 / 20.0),
             offset_y: p.tblp_y.map(|v| v as f32 / 20.0),
-            dist_top: 0.0,
-            dist_bottom: 0.0,
-            dist_left: 9.0,
-            dist_right: 9.0,
+            horizontal_base: p.h_anchor.clone(),
+            vertical_base: p.v_anchor.clone(),
+            horizontal_alignment: p.left_from.clone(),
+            vertical_alignment: p.top_from.clone(),
+            dist_top: p.top_from_text.map_or(0.0, |v| (v as f32 / 20.0).max(0.0)),
+            dist_bottom: p
+                .bottom_from_text
+                .map_or(0.0, |v| (v as f32 / 20.0).max(0.0)),
+            dist_left: p.left_from_text.map_or(0.0, |v| (v as f32 / 20.0).max(0.0)),
+            dist_right: p
+                .right_from_text
+                .map_or(0.0, |v| (v as f32 / 20.0).max(0.0)),
         }),
         bidi: table.bidi_visual,
     };

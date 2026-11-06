@@ -39,8 +39,8 @@ fn draw(
                         .push("Reference adapter requires an actual bold/italic font face".into());
                 }
                 let hash = hex(&Sha256::digest(face.data()));
-                fonts.entry(hash.clone()).or_insert_with(
-                    || json!({"sha256": hash, "family": face.family, "style": face.style}),
+                fonts.entry(format!("{hash}:{}", face.index())).or_insert_with(
+                    || json!({"sha256": hash, "index": face.index(), "family": face.family, "style": face.style}),
                 );
                 // Numbering labels and hyphens deliberately omit ranges in Wordcraft's display
                 // list. Infer only a verified one-to-one character/glyph mapping. Unknown text
@@ -63,7 +63,7 @@ fn draw(
                     });
                     if let Some(shown) = shown {
                         chars.push(json!({"text": shown, "x": x, "baseline": y, "size": size,
-                            "font": face.family, "bold": face.weight >= 700.0 || *synth_bold,
+                            "font": face.family, "font_index": face.index(), "bold": face.weight >= 700.0 || *synth_bold,
                             "italic": face.italic || *synth_italic, "gid": gid, "font_sha256": hash}));
                     } else if !text.is_empty() {
                         unsupported
@@ -120,8 +120,26 @@ fn draw(
                         }
                     }
                     Stroke::Wave => {
-                        unsupported.push("Reference adapter does not render wave strokes".into());
-                        line(0.0, *width, None);
+                        let amplitude = (width * 1.2).max(0.8);
+                        let mut path = format!("M{x0} {y0}");
+                        let mut from = 0.0f32;
+                        let mut up = true;
+                        while from < len && from < 20_000.0 {
+                            let to = (from + amplitude * 2.0).min(len);
+                            if to <= from {
+                                break;
+                            }
+                            let mid = (from + to) / 2.0;
+                            let sign = if up { -1.0 } else { 1.0 };
+                            let cx = x0 + dx / len * mid + normal.0 * amplitude * sign;
+                            let cy = y0 + dy / len * mid + normal.1 * amplitude * sign;
+                            let ex = x0 + dx / len * to;
+                            let ey = y0 + dy / len * to;
+                            path.push_str(&format!(" Q{cx} {cy} {ex} {ey}"));
+                            from = to;
+                            up = !up;
+                        }
+                        svg.push_str(&format!("<path d=\"{path}\" fill=\"none\" stroke=\"rgb({},{},{})\" stroke-width=\"{}\" opacity=\"{alpha}\"/>\n", color.0, color.1, color.2, width * 0.8));
                     }
                     _ => line(0.0, *width, stroke.dashes()),
                 }
@@ -212,7 +230,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .names()
             .into_iter()
             .filter(|n| n.name_id == ttf_parser::name_id::FAMILY)
-            .find_map(|n| n.to_string())
+            .find_map(|n| {
+                n.to_string().or_else(|| {
+                    if n.platform_id == ttf_parser::PlatformId::Macintosh
+                        && n.encoding_id == 0
+                        && !n.name.is_empty()
+                        && n.name.is_ascii()
+                    {
+                        std::str::from_utf8(n.name).ok().map(str::to_owned)
+                    } else {
+                        None
+                    }
+                })
+            })
             .ok_or("Comparison font has no family name")?;
         fonts.push((bytes, family));
     }
@@ -233,6 +263,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut font_evidence = BTreeMap::new();
     let mut unsupported = Vec::new();
     for (i, page) in layout.pages.iter().enumerate() {
+        // Empty paragraphs and paragraph marks can affect layout without emitting
+        // glyphs. Include their faces in the evidence, not only painted glyphs.
+        for placed in page.items.iter().chain(&page.header).chain(&page.footer) {
+            if let wordcraft_layout::Placed::Lines { para, .. } = placed {
+                for style in &para.styles {
+                    let face = style.face.get();
+                    let hash = hex(&Sha256::digest(face.data()));
+                    font_evidence.entry(format!("{hash}:{}", face.index())).or_insert_with(
+                        || json!({"sha256": hash, "index": face.index(), "family": face.family, "style": face.style}),
+                    );
+                }
+            }
+        }
         let items = page_display(&doc, page, &options);
         let mut chars = Vec::new();
         let mut svg = format!(

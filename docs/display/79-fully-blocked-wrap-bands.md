@@ -1,0 +1,5 @@
+# Text below a fully blocked wrap band
+
+When a supported margin-anchored square picture blocks the entire available line width, EdgeDoc now advances the line below the exclusion instead of drawing text through the picture. The vertical gap is retained through line spacing, pagination, and painting. General floating-picture support remains diagnosed.
+
+A controlled document with a picture wider than the text area was compared with Wordcraft. Before the change, text ran through the image; afterward the inspected images match with zero unmatched ink and no glyph-position error. A regression verifies that the earlier paragraph moves below the picture. The 48-document benchmark recorded 12 passes, 34 failures, and 2 blocked Wordcraft reference timeouts. All 209 selected previous passes passed again. Exact-source summaries are in `word-benchmark-48-blocked-band-summary.json` and `blocked-band-regression-209-summary.json`. The workspace passed 414 tests and strict Clippy; the rebuilt browser passed 18 interaction checks and 134 checks across 33 documents.

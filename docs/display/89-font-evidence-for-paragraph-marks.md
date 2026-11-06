@@ -1,0 +1,9 @@
+# Font evidence for nonpainting paragraph marks
+
+The earlier comparison adapter recorded fonts used by painted glyphs, but Wordcraft can also use a system font for an empty paragraph mark. That font changes line height even though it emits no glyph. On this macOS host, Wordcraft used `/System/Library/Fonts/Helvetica.ttc` for a Helvetica mark while EdgeDoc was supplied an Arimo substitute. A controlled empty-mark fixture differed by about two points; supplying the identical Helvetica collection to EdgeDoc made the page match.
+
+The Wordcraft adapter now records the font bytes and collection face index for every placed paragraph style, including styles that emit no glyph. The strict comparator requires each recorded reference face to be among the supplied EdgeDoc fonts, and rejects old reference evidence without an index. The adapter can read ASCII Macintosh family names in font collections, allowing the Helvetica collection to be supplied explicitly to both engines. EdgeDoc can load an explicitly selected collection index; a profile entry such as `bold:1=/path/to/Helvetica.ttc` selects face 1. A unit test checks missing faces and collection indices. This checks that the reference face is available, not that every nonpainting mark selected the same face.
+
+With the same Helvetica collection supplied to both engines, all four pages of downloaded `wordbench-056bfeba7c` pass the glyph, position, raster and color checks. The document still fails overall because it reports unsupported floating-picture, floating-table and paragraph-frame features.
+
+Historical summaries made before this adapter change are evidence for their recorded glyph and raster comparisons, but they did not verify nonpainting paragraph-mark fonts. They must not be treated as proof of equal font inputs. The stricter adapter has a different fingerprint, so old Wordcraft renders cannot be reused as current reference evidence.
