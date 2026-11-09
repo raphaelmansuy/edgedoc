@@ -32,9 +32,19 @@ make package-wasm
 
 ## Tag and publish
 
+Repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Used for |
+| --- | --- |
+| `CARGO_REGISTRY_TOKEN` | crates.io (`cargo publish`) |
+| `PYPI_API_TOKEN` | PyPI (`maturin publish`) |
+| `NPM_TOKEN` | npm (`edgedoc-wasm`) |
+
 1. Commit the version and changelog updates (only when the maintainer asks).
 2. Create an annotated tag: `git tag -a v0.2.0 -m "v0.2.0"`
 3. Push the tag: `git push origin v0.2.0`
+
+To re-run release after fixing CI, delete the remote tag and push it again on the same commit.
 
 The release workflow then:
 
