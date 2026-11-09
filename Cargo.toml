@@ -42,7 +42,7 @@ default-members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 license = "Apache-2.0"
 rust-version = "1.76"
@@ -51,21 +51,21 @@ homepage = "https://raphaelmansuy.github.io/edgedoc/"
 documentation = "https://docs.rs/edgedoc"
 
 [workspace.dependencies]
-edgedoc-limit = { version = "0.1.1", path = "crates/edgedoc-limit" }
-edgedoc-unit = { version = "0.1.1", path = "crates/edgedoc-unit" }
-edgedoc-model = { version = "0.1.1", path = "crates/edgedoc-model" }
-edgedoc-opc = { version = "0.1.1", path = "crates/edgedoc-opc" }
-edgedoc-wml = { version = "0.1.1", path = "crates/edgedoc-wml" }
-edgedoc-merge = { version = "0.1.1", path = "crates/edgedoc-merge" }
-edgedoc = { version = "0.1.1", path = "crates/edgedoc", default-features = true }
-edgedoc-geom = { version = "0.1.1", path = "crates/edgedoc-geom" }
-edgedoc-fonts = { version = "0.1.1", path = "crates/edgedoc-fonts" }
-edgedoc-text = { version = "0.1.1", path = "crates/edgedoc-text" }
-edgedoc-style = { version = "0.1.1", path = "crates/edgedoc-style" }
-edgedoc-flow = { version = "0.1.1", path = "crates/edgedoc-flow" }
-edgedoc-paint = { version = "0.1.1", path = "crates/edgedoc-paint" }
-edgedoc-display = { version = "0.1.1", path = "crates/edgedoc-display" }
-edgedoc-display-wasm = { version = "0.1.1", path = "crates/edgedoc-display-wasm" }
+edgedoc-limit = { version = "0.2.0", path = "crates/edgedoc-limit" }
+edgedoc-unit = { version = "0.2.0", path = "crates/edgedoc-unit" }
+edgedoc-model = { version = "0.2.0", path = "crates/edgedoc-model" }
+edgedoc-opc = { version = "0.2.0", path = "crates/edgedoc-opc" }
+edgedoc-wml = { version = "0.2.0", path = "crates/edgedoc-wml" }
+edgedoc-merge = { version = "0.2.0", path = "crates/edgedoc-merge" }
+edgedoc = { version = "0.2.0", path = "crates/edgedoc", default-features = true }
+edgedoc-geom = { version = "0.2.0", path = "crates/edgedoc-geom" }
+edgedoc-fonts = { version = "0.2.0", path = "crates/edgedoc-fonts" }
+edgedoc-text = { version = "0.2.0", path = "crates/edgedoc-text" }
+edgedoc-style = { version = "0.2.0", path = "crates/edgedoc-style" }
+edgedoc-flow = { version = "0.2.0", path = "crates/edgedoc-flow" }
+edgedoc-paint = { version = "0.2.0", path = "crates/edgedoc-paint" }
+edgedoc-display = { version = "0.2.0", path = "crates/edgedoc-display" }
+edgedoc-display-wasm = { version = "0.2.0", path = "crates/edgedoc-display-wasm" }
 thiserror = "1.0"
 quick-xml = "0.31"
 zip = { version = "0.6", default-features = false, features = ["deflate"] }

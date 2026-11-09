@@ -40,6 +40,10 @@ Write the subject in the imperative mood and keep it under 72 characters. Put th
 reason in the body. Say what changed for a reader of the document, not which file
 you edited.
 
+## Releases
+
+Maintainers follow [RELEASE.md](RELEASE.md) when cutting a `v*` tag.
+
 ## Licence
 
 By contributing, you agree that your contribution is licensed under the Apache

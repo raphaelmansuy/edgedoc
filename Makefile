@@ -7,6 +7,7 @@
 SHELL := /bin/bash
 CARGO ?= cargo
 OUT ?= target/examples
+CARGO_TARGET_DIR ?= $(shell $(CARGO) metadata --format-version 1 --no-deps --offline | python3 -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')
 PACKAGE := edgedoc
 
 # Colours, disabled when the output is not a terminal.
@@ -135,13 +136,18 @@ display-wasm: ## Build the display module and its glue into site/display
 	@printf '%s→%s building the display module\n' '$(BLUE)' '$(RESET)'
 	@$(CARGO) build --target wasm32-unknown-unknown -p edgedoc-display-wasm --features wasm --release
 	@wasm-bindgen --target web --out-dir site/display --out-name edgedoc_display --no-typescript \
-		target/wasm32-unknown-unknown/release/edgedoc_display_wasm.wasm
+		$(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/edgedoc_display_wasm.wasm
 	@printf '%s✓%s site/display holds the module\n' '$(GREEN)' '$(RESET)'
 
 .PHONY: display-e2e
 display-e2e: display-wasm ## Run the display end-to-end test and write docs/display/e2e
 	@printf '%s→%s node tools/display_e2e.mjs\n' '$(BLUE)' '$(RESET)'
 	@node tools/display_e2e.mjs
+
+.PHONY: word-e2e
+word-e2e: display-wasm ## Run the Word control end-to-end test and write specs/001-word-control/e2e
+	@printf '%s→%s node tools/word_control_e2e.mjs\n' '$(BLUE)' '$(RESET)'
+	@node tools/word_control_e2e.mjs
 
 .PHONY: display-serve
 display-serve: ## Serve the demo site on http://127.0.0.1:8900
@@ -194,7 +200,7 @@ package-wasm: ## Build the npm package in packages/edgedoc-wasm
 	@printf '%s→%s wasm-bindgen into packages/edgedoc-wasm\n' '$(BLUE)' '$(RESET)'
 	@$(CARGO) build --release --target wasm32-unknown-unknown -p edgedoc-wasm --features wasm
 	@wasm-bindgen --target nodejs --out-dir packages/edgedoc-wasm --out-name edgedoc \
-		target/wasm32-unknown-unknown/release/edgedoc_wasm.wasm
+		$(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/edgedoc_wasm.wasm
 
 .PHONY: python
 python: ## Build the Python wheel with maturin

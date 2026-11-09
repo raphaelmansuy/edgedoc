@@ -38,6 +38,10 @@ export class Viewer {
     this.onDiagnostic = options.onDiagnostic || (() => {});
     this.onPageChange = options.onPageChange || (() => {});
     this.theme = options.theme || "light";
+    this.chrome = options.chrome !== false;
+    this.editing = Boolean(options.editing);
+    this._revision = undefined;
+    this.onViewChange = options.onViewChange || null;
 
     /** The zoom as a scale factor. */
     this.scale = options.zoom === undefined ? 1 : this.scaleOf(options.zoom);
@@ -75,8 +79,8 @@ export class Viewer {
     const meta = JSON.parse(this._call(() => this.viewer.open(u8)));
     this.glyphPaths.clear();
     this.docTitle = meta.title && meta.title.trim() ? meta.title : "Untitled document";
-    this.title.textContent = this.docTitle;
-    document.title = `${this.docTitle} — EdgeDoc Display`;
+    if (this.title) this.title.textContent = this.docTitle;
+    if (this.chrome) document.title = `${this.docTitle} — EdgeDoc Display`;
     const report = JSON.parse(this._call(() => this.viewer.layout()));
     this.diagnostics = JSON.parse(this.viewer.diagnostics());
     this.pageCount = report.pages;
@@ -108,6 +112,41 @@ export class Viewer {
     this.onProgress(1, 1);
     this._updateMetrics(report);
     return { pages: report.pages, passes: report.passes, elapsed: report.elapsed_ms };
+  }
+
+  /**
+   * Paint the pages the module already laid out. `keepView` keeps the zoom and the scroll offset,
+   * which an editor wants after every keystroke.
+   */
+  async repaint(options = {}) {
+    const keepScroll = options.keepView ? this.viewport.scrollTop : 0;
+    const keepScale = this.scale;
+    const keepFit = this.fitMode;
+    const count = this.viewer.pageCount();
+    this.pages = [];
+    this.texts = [];
+    this.pageEls = [];
+    this._clearPages();
+    this.pageCount = count;
+    for (let i = 0; i < count; i += 1) {
+      const page = this._decodePage(this.viewer.page(i));
+      this.pages.push(page);
+      this.texts.push(this.viewer.text(i) || "");
+      this._appendPageEl(i, page);
+    }
+    await this._loadImages();
+    if (options.keepView) {
+      this.scale = keepScale;
+      this.fitMode = keepFit;
+      this._applyScale();
+      this.viewport.scrollTop = keepScroll;
+    } else {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      this.fit(this.fitMode || "page-width");
+    }
+    this._paintAll();
+    this._updateStatus();
+    return { pages: count };
   }
 
   /** Run a module call and turn an error object into a thrown Error. */
@@ -462,6 +501,21 @@ export class Viewer {
 
   _buildDom() {
     this.container.classList.add("edv-root");
+    if (!this.chrome) this.container.classList.add("is-bare");
+    if (this.editing) this.container.classList.add("is-editing");
+    if (!this.chrome) {
+      this.container.innerHTML = `
+      <div class="edv-viewport" tabindex="0">
+        <div class="edv-stack"></div>
+      </div>
+      <span class="edv-title" hidden></span>
+      <input class="edv-page-input" hidden value="1">
+      <span class="edv-count" hidden>/ 1</span>
+      <span class="edv-zoom" hidden>100%</span>
+      <div class="edv-progress is-hidden" hidden><div class="edv-progress-bar"></div></div>
+      <span class="edv-status-page" hidden>Page 1</span>
+      <span class="edv-diag-count" hidden></span>`;
+    } else {
     this.container.innerHTML = `
       <div class="edv-bar">
         <button class="edv-btn" data-act="prev" title="Previous page (P)">&#8249;</button>
@@ -486,6 +540,7 @@ export class Viewer {
         <span class="edv-spacer"></span>
         <span class="edv-diag-count"></span>
       </div>`;
+    }
     this.title = this.container.querySelector(".edv-title");
     this.pageInput = this.container.querySelector(".edv-page-input");
     this.count = this.container.querySelector(".edv-count");
@@ -542,10 +597,11 @@ export class Viewer {
       { passive: false },
     );
 
-    document.addEventListener("keydown", (event) => this._onKey(event));
+    if (this.chrome) document.addEventListener("keydown", (event) => this._onKey(event));
   }
 
   _onKey(event) {
+    if (this.editing) return;
     const inField = event.target instanceof HTMLInputElement;
     if (event.key === "Escape" && inField) {
       this.pageInput.blur();
@@ -681,7 +737,7 @@ export class Viewer {
   /** Resize every page element and repaint at the new scale. */
   _applyScale() {
     if (!this.pageEls || !this.pageEls.length) {
-      this.zoomLabel.textContent = `${Math.round(this.scale * 100)}%`;
+      if (this.zoomLabel) this.zoomLabel.textContent = `${Math.round(this.scale * 100)}%`;
       return;
     }
     for (let i = 0; i < this.pageEls.length; i += 1) {
@@ -694,7 +750,8 @@ export class Viewer {
       el.painted = false;
     }
     this._paintAll();
-    this.zoomLabel.textContent = `${Math.round(this.scale * 100)}%`;
+    if (this.zoomLabel) this.zoomLabel.textContent = `${Math.round(this.scale * 100)}%`;
+    if (this.onViewChange) this.onViewChange();
   }
 
   /* -------------------------------------------------------------- paint */
@@ -1054,6 +1111,81 @@ export class Viewer {
     win.document.close();
     win.focus();
     setTimeout(() => win.print(), 250);
+  }
+
+  /**
+   * Run an editing call and repaint when the pages changed.
+   * `keepView` preserves zoom and scroll. A caret move leaves `revision` alone, so the
+   * canvases stay put and the host only moves the caret.
+   */
+  async commit(invoke, options = {}) {
+    await this.init();
+    const state = JSON.parse(this._call(invoke));
+    const revision = Number(state.revision || 0);
+    const changed = options.keepView === false || this._revision === undefined || revision !== this._revision;
+    this._revision = revision;
+    if (changed) {
+      const keep = options.keepView !== false && this.pages.length > 0;
+      await this.repaintEdited(keep);
+    }
+    if (state.title) {
+      this.docTitle = state.title;
+      if (this.title) this.title.textContent = state.title;
+    }
+    return state;
+  }
+
+  /** Open a blank page for editing. */
+  async editBlank() {
+    this._revision = undefined;
+    return this.commit(() => this.viewer.editBlank(), { keepView: false });
+  }
+
+  /** Open package bytes for editing. */
+  async editOpenBytes(bytes) {
+    await this.init();
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    this._revision = undefined;
+    return this.commit(() => this.viewer.editOpen(u8), { keepView: false });
+  }
+
+  /** Rebuild the page canvases from the pages the module already encoded. */
+  async repaintEdited(keepView) {
+    const top = this.viewport.scrollTop;
+    const left = this.viewport.scrollLeft;
+    const scale = this.scale;
+    const fit = this.fitMode;
+    const count = this.viewer.pageCount();
+    this.pages = [];
+    this.texts = [];
+    this.pageEls = [];
+    this._clearPages();
+    for (let i = 0; i < count; i += 1) {
+      const raw = this.viewer.page(i);
+      if (!raw) continue;
+      const page = this._decodePage(raw);
+      this.pages.push(page);
+      this.texts.push(this.viewer.text(i) || "");
+      this._appendPageEl(i, page);
+    }
+    this.pageCount = this.pages.length;
+    await this._loadImages();
+    if (keepView) {
+      this.scale = scale;
+      this.fitMode = fit;
+      this._applyScale();
+      this.viewport.scrollTop = top;
+      this.viewport.scrollLeft = left;
+    } else if (fit) {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      this.fit(fit);
+    } else {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      this._applyScale();
+    }
+    this._paintAll();
+    this.progress.classList.add("is-hidden");
+    this._updateStatus();
   }
 
   /** Release every page. See DP-V-11. */

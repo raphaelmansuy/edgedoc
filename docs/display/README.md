@@ -106,6 +106,10 @@ number, [12-performance.md](12-performance.md) names the measurement that replac
 
 ## Reference implementation
 
+The read-only demo is [`site/display/`](../../site/display/index.html). **Word control**
+at [`site/word/`](../../site/word/index.html) adds an `Editor` session on the same wasm
+module; see [../../specs/001-word-control/README.md](../../specs/001-word-control/README.md).
+
 The layout, shaping, and rendering behavior comes from the WordCraft checkout at version
 `0.14.0`. [17-wordcraft-map.md](17-wordcraft-map.md) maps each display crate to the module
 that proves the behavior. Read that chapter before you write a layout module. It also lists

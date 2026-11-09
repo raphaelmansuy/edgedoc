@@ -31,6 +31,7 @@
       <a href="#coverage">Coverage</a>
       <a href="#start">Start</a>
       <a href="display/">Display</a>
+      <a href="word/">Word</a>
     </nav>
     <a class="gh" href="https://github.com/raphaelmansuy/edgedoc" aria-label="EdgeDoc on GitHub">
       <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
@@ -361,8 +362,39 @@ const withImage = markdownToDocumentWithImages(
     <p class="aside">
       Headings, emphasis, links, lists, tables, footnotes, endnotes, and pictures
       round-trip. A fenced code block becomes a paragraph. Headers, footers, and
-      comments stay out of the Markdown body. The display viewer is
-      <a href="display/">a separate page</a>.
+      comments stay out of the Markdown body. The read-only viewer is
+      <a href="display/">display</a>. To edit a template in the browser, use
+      <a href="word/">Word control</a>.
+    </p>
+  </div>
+</section>
+
+<section id="word" class="band">
+  <div class="wrap">
+    <h2>Edit templates in the browser</h2>
+    <p class="section-lede">
+      Word control is for assembly flows: type in the document, drop merge fields, preview a
+      record, and save package bytes — on the same layout engine as Display.
+    </p>
+    <ul class="facts">
+      <li><b>41</b><span>automated checks</span></li>
+      <li><b>14</b><span>screenshot gates</span></li>
+      <li><b>1</b><span>editor session in wasm</span></li>
+    </ul>
+    <style>
+      #word .facts { display: flex; flex-wrap: wrap; gap: 1rem 2rem; list-style: none; padding: 0; margin: 1.25rem 0; }
+      #word .facts li { display: flex; flex-direction: column; gap: .15rem; }
+      #word .facts b { font-size: 1.35rem; }
+      #word .facts span { color: var(--muted); font-size: .9rem; }
+    </style>
+    <div class="actions">
+      <a class="btn primary" href="word/">Open Word control</a>
+      <a class="btn" href="word/?doc=/assets/documents/invoice-template.docx">Invoice sample</a>
+      <a class="btn" href="https://github.com/raphaelmansuy/edgedoc/tree/main/specs/001-word-control">Specification</a>
+    </div>
+    <p class="aside">
+      Locally: <code>make display-wasm</code>, then <code>make display-serve</code> and open
+      <code>/word/</code>, or <code>make word-e2e</code> for the headless suite.
     </p>
   </div>
 </section>
@@ -432,7 +464,9 @@ make check      <span class="c"># format, clippy, and every test</span>
 make examples   <span class="c"># build the twelve documents</span>
 make verify     <span class="c"># check them with an independent reader</span>
 make test-python
-make example-wasm</code></pre>
+make example-wasm
+make display-wasm
+make word-e2e</code></pre>
     </div>
   </div>
 </section>

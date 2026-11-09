@@ -10,7 +10,10 @@ mod section;
 mod style;
 mod table;
 
-pub use document::{BlockPath, BodyCursor, CoreProps, DocumentEdit, ModelDocument, ParaCursor};
+pub use document::{
+    BlockPath, BodyCursor, CoreProps, DocumentEdit, FormatKind, ModelDocument, ParaCursor,
+    ParagraphInfo, TextCaret,
+};
 pub use edgedoc_unit::Twips;
 pub use error::{ModelError, ModelResult};
 pub use fields::{placeholder, quote_name, Field, FormField, FormKind, Instruction};

@@ -42,6 +42,7 @@ doc.save("invoice.docx")?;
 - [Architecture](#architecture)
 - [Python](#python)
 - [WebAssembly](#webassembly)
+- [Word control in the browser](#word-control-in-the-browser)
 - [Limits and safety](#limits-and-safety)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -72,8 +73,10 @@ pip install edgedoc
 ```
 
 The WebAssembly package name is `edgedoc-wasm`. The npm name `edgedoc` belongs to
-a different project. Build the module with `make package-wasm`. The `v0.1.1` tag
-publishes the seven core crates, the PyPI wheel, and that npm package.
+a different project. Build the module with `make package-wasm`. The `v0.2.0` tag
+publishes the seven core crates, the PyPI wheel, and that npm package. GitHub Pages
+ships the read-only [display demo](https://raphaelmansuy.github.io/edgedoc/display/) and
+the [Word control](https://raphaelmansuy.github.io/edgedoc/word/).
 
 Rust 1.76 or later. The crate uses `quick-xml` and `zip`, and nothing else.
 
@@ -350,6 +353,21 @@ The [expanded external corpus](tests/corpus/EXTERNAL.md) adds 75 pinned POI/docx
 a 45-page guide, plus 181 more pinned fixtures. [Image inspection and measured results](docs/display/22-expanded-corpus-parity.md)
 record the fixes and remaining differences against Wordcraft.
 
+## Word control in the browser
+
+[`site/word/`](site/word/index.html) is a Word-like editing surface for assembly products:
+compose text, insert merge fields and tables, preview a CSV record, and download the
+package bytes. It runs on the same display WebAssembly module as the read-only viewer,
+with an `Editor` session in `edgedoc-display`.
+
+| Resource | Purpose |
+|---|---|
+| [Live demo](https://raphaelmansuy.github.io/edgedoc/word/) | Try the ribbon, fields pane, and invoice sample |
+| [Specification](specs/001-word-control/README.md) | Product, UX, architecture, and requirement ids `WC-*` |
+| `make word-e2e` | Build display wasm and run 41 checks plus 14 screenshots |
+
+Run `make display-serve` and open `/word/` on port 8900 for local work.
+
 ## Commands
 
 `make` prints the list. Every target names what it does.
@@ -386,6 +404,12 @@ Packaging
   wasm               Build the WebAssembly module
   python             Build the Python wheel with maturin
   python-dev         Install the Python package into the current environment
+
+Display and Word control
+  display-wasm       Build the display module into site/display
+  display-e2e        Headless browser test for the read-only viewer
+  word-e2e           Headless browser test for site/word (41 checks)
+  display-serve      Serve site/ on http://127.0.0.1:8900
 
 Maintenance
   clean              Remove build output
@@ -530,6 +554,8 @@ Error codes are stable and documented in `docs/07-adapters.md`.
 | [13-word-validation](docs/13-word-validation.md) | The rules Word enforces, and how to check a file |
 | [14-round-trip](docs/14-round-trip.md) | Every feature that must survive an edit, and its test |
 | [15-adapters-audit](docs/15-adapters-audit.md) | The Python and WebAssembly surface, and its audit |
+| [display/](docs/display/README.md) | Paginated layout, paint, viewer, and demo |
+| [001-word-control](specs/001-word-control/README.md) | Browser Word control for merge templates |
 
 The specification follows ECMA-376 5th edition, ISO/IEC 29500-1:2016, MS-DOCX, and
 MS-OI29500. `docs/02-references.md` holds the links.

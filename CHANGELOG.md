@@ -4,6 +4,28 @@ All notable changes to this project are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-11-09
+
+### Added
+
+- **Word control in the browser** at `site/word/`: a Word-like ribbon (Home, Insert,
+  Layout, Mailings), caret editing on the display stack, merge fields with a side pane,
+  record preview without touching the template, navigation headings, find/select menus, and
+  download of edited package bytes. Specification: `specs/001-word-control/`.
+- Editor session APIs on the display WebAssembly module: `editParaSpacing`,
+  `editParaShading`, `editParaBorder`, `editSelectSentence`, extended list and paragraph
+  formatting in `edgedoc-display`, backed by `set_space_before`, `set_para_shading`, and
+  `set_para_border` on the model.
+- `make word-e2e` and `tools/word_control_e2e.mjs`: **41** automated checks and **14**
+  golden screenshots under `specs/001-word-control/e2e/screenshots/`.
+
+### Notes
+
+This release also publishes the EdgeDoc Display crates, the Markdown round-trip, the
+expanded rendering corpus, and the changes listed under **[Unreleased]** below that
+shipped since v0.1.1. Tag `v0.2.0` updates the seven core crates on crates.io, the PyPI
+wheel, `edgedoc-wasm` on npm, and GitHub Pages (`display/` and `word/`).
+
 ## [Unreleased]
 
 ### Added

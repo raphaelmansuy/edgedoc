@@ -92,11 +92,46 @@ fn with_fields(
         text.push_str(shown);
         push_run(&mut runs, start, text.len(), style);
     }
+    let mut source = Vec::new();
+    if !p.source.is_empty() {
+        let mut built = String::new();
+        for (i, ch) in p.text.char_indices() {
+            let start = built.len();
+            if ch == PAGE_MARKER {
+                built.push_str(&page_text);
+            } else if ch == TOTAL_MARKER {
+                built.push_str(&total_text);
+            } else if ch == SECTION_TOTAL_MARKER {
+                built.push_str(&section_total);
+            } else if ch == SECTION_MARKER {
+                built.push_str(&section_text);
+            } else {
+                built.push(ch);
+            }
+            if let Some(src) = source_offset(&p.source, i) {
+                push_source_span(
+                    &mut source,
+                    start,
+                    built.len(),
+                    src,
+                    span_is_atomic(&p.source, i) || is_page_marker(ch),
+                );
+            }
+        }
+    }
     FlowParagraph {
         text,
         runs,
+        source,
         ..p.clone()
     }
+}
+
+fn is_page_marker(ch: char) -> bool {
+    matches!(
+        ch,
+        PAGE_MARKER | TOTAL_MARKER | SECTION_TOTAL_MARKER | SECTION_MARKER
+    )
 }
 
 /// Append a run range, merging with the previous range when the style matches.
@@ -269,6 +304,122 @@ impl FlowSection {
     }
 }
 
+/// One range of expanded paragraph text and the source bytes it came from.
+///
+/// A merge field is `atomic`: the painted placeholder is several characters, and the source is a
+/// single object marker. A caret inside an atomic span belongs on one of the two edges.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SourceSpan {
+    pub expanded_start: u32,
+    pub len: u32,
+    pub source_start: u32,
+    /// True when the span is one inline object, not a run of characters.
+    pub atomic: bool,
+}
+
+/// Record a source span, merging it with the previous span when both are plain text.
+pub fn push_source_span(
+    spans: &mut Vec<SourceSpan>,
+    start: usize,
+    end: usize,
+    source: usize,
+    atomic: bool,
+) {
+    if end <= start {
+        return;
+    }
+    let start = u32::try_from(start).unwrap_or(u32::MAX);
+    let len = u32::try_from(end - start as usize).unwrap_or(0);
+    let source = u32::try_from(source).unwrap_or(u32::MAX);
+    if len == 0 {
+        return;
+    }
+    if let Some(last) = spans.last_mut() {
+        let contiguous = last.expanded_start.saturating_add(last.len) == start;
+        let source_follows = last.source_start.saturating_add(last.len) == source;
+        if !atomic && !last.atomic && contiguous && source_follows {
+            last.len = last.len.saturating_add(len);
+            return;
+        }
+    }
+    spans.push(SourceSpan {
+        expanded_start: start,
+        len,
+        source_start: source,
+        atomic,
+    });
+}
+
+/// The source byte a painted byte came from. `expanded` may sit on the end boundary.
+pub fn source_offset(spans: &[SourceSpan], expanded: usize) -> Option<usize> {
+    let expanded = u32::try_from(expanded).ok()?;
+    for span in spans {
+        let end = span.expanded_start.saturating_add(span.len);
+        if expanded >= span.expanded_start && expanded < end {
+            if span.atomic {
+                return Some(span.source_start as usize);
+            }
+            return Some(
+                span.source_start
+                    .saturating_add(expanded - span.expanded_start) as usize,
+            );
+        }
+    }
+    let last = spans.last()?;
+    let end = last.expanded_start.saturating_add(last.len);
+    if expanded == end {
+        if last.atomic {
+            return Some(last.source_start as usize + 3);
+        }
+        return Some(last.source_start.saturating_add(last.len) as usize);
+    }
+    None
+}
+
+/// True when the painted byte belongs to an atomic object.
+pub fn span_is_atomic(spans: &[SourceSpan], expanded: usize) -> bool {
+    let Ok(expanded) = u32::try_from(expanded) else {
+        return false;
+    };
+    spans.iter().any(|span| {
+        let end = span.expanded_start.saturating_add(span.len);
+        span.atomic && expanded >= span.expanded_start && expanded < end
+    })
+}
+
+/// The painted byte a source offset occupies. An offset past the last span uses the painted end.
+pub fn expanded_offset(spans: &[SourceSpan], source: usize) -> usize {
+    let Ok(source) = u32::try_from(source) else {
+        return 0;
+    };
+    for (index, span) in spans.iter().enumerate() {
+        let next = spans.get(index + 1).map(|item| item.source_start);
+        if span.atomic {
+            let after = span.source_start.saturating_add(3);
+            if source < after {
+                return span.expanded_start as usize;
+            }
+            if source == after && next != Some(after) {
+                return span.expanded_start.saturating_add(span.len) as usize;
+            }
+            continue;
+        }
+        let end = span.source_start.saturating_add(span.len);
+        if source < span.source_start {
+            return span.expanded_start as usize;
+        }
+        if source < end || (source == end && next != Some(end)) {
+            return span
+                .expanded_start
+                .saturating_add(source - span.source_start) as usize;
+        }
+    }
+    spans
+        .last()
+        .map(|span| span.expanded_start.saturating_add(span.len) as usize)
+        .unwrap_or(0)
+}
+
 /// A paragraph ready for layout.
 #[derive(Debug, Clone)]
 pub struct FlowParagraph {
@@ -309,6 +460,8 @@ pub struct FlowParagraph {
     pub notes: Vec<FlowNote>,
     /// The marker for a tracked change, for the layer state.
     pub revision: Option<RevisionKind>,
+    /// Painted bytes back to the source paragraph. Empty when the caller does not edit.
+    pub source: Vec<SourceSpan>,
 }
 
 /// A picture that shares a line with text.
@@ -643,6 +796,8 @@ pub struct ParagraphFragment {
     pub revision: Option<RevisionKind>,
     /// The link rectangles, resolved to page coordinates.
     pub links: Vec<(Rect, String)>,
+    /// Painted bytes back to the source paragraph. See [`SourceSpan`].
+    pub source: Vec<SourceSpan>,
 }
 
 /// A table on one page.
@@ -2163,6 +2318,7 @@ impl PageBuilder {
                             rtl: p.para.bidi,
                             revision: p.revision,
                             links: Vec::new(),
+                            source: p.source.clone(),
                         }));
                         out.extend(pictures);
                         append_story_pictures(&mut out, &mut anchored_indices, foreground);
@@ -2216,6 +2372,7 @@ impl PageBuilder {
                         rtl: p.para.bidi,
                         revision: p.revision,
                         links: Vec::new(),
+                        source: p.source.clone(),
                     }));
                     out.extend(pictures);
                     append_story_pictures(&mut out, &mut anchored_indices, foreground);
@@ -2886,6 +3043,7 @@ impl PageBuilder {
             rtl: p.para.bidi,
             revision: p.revision,
             links: link_rects(&layout, &p.links, rect),
+            source: p.source.clone(),
         }));
         self.fragments.extend(inline_picture_fragments(
             p, &layout, rect, start_line, line_index,
@@ -4287,6 +4445,7 @@ fn build_table_fragment<S: Shaper>(
                             rtl: p.para.bidi,
                             revision: p.revision,
                             links: Vec::new(),
+                            source: p.source.clone(),
                         }));
                         content.extend(pictures);
                         cy += hh + spacing.after(p, index + 1 == cell.blocks.len());
@@ -4776,6 +4935,7 @@ mod tests {
             outline: None,
             notes: Vec::new(),
             revision: None,
+            source: Vec::new(),
         }
     }
 

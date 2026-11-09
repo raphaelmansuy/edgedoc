@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use crate::error::{ModelError, ModelResult};
 use crate::fields::Instruction;
-use crate::para::{InlineObject, Paragraph, RunBuilder};
+use crate::para::{InlineObject, Paragraph, Picture, RunBuilder, OBJ};
 use crate::props::{DropKind, EditOptions, EditReport};
 use crate::section::{Part, PartKind, SectionProps, StoryRef};
 use crate::style::StyleSheet;
@@ -615,4 +615,778 @@ impl ParaCursor<'_> {
     pub fn paragraph_mut(&mut self) -> &mut Paragraph {
         self.para
     }
+}
+
+/// A caret after an edit, in source bytes of one paragraph.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TextCaret {
+    pub path: String,
+    pub offset: usize,
+}
+
+impl<'a> DocumentEdit<'a> {
+    /// Insert characters at a caret. Object markers in `text` are dropped.
+    pub fn insert_chars(
+        &mut self,
+        path: &str,
+        offset: usize,
+        text: &str,
+        props: &crate::props::CharProps,
+    ) -> ModelResult<TextCaret> {
+        let mut caret = TextCaret {
+            path: path.to_string(),
+            offset,
+        };
+        self.with_leaf(path, |para| {
+            let before = para.text.len();
+            para.insert_text(offset, text, props)?;
+            caret.offset = offset + para.text.len().saturating_sub(before);
+            Ok(())
+        })?;
+        Ok(caret)
+    }
+
+    /// Insert a merge field. The caret moves to the far side of the field.
+    pub fn insert_merge_field(
+        &mut self,
+        path: &str,
+        offset: usize,
+        name: &str,
+        props: &crate::props::CharProps,
+    ) -> ModelResult<TextCaret> {
+        let instr = crate::fields::quote_name(name);
+        let object = InlineObject::Field(crate::fields::Field::new(
+            &instr,
+            &crate::fields::placeholder(name),
+        ));
+        self.insert_inline(path, offset, object, props)
+    }
+
+    /// Insert a picture at the caret.
+    pub fn insert_picture(
+        &mut self,
+        path: &str,
+        offset: usize,
+        picture: Picture,
+        props: &crate::props::CharProps,
+    ) -> ModelResult<TextCaret> {
+        self.insert_inline(path, offset, InlineObject::Picture(picture), props)
+    }
+
+    fn insert_inline(
+        &mut self,
+        path: &str,
+        offset: usize,
+        object: InlineObject,
+        props: &crate::props::CharProps,
+    ) -> ModelResult<TextCaret> {
+        self.with_leaf(path, |para| para.insert_object(offset, object, props))?;
+        Ok(TextCaret {
+            path: path.to_string(),
+            offset: offset + OBJ.len_utf8(),
+        })
+    }
+
+    /// Split the paragraph. The caret is the start of the new paragraph.
+    pub fn break_paragraph(&mut self, path: &str, offset: usize) -> ModelResult<TextCaret> {
+        let next = next_block_path(path);
+        self.with_parent(path, |blocks, index| {
+            let right = {
+                let para = paragraph_mut(blocks, index)?;
+                para.split_off(offset)?
+            };
+            blocks.insert(index.saturating_add(1), Arc::new(Block::Paragraph(right)));
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: next,
+            offset: 0,
+        })
+    }
+
+    /// Pull this paragraph into the previous one. The caret sits at the join.
+    pub fn join_previous(&mut self, path: &str) -> ModelResult<TextCaret> {
+        let parsed = parse_path(path)?;
+        let index = leaf_index(&parsed);
+        if index == 0 {
+            return Ok(TextCaret {
+                path: path.to_string(),
+                offset: 0,
+            });
+        }
+        let prev = replace_leaf_index(path, index - 1);
+        let mut joined = None;
+        self.with_parent(path, |blocks, index| {
+            if index == 0 || index >= blocks.len() {
+                return Ok(());
+            }
+            let Block::Paragraph(_) = blocks[index - 1].as_ref() else {
+                return Ok(());
+            };
+            let Block::Paragraph(_) = blocks[index].as_ref() else {
+                return Ok(());
+            };
+            let right = blocks.remove(index);
+            let Block::Paragraph(right) = right.as_ref() else {
+                return Ok(());
+            };
+            let left = paragraph_mut(blocks, index - 1)?;
+            let at = left.text.len();
+            left.append_paragraph(right);
+            joined = Some(at);
+            Ok(())
+        })?;
+        match joined {
+            Some(offset) => Ok(TextCaret { path: prev, offset }),
+            None => self.paragraph_info(path, 0).map(|_| TextCaret {
+                path: path.to_string(),
+                offset: 0,
+            }),
+        }
+    }
+
+    /// Delete a span. Both ends must sit in the same block list.
+    pub fn delete_span(
+        &mut self,
+        start_path: &str,
+        start_off: usize,
+        end_path: &str,
+        end_off: usize,
+    ) -> ModelResult<TextCaret> {
+        let start = parse_path(start_path)?;
+        let end = parse_path(end_path)?;
+        if !same_container(&start, &end) {
+            return Err(ModelError::new(
+                "model.bad_path",
+                "The selection crosses a boundary the editor cannot delete in one step.",
+            ));
+        }
+        let mut from = leaf_index(&start);
+        let mut to = leaf_index(&end);
+        let mut from_off = start_off;
+        let mut to_off = end_off;
+        let mut from_path = start_path.to_string();
+        if to < from || (to == from && to_off < from_off) {
+            std::mem::swap(&mut from, &mut to);
+            std::mem::swap(&mut from_off, &mut to_off);
+            from_path = end_path.to_string();
+        }
+        self.with_parent(&from_path, |blocks, _| {
+            if from >= blocks.len() || to >= blocks.len() {
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "The selection does not land on a paragraph.",
+                ));
+            }
+            if to == from {
+                let para = paragraph_mut(blocks, from)?;
+                let end = to_off.min(para.text.len());
+                let start = from_off.min(end);
+                para.delete_range(start, end)?;
+                return Ok(());
+            }
+            {
+                let para = paragraph_mut(blocks, from)?;
+                let end = para.text.len();
+                let start = from_off.min(end);
+                para.delete_range(start, end)?;
+            }
+            if to_off > 0 {
+                let para = paragraph_mut(blocks, to)?;
+                let end = to_off.min(para.text.len());
+                para.delete_range(0, end)?;
+            }
+            if to > from + 1 {
+                blocks.drain(from + 1..to);
+            }
+            let join = to_off > 0 && from + 1 < blocks.len();
+            if join {
+                let right = blocks.remove(from + 1);
+                let right_para = matches!(right.as_ref(), Block::Paragraph(_));
+                let left_para =
+                    matches!(blocks.get(from).map(Arc::as_ref), Some(Block::Paragraph(_)));
+                if right_para && left_para {
+                    if let Block::Paragraph(para) = right.as_ref() {
+                        let left = paragraph_mut(blocks, from)?;
+                        left.append_paragraph(para);
+                    }
+                } else {
+                    blocks.insert(from + 1, right);
+                }
+            }
+            Ok(())
+        })?;
+        let offset = from_off;
+        Ok(TextCaret {
+            path: from_path,
+            offset,
+        })
+    }
+
+    /// Set or clear bold, italic, or underline on a range.
+    pub fn format_range(
+        &mut self,
+        path: &str,
+        start: usize,
+        end: usize,
+        kind: FormatKind,
+        enable: bool,
+    ) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            para.update_range(start.min(end), start.max(end), |props| match kind {
+                FormatKind::Bold => props.bold = enable,
+                FormatKind::Italic => props.italic = enable,
+                FormatKind::Underline => props.underline = enable,
+                FormatKind::Strike => props.strike = enable,
+                FormatKind::FontSize(size) => props.size_pt = Some(size),
+                FormatKind::Font(ref name) => props.font = Some(name.clone()),
+                FormatKind::Color(ref hex) => props.color = Some(hex.clone()),
+                FormatKind::Highlight(ref name) => props.highlight = Some(name.clone()),
+                FormatKind::VertAlign(ref name) => {
+                    props.vert_align = if enable && !name.is_empty() {
+                        Some(name.clone())
+                    } else {
+                        None
+                    };
+                }
+            })
+        })
+    }
+
+    pub fn set_align(&mut self, path: &str, align: &str) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            para.props.align = Some(align.to_string());
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    pub fn set_list(
+        &mut self,
+        path: &str,
+        kind: Option<crate::props::ListKind>,
+    ) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            para.props.list = kind.map(|kind| crate::props::ListSpec { kind, level: 0 });
+            if kind.is_none() {
+                para.props.num_id = None;
+            }
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    /// Insert a grid after the paragraph and put the caret in its first cell.
+    pub fn insert_table(&mut self, path: &str, rows: usize, cols: usize) -> ModelResult<TextCaret> {
+        if !(1..=32).contains(&rows) || !(1..=32).contains(&cols) {
+            return Err(ModelError::new(
+                "model.limit",
+                "A table needs between 1 and 32 rows and columns.",
+            ));
+        }
+        let table_path = next_block_path(path);
+        self.with_parent(path, |blocks, index| {
+            blocks.insert(
+                index.saturating_add(1),
+                Arc::new(Block::Table(blank_table(rows, cols))),
+            );
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: format!("{table_path}/row[0]/cell[0]/block[0]"),
+            offset: 0,
+        })
+    }
+
+    pub fn paragraph_info(&self, path: &str, offset: usize) -> ModelResult<ParagraphInfo> {
+        let para = self.paragraph_ref(path)?;
+        let align = para
+            .props
+            .align
+            .clone()
+            .unwrap_or_else(|| "left".to_string());
+        let field = para.object_at(offset).and_then(|object| match object {
+            InlineObject::Field(field) => {
+                crate::fields::Instruction::parse(&field.instr).merge_name()
+            }
+            _ => None,
+        });
+        Ok(ParagraphInfo {
+            len: para.text.len(),
+            text: para.text.clone(),
+            align,
+            props: para.props_at(offset),
+            field,
+            list: para.props.list.map(|spec| spec.kind),
+            indent_left: para.props.indent_left.map(|twips| twips.0).unwrap_or(0),
+            line: para.props.line.map(|twips| twips.0),
+            shading: para.props.shading.clone(),
+            border_bottom: para.props.borders.bottom.is_some(),
+        })
+    }
+
+    /// Bump the left indent by `delta` twips. Half an inch is 720.
+    pub fn bump_indent(&mut self, path: &str, delta: i32) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            let current = para.props.indent_left.map(|twips| twips.0).unwrap_or(0);
+            let next = (current + delta).clamp(0, 10_080);
+            para.props.indent_left = if next == 0 {
+                None
+            } else {
+                Some(crate::Twips(next))
+            };
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    /// Set automatic line spacing. Common values: 240 single, 360 1.5, 480 double.
+    pub fn set_line_spacing(&mut self, path: &str, line: i32) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            if line <= 0 {
+                para.props.line = None;
+                para.props.line_rule = None;
+            } else {
+                para.props.line = Some(crate::Twips(line));
+                para.props.line_rule = Some("auto".into());
+            }
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    /// Set space after the paragraph in twips.
+    pub fn set_space_after(&mut self, path: &str, twips: i32) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            para.props.spacing_after = if twips <= 0 {
+                Some(crate::Twips(0))
+            } else {
+                Some(crate::Twips(twips))
+            };
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    /// Set space before the paragraph in twips.
+    pub fn set_space_before(&mut self, path: &str, twips: i32) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            para.props.spacing_before = if twips <= 0 {
+                Some(crate::Twips(0))
+            } else {
+                Some(crate::Twips(twips))
+            };
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    /// Paint or clear the paragraph background.
+    pub fn set_para_shading(&mut self, path: &str, fill: Option<&str>) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            para.props.shading = fill.map(|color| color.trim_start_matches('#').to_uppercase());
+            para.raw_xml = None;
+            Ok(())
+        })
+    }
+
+    /// Apply a paragraph border preset at the caret paragraph.
+    pub fn set_para_border(&mut self, path: &str, kind: &str) -> ModelResult<()> {
+        self.with_leaf(path, |para| {
+            let stroke = crate::table::LineBorder {
+                val: "single".into(),
+                size: Some(6),
+                color: Some("auto".into()),
+                space: Some(1),
+            };
+            match kind {
+                "bottom" => {
+                    para.props.borders = crate::table::Borders {
+                        bottom: Some(stroke),
+                        ..crate::table::Borders::default()
+                    };
+                    para.props.borders_present = true;
+                    para.raw_xml = None;
+                }
+                "top" => {
+                    para.props.borders = crate::table::Borders {
+                        top: Some(stroke),
+                        ..crate::table::Borders::default()
+                    };
+                    para.props.borders_present = true;
+                    para.raw_xml = None;
+                }
+                "all" => {
+                    para.props.borders = crate::table::Borders {
+                        top: Some(stroke.clone()),
+                        left: Some(stroke.clone()),
+                        bottom: Some(stroke.clone()),
+                        right: Some(stroke.clone()),
+                        ..crate::table::Borders::default()
+                    };
+                    para.props.borders_present = true;
+                    para.raw_xml = None;
+                }
+                "none" => {
+                    para.props.borders = crate::table::Borders::default();
+                    para.props.borders_present = true;
+                    para.raw_xml = None;
+                }
+                _ => {}
+            }
+            Ok(())
+        })
+    }
+
+    /// True when every character in the range satisfies `pred`.
+    pub fn range_is<F>(&self, path: &str, start: usize, end: usize, pred: F) -> ModelResult<bool>
+    where
+        F: FnMut(&crate::props::CharProps) -> bool,
+    {
+        let para = self.paragraph_ref(path)?;
+        let (from, to) = if start <= end {
+            (start, end)
+        } else {
+            (end, start)
+        };
+        Ok(para.range_all(from, to, pred))
+    }
+
+    fn paragraph_ref(&self, path: &str) -> ModelResult<&Paragraph> {
+        paragraph_ref_in(self.doc, &parse_path(path)?)
+    }
+
+    fn with_leaf<F>(&mut self, path: &str, f: F) -> ModelResult<()>
+    where
+        F: FnOnce(&mut Paragraph) -> ModelResult<()>,
+    {
+        self.with_parent(path, |blocks, index| {
+            let para = paragraph_mut(blocks, index)?;
+            f(para)
+        })
+    }
+
+    fn with_parent<F>(&mut self, path: &str, f: F) -> ModelResult<()>
+    where
+        F: FnOnce(&mut Vec<Arc<Block>>, usize) -> ModelResult<()>,
+    {
+        let parsed = parse_path(path)?;
+        let doc = &mut *self.doc;
+        match parsed.head {
+            Head::Body(index) => descend(&mut doc.body, index, &parsed.nests, f),
+            Head::Part { id, block } => {
+                let part = doc.parts.get_mut(&id).ok_or_else(|| {
+                    ModelError::new("model.bad_path", format!("No story part with id {id}."))
+                })?;
+                descend(&mut part.blocks, block, &parsed.nests, f)
+            }
+        }
+    }
+}
+
+/// What a format command changes on a character range.
+#[derive(Debug, Clone, PartialEq)]
+pub enum FormatKind {
+    Bold,
+    Italic,
+    Underline,
+    Strike,
+    FontSize(f32),
+    Font(String),
+    Color(String),
+    Highlight(String),
+    /// `superscript`, `subscript`, or empty to clear.
+    VertAlign(String),
+}
+
+/// The paragraph facts the ribbon reads at the caret.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ParagraphInfo {
+    pub len: usize,
+    pub text: String,
+    pub align: String,
+    pub props: crate::props::CharProps,
+    pub field: Option<String>,
+    pub list: Option<crate::props::ListKind>,
+    /// Left indent in twips.
+    pub indent_left: i32,
+    /// Line spacing in twips when the rule is `auto`.
+    pub line: Option<i32>,
+    pub shading: Option<String>,
+    pub border_bottom: bool,
+}
+
+fn paragraph_mut(blocks: &mut [Arc<Block>], index: usize) -> ModelResult<&mut Paragraph> {
+    let block = blocks
+        .get_mut(index)
+        .ok_or_else(|| ModelError::new("model.bad_path", format!("No block at index {index}.")))?;
+    match Arc::make_mut(block) {
+        Block::Paragraph(para) => {
+            if para.locked {
+                return Err(ModelError::new(
+                    "model.locked",
+                    "This content is locked. Unlock it before editing.",
+                ));
+            }
+            Ok(para)
+        }
+        _ => Err(ModelError::new(
+            "model.bad_path",
+            format!("Block {index} is not a paragraph."),
+        )),
+    }
+}
+
+fn descend<F>(
+    blocks: &mut Vec<Arc<Block>>,
+    index: usize,
+    nests: &[(usize, usize, usize)],
+    f: F,
+) -> ModelResult<()>
+where
+    F: FnOnce(&mut Vec<Arc<Block>>, usize) -> ModelResult<()>,
+{
+    if nests.is_empty() {
+        return f(blocks, index);
+    }
+    let (row, cell, block_index) = nests[0];
+    let current = blocks
+        .get_mut(index)
+        .ok_or_else(|| ModelError::new("model.bad_path", format!("No block at index {index}.")))?;
+    let Block::Table(table) = Arc::make_mut(current) else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            "The path goes through a block that is not a table.",
+        ));
+    };
+    let cell_blocks = table
+        .rows
+        .get_mut(row)
+        .and_then(|row| row.cells.get_mut(cell))
+        .ok_or_else(|| {
+            ModelError::new(
+                "model.bad_path",
+                format!("No cell at row {row}, column {cell}."),
+            )
+        })?;
+    descend(&mut cell_blocks.blocks, block_index, &nests[1..], f)
+}
+
+fn paragraph_ref_in<'a>(doc: &'a ModelDocument, parsed: &Parsed) -> ModelResult<&'a Paragraph> {
+    let (blocks, index) = match parsed.head {
+        Head::Body(index) => (&doc.body, index),
+        Head::Part { id, block } => {
+            let part = doc.parts.get(&id).ok_or_else(|| {
+                ModelError::new("model.bad_path", format!("No story part with id {id}."))
+            })?;
+            (&part.blocks, block)
+        }
+    };
+    let mut blocks = blocks;
+    let mut index = index;
+    for (row, cell, block_index) in &parsed.nests {
+        let Block::Table(table) = blocks
+            .get(index)
+            .map(Arc::as_ref)
+            .ok_or_else(|| ModelError::new("model.bad_path", "The path does not reach a table."))?
+        else {
+            return Err(ModelError::new(
+                "model.bad_path",
+                "The path goes through a block that is not a table.",
+            ));
+        };
+        blocks = &table
+            .rows
+            .get(*row)
+            .and_then(|row| row.cells.get(*cell))
+            .ok_or_else(|| ModelError::new("model.bad_path", "The path does not reach a cell."))?
+            .blocks;
+        index = *block_index;
+    }
+    match blocks.get(index).map(Arc::as_ref) {
+        Some(Block::Paragraph(para)) => Ok(para),
+        _ => Err(ModelError::new(
+            "model.bad_path",
+            "The path does not reach a paragraph.",
+        )),
+    }
+}
+
+enum Head {
+    Body(usize),
+    Part { id: u32, block: usize },
+}
+
+struct Parsed {
+    head: Head,
+    nests: Vec<(usize, usize, usize)>,
+}
+
+fn parse_path(path: &str) -> ModelResult<Parsed> {
+    let tokens: Vec<&str> = path.split('/').filter(|token| !token.is_empty()).collect();
+    if tokens.is_empty() {
+        return Err(ModelError::new(
+            "model.bad_path",
+            "The block path is empty.",
+        ));
+    }
+    let (head, mut at) = if tokens[0].starts_with("body[") {
+        (Head::Body(number_in(tokens[0], "body")?), 1)
+    } else if tokens[0].starts_with("part[") {
+        let id = number_in(tokens[0], "part")? as u32;
+        let block = tokens
+            .get(1)
+            .ok_or_else(|| ModelError::new("model.bad_path", "A part path needs a block index."))?;
+        (
+            Head::Part {
+                id,
+                block: number_in(block, "block")?,
+            },
+            2,
+        )
+    } else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            format!("The path \"{path}\" does not start at the body or a story part."),
+        ));
+    };
+    let mut nests = Vec::new();
+    while at < tokens.len() {
+        let row = number_in(token_at(&tokens, at)?, "row")?;
+        let cell = number_in(token_at(&tokens, at + 1)?, "cell")?;
+        let block = number_in(token_at(&tokens, at + 2)?, "block")?;
+        nests.push((row, cell, block));
+        at += 3;
+    }
+    Ok(Parsed { head, nests })
+}
+
+fn token_at<'a>(tokens: &[&'a str], index: usize) -> ModelResult<&'a str> {
+    tokens.get(index).copied().ok_or_else(|| {
+        ModelError::new(
+            "model.bad_path",
+            "The path is missing a row, cell, or block index.",
+        )
+    })
+}
+
+fn number_in(token: &str, name: &str) -> ModelResult<usize> {
+    let Some(rest) = token.strip_prefix(name) else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            format!("Expected {name}[…] and found \"{token}\"."),
+        ));
+    };
+    let Some(rest) = rest.strip_prefix('[') else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            format!("Expected {name}[…] and found \"{token}\"."),
+        ));
+    };
+    let Some(rest) = rest.strip_suffix(']') else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            format!("Expected {name}[…] and found \"{token}\"."),
+        ));
+    };
+    rest.parse::<usize>().map_err(|_| {
+        ModelError::new(
+            "model.bad_path",
+            format!("The index in \"{token}\" is not a number."),
+        )
+    })
+}
+
+fn leaf_index(parsed: &Parsed) -> usize {
+    parsed
+        .nests
+        .last()
+        .map(|(_, _, block)| *block)
+        .unwrap_or(match parsed.head {
+            Head::Body(index) => index,
+            Head::Part { block, .. } => block,
+        })
+}
+
+fn same_container(a: &Parsed, b: &Parsed) -> bool {
+    let head = match (&a.head, &b.head) {
+        (Head::Body(_), Head::Body(_)) => a.nests.is_empty() && b.nests.is_empty(),
+        (Head::Part { id: left, .. }, Head::Part { id: right, .. }) => {
+            left == right && a.nests.is_empty() && b.nests.is_empty()
+        }
+        _ => false,
+    };
+    if head {
+        return true;
+    }
+    if a.nests.len() != b.nests.len() || a.nests.is_empty() {
+        return false;
+    }
+    let heads = match (&a.head, &b.head) {
+        (Head::Body(left), Head::Body(right)) => left == right,
+        (
+            Head::Part {
+                id: left,
+                block: left_block,
+            },
+            Head::Part {
+                id: right,
+                block: right_block,
+            },
+        ) => left == right && left_block == right_block,
+        _ => false,
+    };
+    if !heads {
+        return false;
+    }
+    a.nests[..a.nests.len() - 1] == b.nests[..b.nests.len() - 1]
+        && a.nests.last().map(|item| (item.0, item.1))
+            == b.nests.last().map(|item| (item.0, item.1))
+}
+
+fn replace_leaf_index(path: &str, index: usize) -> String {
+    match path.rfind('[') {
+        Some(start) => match path[start + 1..].find(']') {
+            Some(end) => format!(
+                "{}[{index}]{}",
+                &path[..start],
+                &path[start + 1 + end + 1..]
+            ),
+            None => path.to_string(),
+        },
+        None => path.to_string(),
+    }
+}
+
+fn next_block_path(path: &str) -> String {
+    let parsed = parse_path(path);
+    let Ok(parsed) = parsed else {
+        return path.to_string();
+    };
+    replace_leaf_index(path, leaf_index(&parsed).saturating_add(1))
+}
+
+fn blank_table(rows: usize, cols: usize) -> crate::table::Table {
+    use crate::table::{Borders, LineBorder, Table};
+    let line = LineBorder {
+        val: "single".into(),
+        size: Some(4),
+        color: Some("BFBFBF".into()),
+        space: Some(0),
+    };
+    let mut table = Table::new();
+    table.borders = Borders {
+        top: Some(line.clone()),
+        left: Some(line.clone()),
+        bottom: Some(line.clone()),
+        right: Some(line.clone()),
+        inside_h: Some(line.clone()),
+        inside_v: Some(line),
+        ..Borders::default()
+    };
+    for _ in 0..rows {
+        let cells = (0..cols).map(|_| crate::table::Cell::paragraph(""));
+        table.rows.push(crate::table::Row::cells(cells));
+    }
+    table
 }

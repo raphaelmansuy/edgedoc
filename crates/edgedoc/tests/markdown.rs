@@ -16,8 +16,10 @@ fn err(err: impl std::fmt::Display) -> String {
 
 fn sample() -> Result<Document, String> {
     let mut linked = Paragraph::new();
-    let mut props = CharProps::default();
-    props.link = Some("https://example.com/a".into());
+    let props = CharProps {
+        link: Some("https://example.com/a".into()),
+        ..Default::default()
+    };
     linked.push_text("Example", &props);
     Document::builder()
         .style(Style::paragraph("Heading1").named("heading 1"))
@@ -1128,15 +1130,13 @@ fn office_math_edge_cases() -> Test {
             "$\\sin x$",
         ),
         (
-            shown(&format!(
-                "<m:r><m:rPr><m:lit/></m:rPr><m:t xml:space=\"preserve\">×</m:t></m:r>"
-            )),
+            shown("<m:r><m:rPr><m:lit/></m:rPr><m:t xml:space=\"preserve\">×</m:t></m:r>"),
             "$\\text{×}$",
         ),
         (
-            shown(&format!(
-                "<m:r><m:rPr><m:nor m:val=\"0\"/></m:rPr><m:t xml:space=\"preserve\">×</m:t></m:r>"
-            )),
+            shown(
+                "<m:r><m:rPr><m:nor m:val=\"0\"/></m:rPr><m:t xml:space=\"preserve\">×</m:t></m:r>",
+            ),
             "$\\times$",
         ),
         (shown(&sized("-1", "x", "y")), "$\\frac{{\\scriptstyle x}}{y}$"),
@@ -1152,7 +1152,7 @@ fn office_math_edge_cases() -> Test {
         (shown(&sized("0", "m7", "n7")), "$\\frac{m7}{n7}$"),
         (shown(&sized("abc", "m8", "n8")), "$\\frac{m8}{n8}$"),
         (
-            shown(&format!("<m:r><m:t>a</m:t><m:brk/><m:t>b</m:t></m:r>")),
+            shown("<m:r><m:t>a</m:t><m:brk/><m:t>b</m:t></m:r>"),
             "$a\\\\b$",
         ),
         (

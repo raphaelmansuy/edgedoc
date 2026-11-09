@@ -1905,6 +1905,7 @@ fn paragraph_of_inner(
     // Expand the text, and collect the extents of the objects that remain.
     let mut text = String::with_capacity(para.text.len() + 32);
     let mut runs: Vec<(usize, usize, u32)> = Vec::new();
+    let mut source: Vec<edgedoc_flow::SourceSpan> = Vec::new();
     let mut objects: Vec<(f32, f32)> = Vec::new();
     let mut inline_pictures = Vec::new();
     let mut page_pictures = Vec::new();
@@ -1933,6 +1934,7 @@ fn paragraph_of_inner(
                     let start = text.len();
                     text.push_str(&shown);
                     push_run(&mut runs, start, text.len(), style);
+                    edgedoc_flow::push_source_span(&mut source, start, text.len(), i, true);
                 }
                 Some(InlineObject::Picture(picture)) => {
                     let start = text.len();
@@ -1968,6 +1970,7 @@ fn paragraph_of_inner(
                         inline_pictures.push(None);
                     }
                     push_run(&mut runs, start, text.len(), style);
+                    edgedoc_flow::push_source_span(&mut source, start, text.len(), i, true);
                 }
                 Some(
                     InlineObject::Bookmark { .. }
@@ -2003,6 +2006,7 @@ fn paragraph_of_inner(
                     let start = text.len();
                     text.push('\t');
                     push_run(&mut runs, start, text.len(), index);
+                    edgedoc_flow::push_source_span(&mut source, start, text.len(), i, true);
                 }
                 Some(InlineObject::Note { kind, id }) => {
                     if kind == "comment" {
@@ -2030,6 +2034,7 @@ fn paragraph_of_inner(
                     let start = text.len();
                     text.push_str(&shown);
                     push_run(&mut runs, start, text.len(), mark_style);
+                    edgedoc_flow::push_source_span(&mut source, start, text.len(), i, true);
                     if kind == "footnote" && CURRENT_NOTE_MARK.with(|mark| mark.borrow().is_none())
                     {
                         if let Some(blocks) =
@@ -2062,6 +2067,7 @@ fn paragraph_of_inner(
                     objects.push((12.0, 0.0));
                     inline_pictures.push(None);
                     push_run(&mut runs, start, text.len(), style);
+                    edgedoc_flow::push_source_span(&mut source, start, text.len(), i, true);
                 }
             }
             continue;
@@ -2108,6 +2114,7 @@ fn paragraph_of_inner(
             style
         };
         push_run(&mut runs, start, text.len(), style);
+        edgedoc_flow::push_source_span(&mut source, start, text.len(), i, false);
     }
     // The flow numbers a list from a running counter, so a paragraph only carries the level.
     // See `DP-S-14`.
@@ -2160,6 +2167,7 @@ fn paragraph_of_inner(
         outline: computed.outline_level,
         notes,
         revision: revision_of(para),
+        source,
     }
 }
 

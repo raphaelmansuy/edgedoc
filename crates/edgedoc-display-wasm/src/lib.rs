@@ -143,6 +143,229 @@ mod bind {
         pub fn clear(&mut self) {
             self.inner.clear();
         }
+
+        /// Open a blank page for editing. Returns the caret state as JSON.
+        #[wasm_bindgen(js_name = editBlank)]
+        pub fn edit_blank(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_blank().map_err(js_error)
+        }
+
+        /// Open a package for editing. Returns the caret state as JSON.
+        #[wasm_bindgen(js_name = editOpen)]
+        pub fn edit_open(&mut self, bytes: &[u8]) -> Result<String, JsValue> {
+            self.inner.edit_open(bytes).map_err(js_error)
+        }
+
+        /// The caret, the selection, and the ribbon flags, as JSON.
+        #[wasm_bindgen(js_name = editState)]
+        pub fn edit_state(&self) -> Result<String, JsValue> {
+            self.inner.edit_state().map_err(js_error)
+        }
+
+        /// The current package, including edits.
+        #[wasm_bindgen(js_name = documentBytes)]
+        pub fn document_bytes(&self) -> Result<Vec<u8>, JsValue> {
+            self.inner.document_bytes().map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editInsert)]
+        pub fn edit_insert(&mut self, text: &str) -> Result<String, JsValue> {
+            self.inner.edit_insert(text).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editDelete)]
+        pub fn edit_delete(&mut self, backward: bool) -> Result<String, JsValue> {
+            self.inner.edit_delete(backward).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editEnter)]
+        pub fn edit_enter(&mut self, soft: bool) -> Result<String, JsValue> {
+            self.inner.edit_enter(soft).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editMergeField)]
+        pub fn edit_merge_field(&mut self, name: &str) -> Result<String, JsValue> {
+            self.inner.edit_field(name).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editTable)]
+        pub fn edit_table(&mut self, rows: u32, cols: u32) -> Result<String, JsValue> {
+            self.inner.edit_table(rows, cols).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editPicture)]
+        pub fn edit_picture(
+            &mut self,
+            bytes: &[u8],
+            width_pt: f32,
+            height_pt: f32,
+        ) -> Result<String, JsValue> {
+            self.inner
+                .edit_picture(bytes, width_pt, height_pt)
+                .map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editMark)]
+        pub fn edit_mark(&mut self, mark: &str) -> Result<String, JsValue> {
+            self.inner.edit_mark(mark).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editAlign)]
+        pub fn edit_align(&mut self, align: &str) -> Result<String, JsValue> {
+            self.inner.edit_align(align).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editList)]
+        pub fn edit_list(&mut self, kind: &str) -> Result<String, JsValue> {
+            self.inner.edit_list(kind).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editFont)]
+        pub fn edit_font(&mut self, name: &str) -> Result<String, JsValue> {
+            self.inner.edit_font(name).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editFontSize)]
+        pub fn edit_font_size(&mut self, size: f32) -> Result<String, JsValue> {
+            self.inner.edit_font_size(size).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editColor)]
+        pub fn edit_color(&mut self, hex: &str) -> Result<String, JsValue> {
+            self.inner.edit_color(hex).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editHighlight)]
+        pub fn edit_highlight(&mut self, name: &str) -> Result<String, JsValue> {
+            self.inner.edit_highlight(name).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editUndo)]
+        pub fn edit_undo(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_undo().map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editRedo)]
+        pub fn edit_redo(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_redo().map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editCaret)]
+        pub fn edit_caret(
+            &mut self,
+            page: u32,
+            x: f32,
+            y: f32,
+            extend: bool,
+        ) -> Result<String, JsValue> {
+            self.inner.edit_click(page, x, y, extend).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editMove)]
+        pub fn edit_move(&mut self, key: &str, extend: bool) -> Result<String, JsValue> {
+            self.inner.edit_move(key, extend).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editSelectAll)]
+        pub fn edit_select_all(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_select_all().map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editSelectWord)]
+        pub fn edit_select_word(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_select_word().map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editSelectSentence)]
+        pub fn edit_select_sentence(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_select_sentence().map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editLook)]
+        pub fn edit_look(&mut self, name: &str) -> Result<String, JsValue> {
+            self.inner.edit_look(name).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editCase)]
+        pub fn edit_case(&mut self, mode: &str) -> Result<String, JsValue> {
+            self.inner.edit_case(mode).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editPainter)]
+        pub fn edit_painter(&mut self, sticky: bool) -> Result<String, JsValue> {
+            self.inner.edit_painter(sticky).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editIndent)]
+        pub fn edit_indent(&mut self, delta: i32) -> Result<String, JsValue> {
+            self.inner.edit_indent(delta).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editLineSpacing)]
+        pub fn edit_line_spacing(&mut self, multiple: f32) -> Result<String, JsValue> {
+            self.inner.edit_line_spacing(multiple).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editParaSpacing)]
+        pub fn edit_para_spacing(&mut self, action: &str) -> Result<String, JsValue> {
+            self.inner.edit_para_spacing(action).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editParaShading)]
+        pub fn edit_para_shading(&mut self, fill: Option<String>) -> Result<String, JsValue> {
+            self.inner.edit_para_shading(fill).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editParaBorder)]
+        pub fn edit_para_border(&mut self, kind: &str) -> Result<String, JsValue> {
+            self.inner.edit_para_border(kind).map_err(js_error)
+        }
+
+        /// Fill merge fields for one record. `values` is a plain object of strings.
+        #[wasm_bindgen(js_name = editPreview)]
+        pub fn edit_preview(&mut self, values: JsValue) -> Result<String, JsValue> {
+            self.inner
+                .edit_preview(&record_pairs(&values)?)
+                .map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editEndPreview)]
+        pub fn edit_end_preview(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_end_preview().map_err(js_error)
+        }
+    }
+
+    /// Read `{ name: value }` into the pairs a preview expects.
+    fn record_pairs(values: &JsValue) -> Result<Vec<(String, String)>, JsValue> {
+        if !values.is_object() {
+            return Err(js_error((
+                "editor.preview".into(),
+                "The preview record must be an object.".into(),
+            )));
+        }
+        let obj = js_sys::Object::from(values.clone());
+        let keys = js_sys::Object::keys(&obj);
+        let mut pairs = Vec::new();
+        for key in keys.iter() {
+            let Some(name) = key.as_string() else {
+                continue;
+            };
+            let raw = js_sys::Reflect::get(&obj, &key).map_err(|_| {
+                js_error((
+                    "editor.preview".into(),
+                    "The preview record must be an object.".into(),
+                ))
+            })?;
+            let value = if let Some(text) = raw.as_string() {
+                text
+            } else if let Some(number) = raw.as_f64() {
+                number.to_string()
+            } else {
+                String::new()
+            };
+            pairs.push((name, value));
+        }
+        Ok(pairs)
     }
 
     impl Default for Viewer {

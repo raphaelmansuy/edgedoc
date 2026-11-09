@@ -1,0 +1,211 @@
+{
+  "results": [
+    {
+      "name": "a blank document opens",
+      "ok": true,
+      "detail": "Untitled"
+    },
+    {
+      "name": "the home ribbon matches wordcraft groups",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the caret is visible",
+      "ok": true,
+      "detail": "12.2 px"
+    },
+    {
+      "name": "the ruler matches the page",
+      "ok": true,
+      "detail": "{\"left\":0,\"width\":-0.296875}"
+    },
+    {
+      "name": "typing appears on the page",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "select sentence grabs one sentence",
+      "ok": true,
+      "detail": "Invoice 1042."
+    },
+    {
+      "name": "soft line break stays in one paragraph",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "bold marks the selection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "paragraph shading applies",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a merge field paints its name",
+      "ok": true,
+      "detail": "Invoice 1042Bill to «Customer»"
+    },
+    {
+      "name": "a table opens in its first cell",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the side panel lists the field",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "preview fills the field",
+      "ok": true,
+      "detail": "Invoice 1042Bill to Ada Lovelace"
+    },
+    {
+      "name": "leaving preview restores the template",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "undo removes the table",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a template opens",
+      "ok": true,
+      "detail": "2 pages, 14 fields"
+    },
+    {
+      "name": "the template page paints ink",
+      "ok": true,
+      "detail": "2573 dark samples"
+    },
+    {
+      "name": "structured documents open the navigation pane",
+      "ok": true,
+      "detail": "How to pay, Notes"
+    },
+    {
+      "name": "zoom keeps the caret",
+      "ok": true,
+      "detail": "1.50"
+    },
+    {
+      "name": "the ruler still matches after zoom",
+      "ok": true,
+      "detail": "{\"left\":0,\"width\":0.0625}"
+    },
+    {
+      "name": "the layout ribbon shows page setup",
+      "ok": true,
+      "detail": "Margins Normal"
+    },
+    {
+      "name": "the view ribbon exposes print layout and fields pane",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home and insert keep wordcraft controls",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the navigation pane opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the navigation pane lists document headings",
+      "ok": true,
+      "detail": "How to pay, Notes"
+    },
+    {
+      "name": "highlight fields arms",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the browser reported no error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "screenshot 01-blank is written",
+      "ok": true,
+      "detail": "57839 bytes"
+    },
+    {
+      "name": "screenshot 02-typed is written",
+      "ok": true,
+      "detail": "59454 bytes"
+    },
+    {
+      "name": "screenshot 03-bold is written",
+      "ok": true,
+      "detail": "63707 bytes"
+    },
+    {
+      "name": "screenshot 04-field is written",
+      "ok": true,
+      "detail": "53548 bytes"
+    },
+    {
+      "name": "screenshot 05-table is written",
+      "ok": true,
+      "detail": "51551 bytes"
+    },
+    {
+      "name": "screenshot 06-preview is written",
+      "ok": true,
+      "detail": "62020 bytes"
+    },
+    {
+      "name": "screenshot 07-template is written",
+      "ok": true,
+      "detail": "52921 bytes"
+    },
+    {
+      "name": "screenshot 08-undo is written",
+      "ok": true,
+      "detail": "52432 bytes"
+    },
+    {
+      "name": "screenshot 09-invoice is written",
+      "ok": true,
+      "detail": "104824 bytes"
+    },
+    {
+      "name": "screenshot 10-zoom is written",
+      "ok": true,
+      "detail": "113584 bytes"
+    },
+    {
+      "name": "screenshot 11-narrow is written",
+      "ok": true,
+      "detail": "45769 bytes"
+    },
+    {
+      "name": "screenshot 12-layout is written",
+      "ok": true,
+      "detail": "90975 bytes"
+    },
+    {
+      "name": "screenshot 13-view is written",
+      "ok": true,
+      "detail": "94393 bytes"
+    },
+    {
+      "name": "screenshot 14-highlight is written",
+      "ok": true,
+      "detail": "92453 bytes"
+    }
+  ],
+  "failed": 0,
+  "at": "2026-11-09T06:34:49.206Z"
+}

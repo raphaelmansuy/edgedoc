@@ -3,7 +3,9 @@
 //! Every method returns a plain JSON string, so the same code runs in a native test and in the
 //! browser. The `bind` module in `lib.rs` wraps it. See `DP-B-04` to `DP-B-06`.
 
-use edgedoc_display::{DisplayDocument, LayoutOptions, OpenOptions, SearchOptions, Severity};
+use edgedoc_display::{
+    DisplayDocument, Editor, EditorState, LayoutOptions, OpenOptions, SearchOptions, Severity,
+};
 
 /// One page's metadata, which a viewer uses to size a placeholder.
 #[derive(Debug, Clone, PartialEq)]
@@ -29,6 +31,8 @@ pub struct ViewerMeta {
 #[derive(Default)]
 pub struct DisplayHandle {
     doc: Option<DisplayDocument>,
+    /// Present while the Word control is editing. Read methods prefer it over `doc`.
+    editor: Option<Editor>,
     /// The encoded pages, which `page` returns.
     pages: Vec<Vec<u8>>,
     meta: Option<ViewerMeta>,
@@ -39,8 +43,18 @@ impl DisplayHandle {
         Self::default()
     }
 
-    /// Open a package. See `DP-P-03`.
+    /// The document a read method should use. An editing session wins.
+    fn view(&self) -> Option<&DisplayDocument> {
+        if let Some(editor) = &self.editor {
+            Some(editor.display())
+        } else {
+            self.doc.as_ref()
+        }
+    }
+
+    /// Open a package for reading. See `DP-P-03`.
     pub fn open(&mut self, bytes: &[u8]) -> Result<String, (String, String)> {
+        self.editor = None;
         let doc = DisplayDocument::open(bytes, &OpenOptions::default())
             .map_err(|e| (e.code.clone(), e.message.clone()))?;
         let title = doc.title().to_string();
@@ -57,6 +71,9 @@ impl DisplayHandle {
 
     /// Lay out and encode every page. See `DP-V-01`.
     pub fn layout(&mut self) -> Result<String, (String, String)> {
+        if self.editor.is_some() {
+            return self.layout_editor();
+        }
         let Some(doc) = self.doc.as_mut() else {
             return Err((
                 "display.bad_state".into(),
@@ -103,28 +120,28 @@ impl DisplayHandle {
     }
 
     pub fn page_size(&self, index: usize) -> Option<(f32, f32)> {
-        let doc = self.doc.as_ref()?;
+        let doc = self.view()?;
         doc.pages().get(index).map(|p| (p.w, p.h))
     }
 
     /// A loaded glyph outline for the browser canvas.
     pub fn glyph_outline_json(&self, face: u32, glyph: u16) -> Option<String> {
-        self.doc.as_ref()?.glyph_outline_json(face, glyph)
+        self.view()?.glyph_outline_json(face, glyph)
     }
 
     /// One page as an SVG document.
     pub fn svg(&self, index: usize) -> Option<String> {
-        self.doc.as_ref()?.to_svg(index)
+        self.view()?.to_svg(index)
     }
 
     /// The visible text of one page.
     pub fn text(&self, index: usize) -> Option<String> {
-        self.doc.as_ref()?.page_text(index)
+        self.view()?.page_text(index)
     }
 
     /// The outline as JSON. See `DP-V-37`.
     pub fn outline_json(&self) -> String {
-        let Some(doc) = self.doc.as_ref() else {
+        let Some(doc) = self.view() else {
             return "[]".into();
         };
         let items: Vec<String> = doc
@@ -144,7 +161,7 @@ impl DisplayHandle {
 
     /// The diagnostics as JSON. See `DP-P-25`.
     pub fn diagnostics_json(&self) -> String {
-        let Some(doc) = self.doc.as_ref() else {
+        let Some(doc) = self.view() else {
             return "[]".into();
         };
         let items: Vec<String> = doc
@@ -166,7 +183,7 @@ impl DisplayHandle {
 
     /// A hit test, as JSON. See `DP-G-27`.
     pub fn hit_json(&self, page: usize, x: f32, y: f32) -> Option<String> {
-        let doc = self.doc.as_ref()?;
+        let doc = self.view()?;
         match doc.hit_test(page, edgedoc_display::Point::new(x, y))? {
             edgedoc_display::Hit::Glyph {
                 rect,
@@ -195,7 +212,7 @@ impl DisplayHandle {
 
     /// A search, as JSON. See `DP-V-26`.
     pub fn search_json(&self, query: &str) -> String {
-        let Some(doc) = self.doc.as_ref() else {
+        let Some(doc) = self.view() else {
             return "{\"hits\":[],\"query\":\"\"}".into();
         };
         let results = doc.search(query, &SearchOptions::default());
@@ -225,7 +242,7 @@ impl DisplayHandle {
 
     /// Every page's metadata.
     pub fn page_meta(&self) -> Vec<PageMeta> {
-        let Some(doc) = self.doc.as_ref() else {
+        let Some(doc) = self.view() else {
             return Vec::new();
         };
         doc.pages()
@@ -242,6 +259,7 @@ impl DisplayHandle {
 
     pub fn clear(&mut self) {
         self.doc = None;
+        self.editor = None;
         self.pages.clear();
         self.meta = None;
     }
@@ -286,7 +304,7 @@ impl DisplayHandle {
 
     /// The count of each severity, which a badge shows. See `DP-U-18`.
     pub fn severity_counts(&self) -> (usize, usize) {
-        let Some(doc) = self.doc.as_ref() else {
+        let Some(doc) = self.view() else {
             return (0, 0);
         };
         let warnings = doc
@@ -301,6 +319,477 @@ impl DisplayHandle {
             .count();
         (warnings, errors)
     }
+
+    /// Open a blank page for editing and return the caret state.
+    pub fn edit_blank(&mut self) -> Result<String, (String, String)> {
+        let editor = Editor::blank().map_err(edit_err)?;
+        self.doc = None;
+        self.editor = Some(editor);
+        self.finish_edit()
+    }
+
+    /// Open a package for editing. The caret starts in the first paragraph.
+    pub fn edit_open(&mut self, bytes: &[u8]) -> Result<String, (String, String)> {
+        let editor = Editor::open(bytes).map_err(edit_err)?;
+        self.doc = None;
+        self.editor = Some(editor);
+        self.finish_edit()
+    }
+
+    /// The caret, the selection, and the ribbon flags.
+    pub fn edit_state(&self) -> Result<String, (String, String)> {
+        self.editor
+            .as_ref()
+            .map(|_| self.state_json())
+            .ok_or(editor_closed())
+    }
+
+    /// The current package, including edits.
+    pub fn document_bytes(&self) -> Result<Vec<u8>, (String, String)> {
+        self.editor
+            .as_ref()
+            .ok_or_else(editor_closed)?
+            .package()
+            .map_err(edit_err)
+    }
+
+    pub fn edit_insert(&mut self, text: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .insert_text(text)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_delete(&mut self, backward: bool) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .delete(backward)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_enter(&mut self, soft: bool) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .insert_newline(soft)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_field(&mut self, name: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .insert_field(name)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_table(&mut self, rows: u32, cols: u32) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .insert_table(rows as usize, cols as usize)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_picture(
+        &mut self,
+        bytes: &[u8],
+        width_pt: f32,
+        height_pt: f32,
+    ) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .insert_picture(bytes.to_vec(), width_pt, height_pt)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_mark(&mut self, mark: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .toggle_mark(mark)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_align(&mut self, align: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_align(align)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_list(&mut self, kind: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .toggle_list(kind)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_font(&mut self, name: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_font(name)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_font_size(&mut self, size: f32) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_font_size(size)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_color(&mut self, hex: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_color(hex)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_highlight(&mut self, name: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_highlight(name)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_undo(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .undo()
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_redo(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .redo()
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_click(
+        &mut self,
+        page: u32,
+        x: f32,
+        y: f32,
+        extend: bool,
+    ) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .click(page as usize, x, y, extend);
+        self.finish_edit()
+    }
+
+    pub fn edit_move(&mut self, key: &str, extend: bool) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .move_caret(key, extend);
+        self.finish_edit()
+    }
+
+    pub fn edit_select_all(&mut self) -> Result<String, (String, String)> {
+        self.editor.as_mut().ok_or_else(editor_closed)?.select_all();
+        self.finish_edit()
+    }
+
+    pub fn edit_select_word(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .select_word();
+        self.finish_edit()
+    }
+
+    pub fn edit_select_sentence(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .select_sentence();
+        self.finish_edit()
+    }
+
+    pub fn edit_look(&mut self, name: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .apply_look(name)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_case(&mut self, mode: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .change_case(mode)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_painter(&mut self, sticky: bool) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .arm_painter(sticky);
+        self.finish_edit()
+    }
+
+    pub fn edit_indent(&mut self, delta: i32) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .bump_indent(delta)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_line_spacing(&mut self, multiple: f32) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_line_spacing(multiple)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_para_spacing(&mut self, action: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .para_spacing(action)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_para_shading(&mut self, fill: Option<String>) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_para_shading(fill.as_deref())
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_para_border(&mut self, kind: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_para_border(kind)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_preview(
+        &mut self,
+        values: &[(String, String)],
+    ) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .preview(values)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_end_preview(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .end_preview()
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    fn layout_editor(&mut self) -> Result<String, (String, String)> {
+        let (pages, w, h, title, count, passes, elapsed) = {
+            let editor = self.editor.as_mut().ok_or_else(editor_closed)?;
+            let report = editor.layout().map_err(edit_err)?;
+            let packed = pack_pages(editor.display());
+            (
+                packed.pages,
+                packed.w,
+                packed.h,
+                packed.title,
+                report.pages,
+                report.passes,
+                report.elapsed_ms,
+            )
+        };
+        self.store_view(pages, w, h, title, count);
+        Ok(format!(
+            "{{\"pages\":{count},\"passes\":{passes},\"elapsed_ms\":{elapsed:.1}}}"
+        ))
+    }
+
+    fn finish_edit(&mut self) -> Result<String, (String, String)> {
+        let packed = {
+            let doc = self.editor.as_ref().ok_or_else(editor_closed)?.display();
+            pack_pages(doc)
+        };
+        let count = packed.count;
+        self.store_view(packed.pages, packed.w, packed.h, packed.title, count);
+        Ok(self.state_json())
+    }
+
+    fn store_view(&mut self, pages: Vec<Vec<u8>>, w: f32, h: f32, title: String, count: u32) {
+        self.pages = pages;
+        match self.meta.as_mut() {
+            Some(meta) => {
+                meta.title = title;
+                meta.pages = count;
+                meta.page_w = w;
+                meta.page_h = h;
+            }
+            None => {
+                self.meta = Some(ViewerMeta {
+                    title,
+                    pages: count,
+                    page_w: w,
+                    page_h: h,
+                });
+            }
+        }
+    }
+
+    fn state_json(&self) -> String {
+        let Some(state) = self.editor.as_ref().map(Editor::state) else {
+            return "{}".to_string();
+        };
+        encode_state(&state)
+    }
+}
+
+struct PackedPages {
+    pages: Vec<Vec<u8>>,
+    w: f32,
+    h: f32,
+    title: String,
+    count: u32,
+}
+
+fn pack_pages(doc: &DisplayDocument) -> PackedPages {
+    let mut pages = Vec::new();
+    for i in 0..doc.pages().len() {
+        if let Some(bytes) = doc.page_bytes(i) {
+            pages.push(bytes);
+        }
+    }
+    let (w, h) = doc
+        .pages()
+        .first()
+        .map_or((595.28, 841.89), |page| (page.w, page.h));
+    let count = doc
+        .report()
+        .map_or(pages.len() as u32, |report| report.pages);
+    PackedPages {
+        pages,
+        w,
+        h,
+        title: doc.title().to_string(),
+        count,
+    }
+}
+
+fn encode_state(state: &EditorState) -> String {
+    let marks: Vec<String> = state
+        .marks
+        .iter()
+        .map(|mark| {
+            format!(
+                "{{\"page\":{},\"x\":{:.2},\"y\":{:.2},\"w\":{:.2},\"h\":{:.2}}}",
+                mark.page, mark.x, mark.y, mark.w, mark.h
+            )
+        })
+        .collect();
+    let fields: Vec<String> = state.fields.iter().map(|name| json_string(name)).collect();
+    let anchor_path = state
+        .anchor_path
+        .as_deref()
+        .map_or_else(|| "null".to_string(), json_string);
+    let anchor_offset = state
+        .anchor_offset
+        .map_or_else(|| "null".to_string(), |offset| offset.to_string());
+    let field = state
+        .field
+        .as_deref()
+        .map_or_else(|| "null".to_string(), json_string);
+    format!(
+        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{}}}",
+        json_string(&state.path),
+        state.offset,
+        state.page,
+        state.x,
+        state.y,
+        state.h,
+        anchor_path,
+        anchor_offset,
+        marks.join(","),
+        state.bold,
+        state.italic,
+        state.underline,
+        state.strike,
+        state.subscript,
+        state.superscript,
+        state.font_size,
+        json_string(&state.align),
+        json_string(&state.list),
+        field,
+        state.can_undo,
+        state.can_redo,
+        state.preview,
+        state.dirty,
+        state.words,
+        state.pages,
+        fields.join(","),
+        json_string(&state.title),
+        state.revision,
+        json_string(&state.selection),
+        state.indent_left,
+        state.line,
+        json_string(&state.look),
+        state.painter,
+        json_string(&state.para_shading),
+        state.para_border_bottom
+    )
+}
+
+fn edit_err(err: edgedoc_display::Error) -> (String, String) {
+    (err.code, err.message)
+}
+
+fn editor_closed() -> (String, String) {
+    (
+        "editor.closed".into(),
+        "Open a document for editing first.".into(),
+    )
 }
 
 /// Escape a string for JSON. See `DP-B-05`.
@@ -456,5 +945,39 @@ mod tests {
         h.clear();
         assert_eq!(h.page_count(), 0);
         assert!(h.page_bytes(0).is_none());
+    }
+
+    #[test]
+    fn the_invoice_template_lists_every_merge_field() {
+        let bytes = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../site/assets/documents/invoice-template.docx"
+        ))
+        .expect("invoice template");
+        let mut handle = DisplayHandle::new();
+        let state = handle.edit_open(&bytes).expect("open");
+        for name in [
+            "InvoiceNumber",
+            "Customer",
+            "City",
+            "Subtotal",
+            "VAT",
+            "Total",
+        ] {
+            assert!(state.contains(&format!("\"{name}\"")), "{state}");
+        }
+    }
+
+    #[test]
+    fn an_edit_session_types_and_keeps_the_read_only_open_path() {
+        let mut h = DisplayHandle::new();
+        let state = h.edit_blank().expect("blank");
+        assert!(state.contains("\"path\":\"body[0]\""));
+        h.edit_insert("Hello").expect("type");
+        let painted = h.text(0).unwrap_or_default();
+        assert!(painted.contains("Hello"), "{painted}");
+        assert!(h.page_count() >= 1);
+        h.open(&report_doc()).expect("open");
+        assert!(h.edit_insert("x").is_err());
     }
 }

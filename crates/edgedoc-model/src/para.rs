@@ -381,40 +381,368 @@ impl Paragraph {
     }
 
     pub fn insert_text(&mut self, offset: usize, text: &str, props: &CharProps) -> ModelResult<()> {
-        if !self.text.is_char_boundary(offset) {
-            return Err(ModelError::new(
-                "model.bad_offset",
-                format!("The offset {offset} is not a character boundary. Choose a boundary in the paragraph."),
-            ));
-        }
+        self.check_boundary(offset)?;
         let clean: String = text.chars().filter(|c| *c != OBJ).collect();
+        if clean.is_empty() {
+            return Ok(());
+        }
         self.text.insert_str(offset, &clean);
-        self.retarget_runs(offset, clean.len() as isize, props);
+        self.retarget_runs(offset, clean.len() as isize, props, true);
+        self.raw_xml = None;
+        self.isolate_objects();
         self.touch();
         Ok(())
     }
 
-    fn retarget_runs(&mut self, offset: usize, delta: isize, props: &CharProps) {
-        if delta <= 0 {
+    /// Delete `[start, end)` and the objects whose marker sits in that range.
+    pub fn delete_range(&mut self, start: usize, end: usize) -> ModelResult<()> {
+        self.check_boundary(start)?;
+        self.check_boundary(end)?;
+        if end > self.text.len() || start > end {
+            return Err(ModelError::new(
+                "model.bad_offset",
+                "The delete range does not sit inside the paragraph.",
+            ));
+        }
+        if start == end {
+            return Ok(());
+        }
+        let old_len = self.text.len();
+        let old_runs = self.runs.clone();
+        self.objects = objects_outside(&self.text, &self.objects, start, end);
+        let rest = self.text[end..].to_string();
+        self.text.truncate(start);
+        self.text.push_str(&rest);
+        self.runs = join_runs(
+            runs_covering(&old_runs, 0, start),
+            runs_covering(&old_runs, end, old_len),
+        );
+        self.raw_xml = None;
+        self.isolate_objects();
+        self.touch();
+        Ok(())
+    }
+
+    /// Split this paragraph at `offset`. The right-hand paragraph keeps the paragraph properties.
+    pub fn split_off(&mut self, offset: usize) -> ModelResult<Paragraph> {
+        self.check_boundary(offset)?;
+        let old_len = self.text.len();
+        let old_runs = self.runs.clone();
+        let right_text = self.text[offset..].to_string();
+        let keep = self.text[..offset].chars().filter(|c| *c == OBJ).count();
+        let right_objects = self.objects.split_off(keep.min(self.objects.len()));
+        self.text.truncate(offset);
+        self.runs = runs_covering(&old_runs, 0, offset);
+        let mut right = Paragraph::with_props(self.props.clone());
+        right.text = right_text;
+        right.objects = right_objects;
+        right.runs = runs_covering(&old_runs, offset, old_len);
+        right.links = self.links.clone();
+        self.raw_xml = None;
+        right.raw_xml = None;
+        self.isolate_objects();
+        right.isolate_objects();
+        self.touch();
+        right.touch();
+        Ok(right)
+    }
+
+    /// Insert an inline object at a character boundary.
+    pub fn insert_object(
+        &mut self,
+        offset: usize,
+        object: InlineObject,
+        props: &CharProps,
+    ) -> ModelResult<()> {
+        self.check_boundary(offset)?;
+        let index = self.text[..offset].chars().filter(|c| *c == OBJ).count();
+        let marker = OBJ.to_string();
+        self.text.insert_str(offset, &marker);
+        self.retarget_runs(offset, marker.len() as isize, props, false);
+        if index > self.objects.len() {
+            self.objects.push(object);
+        } else {
+            self.objects.insert(index, object);
+        }
+        self.raw_xml = None;
+        self.isolate_objects();
+        self.touch();
+        Ok(())
+    }
+
+    /// Apply `change` to every run that covers `[start, end)`.
+    pub fn update_range<F>(&mut self, start: usize, end: usize, mut change: F) -> ModelResult<()>
+    where
+        F: FnMut(&mut CharProps),
+    {
+        self.check_boundary(start)?;
+        self.check_boundary(end)?;
+        if start > end || end > self.text.len() {
+            return Err(ModelError::new(
+                "model.bad_offset",
+                "The format range does not sit inside the paragraph.",
+            ));
+        }
+        if start == end {
+            return Ok(());
+        }
+        self.split_run_at(start);
+        self.split_run_at(end);
+        let mut cursor = 0usize;
+        for run in &mut self.runs {
+            let run_end = cursor + run.len;
+            if run.len > 0 && cursor >= start && run_end <= end {
+                change(&mut run.props);
+            }
+            cursor = run_end;
+        }
+        self.coalesce_runs();
+        self.raw_xml = None;
+        self.touch();
+        Ok(())
+    }
+
+    /// The character properties a typed character inherits at `offset`.
+    pub fn props_at(&self, offset: usize) -> CharProps {
+        if !self.text.is_char_boundary(offset) {
+            return CharProps::default();
+        }
+        let mut cursor = 0usize;
+        let mut last = CharProps::default();
+        for run in &self.runs {
+            let end = cursor + run.len;
+            if offset > cursor && offset <= end {
+                return run.props.clone();
+            }
+            if run.len > 0 {
+                last = run.props.clone();
+            }
+            cursor = end;
+            if cursor >= offset {
+                break;
+            }
+        }
+        last
+    }
+
+    /// True when every run in `[start, end)` has `pred` true. An empty range is false.
+    pub fn range_all<F>(&self, start: usize, end: usize, mut pred: F) -> bool
+    where
+        F: FnMut(&CharProps) -> bool,
+    {
+        if start >= end || !self.text.is_char_boundary(start) || !self.text.is_char_boundary(end) {
+            return false;
+        }
+        let mut cursor = 0usize;
+        let mut any = false;
+        for run in &self.runs {
+            let run_end = cursor + run.len;
+            if run.len > 0 && run_end > start && cursor < end && !pred(&run.props) {
+                return false;
+            }
+            if run.len > 0 && run_end > start && cursor < end {
+                any = true;
+            }
+            cursor = run_end;
+        }
+        any
+    }
+
+    /// Append another paragraph's text, runs, and objects. Paragraph properties stay.
+    pub fn append_paragraph(&mut self, other: &Paragraph) {
+        if self.text.is_empty() {
+            self.text.clone_from(&other.text);
+            self.runs.clone_from(&other.runs);
+            self.objects.clone_from(&other.objects);
+        } else {
+            self.text.push_str(&other.text);
+            self.objects.extend(other.objects.iter().cloned());
+            for run in &other.runs {
+                self.push_merged(run.clone(), false);
+            }
+        }
+        self.raw_xml = None;
+        self.isolate_objects();
+        self.touch();
+    }
+
+    /// The object at the marker that starts at `offset`, when one does.
+    pub fn object_at(&self, offset: usize) -> Option<&InlineObject> {
+        if !self.text.is_char_boundary(offset) {
+            return None;
+        }
+        if !self.text[offset..].starts_with(OBJ) {
+            return None;
+        }
+        let index = self.text[..offset].chars().filter(|c| *c == OBJ).count();
+        self.objects.get(index)
+    }
+
+    /// Keep every object marker in a run of its own, which is what the writer requires.
+    fn isolate_objects(&mut self) {
+        if !self.text.contains(OBJ) {
             return;
         }
-        let add = delta as usize;
-        let mut cursor = 0;
-        for run in &mut self.runs {
-            let end = cursor + run.len;
-            if offset <= end {
-                if run.props == *props && offset >= cursor {
-                    run.len += add;
-                    return;
+        let old = std::mem::take(&mut self.runs);
+        let mut rebuilt = Vec::new();
+        let mut cursor = 0usize;
+        for run in old {
+            let end = (cursor + run.len).min(self.text.len());
+            let Some(slice) = self.text.get(cursor..end) else {
+                cursor = end;
+                continue;
+            };
+            let mut local = 0usize;
+            while local < slice.len() {
+                if slice[local..].starts_with(OBJ) {
+                    rebuilt.push(Run {
+                        len: OBJ.len_utf8(),
+                        props: run.props.clone(),
+                    });
+                    local += OBJ.len_utf8();
+                    continue;
                 }
+                let next = slice[local..]
+                    .find(OBJ)
+                    .map_or(slice.len(), |at| local + at);
+                rebuilt.push(Run {
+                    len: next - local,
+                    props: run.props.clone(),
+                });
+                local = next;
+            }
+            cursor = end;
+        }
+        let covered: usize = rebuilt.iter().map(|run| run.len).sum();
+        if covered < self.text.len() {
+            rebuilt.push(Run {
+                len: self.text.len() - covered,
+                props: CharProps::default(),
+            });
+        }
+        self.runs = rebuilt;
+    }
+
+    fn check_boundary(&self, offset: usize) -> ModelResult<()> {
+        if offset > self.text.len() || !self.text.is_char_boundary(offset) {
+            return Err(ModelError::new(
+                "model.bad_offset",
+                format!(
+                    "The offset {offset} is not a character boundary. Choose a boundary in the paragraph."
+                ),
+            ));
+        }
+        Ok(())
+    }
+
+    fn split_run_at(&mut self, offset: usize) {
+        let mut cursor = 0usize;
+        let mut insert_at = None;
+        for (index, run) in self.runs.iter().enumerate() {
+            let end = cursor + run.len;
+            if offset > cursor && offset < end {
+                insert_at = Some((index, offset - cursor, end - offset, run.props.clone()));
                 break;
             }
             cursor = end;
         }
-        self.runs.push(Run {
-            len: add,
-            props: props.clone(),
-        });
+        if let Some((index, before, after, props)) = insert_at {
+            if let Some(run) = self.runs.get_mut(index) {
+                run.len = before;
+            }
+            self.runs.insert(index + 1, Run { len: after, props });
+        }
+    }
+
+    fn coalesce_runs(&mut self) {
+        let old = std::mem::take(&mut self.runs);
+        let mut cursor = 0usize;
+        for run in old {
+            let end = cursor + run.len;
+            let object = self
+                .text
+                .get(cursor..end)
+                .is_some_and(|slice| slice == "\u{FFFC}");
+            let covered: usize = self.runs.iter().map(|run| run.len).sum();
+            let previous_object = self.runs.last().is_some_and(|last| {
+                let start = covered.saturating_sub(last.len);
+                self.text
+                    .get(start..covered)
+                    .is_some_and(|slice| slice == "\u{FFFC}")
+            });
+            self.push_merged(run, !object && !previous_object);
+            cursor = end;
+        }
+    }
+
+    fn retarget_runs(&mut self, offset: usize, delta: isize, props: &CharProps, coalesce: bool) {
+        if delta <= 0 {
+            return;
+        }
+        let add = delta as usize;
+        let old = std::mem::take(&mut self.runs);
+        let mut cursor = 0usize;
+        let mut placed = false;
+        for run in old {
+            let end = cursor + run.len;
+            if !placed && offset <= end {
+                let before = offset.saturating_sub(cursor);
+                let after = end.saturating_sub(offset);
+                if before > 0 {
+                    self.push_merged(
+                        Run {
+                            len: before,
+                            props: run.props.clone(),
+                        },
+                        true,
+                    );
+                }
+                self.push_merged(
+                    Run {
+                        len: add,
+                        props: props.clone(),
+                    },
+                    coalesce,
+                );
+                if after > 0 {
+                    self.push_merged(
+                        Run {
+                            len: after,
+                            props: run.props,
+                        },
+                        coalesce,
+                    );
+                }
+                placed = true;
+            } else {
+                self.push_merged(run, true);
+            }
+            cursor = end;
+        }
+        if !placed {
+            self.push_merged(
+                Run {
+                    len: add,
+                    props: props.clone(),
+                },
+                coalesce,
+            );
+        }
+    }
+
+    fn push_merged(&mut self, run: Run, coalesce: bool) {
+        if run.len == 0 {
+            return;
+        }
+        if coalesce {
+            if let Some(last) = self.runs.last_mut() {
+                if last.props == run.props {
+                    last.len += run.len;
+                    return;
+                }
+            }
+        }
+        self.runs.push(run);
     }
 
     pub fn plain_text(&self) -> String {
@@ -711,6 +1039,63 @@ impl Anchor {
         self.dist_right = Some(emu);
         self
     }
+}
+
+fn objects_outside(
+    text: &str,
+    objects: &[InlineObject],
+    start: usize,
+    end: usize,
+) -> Vec<InlineObject> {
+    let mut kept = Vec::new();
+    let mut seen = 0usize;
+    for (byte, ch) in text.char_indices() {
+        if ch != OBJ {
+            continue;
+        }
+        if (byte < start || byte >= end) && seen < objects.len() {
+            kept.push(objects[seen].clone());
+        }
+        seen += 1;
+    }
+    kept
+}
+
+fn runs_covering(runs: &[Run], start: usize, end: usize) -> Vec<Run> {
+    let mut out: Vec<Run> = Vec::new();
+    let mut cursor = 0usize;
+    for run in runs {
+        let run_end = cursor + run.len;
+        let from = start.max(cursor);
+        let to = end.min(run_end);
+        if to > from {
+            let piece = Run {
+                len: to - from,
+                props: run.props.clone(),
+            };
+            out.push(piece);
+        }
+        cursor = run_end;
+        if cursor >= end {
+            break;
+        }
+    }
+    out
+}
+
+fn join_runs(mut left: Vec<Run>, right: Vec<Run>) -> Vec<Run> {
+    for run in right {
+        if let Some(last) = left.last_mut() {
+            if last.props == run.props {
+                last.len += run.len;
+                continue;
+            }
+        }
+        if run.len > 0 {
+            left.push(run);
+        }
+    }
+    left
 }
 
 /// A run whose text is a tab character.

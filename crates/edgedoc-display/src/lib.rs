@@ -21,10 +21,14 @@
 #![deny(clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
 mod build;
+mod caret;
 pub mod diagnose;
+mod edit;
 mod error;
 mod fonts;
 mod search;
+
+pub use edit::{Editor, EditorMark, EditorState};
 
 pub use build::{clear_resources, resource_bytes, resources, set_face_hints};
 pub use diagnose::{Diagnostic, Severity};
@@ -108,7 +112,7 @@ pub struct LayoutReport {
 
 /// An opened document, ready to lay out and paint.
 pub struct DisplayDocument {
-    inner: edgedoc::Document,
+    pub(crate) inner: edgedoc::Document,
     fonts: FontDb,
     diagnostics: Vec<Diagnostic>,
     /// The pages from the last layout run.
