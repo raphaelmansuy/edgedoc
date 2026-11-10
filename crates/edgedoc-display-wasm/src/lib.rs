@@ -162,6 +162,12 @@ mod bind {
             self.inner.edit_state().map_err(js_error)
         }
 
+        /// Record the current bytes as saved, so the unsaved marker clears.
+        #[wasm_bindgen(js_name = markSaved)]
+        pub fn mark_saved(&mut self) -> Result<String, JsValue> {
+            self.inner.mark_saved().map_err(js_error)
+        }
+
         /// The current package, including edits.
         #[wasm_bindgen(js_name = documentBytes)]
         pub fn document_bytes(&self) -> Result<Vec<u8>, JsValue> {

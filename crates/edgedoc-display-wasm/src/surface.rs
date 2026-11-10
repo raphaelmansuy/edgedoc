@@ -346,6 +346,20 @@ impl DisplayHandle {
             .ok_or(editor_closed())
     }
 
+    /// Record the current bytes as saved, so the unsaved marker clears (specs/144 DOC2-35).
+    ///
+    /// A host calls this after it has written the package somewhere durable. The marker is otherwise a
+    /// comparison against the bytes the document was opened from, which is what lets an undo back to
+    /// the opened state say "saved" again.
+    pub fn mark_saved(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .mark_saved()
+            .map_err(edit_err)?;
+        Ok(self.state_json())
+    }
+
     /// The current package, including edits.
     pub fn document_bytes(&self) -> Result<Vec<u8>, (String, String)> {
         self.editor

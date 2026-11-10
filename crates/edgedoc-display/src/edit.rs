@@ -96,6 +96,13 @@ pub struct Editor {
     painter: Option<CharProps>,
     /// Sticky painter stays on across several selections.
     painter_sticky: bool,
+    /// The bytes the editor was last opened from or saved to. `dirty` is a comparison against this,
+    /// not a latch: undoing back to the opened state must say "saved", as Word does (DOC2-35).
+    saved_bytes: std::sync::Arc<[u8]>,
+    /// How many edits have been applied since the baseline. `0` means the bytes are the saved ones,
+    /// which is the common case and must not cost a package write — `state()` runs on every keystroke.
+    /// Any count above zero is *possibly* dirty, and `differs_from_saved` settles it by comparing.
+    edits_since_saved: usize,
 }
 
 impl Editor {
@@ -131,11 +138,43 @@ impl Editor {
             typing_run: false,
             painter: None,
             painter_sticky: false,
+            saved_bytes: bytes.into(),
+            edits_since_saved: 0,
         };
         if editor.info().is_err() {
             editor.caret.path = editor.first_path();
         }
         Ok(editor)
+    }
+
+    /// Whether the document now differs from the bytes it was opened from (or last saved as).
+    ///
+    /// Word clears its unsaved marker when an undo returns the document to what is on disk, and a
+    /// template that says "Unsaved changes" after you have undone everything teaches a person to
+    /// ignore the warning. The comparison is against the bytes, not a flag, because the inner model's
+    /// own flag is set by the first edit and never cleared.
+    fn differs_from_saved(&self) -> bool {
+        // The fast path: no edit has been applied since the baseline, so the bytes are the saved bytes
+        // without writing a package. Every keystroke reaches this, so it must be free.
+        if self.edits_since_saved == 0 {
+            return false;
+        }
+        match self.package() {
+            Ok(bytes) => bytes != &*self.saved_bytes,
+            // A package that cannot be written is not provably saved.
+            Err(_) => true,
+        }
+    }
+
+    /// Record the current bytes as the saved state — after a save, so the marker clears.
+    pub fn mark_saved(&mut self) -> Result<()> {
+        // A save ends the typing run: the next keystroke must take its own undo snapshot, or undo
+        // after a save would jump back past the save point.
+        self.end_typing_run();
+        let bytes = self.package()?;
+        self.saved_bytes = bytes.into();
+        self.edits_since_saved = 0;
+        Ok(())
     }
 
     pub fn display(&self) -> &DisplayDocument {
@@ -212,7 +251,7 @@ impl Editor {
             can_undo: !self.undo.is_empty(),
             can_redo: !self.redo.is_empty(),
             preview: self.preview_of.is_some(),
-            dirty: self.display.inner.is_dirty(),
+            dirty: self.differs_from_saved(),
             words,
             pages: self.display.pages().len() as u32,
             fields: self.display.inner.merge_field_names(),
@@ -1271,6 +1310,7 @@ impl Editor {
         self.pending = None;
         self.goal_x = None;
         self.redo.clear();
+        self.edits_since_saved = self.edits_since_saved.saturating_add(1);
         self.display.layout()?;
         self.revision = self.revision.saturating_add(1);
         Ok(())
@@ -1315,6 +1355,9 @@ impl Editor {
         self.pending = None;
         self.goal_x = None;
         self.redo.clear();
+        // A keystroke inside an open typing run is still an edit: the document differs from what was
+        // saved, so the marker must rise here too (the first keystroke of a run takes the other path).
+        self.edits_since_saved = self.edits_since_saved.saturating_add(1);
         self.display.layout()?;
         self.revision = self.revision.saturating_add(1);
         Ok(())
@@ -1368,6 +1411,10 @@ impl Editor {
         self.caret = snap.caret;
         self.anchor = snap.anchor;
         self.pending = None;
+        // The snapshot IS the document now: if it is byte-for-byte the saved state, nothing is unsaved.
+        // A non-zero count would force `differs_from_saved` to write a package on every keystroke, so
+        // landing exactly on the baseline is the case worth recognising here.
+        self.edits_since_saved = if snap.bytes == *self.saved_bytes { 0 } else { 1 };
         self.reload(&snap.bytes)
     }
 
@@ -2140,6 +2187,44 @@ mod tests {
             editor.display.inner.merge_field_names(),
             vec!["City".to_string()]
         );
+    }
+
+    /// specs/144 DOC2-35: undoing back to the opened state clears the unsaved marker.
+    ///
+    /// Word does not keep saying "Unsaved changes" after you have undone everything — that teaches a
+    /// person to ignore the warning. The flag used to be a latch: the first edit set it, undo restored
+    /// the bytes but never cleared it, so a template could read dirty with nothing to save.
+    #[test]
+    fn undoing_every_change_says_saved_again() {
+        let mut editor = Editor::blank().expect("blank");
+        assert!(!editor.state().dirty, "a freshly opened document is saved");
+
+        editor.insert_text("Bonjour").expect("type");
+        assert!(editor.state().dirty, "an edit is unsaved");
+
+        editor.undo().expect("undo");
+        assert!(
+            !editor.state().dirty,
+            "one undo took every change back, so there is nothing to save"
+        );
+
+        // And redo makes it unsaved again: the marker follows the bytes, not the direction of travel.
+        editor.redo().expect("redo");
+        assert!(editor.state().dirty);
+    }
+
+    /// specs/144 DOC2-35: a save clears the marker, and a later edit raises it again.
+    #[test]
+    fn saving_clears_the_unsaved_marker() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Bonjour").expect("type");
+        assert!(editor.state().dirty);
+
+        editor.mark_saved().expect("save");
+        assert!(!editor.state().dirty, "the saved bytes are the baseline");
+
+        editor.insert_text("!").expect("type");
+        assert!(editor.state().dirty, "a change after the save is unsaved");
     }
 
     /// specs/144 DOC2-39: a replace is ONE undo step.
