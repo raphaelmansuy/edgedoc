@@ -721,6 +721,183 @@ impl Editor {
         })
     }
 
+    /// Replace the next match of `query`, or every match.
+    ///
+    /// This is one call and **one undo step**, which is the whole reason it exists: a replace done as
+    /// "delete the selection, then insert the replacement" moves the undo stack twice, so one press of
+    /// Ctrl+Z would leave the document with the match deleted and nothing typed in its place. Word
+    /// undoes a replace in one step, so this does too.
+    ///
+    /// A match that covers a merge field or a picture is refused when `replace_all` is false, because
+    /// a find hit is painted text and a field paints as several characters under one marker: replacing
+    /// it would destroy the field the template is made of. `all` counts what it changed.
+    ///
+    /// Returns the number of matches replaced.
+    pub fn replace_text(
+        &mut self,
+        query: &str,
+        replacement: &str,
+        replace_all: bool,
+    ) -> Result<usize> {
+        self.end_typing_run();
+        let query = query.to_string();
+        if query.is_empty() {
+            return Ok(0);
+        }
+        if replacement.chars().count() > 100_000 {
+            return Err(Error::new(
+                "editor.limit",
+                "Paste fewer than 100,000 characters at a time.",
+            ));
+        }
+        // Where each match lives, as source ranges. Read from the laid-out text, because that is what
+        // the person is looking at; a source range comes back from the page's own span map.
+        // Where each match lives. The rule is the find's own (`find_ranges`), so a find and a replace
+        // can never disagree about what matched.
+        let ranges = self.match_ranges(&query);
+        if ranges.is_empty() {
+            return Ok(0);
+        }
+        let mut targets: Vec<(usize, String, usize, usize)> = if replace_all {
+            // Back to front, so replacing an earlier match cannot move the offsets of a later one in
+            // the same paragraph.
+            let mut all = ranges;
+            all.reverse();
+            all
+        } else {
+            // The next match at or after the caret, wrapping to the first — as Word does. Order is
+            // the document's own (paragraph ordinal, then offset), never the string order of the
+            // paths, where `body[10]` sorts before `body[2]`.
+            let caret_ordinal = self
+                .ordered_body_paths()
+                .iter()
+                .position(|path| *path == self.caret.path)
+                .unwrap_or(0);
+            let next = ranges
+                .iter()
+                .find(|range| (range.0, range.2) >= (caret_ordinal, self.caret.offset))
+                .cloned();
+            vec![next.unwrap_or_else(|| ranges[0].clone())]
+        };
+        let replacement = replacement.to_string();
+        // The snapshot is taken by the first transaction; every later match drops its own, so one
+        // replace-all is ONE undo step (`base` is read once, outside the loop).
+        let base = self.undo.len();
+        let mut changed = 0usize;
+        for (_, path, start, end) in targets.drain(..) {
+            match self.replace_once(&path, start, end, &replacement) {
+                Ok(true) => {
+                    changed += 1;
+                    // Keep the first snapshot only: the stack must not grow per match.
+                    if self.undo.len() > base + 1 {
+                        self.undo.truncate(base + 1);
+                    }
+                }
+                // A range that covers a field is skipped rather than destroying the field.
+                Ok(false) => {}
+                Err(err) => {
+                    if changed == 0 {
+                        return Err(err);
+                    }
+                    break;
+                }
+            }
+        }
+        Ok(changed)
+    }
+
+    /// The body's paragraphs in document order, as the layout sees them.
+    fn ordered_body_paths(&self) -> Vec<String> {
+        let mut seen: Vec<String> = Vec::new();
+        for slot in crate::caret::line_slots(self.display.pages()) {
+            if slot.path.starts_with("body[") && !seen.contains(&slot.path) {
+                seen.push(slot.path);
+            }
+        }
+        seen
+    }
+
+    /// Every match of `query` in the body, as `(paragraph ordinal, path, start, end)` in document
+    /// order. The ordinal is the paragraph's position, taken from the layout's own line slots, so
+    /// "the next match after the caret" can be answered without comparing path strings.
+    fn match_ranges(&self, query: &str) -> Vec<(usize, String, usize, usize)> {
+        let options = crate::SearchOptions {
+            match_case: false,
+            whole_word: false,
+            diacritics: true,
+        };
+        let mut out: Vec<(usize, String, usize, usize)> = Vec::new();
+        for (ordinal, path) in self.ordered_body_paths().iter().enumerate() {
+            let text = self.para_text(path);
+            for (from, to) in crate::search::find_ranges(&text, query, &options) {
+                out.push((ordinal, path.clone(), from, to));
+            }
+        }
+        out
+    }
+
+    /// Delete one source range and type the replacement over it, without touching the undo stack.
+    /// Returns whether anything changed.
+    fn replace_once(
+        &mut self,
+        path: &str,
+        start: usize,
+        end: usize,
+        replacement: &str,
+    ) -> Result<bool> {
+        let path = path.to_string();
+        let start_end = (start, end);
+        let text = replacement.to_string();
+        // A field is atomic: refuse a range that would cut through one.
+        if self.range_hits_object(&path, start, end) {
+            return Ok(false);
+        }
+        let before = self.undo.len();
+        let caret = Place {
+            path: path.clone(),
+            offset: start_end.1,
+        };
+        let anchor = Place {
+            path: path.clone(),
+            offset: start_end.0,
+        };
+        let text_len = text.clone();
+        let changed = self.transact_keep(move |edit| {
+            let place = edit.delete_span(&anchor.path, anchor.offset, &caret.path, caret.offset)?;
+            if text_len.is_empty() {
+                return Ok(place);
+            }
+            let props = edit.paragraph_info(&place.path, place.offset)?.props;
+            edit.insert_chars(&place.path, place.offset, &text_len, &props)
+        });
+        match changed {
+            Ok(()) => {
+                // Every match must share one undo entry. The snapshot the first call took covers the
+                // state before it; later calls drop the one they took so the stack does not grow.
+                if self.undo.len() > before {
+                    let extra = self.undo.len() - before;
+                    for _ in 1..extra {
+                        self.undo.pop();
+                    }
+                }
+                Ok(true)
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    /// Whether `[start, end)` in one paragraph covers an inline object (a field, a picture).
+    fn range_hits_object(&self, path: &str, start: usize, end: usize) -> bool {
+        let Some(info) = self.info_at(path) else {
+            return true;
+        };
+        let text = info.text;
+        let start = start.min(text.len());
+        let end = end.min(text.len());
+        text.get(start..end)
+            .is_some_and(|slice| slice.chars().any(|c| c == '\u{FFFC}'))
+    }
+
     pub fn delete(&mut self, backward: bool) -> Result<()> {
         if self.anchor.is_some() {
             let anchor = self.anchor.clone();
@@ -1963,5 +2140,101 @@ mod tests {
             editor.display.inner.merge_field_names(),
             vec!["City".to_string()]
         );
+    }
+
+    /// specs/144 DOC2-39: a replace is ONE undo step.
+    ///
+    /// The control had no replace because the obvious implementation — delete the selection, then
+    /// insert the replacement — moves the undo stack twice, so one Ctrl+Z would leave the match
+    /// deleted and nothing typed in its place. `replace_text` does both inside one snapshot.
+    #[test]
+    fn a_replace_is_one_undo_step_and_puts_the_match_back() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Pay soon. Pay now.").expect("type");
+        editor.move_caret("doc-start", false);
+
+        let changed = editor.replace_text("Pay", "Send", false).expect("replace");
+        assert_eq!(changed, 1);
+        assert_eq!(editor.para_text("body[0]"), "Send soon. Pay now.");
+
+        // One press takes back the whole replace, not half of it.
+        editor.undo().expect("undo");
+        assert_eq!(
+            editor.para_text("body[0]"),
+            "Pay soon. Pay now.",
+            "one undo must restore the replaced text"
+        );
+        editor.redo().expect("redo");
+        assert_eq!(editor.para_text("body[0]"), "Send soon. Pay now.");
+    }
+
+    /// specs/144 DOC2-39: replace-all is one undo step too, and it takes every match.
+    #[test]
+    fn a_replace_all_takes_every_match_in_one_step() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Pay soon. Pay now. Pay later.").expect("type");
+        editor.move_caret("doc-start", false);
+
+        let changed = editor.replace_text("pay", "Send", true).expect("replace all");
+        assert_eq!(changed, 3, "a case-insensitive replace takes all three");
+        assert_eq!(editor.para_text("body[0]"), "Send soon. Send now. Send later.");
+
+        editor.undo().expect("undo");
+        assert_eq!(
+            editor.para_text("body[0]"),
+            "Pay soon. Pay now. Pay later.",
+            "replace-all must be a single undo step"
+        );
+    }
+
+    /// specs/144 DOC2-39: a replace leaves a merge field alone.
+    ///
+    /// A field is one marker character in the source and several glyphs on the page, so a replace
+    /// that walked painted text would happily delete the field the whole template is made of. The
+    /// match is taken from the source text, where the field is atomic, and `replace_once` refuses any
+    /// range that would cover a marker — so text beside a field can be replaced and the field stays.
+    #[test]
+    fn a_replace_beside_a_merge_field_keeps_the_field() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Dear ").expect("type");
+        editor.insert_field("Name").expect("field");
+        editor.insert_text(", hello").expect("type");
+        let before = editor.para_text("body[0]");
+        assert!(before.contains('\u{FFFC}'), "the field is one marker: {before:?}");
+
+        let changed = editor.replace_text("hello", "bonjour", true).expect("replace");
+        assert_eq!(changed, 1, "the word beside the field is replaced");
+        assert_eq!(
+            editor.display.inner.merge_field_names(),
+            vec!["Name".to_string()],
+            "the field must survive"
+        );
+        assert!(editor.para_text("body[0]").contains("bonjour"));
+        assert!(editor.para_text("body[0]").contains('\u{FFFC}'));
+
+        editor.undo().expect("undo");
+        assert_eq!(editor.para_text("body[0]"), before, "one undo restores it");
+    }
+
+    /// specs/144 DOC2-39: a query with no match changes nothing, and takes no undo step.
+    #[test]
+    fn a_replace_with_no_match_is_not_a_no_op_edit() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Hello").expect("type");
+        let before = editor.state().revision;
+        let changed = editor.replace_text("zzz", "x", true).expect("replace");
+        assert_eq!(changed, 0);
+        assert_eq!(editor.state().revision, before, "no edit happened");
+        assert_eq!(editor.para_text("body[0]"), "Hello");
+    }
+
+    /// specs/144 DOC2-39: an accented word is found the way the find finds it.
+    #[test]
+    fn a_replace_matches_across_an_accent() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Le café est bon.").expect("type");
+        let changed = editor.replace_text("cafe", "thé", false).expect("replace");
+        assert_eq!(changed, 1, "the find folds accents, so the replace must too");
+        assert_eq!(editor.para_text("body[0]"), "Le thé est bon.");
     }
 }

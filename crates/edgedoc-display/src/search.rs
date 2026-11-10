@@ -58,6 +58,70 @@ impl SearchResults {
     }
 }
 
+/// One character of a folded haystack, with the source bytes it came from.
+struct FoldedChar {
+    from: usize,
+    to: usize,
+    ch: char,
+}
+
+/// Fold `text` character by character, keeping each character's source byte range, so a match found
+/// in the folded form can be expressed as a source range.
+///
+/// The page search works on a folded `String` and only needs rectangles; a replace needs the source
+/// bytes to delete, and folding changes byte lengths (`é` is two bytes, its fold `e` is one). This is
+/// the same matching rule — same `fold`, same accent table — with a map back to the source.
+fn folded_with_offsets(text: &str, options: &SearchOptions) -> Vec<FoldedChar> {
+    let mut out = Vec::with_capacity(text.len());
+    for (from, c) in text.char_indices() {
+        let to = from + c.len_utf8();
+        let folded = fold(&c.to_string(), options);
+        // A character that folds to several keeps its first form, so the source range stays exact.
+        let ch = folded.chars().next().unwrap_or(c);
+        out.push(FoldedChar { from, to, ch });
+    }
+    out
+}
+
+/// Byte ranges in `text` that match `query`, in order. Same rules as the page search.
+pub(crate) fn find_ranges(text: &str, query: &str, options: &SearchOptions) -> Vec<(usize, usize)> {
+    let mut out = Vec::new();
+    if query.is_empty() || text.is_empty() {
+        return out;
+    }
+    let needle: Vec<char> = fold(query, options).chars().collect();
+    if needle.is_empty() {
+        return out;
+    }
+    let hay = folded_with_offsets(text, options);
+    let mut at = 0usize;
+    while at + needle.len() <= hay.len() {
+        let hit = (0..needle.len()).all(|i| hay[at + i].ch == needle[i]);
+        if !hit {
+            at += 1;
+            continue;
+        }
+        if options.whole_word {
+            let before = at
+                .checked_sub(1)
+                .and_then(|i| hay.get(i))
+                .map_or(true, |c| !c.ch.is_alphanumeric());
+            let after = hay
+                .get(at + needle.len())
+                .map_or(true, |c| !c.ch.is_alphanumeric());
+            if !before || !after {
+                at += 1;
+                continue;
+            }
+        }
+        let from = hay[at].from;
+        let to = hay[at + needle.len() - 1].to;
+        out.push((from, to));
+        at += needle.len();
+    }
+    out
+}
+
 /// Fold a string for a case-insensitive match, and strip the common accents.
 fn fold(s: &str, options: &SearchOptions) -> String {
     let mut out = String::with_capacity(s.len());

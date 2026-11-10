@@ -26,7 +26,7 @@ pub mod diagnose;
 mod edit;
 mod error;
 mod fonts;
-mod search;
+pub mod search;
 
 pub use edit::{Editor, EditorMark, EditorState};
 

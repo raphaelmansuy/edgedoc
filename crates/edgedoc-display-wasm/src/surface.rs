@@ -36,6 +36,8 @@ pub struct DisplayHandle {
     /// The encoded pages, which `page` returns.
     pages: Vec<Vec<u8>>,
     meta: Option<ViewerMeta>,
+    /// How many matches the last `edit_replace` changed, so the surface can say "Replaced 3".
+    replaced: usize,
 }
 
 impl DisplayHandle {
@@ -362,6 +364,20 @@ impl DisplayHandle {
         self.finish_edit()
     }
 
+    /// Replace the next match, or every match (specs/144 DOC2-39). One call, one undo step.
+    ///
+    /// Returns the state, with the count of matches replaced in `replaced`, so the surface can say
+    /// "Replaced 3" without a second query.
+    pub fn edit_replace(&mut self, query: &str, text: &str, all: bool) -> Result<String, (String, String)> {
+        let count = self
+            .editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .replace_text(query, text, all)
+            .map_err(edit_err)?;
+        self.replaced = count;
+        self.finish_edit()
+    }
     pub fn edit_delete(&mut self, backward: bool) -> Result<String, (String, String)> {
         self.editor
             .as_mut()
@@ -656,7 +672,11 @@ impl DisplayHandle {
         };
         let count = packed.count;
         self.store_view(packed.pages, packed.w, packed.h, packed.title, count);
-        Ok(self.state_json())
+        // The count belongs to the call that produced it: an unrelated keystroke must not keep
+        // saying "Replaced 3". Only `edit_replace` sets it, and only for the state it returns.
+        let state = self.state_json();
+        self.replaced = 0;
+        Ok(state)
     }
 
     fn store_view(&mut self, pages: Vec<Vec<u8>>, w: f32, h: f32, title: String, count: u32) {
@@ -683,7 +703,7 @@ impl DisplayHandle {
         let Some(state) = self.editor.as_ref().map(Editor::state) else {
             return "{}".to_string();
         };
-        encode_state(&state)
+        encode_state(&state, self.replaced)
     }
 }
 
@@ -718,7 +738,7 @@ fn pack_pages(doc: &DisplayDocument) -> PackedPages {
     }
 }
 
-fn encode_state(state: &EditorState) -> String {
+fn encode_state(state: &EditorState, replaced: usize) -> String {
     let marks: Vec<String> = state
         .marks
         .iter()
@@ -742,7 +762,7 @@ fn encode_state(state: &EditorState) -> String {
         .as_deref()
         .map_or_else(|| "null".to_string(), json_string);
     format!(
-        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{}}}",
+        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{},\"replaced\":{}}}",
         json_string(&state.path),
         state.offset,
         state.page,
@@ -777,7 +797,8 @@ fn encode_state(state: &EditorState) -> String {
         json_string(&state.look),
         state.painter,
         json_string(&state.para_shading),
-        state.para_border_bottom
+        state.para_border_bottom,
+        replaced
     )
 }
 
@@ -891,6 +912,27 @@ mod tests {
         let json = h.outline_json();
         assert!(json.starts_with('['));
         assert!(json.ends_with(']'));
+    }
+
+    /// specs/144 DOC2-39: the surface carries the replace count for exactly one state.
+    ///
+    /// "Replaced 3" is what the surface says after a replace-all, and it must not survive into the
+    /// next state: a person who then types a letter is not told a third match was replaced.
+    #[test]
+    fn a_replace_reports_what_it_changed_in_one_state_only() {
+        let mut h = DisplayHandle::new();
+        h.edit_blank().expect("blank");
+        h.edit_insert("Pay soon. Pay now.").expect("type");
+        h.edit_move("doc-start", false).expect("caret");
+
+        let json = h.edit_replace("Pay", "Send", true).expect("replace");
+        assert!(json.contains("\"replaced\":2"), "{json}");
+
+        let after = h.edit_insert("x").expect("type");
+        assert!(
+            after.contains("\"replaced\":0"),
+            "the count belongs to the replace's own state: {after}"
+        );
     }
 
     #[test]

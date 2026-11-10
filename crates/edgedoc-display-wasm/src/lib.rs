@@ -178,6 +178,12 @@ mod bind {
             self.inner.edit_delete(backward).map_err(js_error)
         }
 
+        /// Replace the next match, or every match (specs/144 DOC2-39). One call, one undo step.
+        #[wasm_bindgen(js_name = editReplace)]
+        pub fn edit_replace(&mut self, query: &str, text: &str, all: bool) -> Result<String, JsValue> {
+            self.inner.edit_replace(query, text, all).map_err(js_error)
+        }
+
         #[wasm_bindgen(js_name = editEnter)]
         pub fn edit_enter(&mut self, soft: bool) -> Result<String, JsValue> {
             self.inner.edit_enter(soft).map_err(js_error)
