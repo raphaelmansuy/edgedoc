@@ -210,6 +210,14 @@ impl Records {
             cells: self.rows.get(row).cloned().unwrap_or_default(),
         }
     }
+
+    /// One record built from a header list and a row of cells.
+    ///
+    /// specs/144 DOC2-03: a dataset arrives as JSON, so a caller assembles a record set without
+    /// encoding CSV. The duplicate-header law is the same one `from_rows` enforces.
+    pub fn from_single(headers: Vec<String>, cells: Vec<String>) -> Result<Self, MergeError> {
+        Self::from_rows(headers, vec![cells])
+    }
 }
 
 fn keep_row(headers: &[String], row: &[String], rules: &[Rule]) -> bool {

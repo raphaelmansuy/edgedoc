@@ -985,6 +985,14 @@ thread_local! {
     static CURRENT_NOTE_MARK: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
 }
 
+/// The empty separator a footnote prints when the document declares none.
+///
+/// `Arc<[FlowBlock]>` is unsized, so `Option::unwrap_or_default` cannot build one; this is the same
+/// default, spelled where it can be named.
+fn empty_flow_blocks() -> std::sync::Arc<[FlowBlock]> {
+    std::sync::Arc::from(Vec::<FlowBlock>::new())
+}
+
 fn build_footnote_stories(
     doc: &Document,
     fonts: &edgedoc_fonts::FontDb,
@@ -2042,13 +2050,13 @@ fn paragraph_of_inner(
                         {
                             let separator = FOOTNOTE_SEPARATOR
                                 .with(|separator| separator.borrow().clone())
-                                .unwrap_or_default();
+                                .unwrap_or_else(empty_flow_blocks);
                             let continuation_separator = FOOTNOTE_CONTINUATION_SEPARATOR
                                 .with(|separator| separator.borrow().clone())
-                                .unwrap_or_default();
+                                .unwrap_or_else(empty_flow_blocks);
                             let continuation_notice = FOOTNOTE_CONTINUATION_NOTICE
                                 .with(|notice| notice.borrow().clone())
-                                .unwrap_or_default();
+                                .unwrap_or_else(empty_flow_blocks);
                             notes.push(FlowNote {
                                 id: *id,
                                 offset: start,

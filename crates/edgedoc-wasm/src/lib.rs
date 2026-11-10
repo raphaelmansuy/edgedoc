@@ -39,6 +39,75 @@ pub fn merge_csv_bytes(template: &[u8], csv: &[u8]) -> Result<Vec<u8>, String> {
         .map_err(|err| format!("{} {}", err.code, err.message))
 }
 
+/// specs/144 DOC2-03: merge a dataset — every parent with its child rows — into one package.
+///
+/// A dataset is JSON, not CSV, because a child list has nowhere to go in a flat table. The options
+/// carry the kind, the join, the missing policy, and the budget the host chose.
+///
+/// The result is one package: the joined document for `auto`/`page-break`, the catalogue shape for
+/// `directory`/`labels`, and the first document when `join` is `none`. A host that files one
+/// document per parent passes `from`/`to` (or a one-parent dataset) and calls this once per parent.
+pub fn merge_dataset_bytes(
+    template: &[u8],
+    dataset_json: &str,
+    options_json: &str,
+) -> Result<Vec<u8>, String> {
+    // The budget is read **first**, then applied to the package read as well as to the merge
+    // (DOC2-15). Reading with the engine default would let a zip bomb expand before the merge
+    // budget ever mattered.
+    let options = edgedoc::options_from_json(options_json)?;
+    let mut document = Document::read_bytes_with(template, &edgedoc::ReadOptions {
+        budget: options.budget.clone(),
+        ..edgedoc::ReadOptions::new()
+    })
+    .map_err(|err| format!("{} {}", err.code, err.message))?;
+    let dataset = edgedoc::dataset_from_json(dataset_json)?;
+    let documents = edgedoc::merge_dataset(&document.model(), &dataset, &options)?;
+    let first = documents
+        .into_iter()
+        .next()
+        .ok_or_else(|| "merge.no_records The merge produced no documents.".to_string())?;
+    document.adopt_merged(first);
+    document
+        .write_bytes()
+        .map_err(|err| format!("{} {}", err.code, err.message))
+}
+
+/// The plain text of the first merged document. A check for an author, never a file.
+pub fn preview_dataset_text(
+    template: &[u8],
+    dataset_json: &str,
+    options_json: &str,
+) -> Result<String, String> {
+    let options = edgedoc::options_from_json(options_json)?;
+    let document = Document::read_bytes_with(template, &edgedoc::ReadOptions {
+        budget: options.budget.clone(),
+        ..edgedoc::ReadOptions::new()
+    })
+    .map_err(|err| format!("{} {}", err.code, err.message))?;
+    let dataset = edgedoc::dataset_from_json(dataset_json)?;
+    let documents = edgedoc::merge_dataset(&document.model(), &dataset, &options)?;
+    let first = documents
+        .into_iter()
+        .next()
+        .ok_or_else(|| "merge.no_records The merge produced no documents.".to_string())?;
+    Ok(first.plain_text(StoryRef::Body))
+}
+
+/// Every merge field with its story, table, and row, as JSON text.
+pub fn field_index_of(template: &[u8]) -> Result<String, String> {
+    let document = Document::read_bytes(template)
+        .map_err(|err| format!("{} {}", err.code, err.message))?;
+    Ok(edgedoc::field_index_json(&document.model()))
+}
+
+/// Every zip entry name.
+pub fn part_names_of(template: &[u8]) -> Result<Vec<String>, String> {
+    let doc = Document::read_bytes(template)
+        .map_err(|err| format!("{} {}", err.code, err.message))?;
+    Ok(doc.part_names())
+}
+
 /// Read Markdown and return a `.docx` package. Image bytes are supplied by the caller.
 pub fn markdown_to_document(markdown: &str) -> Result<Vec<u8>, AdapterError> {
     let doc = Document::from_markdown(markdown).map_err(error)?;
@@ -285,6 +354,40 @@ mod bind {
         missing: &str,
     ) -> Result<Vec<u8>, JsValue> {
         super::merge_all(template, csv, kind, join, missing).map_err(message)
+    }
+
+    /// Merge a **dataset**: every parent with its child rows (specs/144 DOC2-03).
+    ///
+    /// `dataset_json` is `{ "records": [{…}], "repeats": { "Alias": [[{…}]] } }` and
+    /// `options_json` is `{ kind, join, missing, budget, from, to }`. The host passes a budget that
+    /// is tighter than the engine's own ceiling (DOC2-15).
+    ///
+    /// Returns one package: the joined document when `join` is `auto` or `page-break`, the catalogue
+    /// shape for `directory`/`labels`, and the first document when `join` is `none` and there is one
+    /// parent. A host that files one document per parent calls this once per parent with `from`/`to`.
+    #[wasm_bindgen(js_name = mergeDataset)]
+    pub fn merge_dataset(template: &[u8], dataset_json: &str, options_json: &str) -> Result<Vec<u8>, JsValue> {
+        super::merge_dataset_bytes(template, dataset_json, options_json).map_err(JsValue::from)
+    }
+
+    /// The plain text of the first merged document of a dataset. A check, never a file.
+    #[wasm_bindgen(js_name = previewDataset)]
+    pub fn preview_dataset(template: &[u8], dataset_json: &str, options_json: &str) -> Result<String, JsValue> {
+        super::preview_dataset_text(template, dataset_json, options_json).map_err(JsValue::from)
+    }
+
+    /// Every merge field with the story, table, and row it sits in. JSON text.
+    ///
+    /// specs/144 DOC2-02: activate uses this to prove a repeat band's fields share one table row.
+    #[wasm_bindgen(js_name = mergeFieldIndex)]
+    pub fn merge_field_index(template: &[u8]) -> Result<String, JsValue> {
+        super::field_index_of(template).map_err(JsValue::from)
+    }
+
+    /// Every zip entry name. A host checks the ceiling before it merges.
+    #[wasm_bindgen(js_name = partNames)]
+    pub fn part_names(template: &[u8]) -> Result<Vec<String>, JsValue> {
+        super::part_names_of(template).map_err(JsValue::from)
     }
 
     /// The body text, or the text of one story.

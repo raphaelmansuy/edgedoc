@@ -15,7 +15,9 @@ pub use sheet::{records_from_xlsx, xlsx_with_cached_formula as sheet_fixture};
 
 pub use edgedoc_limit::Budget;
 pub use edgedoc_merge::{
-    CsvOptions, Join, MergeKind, MissingField, Op, Record, Records, Rule, SortKey, ENVELOPES,
+    dataset_from_json, field_index, field_index_json, merge_dataset, options_from_json, record_sets,
+    CsvOptions, Dataset, DatasetOptions, FieldLocation, Join, MergeKind, MissingField, Op, Record,
+    Records, Repeats, Rule, SortKey, ENVELOPES,
 };
 pub use edgedoc_model::BlockPath;
 pub use edgedoc_model::ContentItem;
@@ -298,6 +300,28 @@ impl Document {
             budget: self.budget.clone(),
             pretty: false,
         })
+    }
+
+    /// The model document, so a merge can read the template without cloning the package.
+    ///
+    /// specs/144 DOC2-03: `merge_dataset` works on a model document and returns merged model
+    /// documents. A host reads the template once, merges, then wraps the result in a `Document`
+    /// with [`Document::adopt_merged`] so the ordinary writer (and its clean-save law) applies.
+    pub fn model(&self) -> ModelDocument {
+        self.inner.clone()
+    }
+
+    /// Replace this document's body and parts with a merged document, keeping the template's
+    /// package identity (styles, numbering, settings, and every part the merge did not touch).
+    ///
+    /// After this call the document is dirty: the merged body is not the template's bytes. That is
+    /// correct and intentional — a merged document is a new document.
+    pub fn adopt_merged(&mut self, merged: ModelDocument) {
+        self.inner.body = merged.body;
+        self.inner.last_section = merged.last_section;
+        self.inner.parts = merged.parts;
+        self.inner.core = merged.core;
+        self.dirty = true;
     }
 
     pub fn write_bytes_with(&self, options: &WriteOptions) -> Result<Vec<u8>, Error> {
@@ -819,6 +843,12 @@ impl<'a> MergeBuilder<'a> {
             maps: std::mem::take(&mut self.maps),
             budget: self.doc.budget.clone(),
             today: self.doc.inner.core.created.clone(),
+            // The builder path has no child rows. A dataset merge goes through
+            // `edgedoc_merge::merge_dataset`, which fills these.
+            repeats: Repeats::new(),
+            band: None,
+            band_parent: None,
+            band_row: 0,
         };
         let inner = finish(&mut request)?;
         Ok(Batch {

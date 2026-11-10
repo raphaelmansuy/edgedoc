@@ -3,8 +3,13 @@
 //! The cursor rules follow WordCraft `finish` in `crates/engine/src/cmd/mailings/merge.rs`.
 //! Preview returns a new document. It does not write into the template.
 
+mod dataset;
 mod records;
 
+pub use dataset::{
+    dataset_from_json, field_index, field_index_json, merge_dataset, options_from_json, record_sets,
+    Dataset, DatasetOptions, FieldLocation,
+};
 pub use records::{CsvOptions, MissingField, Op, Record, Records, Rule, SortKey};
 
 use std::sync::Arc;
@@ -64,6 +69,13 @@ impl std::error::Error for MergeError {}
 
 pub type MapFn = Box<dyn Fn(&Record) -> String>;
 
+/// The child rows of one parent, per band alias.
+///
+/// specs/144 DOC2-01: a repeat band is one table row per child of the **current parent**. The
+/// parent cursor does not advance while its children are written — that is the difference between
+/// an invoice and one invoice per line (probe `CS-05` in the EdgeBase spec).
+pub type Repeats = std::collections::BTreeMap<String, Vec<Records>>;
+
 pub struct MergeRequest<'a> {
     pub template: &'a ModelDocument,
     pub records: Records,
@@ -74,6 +86,14 @@ pub struct MergeRequest<'a> {
     pub maps: Vec<(String, MapFn)>,
     pub budget: Budget,
     pub today: String,
+    /// `repeats[alias][parent]` is the child rows of parent `parent` for that band.
+    pub repeats: Repeats,
+    /// While a band row is being written, the alias whose children are being walked.
+    pub band: Option<String>,
+    /// The parent whose children are being walked. `None` means "the cursor row".
+    pub band_parent: Option<usize>,
+    /// The child row inside the band (the band's own cursor).
+    pub band_row: usize,
 }
 
 pub fn preview(
@@ -93,6 +113,10 @@ pub fn preview(
         maps: Vec::new(),
         budget: budget.clone(),
         today: template.core.created.clone(),
+        repeats: Repeats::new(),
+        band: None,
+        band_parent: None,
+        band_row: 0,
     };
     let batch = finish(&mut request)?;
     batch
@@ -130,9 +154,11 @@ pub fn finish(request: &mut MergeRequest<'_>) -> Result<MergeBatch, MergeError> 
         }
         start = cursor.saturating_add(1);
     }
+    // specs/144 DOC2-17: `normal` is one continuing document — letters semantics without the
+    // per-record section break that gives each letter its own page.
     let per_record_sections = !matches!(
         request.kind,
-        MergeKind::Directory | MergeKind::Emails | MergeKind::Labels
+        MergeKind::Directory | MergeKind::Emails | MergeKind::Labels | MergeKind::Normal
     ) && header_has_merge(request.template);
     Ok(MergeBatch {
         documents,
@@ -206,6 +232,10 @@ fn merge_blocks(
 /// every row in place for a letters merge. The distinction is the merge kind, not the
 /// row: a price list is a directory, and an invoice that lays out two blocks side by
 /// side is a letter.
+///
+/// specs/144 DOC2-01: a row whose merge fields all share one `Alias.` prefix is a **band**
+/// row. It is cloned once per child of the current parent, and the parent cursor does not
+/// move. A row that mixes two prefixes is `merge.mixed_band` and produces no document.
 fn merge_table(
     request: &MergeRequest<'_>,
     table: &mut edgedoc_model::Table,
@@ -218,6 +248,26 @@ fn merge_table(
     let mut out: Vec<edgedoc_model::Row> = Vec::with_capacity(rows.len());
     let mut repeated = false;
     for row in rows.iter_mut() {
+        // A band row is decided before the catalogue law: an invoice is a `letters` merge whose
+        // line table repeats, which the catalogue rule would never do.
+        if !row.header {
+            match row_kind(request, row) {
+                RowKind::Mixed => {
+                    table.rows = out;
+                    return Err(MergeError::new(
+                        "merge.mixed_band",
+                        "A table row holds fields from two repeating rows. Put each repeating row in its own table row.",
+                    ));
+                }
+                RowKind::Band(alias) => {
+                    let written = write_band_rows(request, row, &alias, *cursor, depth)?;
+                    // Zero children removes the row and keeps the header (DOC2-01).
+                    out.extend(written);
+                    continue;
+                }
+                RowKind::Plain => {}
+            }
+        }
         let holds_field = row.cells.iter().any(|cell| blocks_have_field(&cell.blocks));
         // The first field-bearing data row of a catalogue repeats; every other row stays.
         let repeats_this_row = repeats_rows && holds_field && !repeated && !row.header;
@@ -252,6 +302,128 @@ fn merge_table(
     }
     table.rows = out;
     Ok(true)
+}
+
+/// What a table row is, for the merge.
+enum RowKind {
+    /// An ordinary row: its fields read the parent.
+    Plain,
+    /// A band row for one alias: it is cloned once per child of the current parent.
+    Band(String),
+    /// A row whose fields name two different bands. Refused, never guessed.
+    Mixed,
+}
+
+fn row_kind(request: &MergeRequest<'_>, row: &edgedoc_model::Row) -> RowKind {
+    let mut found: Option<String> = None;
+    for instr in row_fields(row) {
+        let Some(name) = field_name(&instr) else {
+            continue;
+        };
+        let Some((alias, _)) = name.split_once('.') else {
+            continue;
+        };
+        if !request.repeats.contains_key(alias) {
+            continue;
+        }
+        match &found {
+            None => found = Some(alias.to_string()),
+            Some(first) if first == alias => {}
+            Some(_) => return RowKind::Mixed,
+        }
+    }
+    match found {
+        Some(alias) => RowKind::Band(alias),
+        None => RowKind::Plain,
+    }
+}
+
+/// Write one copy of a band row per child of the current parent.
+///
+/// The parent cursor is frozen: the band walks its own row index and nothing else moves. This is
+/// what keeps a parent scalar (`Total`) on every copy (probe `CS-06`).
+fn write_band_rows(
+    request: &MergeRequest<'_>,
+    row: &edgedoc_model::Row,
+    alias: &str,
+    parent: usize,
+    depth: usize,
+) -> Result<Vec<edgedoc_model::Row>, MergeError> {
+    let Some(set) = request.repeats.get(alias).and_then(|by_parent| by_parent.get(parent)) else {
+        return Ok(Vec::new());
+    };
+    let mut out = Vec::with_capacity(set.len());
+    for child in 0..set.len() {
+        let scoped = MergeRequest {
+            template: request.template,
+            records: request.records.clone(),
+            kind: request.kind,
+            missing: request.missing,
+            from: request.from,
+            to: request.to,
+            maps: Vec::new(),
+            budget: request.budget.clone(),
+            today: request.today.clone(),
+            repeats: request.repeats.clone(),
+            band: Some(alias.to_string()),
+            band_parent: Some(parent),
+            band_row: child,
+        };
+        let mut copy = row.clone();
+        // The band never advances the parent, so the outer cursor is passed but cannot move past it.
+        let mut frozen = parent;
+        let mut keep = true;
+        for cell in &mut copy.cells {
+            if !merge_blocks(&scoped, &mut cell.blocks, &mut frozen, parent + 1, depth + 1)? {
+                keep = false;
+                break;
+            }
+        }
+        // A `SKIPIF` inside the band drops this child row only; the other children still print.
+        if keep {
+            out.push(copy);
+        }
+    }
+    Ok(out)
+}
+
+/// Every merge field name in a row, in document order.
+fn row_fields(row: &edgedoc_model::Row) -> Vec<String> {
+    let mut out = Vec::new();
+    collect_fields(&row.cells.iter().flat_map(|cell| cell.blocks.iter().cloned()).collect::<Vec<_>>(), &mut out);
+    out
+}
+
+fn collect_fields(blocks: &[Arc<Block>], out: &mut Vec<String>) {
+    for block in blocks {
+        match block.as_ref() {
+            Block::Paragraph(para) => {
+                for object in &para.objects {
+                    if let InlineObject::Field(Field { instr, .. }) = object {
+                        out.push(instr.clone());
+                    }
+                }
+            }
+            Block::Table(table) => {
+                for row in &table.rows {
+                    for cell in &row.cells {
+                        collect_fields(&cell.blocks, out);
+                    }
+                }
+            }
+            Block::Alternate { choice, .. } => collect_fields(choice, out),
+            Block::Control(control) => collect_fields(&control.blocks, out),
+            Block::Opaque(_) => {}
+        }
+    }
+}
+
+fn field_name(instr: &str) -> Option<String> {
+    let parsed = Instruction::parse(instr);
+    if parsed.keyword != "MERGEFIELD" {
+        return None;
+    }
+    parsed.merge_name()
 }
 
 fn apply_paragraph(
@@ -333,7 +505,15 @@ fn eval(
     }
 }
 
+/// The value of one merge field, honouring the band scope.
+///
+/// `Alias.Field` reads the child rows of the **current parent** while a band row is being written;
+/// a bare name always reads the parent. This is what makes a line-item table possible without
+/// advancing the parent cursor (DOC2-01).
 fn value(request: &MergeRequest<'_>, row: usize, field: &str) -> Result<String, MergeError> {
+    if let Some((alias, leaf)) = field.split_once('.') {
+        return band_value(request, row, alias, leaf);
+    }
     if let Some((_, map)) = request
         .maps
         .iter()
@@ -345,7 +525,38 @@ fn value(request: &MergeRequest<'_>, row: usize, field: &str) -> Result<String, 
     if let Some(text) = request.records.cell(row, field) {
         return Ok(text);
     }
-    match request.missing {
+    missing_value(request.missing, field)
+}
+
+/// A child value. `alias` must be a declared band; the row is the parent the band belongs to.
+fn band_value(
+    request: &MergeRequest<'_>,
+    row: usize,
+    alias: &str,
+    leaf: &str,
+) -> Result<String, MergeError> {
+    let Some(children) = request.repeats.get(alias) else {
+        return missing_value(request.missing, &format!("{alias}.{leaf}"));
+    };
+    // A band row knows its own parent and child; anywhere else the band reads its first child, so a
+    // `«Lines.Product»` in a paragraph still means something rather than silently blanking.
+    let parent = request.band_parent.unwrap_or(row);
+    let child_row = if request.band_parent.is_some() {
+        request.band_row
+    } else {
+        0
+    };
+    let Some(set) = children.get(parent) else {
+        return missing_value(request.missing, &format!("{alias}.{leaf}"));
+    };
+    match set.cell(child_row, leaf) {
+        Some(text) => Ok(text),
+        None => missing_value(request.missing, &format!("{alias}.{leaf}")),
+    }
+}
+
+fn missing_value(missing: MissingField, field: &str) -> Result<String, MergeError> {
+    match missing {
         MissingField::Empty => Ok(String::new()),
         MissingField::Placeholder => Ok(format!("«{field}»")),
         MissingField::Error => Err(MergeError::new(
