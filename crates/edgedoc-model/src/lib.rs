@@ -10,6 +10,8 @@ mod section;
 mod style;
 mod table;
 
+pub mod json;
+
 pub use document::{
     BlockPath, BodyCursor, CoreProps, DocumentEdit, FormatKind, ModelDocument, ParaCursor,
     ParagraphInfo, TextCaret,

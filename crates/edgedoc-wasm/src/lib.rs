@@ -114,6 +114,30 @@ pub fn markdown_to_document(markdown: &str) -> Result<Vec<u8>, AdapterError> {
     doc.write_bytes().map_err(error)
 }
 
+/// Build a `.docx` package from a closed block description (specs/144 DOC2-03).
+///
+/// Markdown cannot carry a merge field: `«Name»` is ordinary text, and `«Lines.Quantity__c»` loses its
+/// underscores to emphasis. A host that installs a template therefore needs a way to say "this
+/// paragraph is a field" — this is that way, and it is the smallest vocabulary a mail-merge template
+/// needs:
+///
+/// ```json
+/// { "blocks": [
+///   { "paragraph": { "text": "For ", "field": "Customer", "after": "" } },
+///   { "table": [ { "header": "Article", "field": "Lines.Name" },
+///                { "header": "Qty",     "field": "Lines.Quantity__c" } ] }
+/// ] }
+/// ```
+///
+/// Every `field` becomes a real `MERGEFIELD`, so `mergeFieldNames` on the result reports it and a host
+/// can judge its binding against the package it just built.
+pub fn document_from_blocks(json: &str) -> Result<Vec<u8>, AdapterError> {
+    let spec = edgedoc::blocks::BlocksSpec::parse(json)
+        .map_err(|issue| AdapterError::new(issue.code, issue.message))?;
+    let doc = spec.build().map_err(error)?;
+    doc.write_bytes().map_err(error)
+}
+
 /// Read Markdown with images packed as one byte buffer.
 ///
 /// `paths.len()` must equal `lengths.len()`. `bytes` is the images concatenated in
@@ -374,6 +398,15 @@ mod bind {
     #[wasm_bindgen(js_name = previewDataset)]
     pub fn preview_dataset(template: &[u8], dataset_json: &str, options_json: &str) -> Result<String, JsValue> {
         super::preview_dataset_text(template, dataset_json, options_json).map_err(JsValue::from)
+    }
+
+    /// Build a package from a closed block description (specs/144 DOC2-03).
+    ///
+    /// Markdown cannot carry a merge field, so a host that installs a template needs this: paragraphs
+    /// of text and one field, and tables whose data row is fields.
+    #[wasm_bindgen(js_name = documentFromBlocks)]
+    pub fn document_from_blocks(json: &str) -> Result<Vec<u8>, JsValue> {
+        super::document_from_blocks(json).map_err(message)
     }
 
     /// Every merge field with the story, table, and row it sits in. JSON text.

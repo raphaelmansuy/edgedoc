@@ -8,6 +8,9 @@ mod markdown_in;
 mod markdown_omml;
 mod sheet;
 
+pub mod blocks;
+pub use blocks::{Block as DocBlock, BlocksSpec, ParagraphBlock, TableColumn};
+
 pub use error::Error;
 pub use markdown::{ExportedImage, MarkdownDocument, MarkdownOptions};
 pub use markdown_in::{MarkdownImage, MarkdownReadOptions};
