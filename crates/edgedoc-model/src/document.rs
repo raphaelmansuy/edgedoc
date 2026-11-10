@@ -840,8 +840,14 @@ impl<'a> DocumentEdit<'a> {
                 FormatKind::Strike => props.strike = enable,
                 FormatKind::FontSize(size) => props.size_pt = Some(size),
                 FormatKind::Font(ref name) => props.font = Some(name.clone()),
-                FormatKind::Color(ref hex) => props.color = Some(hex.clone()),
-                FormatKind::Highlight(ref name) => props.highlight = Some(name.clone()),
+                // An empty colour or highlight means "inherit", the convention `VertAlign` already uses:
+                // it is how Word's "Automatic" and "No highlight" arrive through one door.
+                FormatKind::Color(ref hex) => {
+                    props.color = if hex.is_empty() { None } else { Some(hex.clone()) };
+                }
+                FormatKind::Highlight(ref name) => {
+                    props.highlight = if name.is_empty() || name == "none" { None } else { Some(name.clone()) };
+                }
                 FormatKind::VertAlign(ref name) => {
                     props.vert_align = if enable && !name.is_empty() {
                         Some(name.clone())

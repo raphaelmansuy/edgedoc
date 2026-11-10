@@ -59,6 +59,10 @@ pub struct EditorState {
     /// Paragraph background fill at the caret, without `#`.
     pub para_shading: String,
     pub para_border_bottom: bool,
+    /// Text colour at the caret, without `#`; empty when the run inherits it (Word's Automatic).
+    pub color: String,
+    /// Highlight at the caret; empty when there is none.
+    pub highlight: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -225,6 +229,16 @@ impl Editor {
                 .and_then(|i| i.shading.clone())
                 .unwrap_or_default(),
             para_border_bottom: info.as_ref().is_some_and(|i| i.border_bottom),
+            color: info
+                .as_ref()
+                .and_then(|i| i.props.color.clone())
+                .map(|hex| hex.trim_start_matches('#').to_ascii_uppercase())
+                .unwrap_or_default(),
+            highlight: info
+                .as_ref()
+                .and_then(|i| i.props.highlight.clone())
+                .filter(|name| !name.is_empty() && name != "none")
+                .unwrap_or_default(),
             title: {
                 let title = self.display.inner.core_props().title.clone();
                 if title.is_empty() {
@@ -805,14 +819,29 @@ impl Editor {
         self.apply_format(FormatKind::Font(name.to_string()))
     }
 
+    /// Set a text colour, or clear it.
+    ///
+    /// Word's "Automatic" is a real choice, so an empty string (or `auto`) clears the colour instead of
+    /// being refused: a ribbon offers "No colour" beside the palette, and the person expects it to work.
     pub fn set_color(&mut self, hex: &str) -> Result<()> {
-        let hex = normalize_hex(hex)
+        let trimmed = hex.trim();
+        if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("auto") {
+            return self.apply_format(FormatKind::Color(String::new()));
+        }
+        let hex = normalize_hex(trimmed)
             .ok_or_else(|| Error::new("editor.color", "Use a color like #1F4E79."))?;
         self.apply_format(FormatKind::Color(hex))
     }
 
+    /// Set a highlight, or clear it. `none` and an empty name both clear, as Word's "No Color" does.
     pub fn set_highlight(&mut self, name: &str) -> Result<()> {
-        self.apply_format(FormatKind::Highlight(name.to_string()))
+        let trimmed = name.trim();
+        let value = if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("none") {
+            String::new()
+        } else {
+            trimmed.to_string()
+        };
+        self.apply_format(FormatKind::Highlight(value))
     }
 
     pub fn set_align(&mut self, align: &str) -> Result<()> {
@@ -962,8 +991,10 @@ impl Editor {
             FormatKind::Strike => props.strike = true,
             FormatKind::FontSize(size) => props.size_pt = Some(size),
             FormatKind::Font(name) => props.font = Some(name),
-            FormatKind::Color(hex) => props.color = Some(hex),
-            FormatKind::Highlight(name) => props.highlight = Some(name),
+            FormatKind::Color(hex) => props.color = if hex.is_empty() { None } else { Some(hex) },
+            FormatKind::Highlight(name) => {
+                props.highlight = if name.is_empty() || name == "none" { None } else { Some(name) };
+            }
             FormatKind::VertAlign(name) => {
                 props.vert_align = if name.is_empty() { None } else { Some(name) };
             }
@@ -1584,6 +1615,39 @@ mod tests {
         assert_eq!(editor.para_text("body[0]"), "");
         editor.redo().expect("redo");
         assert_eq!(editor.para_text("body[0]"), "Hello");
+    }
+
+    /// specs/144 DOC2-35: "No colour" and "No highlight" are real Word choices, and a ribbon offers
+    /// them beside the palette. An empty value clears the format instead of being refused, and the
+    /// package records the absence — not a black run, and not a stale one.
+    #[test]
+    fn clearing_a_colour_and_a_highlight_is_a_real_choice() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Total").expect("type");
+        editor.select_all();
+        editor.set_color("#B91C1C").expect("colour");
+        assert_eq!(editor.state().color, "B91C1C");
+
+        // Clearing is accepted three ways: empty, `auto` (Word's Automatic), and `none`.
+        editor.set_color("").expect("clear");
+        assert_eq!(editor.state().color, "", "an empty colour must clear it");
+        editor.set_color("auto").expect("automatic");
+        assert_eq!(editor.state().color, "", "Automatic is the same as clearing");
+        editor.set_color("#047857").expect("colour again");
+        assert_eq!(editor.state().color, "047857");
+
+        editor.set_highlight("yellow").expect("highlight");
+        assert_eq!(editor.state().highlight, "yellow");
+        editor.set_highlight("none").expect("no highlight");
+        assert_eq!(editor.state().highlight, "", "`none` must clear the highlight");
+        editor.set_highlight("").expect("empty highlight");
+        assert_eq!(editor.state().highlight, "");
+
+        // What was cleared is gone from the package too, not merely hidden by the ribbon.
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let text = doc.plain_text(edgedoc::StoryRef::Body);
+        assert_eq!(text.trim(), "Total");
     }
 
     #[test]
