@@ -90,6 +90,8 @@ pub struct Editor {
     preview_of: Option<Vec<u8>>,
     goal_x: Option<f32>,
     revision: u64,
+    /// True while a run of typing is open, so its keystrokes share one undo step (as in Word).
+    typing_run: bool,
     /// Format painter: apply these props to the next selection.
     painter: Option<CharProps>,
     /// Sticky painter stays on across several selections.
@@ -126,6 +128,7 @@ impl Editor {
             preview_of: None,
             goal_x: None,
             revision: 0,
+            typing_run: false,
             painter: None,
             painter_sticky: false,
         };
@@ -278,6 +281,7 @@ impl Editor {
 
     /// Move the caret. `extend` grows the selection.
     pub fn move_caret(&mut self, key: &str, extend: bool) {
+        self.end_typing_run();
         if extend && self.anchor.is_none() {
             self.anchor = Some(self.caret.clone());
         }
@@ -315,6 +319,7 @@ impl Editor {
     }
 
     pub fn click(&mut self, page: usize, x: f32, y: f32, extend: bool) {
+        self.end_typing_run();
         let Some(hit) = caret::hit_caret(self.display.pages(), page, x, y) else {
             return;
         };
@@ -325,6 +330,7 @@ impl Editor {
     }
 
     pub fn select_all(&mut self) {
+        self.end_typing_run();
         let path = self.caret.path.clone();
         let len = self.para_len(&path);
         self.anchor = Some(Place {
@@ -338,6 +344,7 @@ impl Editor {
 
     /// Select the word around the caret. A double-click uses this.
     pub fn select_word(&mut self) {
+        self.end_typing_run();
         let text = self.para_text(&self.caret.path);
         let offset = self.caret.offset.min(text.len());
         if !text.is_char_boundary(offset) {
@@ -364,6 +371,7 @@ impl Editor {
 
     /// Select from the previous sentence break to the next `.`, `!`, or `?`.
     pub fn select_sentence(&mut self) {
+        self.end_typing_run();
         let text = self.para_text(&self.caret.path);
         let offset = self.caret.offset.min(text.len());
         if !text.is_char_boundary(offset) {
@@ -465,6 +473,7 @@ impl Editor {
 
     /// Set automatic line spacing: `1`, `1.5`, or `2`.
     pub fn set_line_spacing(&mut self, multiple: f32) -> Result<()> {
+        self.end_typing_run();
         let path = self.caret.path.clone();
         let offset = self.caret.offset;
         let line = if (multiple - 1.0).abs() < 0.01 {
@@ -508,6 +517,7 @@ impl Editor {
 
     /// Change the case of the selection.
     pub fn change_case(&mut self, mode: &str) -> Result<()> {
+        self.end_typing_run();
         let Some(anchor) = self.anchor.clone() else {
             return Ok(());
         };
@@ -615,6 +625,14 @@ impl Editor {
                 "Paste fewer than 100,000 characters at a time.",
             ));
         }
+        // A run of typing is one undo step, as it is in Word: a person presses undo to take back a
+        // mistyped word, not to walk back eleven letters. A newline, a delete, a format change, a caret
+        // move and a paste each end the run, because each is a separate intent.
+        let typing_run = self.typing_run;
+        self.typing_run = true;
+        if typing_run {
+            return self.insert_without_snapshot(text);
+        }
         let anchor = self.anchor.clone();
         let pending = self.pending.clone();
         let caret = self.caret.clone();
@@ -629,6 +647,7 @@ impl Editor {
     }
 
     pub fn insert_newline(&mut self, soft: bool) -> Result<()> {
+        self.end_typing_run();
         if soft {
             return self.insert_text("\n");
         }
@@ -641,6 +660,7 @@ impl Editor {
     }
 
     pub fn insert_field(&mut self, name: &str) -> Result<()> {
+        self.end_typing_run();
         let name = name.trim();
         if name.is_empty() || name.chars().count() > 64 {
             return Err(Error::new(
@@ -665,11 +685,13 @@ impl Editor {
     }
 
     pub fn insert_table(&mut self, rows: usize, cols: usize) -> Result<()> {
+        self.end_typing_run();
         let path = self.caret.path.clone();
         self.transact(move |edit| edit.insert_table(&path, rows, cols))
     }
 
     pub fn insert_picture(&mut self, bytes: Vec<u8>, width_pt: f32, height_pt: f32) -> Result<()> {
+        self.end_typing_run();
         if bytes.len() > 8 * 1024 * 1024 {
             return Err(Error::new(
                 "editor.limit",
@@ -802,6 +824,7 @@ impl Editor {
     }
 
     pub fn set_font_size(&mut self, size: f32) -> Result<()> {
+        self.end_typing_run();
         if !(1.0..=1638.0).contains(&size) {
             return Err(Error::new(
                 "editor.limit",
@@ -812,6 +835,7 @@ impl Editor {
     }
 
     pub fn set_font(&mut self, name: &str) -> Result<()> {
+        self.end_typing_run();
         let name = name.trim();
         if name.is_empty() || name.len() > 64 {
             return Err(Error::new("editor.font", "Choose a font name."));
@@ -824,6 +848,7 @@ impl Editor {
     /// Word's "Automatic" is a real choice, so an empty string (or `auto`) clears the colour instead of
     /// being refused: a ribbon offers "No colour" beside the palette, and the person expects it to work.
     pub fn set_color(&mut self, hex: &str) -> Result<()> {
+        self.end_typing_run();
         let trimmed = hex.trim();
         if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("auto") {
             return self.apply_format(FormatKind::Color(String::new()));
@@ -835,6 +860,7 @@ impl Editor {
 
     /// Set a highlight, or clear it. `none` and an empty name both clear, as Word's "No Color" does.
     pub fn set_highlight(&mut self, name: &str) -> Result<()> {
+        self.end_typing_run();
         let trimmed = name.trim();
         let value = if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("none") {
             String::new()
@@ -845,6 +871,7 @@ impl Editor {
     }
 
     pub fn set_align(&mut self, align: &str) -> Result<()> {
+        self.end_typing_run();
         let align = match align {
             "center" => "center",
             "right" | "end" => "right",
@@ -890,6 +917,7 @@ impl Editor {
     }
 
     pub fn set_para_shading(&mut self, fill: Option<&str>) -> Result<()> {
+        self.end_typing_run();
         let path = self.caret.path.clone();
         let offset = self.caret.offset;
         let owned = fill.map(|color| color.trim_start_matches('#').to_uppercase());
@@ -900,6 +928,7 @@ impl Editor {
     }
 
     pub fn set_para_border(&mut self, kind: &str) -> Result<()> {
+        self.end_typing_run();
         let path = self.caret.path.clone();
         let offset = self.caret.offset;
         let kind = kind.to_string();
@@ -933,10 +962,18 @@ impl Editor {
     }
 
     pub fn undo(&mut self) -> Result<()> {
+        self.end_typing_run();
         self.swap_history(true)
     }
 
+    /// How many undo steps are open. The ribbon's Undo is enabled from this, and a test reads it to
+    /// prove that a run of typing is one step.
+    pub fn undo_depth(&self) -> usize {
+        self.undo.len()
+    }
+
     pub fn redo(&mut self) -> Result<()> {
+        self.end_typing_run();
         self.swap_history(false)
     }
 
@@ -1060,6 +1097,55 @@ impl Editor {
         self.display.layout()?;
         self.revision = self.revision.saturating_add(1);
         Ok(())
+    }
+
+    /// One keystroke inside an open typing run: change the bytes, keep the snapshot already taken.
+    fn insert_without_snapshot(&mut self, text: &str) -> Result<()> {
+        let anchor = self.anchor.clone();
+        let pending = self.pending.clone();
+        let caret = self.caret.clone();
+        let mut next = TextCaret {
+            path: caret.path.clone(),
+            offset: caret.offset,
+        };
+        let opts = EditOptions {
+            allow_revisions: true,
+            allow_comments: true,
+            allow_equations: true,
+            allow_objects: true,
+        };
+        let edited = self.display.inner.edit(opts, |edit| {
+            let place = replace_selection(edit, &caret, anchor.as_ref())?;
+            let props = match pending.clone() {
+                Some(props) => props,
+                None => edit.paragraph_info(&place.path, place.offset)?.props,
+            };
+            edit.insert_chars(&place.path, place.offset, text, &props)?;
+            next = TextCaret {
+                path: place.path,
+                offset: place.offset + text.len(),
+            };
+            Ok(())
+        });
+        if let Err(err) = edited {
+            return Err(from_doc(err));
+        }
+        self.caret = Place {
+            path: next.path,
+            offset: next.offset,
+        };
+        self.anchor = None;
+        self.pending = None;
+        self.goal_x = None;
+        self.redo.clear();
+        self.display.layout()?;
+        self.revision = self.revision.saturating_add(1);
+        Ok(())
+    }
+
+    /// End the open typing run, so the next keystroke starts a new undo step.
+    fn end_typing_run(&mut self) {
+        self.typing_run = false;
     }
 
     fn push_undo(&mut self) {
@@ -1662,6 +1748,40 @@ mod tests {
         let doc = Document::read_bytes(&bytes).expect("read");
         let text = doc.plain_text(edgedoc::StoryRef::Body);
         assert_eq!(text.trim(), "Total");
+    }
+
+    /// specs/144 DOC2-35: a run of typing is ONE undo step, as it is in Word.
+    ///
+    /// Every keystroke used to snapshot the whole package, so typing a word and pressing undo walked
+    /// back one letter at a time and the undo stack filled with near-identical copies. Word undoes the
+    /// word. A different intent — a newline, a delete, a format change, a caret move — ends the run.
+    #[test]
+    fn a_run_of_typing_is_one_undo_step() {
+        let mut editor = Editor::blank().expect("blank");
+        for ch in "Bonjour".chars() {
+            editor.insert_text(&ch.to_string()).expect("type");
+        }
+        assert_eq!(editor.para_text("body[0]"), "Bonjour");
+        assert_eq!(editor.undo_depth(), 1, "sixkeystrokes are one step");
+
+        // One undo takes the whole word back, not the last letter.
+        editor.undo().expect("undo");
+        assert_eq!(editor.para_text("body[0]"), "");
+
+        // A newline ends the run: the next word is its own step.
+        editor.insert_text("One").expect("type");
+        editor.insert_newline(false).expect("enter");
+        editor.insert_text("Two").expect("type");
+        assert_eq!(editor.undo_depth(), 3, "two words and the break above them");
+        editor.undo().expect("undo");
+        assert_eq!(editor.para_text("body[1]"), "", "the second word is its own step");
+
+        // A caret move also ends the run: it is a separate intent, and Word starts a new step there.
+        let mut moved = Editor::blank().expect("blank");
+        moved.insert_text("abc").expect("type");
+        moved.move_caret("left", false);
+        moved.insert_text("X").expect("type");
+        assert_eq!(moved.undo_depth(), 2, "typing before and after a move are two steps");
     }
 
     /// specs/144 DOC2-35: Word's Change Case has five rows. The module had three, and the missing one
