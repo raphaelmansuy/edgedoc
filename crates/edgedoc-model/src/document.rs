@@ -904,8 +904,82 @@ impl<'a> DocumentEdit<'a> {
         })
     }
 
-    pub fn paragraph_info(&self, path: &str, offset: usize) -> ModelResult<ParagraphInfo> {
-        let para = self.paragraph_ref(path)?;
+    /// Insert an empty row into the table the caret is in, below the caret's own row
+    /// (specs/144 DOC2-41).
+    ///
+    /// Word's *Insert Below*, and the one table operation a quotation needs: a merge template's row
+    /// count is a shape the author sets while designing, and adding a row is how that shape changes.
+    /// The new row copies the anchor row's cell count — a table whose rows disagree about their width
+    /// is not a table anybody designed.
+    ///
+    /// Returns the caret's new path (first cell of the anchor row), so a person keeps typing inside
+    /// the table. A path that is not inside a table is refused: "insert a row" has no meaning for a
+    /// paragraph, and a silent no-op would look like a broken button.
+    pub fn insert_table_row(&mut self, cell_path: &str) -> ModelResult<TextCaret> {
+        let (table_path, row_index) = table_and_row(cell_path)?;
+        let index = table_block_index(&table_path)?;
+        self.with_parent(&table_path, |blocks, _| {
+            let block = blocks.get_mut(index).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+            })?;
+            let Block::Table(table) = Arc::make_mut(block) else {
+                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+            };
+            let cols = table
+                .rows
+                .get(row_index)
+                .map(|row| row.cells.len())
+                .ok_or_else(|| {
+                    ModelError::new("model.bad_path", "That row is not in the table anymore.")
+                })?;
+            let cells = (0..cols).map(|_| crate::table::Cell::paragraph(""));
+            table
+                .rows
+                .insert(row_index.saturating_add(1), crate::table::Row::cells(cells));
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: format!("{table_path}/row[{row_index}]/cell[0]/block[0]"),
+            offset: 0,
+        })
+    }
+
+    /// Delete the row the caret is in (specs/144 DOC2-41). A table keeps at least one row.
+    pub fn delete_table_row(&mut self, cell_path: &str) -> ModelResult<TextCaret> {
+        let (table_path, row_index) = table_and_row(cell_path)?;
+        let index = table_block_index(&table_path)?;
+        let mut landed = row_index;
+        self.with_parent(&table_path, |blocks, _| {
+            let block = blocks.get_mut(index).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+            })?;
+            let Block::Table(table) = Arc::make_mut(block) else {
+                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+            };
+            if table.rows.len() <= 1 {
+                return Err(ModelError::new(
+                    "model.limit",
+                    "A table needs at least one row. Delete the whole table instead.",
+                ));
+            }
+            if row_index >= table.rows.len() {
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That row is not in the table anymore.",
+                ));
+            }
+            table.rows.remove(row_index);
+            // The caret lands on the row that took its place, or the new last row.
+            landed = row_index.min(table.rows.len().saturating_sub(1));
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: format!("{table_path}/row[{landed}]/cell[0]/block[0]"),
+            offset: 0,
+        })
+    }
+
+    pub fn paragraph_info(&self, path: &str, offset: usize) -> ModelResult<ParagraphInfo> {        let para = self.paragraph_ref(path)?;
         let align = para
             .props
             .align
@@ -1364,8 +1438,43 @@ fn replace_leaf_index(path: &str, index: usize) -> String {
     }
 }
 
-fn next_block_path(path: &str) -> String {
-    let parsed = parse_path(path);
+/// Where a table sits and which of its rows a cell path names.
+///
+/// A cell path is `body[n]/row[r]/cell[c]/block[b]`. The table lives at the path up to `/row[`, and
+/// the row index is the first nest — the one `parse_path` already read.
+fn table_and_row(cell_path: &str) -> ModelResult<(String, usize)> {
+    let parsed = parse_path(cell_path)?;
+    let Some((row, _, _)) = parsed.nests.first() else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            "That is not a table cell, so there is no row to add or remove.",
+        ));
+    };
+    let table_path = cell_path
+        .split("/row[")
+        .next()
+        .filter(|head| !head.is_empty())
+        .ok_or_else(|| ModelError::new("model.bad_path", "That path does not name a table."))?
+        .to_string();
+    Ok((table_path, *row))
+}
+
+/// The index of a table among the blocks of the list that holds it.
+fn table_block_index(table_path: &str) -> ModelResult<usize> {
+    let parsed = parse_path(table_path)?;
+    if !parsed.nests.is_empty() {
+        return Err(ModelError::new(
+            "model.bad_path",
+            "That path does not name a table at the top level of its story.",
+        ));
+    }
+    match parsed.head {
+        Head::Body(index) => Ok(index),
+        Head::Part { block, .. } => Ok(block),
+    }
+}
+
+fn next_block_path(path: &str) -> String {    let parsed = parse_path(path);
     let Ok(parsed) = parsed else {
         return path.to_string();
     };

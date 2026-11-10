@@ -200,6 +200,18 @@ mod bind {
             self.inner.edit_field(name).map_err(js_error)
         }
 
+        /// Insert a row below the caret's row (specs/144 DOC2-41).
+        #[wasm_bindgen(js_name = editTableRowInsert)]
+        pub fn edit_table_row_insert(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_table_row_insert().map_err(js_error)
+        }
+
+        /// Delete the caret's row.
+        #[wasm_bindgen(js_name = editTableRowDelete)]
+        pub fn edit_table_row_delete(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_table_row_delete().map_err(js_error)
+        }
+
         #[wasm_bindgen(js_name = editTable)]
         pub fn edit_table(&mut self, rows: u32, cols: u32) -> Result<String, JsValue> {
             self.inner.edit_table(rows, cols).map_err(js_error)

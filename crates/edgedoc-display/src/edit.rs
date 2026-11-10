@@ -729,6 +729,23 @@ impl Editor {
         self.transact(move |edit| edit.insert_table(&path, rows, cols))
     }
 
+    /// Insert a row below the caret's row (specs/144 DOC2-41). One call, one undo step.
+    ///
+    /// Refused when the caret is not in a table: a ribbon that greys the button is better than a
+    /// button that does nothing, and the model already knows the difference.
+    pub fn insert_table_row(&mut self) -> Result<()> {
+        self.end_typing_run();
+        let path = self.caret.path.clone();
+        self.transact(move |edit| edit.insert_table_row(&path))
+    }
+
+    /// Delete the caret's row (specs/144 DOC2-41). A table keeps at least one row.
+    pub fn delete_table_row(&mut self) -> Result<()> {
+        self.end_typing_run();
+        let path = self.caret.path.clone();
+        self.transact(move |edit| edit.delete_table_row(&path))
+    }
+
     pub fn insert_picture(&mut self, bytes: Vec<u8>, width_pt: f32, height_pt: f32) -> Result<()> {
         self.end_typing_run();
         if bytes.len() > 8 * 1024 * 1024 {
@@ -2186,6 +2203,80 @@ mod tests {
         assert_eq!(
             editor.display.inner.merge_field_names(),
             vec!["City".to_string()]
+        );
+    }
+
+    /// specs/144 DOC2-41: a table row is added below the caret's row, and it is one undo step.
+    ///
+    /// The ribbon's Insert tab could make a grid but never change its shape, so a quotation that
+    /// needed a fourth line item had to be rebuilt. Word's *Insert Below* is the missing gesture.
+    /// The new row must copy the row above it: a table whose rows disagree about their width is not
+    /// a table anybody designed, and the model derives the cell count rather than taking a literal.
+    #[test]
+    fn a_table_row_is_inserted_below_and_undone_in_one_step() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(2, 3).expect("table");
+        // The caret is in the table's first cell.
+        assert_eq!(editor.caret.path, "body[1]/row[0]/cell[0]/block[0]");
+
+        editor.insert_table_row().expect("insert row");
+        assert_eq!(editor.caret.path, "body[1]/row[0]/cell[0]/block[0]", "the caret stays put");
+
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        assert_eq!(table.rows.len(), 3, "the row was added");
+        assert_eq!(table.rows[2].cells.len(), 3, "and it is as wide as the table");
+
+        editor.undo().expect("undo");
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        assert_eq!(table.rows.len(), 2, "one undo takes the row back out");
+    }
+
+    /// specs/144 DOC2-41: a row can be removed, and the last row cannot.
+    #[test]
+    fn a_table_row_is_deleted_but_a_table_keeps_one() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(1, 2).expect("table");
+
+        // One row: deleting it is refused with a reason, not a silent no-op.
+        let refused = editor.delete_table_row();
+        assert!(refused.is_err(), "a table cannot be emptied");
+        assert_eq!(
+            refused.unwrap_err().code,
+            "model.limit",
+            "and the reason names the limit"
+        );
+
+        editor.insert_table_row().expect("second row");
+        editor.delete_table_row().expect("delete");
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        assert_eq!(table.rows.len(), 1);
+    }
+
+    /// specs/144 DOC2-41: outside a table, "insert a row" is refused rather than doing nothing.
+    #[test]
+    fn a_row_command_outside_a_table_is_refused() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Just a paragraph").expect("type");
+        let err = editor.insert_table_row().unwrap_err();
+        assert_eq!(err.code, "model.bad_path");
+        assert!(
+            err.message.contains("table"),
+            "the message says what is missing: {}",
+            err.message
         );
     }
 

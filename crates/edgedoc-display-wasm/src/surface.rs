@@ -419,6 +419,26 @@ impl DisplayHandle {
         self.finish_edit()
     }
 
+    /// Insert a row below the caret's row; the caret stays in the table (specs/144 DOC2-41).
+    pub fn edit_table_row_insert(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .insert_table_row()
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    /// Delete the caret's row. A table keeps at least one row.
+    pub fn edit_table_row_delete(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .delete_table_row()
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
     pub fn edit_table(&mut self, rows: u32, cols: u32) -> Result<String, (String, String)> {
         self.editor
             .as_mut()
