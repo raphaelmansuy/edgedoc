@@ -1424,6 +1424,20 @@ fn transform_case(text: &str, mode: &str) -> String {
     match mode {
         "upper" => text.to_uppercase(),
         "lower" => text.to_lowercase(),
+        // Word's "Sentence case": the first alphabetic character of the passage, then lowercase.
+        "sentence" => {
+            let mut out = String::with_capacity(text.len());
+            let mut capitalised = false;
+            for ch in text.chars() {
+                if !capitalised && ch.is_alphabetic() {
+                    out.extend(ch.to_uppercase());
+                    capitalised = true;
+                } else {
+                    out.extend(ch.to_lowercase());
+                }
+            }
+            out
+        }
         "title" => text
             .split_inclusive(char::is_whitespace)
             .map(|word| {
@@ -1648,6 +1662,31 @@ mod tests {
         let doc = Document::read_bytes(&bytes).expect("read");
         let text = doc.plain_text(edgedoc::StoryRef::Body);
         assert_eq!(text.trim(), "Total");
+    }
+
+    /// specs/144 DOC2-35: Word's Change Case has five rows. The module had three, and the missing one
+    /// (`Sentence case`) is what a template author uses on a heading somebody typed in capitals.
+    #[test]
+    fn change_case_offers_sentence_alongside_upper_lower_and_title() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("quarterly REVENUE report").expect("type");
+        editor.select_all();
+
+        editor.change_case("upper").expect("upper");
+        assert_eq!(editor.para_text("body[0]"), "QUARTERLY REVENUE REPORT");
+
+        editor.change_case("lower").expect("lower");
+        assert_eq!(editor.para_text("body[0]"), "quarterly revenue report");
+
+        editor.change_case("sentence").expect("sentence");
+        assert_eq!(editor.para_text("body[0]"), "Quarterly revenue report");
+
+        editor.change_case("title").expect("title");
+        assert_eq!(editor.para_text("body[0]"), "Quarterly Revenue Report");
+
+        // An unknown mode leaves the text alone rather than mangling it.
+        editor.change_case("nonsense").expect("unknown is a no-op");
+        assert_eq!(editor.para_text("body[0]"), "Quarterly Revenue Report");
     }
 
     #[test]
