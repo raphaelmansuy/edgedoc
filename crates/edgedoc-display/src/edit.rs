@@ -2439,6 +2439,34 @@ mod tests {
         }
     }
 
+    /// specs/144 DOC2-43: a column width does not move the caret.
+    ///
+    /// A width is a property of the column, not a navigation. The first version returned a caret at
+    /// `row[0]`, so widening a column in the fourth row of a table threw the person back to the top of it —
+    /// and the ribbon's "Merge right" then named a different cell. Nobody would report that as a bug in the
+    /// width; they would say the editor jumped.
+    #[test]
+    fn setting_a_column_width_leaves_the_caret_where_it_was() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(3, 3).expect("table");
+        // Type into a cell that is **not** row 0, so the assertion is about a real position rather than
+        // about row 0 matching itself.
+        // The test module can reach the field; a unit test does not need a public "move the caret there".
+        editor.caret = Place {
+            path: "body[1]/row[2]/cell[1]/block[0]".into(),
+            offset: 0,
+        };
+        let before = editor.caret.path.clone();
+        assert!(before.contains("row[2]"), "the caret must be in the last row: {before}");
+
+        editor.set_table_column_width(3_600).expect("width");
+        assert_eq!(
+            editor.caret.path, before,
+            "a column width must not move the caret — the person is reading a cell, not asking to go to the top"
+        );
+    }
+
     /// specs/144 DOC2-39: a replace is ONE undo step.
     ///
     /// The control had no replace because the obvious implementation — delete the selection, then

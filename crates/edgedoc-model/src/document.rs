@@ -1112,7 +1112,7 @@ impl<'a> DocumentEdit<'a> {
     /// the cell widths. So both are written, together, for every row — including a cell that spans
     /// columns, which takes the sum of the columns it covers so the grid still adds up.
     pub fn set_table_column_width(&mut self, cell_path: &str, width: i32) -> ModelResult<TextCaret> {
-        let (table_path, _row_index, column) = table_cell_position(cell_path)?;
+        let (table_path, row_index, column) = table_cell_position(cell_path)?;
         let twips = width.clamp(120, 20_000);
         let index = table_block_index(&table_path)?;
         self.with_parent(&table_path, |blocks, _| {
@@ -1154,8 +1154,12 @@ impl<'a> DocumentEdit<'a> {
             }
             Ok(())
         })?;
+        // **The caret stays where it was.** A width is a property of the column, not a navigation: putting
+        // it back to `row[0]` moved the person to the top of the table every time they widened a column,
+        // which is the opposite of what "set this column's width" means and would lose their place in a
+        // long table.
         Ok(TextCaret {
-            path: format!("{table_path}/row[0]/cell[{column}]/block[0]"),
+            path: format!("{table_path}/row[{row_index}]/cell[{column}]/block[0]"),
             offset: 0,
         })
     }
