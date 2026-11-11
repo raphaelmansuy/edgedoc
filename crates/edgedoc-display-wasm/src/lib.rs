@@ -206,6 +206,24 @@ mod bind {
             self.inner.edit_table_row_insert().map_err(js_error)
         }
 
+        /// Merge the caret's cell with another in the same row (specs/144 DOC2-43).
+        #[wasm_bindgen(js_name = editTableMerge)]
+        pub fn edit_table_merge(&mut self, to: &str) -> Result<String, JsValue> {
+            self.inner.edit_table_merge(to).map_err(js_error)
+        }
+
+        /// Split the merged cell the caret is in.
+        #[wasm_bindgen(js_name = editTableSplit)]
+        pub fn edit_table_split(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_table_split().map_err(js_error)
+        }
+
+        /// Set the caret's column width in twips.
+        #[wasm_bindgen(js_name = editTableColumnWidth)]
+        pub fn edit_table_column_width(&mut self, width: i32) -> Result<String, JsValue> {
+            self.inner.edit_table_column_width(width).map_err(js_error)
+        }
+
         /// Delete the caret's row.
         #[wasm_bindgen(js_name = editTableRowDelete)]
         pub fn edit_table_row_delete(&mut self) -> Result<String, JsValue> {

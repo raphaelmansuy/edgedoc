@@ -429,6 +429,36 @@ impl DisplayHandle {
         self.finish_edit()
     }
 
+    /// Merge the caret's cell with another in the same row (specs/144 DOC2-43).
+    pub fn edit_table_merge(&mut self, to: &str) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .merge_table_cells(to)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    /// Split the merged cell the caret is in. A cell that was never merged is a no-op.
+    pub fn edit_table_split(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .split_table_cell()
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    /// Set the caret's column width in twips, on the grid and on every cell of the column.
+    pub fn edit_table_column_width(&mut self, width: i32) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_table_column_width(width)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
     /// Delete the caret's row. A table keeps at least one row.
     pub fn edit_table_row_delete(&mut self) -> Result<String, (String, String)> {
         self.editor
@@ -796,7 +826,7 @@ fn encode_state(state: &EditorState, replaced: usize) -> String {
         .as_deref()
         .map_or_else(|| "null".to_string(), json_string);
     format!(
-        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{},\"replaced\":{}}}",
+        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{},\"replaced\":{},\"tableSpan\":{}}}",
         json_string(&state.path),
         state.offset,
         state.page,
@@ -832,7 +862,8 @@ fn encode_state(state: &EditorState, replaced: usize) -> String {
         state.painter,
         json_string(&state.para_shading),
         state.para_border_bottom,
-        replaced
+        replaced,
+        state.table_span
     )
 }
 

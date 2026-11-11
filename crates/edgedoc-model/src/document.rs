@@ -979,6 +979,187 @@ impl<'a> DocumentEdit<'a> {
         })
     }
 
+    /// Merge the cells from `cell_path` to `to_path` into one (specs/144 DOC2-43).
+    ///
+    /// Word's own model, and the reason it is worth copying exactly:
+    ///
+    ///   - the merged cell is the **first** one, and it gains a `span` of the cells it covers;
+    ///   - every cell it swallows becomes a **continuation** (`h_merge: 'continue'`, empty blocks),
+    ///     not a deletion — a Word table keeps its grid, and a row whose cells simply vanished reads as a
+    ///     different table on the next open;
+    ///   - the content of the *first* cell is kept and the rest is discarded, which is what Word's
+    ///     "Merge Cells" does, and the only choice that cannot silently duplicate text.
+    ///
+    /// A vertical merge is refused: Word expresses it with `vMerge`, whose rules about which row owns the
+    /// content and what happens when a middle row is deleted are their own subject. Offering it half-done
+    /// would produce files Word renders differently from the studio, so the ribbon does not offer it and
+    /// the model says why.
+    pub fn merge_table_cells(&mut self, cell_path: &str, to_path: &str) -> ModelResult<TextCaret> {
+        let (table_path, from_row, from_cell) = table_cell_position(cell_path)?;
+        let (to_table, to_row, to_cell) = table_cell_position(to_path)?;
+        if table_path != to_table {
+            return Err(ModelError::new(
+                "model.bad_path",
+                "Both cells must be in the same table.",
+            ));
+        }
+        if from_row != to_row {
+            return Err(ModelError::new(
+                "model.limit",
+                "Cells can be merged across a row, not down a column. Vertical merge is not supported yet.",
+            ));
+        }
+        let (start, end) = if from_cell <= to_cell { (from_cell, to_cell) } else { (to_cell, from_cell) };
+        if start == end {
+            return Ok(TextCaret {
+                path: format!("{table_path}/row[{from_row}]/cell[{start}]/block[0]"),
+                offset: 0,
+            });
+        }
+        let index = table_block_index(&table_path)?;
+        self.with_parent(&table_path, |blocks, _| {
+            let block = blocks.get_mut(index).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+            })?;
+            let Block::Table(table) = Arc::make_mut(block) else {
+                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+            };
+            let row = table.rows.get_mut(from_row).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That row is not in the table anymore.")
+            })?;
+            if end >= row.cells.len() {
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That cell is not in the row anymore.",
+                ));
+            }
+            // The first cell already may cover several columns; the merge adds the ones to its right.
+            let covered = end - start + 1;
+            let span = row.cells[start].span.max(1) + covered - 1;
+            row.cells[start].span = span;
+            row.cells[start].h_merge = None;
+            for cell in row.cells.iter_mut().take(end + 1).skip(start + 1) {
+                cell.span = 1;
+                cell.h_merge = Some("continue".to_string());
+                cell.blocks = vec![Arc::new(Block::Paragraph(crate::Paragraph::new()))];
+            }
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: format!("{table_path}/row[{from_row}]/cell[{start}]/block[0]"),
+            offset: 0,
+        })
+    }
+
+    /// Split a merged cell back into the cells it covers (specs/144 DOC2-43).
+    ///
+    /// The inverse of `merge_table_cells`, and deliberately narrow: it restores `span` on the owner and
+    /// clears `h_merge` on the continuations **that this cell owns**. A cell that was never merged is
+    /// left exactly as it was (a quiet no-op, not an error): the ribbon disables the button, and a
+    /// command arriving anyway should not invent a table.
+    pub fn split_table_cell(&mut self, cell_path: &str) -> ModelResult<TextCaret> {
+        let (table_path, row_index, cell_index) = table_cell_position(cell_path)?;
+        let index = table_block_index(&table_path)?;
+        self.with_parent(&table_path, |blocks, _| {
+            let block = blocks.get_mut(index).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+            })?;
+            let Block::Table(table) = Arc::make_mut(block) else {
+                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+            };
+            let row = table.rows.get_mut(row_index).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That row is not in the table anymore.")
+            })?;
+            let Some(owner) = row.cells.get_mut(cell_index) else {
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That cell is not in the row anymore.",
+                ));
+            };
+            // A continuation cell is not the owner: splitting from it would clear somebody else's merge
+            // without putting the cell back, so the caller is told to act on the cell that owns it.
+            if owner.h_merge.as_deref() == Some("continue") {
+                return Err(ModelError::new(
+                    "model.limit",
+                    "This cell is part of a merge. Put the caret in the first cell of the merge and split from there.",
+                ));
+            }
+            let span = owner.span.max(1);
+            if span == 1 {
+                return Ok(());
+            }
+            owner.span = 1;
+            let covered = span - 1;
+            let end = (cell_index + covered).min(row.cells.len().saturating_sub(1));
+            for cell in row.cells.iter_mut().take(end + 1).skip(cell_index + 1) {
+                if cell.h_merge.as_deref() == Some("continue") {
+                    cell.h_merge = None;
+                    cell.blocks = vec![Arc::new(Block::Paragraph(crate::Paragraph::new()))];
+                }
+            }
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: format!("{table_path}/row[{row_index}]/cell[{cell_index}]/block[0]"),
+            offset: 0,
+        })
+    }
+
+    /// Set the width of every cell in a column, in twips (specs/144 DOC2-43).
+    ///
+    /// Word's *Distribute Columns* and *Column Width* are one operation in this model: a table keeps a
+    /// `widths` vector **and** a per-cell `width`, and a file whose two disagree is rendered by Word from
+    /// the cell widths. So both are written, together, for every row — including a cell that spans
+    /// columns, which takes the sum of the columns it covers so the grid still adds up.
+    pub fn set_table_column_width(&mut self, cell_path: &str, width: i32) -> ModelResult<TextCaret> {
+        let (table_path, _row_index, column) = table_cell_position(cell_path)?;
+        let twips = width.clamp(120, 20_000);
+        let index = table_block_index(&table_path)?;
+        self.with_parent(&table_path, |blocks, _| {
+            let block = blocks.get_mut(index).ok_or_else(|| {
+                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+            })?;
+            let Block::Table(table) = Arc::make_mut(block) else {
+                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+            };
+            // The declared grid, widened if a row is longer than it (a table read from a file may be).
+            let longest = table.rows.iter().map(|row| row.cells.len()).max().unwrap_or(0);
+            if table.widths.len() < longest {
+                let fill = table
+                    .widths
+                    .last()
+                    .copied()
+                    .unwrap_or(crate::Twips(2_400));
+                table.widths.resize(longest, fill);
+            }
+            if let Some(slot) = table.widths.get_mut(column) {
+                *slot = crate::Twips(twips);
+            }
+            let column_widths = table.widths.clone();
+            for row in table.rows.iter_mut() {
+                let mut col = 0usize;
+                for cell in row.cells.iter_mut() {
+                    let span = cell.span.max(1);
+                    if col == column || (col < column && column < col + span) {
+                        let covered: i32 = column_widths
+                            .iter()
+                            .skip(col)
+                            .take(span)
+                            .map(|w| w.0)
+                            .sum();
+                        cell.width = Some(crate::Twips(if span > 1 { covered } else { twips }));
+                    }
+                    col += span;
+                }
+            }
+            Ok(())
+        })?;
+        Ok(TextCaret {
+            path: format!("{table_path}/row[0]/cell[{column}]/block[0]"),
+            offset: 0,
+        })
+    }
+
     pub fn paragraph_info(&self, path: &str, offset: usize) -> ModelResult<ParagraphInfo> {        let para = self.paragraph_ref(path)?;
         let align = para
             .props
@@ -1002,7 +1183,29 @@ impl<'a> DocumentEdit<'a> {
             line: para.props.line.map(|twips| twips.0),
             shading: para.props.shading.clone(),
             border_bottom: para.props.borders.bottom.is_some(),
+            // A table control must know whether it *can* act, not guess from the path: a cell that spans
+            // columns can be split, one that does not cannot, and a button that lies about that is the
+            // thing `DOC2-36` forbids.
+            table_span: self.cell_span_of(path),
         })
+    }
+
+    /// How many columns the cell holding `path` covers, or `None` when the paragraph is not in a cell.
+    fn cell_span_of(&self, path: &str) -> Option<usize> {
+        let (table_path, row, cell) = table_cell_position(path).ok()?;
+        let parsed = parse_path(&table_path).ok()?;
+        let index = match parsed.head {
+            Head::Body(index) => index,
+            Head::Part { block, .. } => block,
+        };
+        let blocks = match parsed.head {
+            Head::Body(_) => &self.doc.body,
+            Head::Part { id, .. } => &self.doc.parts.get(&id)?.blocks,
+        };
+        let Block::Table(table) = blocks.get(index)?.as_ref() else {
+            return None;
+        };
+        Some(table.rows.get(row)?.cells.get(cell)?.span.max(1))
     }
 
     /// Bump the left indent by `delta` twips. Half an inch is 720.
@@ -1194,6 +1397,8 @@ pub struct ParagraphInfo {
     pub line: Option<i32>,
     pub shading: Option<String>,
     pub border_bottom: bool,
+    /// How many columns the cell holding the paragraph covers; `None` when it is not in a cell.
+    pub table_span: Option<usize>,
 }
 
 fn paragraph_mut(blocks: &mut [Arc<Block>], index: usize) -> ModelResult<&mut Paragraph> {
@@ -1457,6 +1662,30 @@ fn table_and_row(cell_path: &str) -> ModelResult<(String, usize)> {
         .ok_or_else(|| ModelError::new("model.bad_path", "That path does not name a table."))?
         .to_string();
     Ok((table_path, *row))
+}
+
+/// Where a cell path points: the table, the row and the **cell index**.
+///
+/// `table_and_row` answers the row for a row-level command; a cell-level command needs the column too, and
+/// the column from `parse_path`'s nest is the *authored* one, not the grid position when earlier cells in
+/// the row span several columns. Word addresses cells positionally, so the index a caller means is the
+/// index into `row.cells` — this returns exactly that, and the two differ only in a row that already
+/// contains a merge.
+fn table_cell_position(cell_path: &str) -> ModelResult<(String, usize, usize)> {
+    let parsed = parse_path(cell_path)?;
+    let Some((row, cell, _)) = parsed.nests.first() else {
+        return Err(ModelError::new(
+            "model.bad_path",
+            "That is not a table cell, so there is no cell to act on.",
+        ));
+    };
+    let table_path = cell_path
+        .split("/row[")
+        .next()
+        .filter(|head| !head.is_empty())
+        .ok_or_else(|| ModelError::new("model.bad_path", "That path does not name a table."))?
+        .to_string();
+    Ok((table_path, *row, *cell))
 }
 
 /// The index of a table among the blocks of the list that holds it.

@@ -63,6 +63,8 @@ pub struct EditorState {
     pub color: String,
     /// Highlight at the caret; empty when there is none.
     pub highlight: String,
+    /// How many columns the caret's table cell covers; `0` when the caret is not in a cell.
+    pub table_span: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -271,6 +273,7 @@ impl Editor {
                 .and_then(|i| i.shading.clone())
                 .unwrap_or_default(),
             para_border_bottom: info.as_ref().is_some_and(|i| i.border_bottom),
+            table_span: info.as_ref().and_then(|i| i.table_span).unwrap_or(0),
             color: info
                 .as_ref()
                 .and_then(|i| i.props.color.clone())
@@ -744,6 +747,32 @@ impl Editor {
         self.end_typing_run();
         let path = self.caret.path.clone();
         self.transact(move |edit| edit.delete_table_row(&path))
+    }
+
+    /// Merge the caret's cell with `to` (specs/144 DOC2-43). One call, one undo step.
+    ///
+    /// `to` is a cell path from the same row. A vertical merge is refused by the model with a sentence
+    /// the ribbon can show, rather than half-implemented: Word's `vMerge` has its own rules about which
+    /// row owns the content.
+    pub fn merge_table_cells(&mut self, to: &str) -> Result<()> {
+        self.end_typing_run();
+        let from = self.caret.path.clone();
+        let to = to.to_string();
+        self.transact(move |edit| edit.merge_table_cells(&from, &to))
+    }
+
+    /// Split the merged cell the caret is in, back into the cells it covers (specs/144 DOC2-43).
+    pub fn split_table_cell(&mut self) -> Result<()> {
+        self.end_typing_run();
+        let path = self.caret.path.clone();
+        self.transact(move |edit| edit.split_table_cell(&path))
+    }
+
+    /// Set the caret's column width, in twips (specs/144 DOC2-43).
+    pub fn set_table_column_width(&mut self, width: i32) -> Result<()> {
+        self.end_typing_run();
+        let path = self.caret.path.clone();
+        self.transact(move |edit| edit.set_table_column_width(&path, width))
     }
 
     pub fn insert_picture(&mut self, bytes: Vec<u8>, width_pt: f32, height_pt: f32) -> Result<()> {
@@ -2316,6 +2345,98 @@ mod tests {
 
         editor.insert_text("!").expect("type");
         assert!(editor.state().dirty, "a change after the save is unsaved");
+    }
+
+    /// specs/144 DOC2-43: merging two cells keeps the grid — the swallowed cell becomes a continuation.
+    ///
+    /// The obvious implementation — delete the second cell — produces a row with one fewer cell, which is a
+    /// *different table*: Word's grid is fixed, `gridSpan` says how many columns a cell covers, and a
+    /// `hMerge: continue` cell holds the grid open. A file written the other way opens in Word with the
+    /// table reflowed, so the studio and Word would disagree about the same document.
+    #[test]
+    fn merging_two_cells_keeps_the_grid_and_the_first_content() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(1, 3).expect("table");
+        // Type into the first cell so there is content to keep.
+        editor.insert_text("Keep me").expect("type");
+        assert_eq!(editor.caret.path, "body[1]/row[0]/cell[0]/block[0]");
+
+        editor.merge_table_cells("body[1]/row[0]/cell[1]/block[0]").expect("merge");
+
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        let row = &table.rows[0];
+        assert_eq!(row.cells.len(), 3, "the grid is unchanged: three cells");
+        assert_eq!(row.cells[0].span, 2, "the first cell covers two columns");
+        assert_eq!(row.cells[1].h_merge.as_deref(), Some("continue"));
+        // The content of the cell that was swallowed is gone; the first cell's is kept.
+        assert!(row.cells[0].blocks.iter().any(|b| matches!(b.as_ref(), edgedoc::Block::Paragraph(p) if p.text.contains("Keep me"))));
+    }
+
+    /// specs/144 DOC2-43: splitting puts the covered cells back, and an unmerged cell is a quiet no-op.
+    #[test]
+    fn splitting_a_merged_cell_restores_it_and_ignores_a_plain_cell() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(1, 3).expect("table");
+        editor.merge_table_cells("body[1]/row[0]/cell[2]/block[0]").expect("merge three");
+        editor.split_table_cell().expect("split");
+
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        assert_eq!(table.rows[0].cells[0].span, 1, "the span is back to one");
+        assert_eq!(table.rows[0].cells[1].h_merge, None, "and the continuation is a cell again");
+
+        // A cell that was never merged: nothing changes, and nothing is refused.
+        editor.split_table_cell().expect("split a plain cell is a no-op");
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        assert_eq!(table.rows[0].cells[0].span, 1);
+    }
+
+    /// specs/144 DOC2-43: a vertical merge is refused with a sentence, not half-done.
+    #[test]
+    fn a_vertical_merge_is_refused_with_a_reason() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(2, 2).expect("table");
+        let err = editor.merge_table_cells("body[1]/row[1]/cell[0]/block[0]").unwrap_err();
+        assert_eq!(err.code, "model.limit");
+        assert!(err.message.contains("row"), "the message says what is supported: {}", err.message);
+    }
+
+    /// specs/144 DOC2-43: a column width is written to the grid **and** to every cell, because Word
+    /// renders from the cells and a file whose two disagree is a table nobody designed.
+    #[test]
+    fn a_column_width_reaches_the_grid_and_every_cell_in_it() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Before").expect("type");
+        editor.insert_table(2, 3).expect("table");
+        editor.set_table_column_width(3_600).expect("width");
+
+        let bytes = editor.package().expect("bytes");
+        let doc = Document::read_bytes(&bytes).expect("read");
+        let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
+            panic!("a table");
+        };
+        assert_eq!(table.widths[0].0, 3_600, "the grid says so");
+        for (index, row) in table.rows.iter().enumerate() {
+            assert_eq!(
+                row.cells[0].width.map(|w| w.0),
+                Some(3_600),
+                "row {index} cell 0 carries the width Word renders from"
+            );
+        }
     }
 
     /// specs/144 DOC2-39: a replace is ONE undo step.
