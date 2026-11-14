@@ -22,7 +22,9 @@ fn para(field: Option<&str>) -> Arc<Block> {
 }
 
 fn text_para(text: &str, field: &str) -> Arc<Block> {
-    Arc::new(Block::Paragraph(Paragraph::new().text(text).merge_field(field)))
+    Arc::new(Block::Paragraph(
+        Paragraph::new().text(text).merge_field(field),
+    ))
 }
 
 fn cell(field: &str) -> Cell {
@@ -34,15 +36,15 @@ fn template() -> ModelDocument {
     let mut doc = ModelDocument::new();
     doc.body.push(text_para("Invoice ", "Number"));
     doc.body.push(text_para("Customer ", "Customer"));
-    let band_row = Row::cells(vec![cell("Lines.Name"), cell("Lines.Qty"), cell("Lines.Amount")]);
+    let band_row = Row::cells(vec![
+        cell("Lines.Name"),
+        cell("Lines.Qty"),
+        cell("Lines.Amount"),
+    ]);
     doc.body.push(Arc::new(Block::Table(
         Table::new().header(["Article", "Qty", "Amount"]),
     )));
-    if let Some(Block::Table(table)) = doc
-        .body
-        .last_mut()
-        .and_then(|block| Arc::get_mut(block))
-    {
+    if let Some(Block::Table(table)) = doc.body.last_mut().and_then(|block| Arc::get_mut(block)) {
         table.rows.push(band_row);
     }
     doc.body.push(text_para("Total ", "Total"));
@@ -55,11 +57,7 @@ fn parents(rows: &[(&str, &str, &str)]) -> Records {
     let cells = rows
         .iter()
         .map(|(number, customer, total)| {
-            vec![
-                number.to_string(),
-                customer.to_string(),
-                total.to_string(),
-            ]
+            vec![number.to_string(), customer.to_string(), total.to_string()]
         })
         .collect();
     Records::from_rows(headers, cells).expect("parents")
@@ -126,19 +124,32 @@ fn band_repeats_one_row_per_child() {
     let documents = merge(
         &template(),
         parents(&[("Q-1", "Ada", "120.00")]),
-        band(&[&[("Widget", "2", "40.00"), ("Gadget", "1", "50.00"), ("Bolt", "3", "10.00")]]),
+        band(&[&[
+            ("Widget", "2", "40.00"),
+            ("Gadget", "1", "50.00"),
+            ("Bolt", "3", "10.00"),
+        ]]),
         MergeKind::Letters,
         MissingField::Error,
     )
     .expect("merge");
     assert_eq!(documents.len(), 1, "one parent makes one document");
     let body = lines(&documents[0]);
-    for expected in ["Widget | 2 | 40.00", "Gadget | 1 | 50.00", "Bolt | 3 | 10.00"] {
-        assert!(body.contains(&expected.to_string()), "missing {expected}: {body:?}");
+    for expected in [
+        "Widget | 2 | 40.00",
+        "Gadget | 1 | 50.00",
+        "Bolt | 3 | 10.00",
+    ] {
+        assert!(
+            body.contains(&expected.to_string()),
+            "missing {expected}: {body:?}"
+        );
     }
     assert_eq!(
         body.iter()
-            .filter(|line| line.starts_with("Widget") || line.starts_with("Gadget") || line.starts_with("Bolt"))
+            .filter(|line| line.starts_with("Widget")
+                || line.starts_with("Gadget")
+                || line.starts_with("Bolt"))
             .count(),
         3,
         "exactly three line rows: {body:?}"
@@ -177,7 +188,10 @@ fn band_zero_children_removes_the_row_and_keeps_the_header() {
     )
     .expect("merge");
     let body = lines(&documents[0]);
-    assert!(body.contains(&"Article | Qty | Amount".to_string()), "header kept: {body:?}");
+    assert!(
+        body.contains(&"Article | Qty | Amount".to_string()),
+        "header kept: {body:?}"
+    );
     assert!(
         !body.iter().any(|line| line.contains("«Lines.")),
         "no leftover placeholder row: {body:?}"
@@ -189,7 +203,10 @@ fn band_zero_children_removes_the_row_and_keeps_the_header() {
 fn band_absent_for_one_parent_keeps_the_other_parents_lines() {
     let mut repeats = Repeats::new();
     let mut by_parent = children(&[&[("Widget", "2", "40.00")]]);
-    by_parent.push(Records::from_rows(vec!["Name".into(), "Qty".into(), "Amount".into()], vec![]).expect("empty"));
+    by_parent.push(
+        Records::from_rows(vec!["Name".into(), "Qty".into(), "Amount".into()], vec![])
+            .expect("empty"),
+    );
     repeats.insert("Lines".into(), by_parent);
     let documents = merge(
         &template(),
@@ -202,7 +219,9 @@ fn band_absent_for_one_parent_keeps_the_other_parents_lines() {
     assert_eq!(documents.len(), 2);
     assert!(lines(&documents[0]).contains(&"Widget | 2 | 40.00".to_string()));
     assert!(
-        !lines(&documents[1]).iter().any(|line| line.contains("Widget")),
+        !lines(&documents[1])
+            .iter()
+            .any(|line| line.contains("Widget")),
         "the second parent has no lines: {:?}",
         lines(&documents[1])
     );
@@ -213,7 +232,10 @@ fn band_two_parents_make_two_documents_each_with_its_own_lines() {
     let documents = merge(
         &template(),
         parents(&[("Q-1", "Ada", "90.00"), ("Q-2", "Grace", "50.00")]),
-        band(&[&[("Widget", "2", "40.00"), ("Gadget", "1", "50.00")], &[("Bolt", "5", "10.00")]]),
+        band(&[
+            &[("Widget", "2", "40.00"), ("Gadget", "1", "50.00")],
+            &[("Bolt", "5", "10.00")],
+        ]),
         MergeKind::Letters,
         MissingField::Error,
     )
@@ -221,12 +243,18 @@ fn band_two_parents_make_two_documents_each_with_its_own_lines() {
     assert_eq!(documents.len(), 2);
     let first = lines(&documents[0]);
     let second = lines(&documents[1]);
-    assert!(first.contains(&"Widget | 2 | 40.00".to_string()), "{first:?}");
+    assert!(
+        first.contains(&"Widget | 2 | 40.00".to_string()),
+        "{first:?}"
+    );
     assert!(
         !first.contains(&"Bolt | 5 | 10.00".to_string()),
         "the first invoice must not borrow the second's line: {first:?}"
     );
-    assert!(second.contains(&"Bolt | 5 | 10.00".to_string()), "{second:?}");
+    assert!(
+        second.contains(&"Bolt | 5 | 10.00".to_string()),
+        "{second:?}"
+    );
     assert!(second.contains(&"Total 50.00".to_string()), "{second:?}");
 }
 
@@ -249,14 +277,23 @@ fn band_field_outside_a_table_reads_the_first_child() {
 #[test]
 fn band_mixed_prefix_is_refused() {
     let mut doc = ModelDocument::new();
-    doc.body.push(Arc::new(Block::Table(Table::new().header(["A", "B"]))));
+    doc.body
+        .push(Arc::new(Block::Table(Table::new().header(["A", "B"]))));
     if let Some(Block::Table(table)) = doc.body.last_mut().and_then(|block| Arc::get_mut(block)) {
-        table.rows.push(Row::cells(vec![cell("Lines.Name"), cell("Other.Name")]));
+        table
+            .rows
+            .push(Row::cells(vec![cell("Lines.Name"), cell("Other.Name")]));
     }
     doc.ensure_nonempty();
     let mut repeats = band(&[&[("Widget", "2", "40.00")]]);
     repeats.insert("Other".into(), children(&[&[("Bolt", "1", "1.00")]]));
-    let error = merge(&doc, parents(&[("Q-1", "Ada", "90.00")]), repeats, MergeKind::Letters, MissingField::Error);
+    let error = merge(
+        &doc,
+        parents(&[("Q-1", "Ada", "90.00")]),
+        repeats,
+        MergeKind::Letters,
+        MissingField::Error,
+    );
     assert_eq!(error, Err("merge.mixed_band".into()));
 }
 
@@ -272,7 +309,13 @@ fn band_missing_value_names_the_field() {
         )
         .expect("children")],
     );
-    let error = merge(&template(), parents(&[("Q-1", "Ada", "90.00")]), repeats, MergeKind::Letters, MissingField::Error);
+    let error = merge(
+        &template(),
+        parents(&[("Q-1", "Ada", "90.00")]),
+        repeats,
+        MergeKind::Letters,
+        MissingField::Error,
+    );
     assert_eq!(error, Err("merge.unknown_field".into()));
 }
 
@@ -296,7 +339,10 @@ fn band_placeholder_policy_keeps_the_name() {
     )
     .expect("merge");
     let body = lines(&documents[0]);
-    assert!(body.iter().any(|line| line.contains("«Lines.Amount»")), "{body:?}");
+    assert!(
+        body.iter().any(|line| line.contains("«Lines.Amount»")),
+        "{body:?}"
+    );
 }
 
 #[test]
@@ -304,7 +350,13 @@ fn an_undeclared_alias_reads_as_a_missing_field() {
     let mut doc = ModelDocument::new();
     doc.body.push(text_para("", "Ghost.Name"));
     doc.ensure_nonempty();
-    let error = merge(&doc, parents(&[("Q-1", "Ada", "90.00")]), Repeats::new(), MergeKind::Letters, MissingField::Error);
+    let error = merge(
+        &doc,
+        parents(&[("Q-1", "Ada", "90.00")]),
+        Repeats::new(),
+        MergeKind::Letters,
+        MissingField::Error,
+    );
     assert_eq!(error, Err("merge.unknown_field".into()));
 }
 
@@ -312,9 +364,13 @@ fn an_undeclared_alias_reads_as_a_missing_field() {
 fn a_catalogue_merge_still_repeats_the_first_field_row_per_record() {
     // The directory law survives the band change: one row per record, not per child.
     let mut doc = ModelDocument::new();
-    doc.body.push(Arc::new(Block::Table(Table::new().header(["Customer", "Number"]))));
+    doc.body.push(Arc::new(Block::Table(
+        Table::new().header(["Customer", "Number"]),
+    )));
     if let Some(Block::Table(table)) = doc.body.last_mut().and_then(|block| Arc::get_mut(block)) {
-        table.rows.push(Row::cells(vec![cell("Customer"), cell("Number")]));
+        table
+            .rows
+            .push(Row::cells(vec![cell("Customer"), cell("Number")]));
     }
     doc.ensure_nonempty();
     let documents = merge(
@@ -336,7 +392,11 @@ fn a_record_is_a_map_of_named_text() {
     let records = parents(&[("Q-1", "Ada", "90.00")]);
     let record: Record = records.record(0);
     assert_eq!(record.get("Number"), Some("Q-1"));
-    assert_eq!(record.get("customer"), Some("Ada"), "a lookup is case-insensitive");
+    assert_eq!(
+        record.get("customer"),
+        Some("Ada"),
+        "a lookup is case-insensitive"
+    );
 }
 
 #[test]
@@ -361,7 +421,8 @@ fn a_clean_document_that_only_gains_a_band_row_still_merges() {
     // The template has no scalar fields at all: only the band. It must still print one row per child
     // and not fail on the absent parent headers.
     let mut doc = ModelDocument::new();
-    doc.body.push(Arc::new(Block::Table(Table::new().header(["Article"]))));
+    doc.body
+        .push(Arc::new(Block::Table(Table::new().header(["Article"]))));
     if let Some(Block::Table(table)) = doc.body.last_mut().and_then(|block| Arc::get_mut(block)) {
         table.rows.push(Row::cells(vec![cell("Lines.Name")]));
     }
@@ -376,7 +437,9 @@ fn a_clean_document_that_only_gains_a_band_row_still_merges() {
     .expect("merge");
     let body = lines(&documents[0]);
     assert_eq!(
-        body.iter().filter(|line| line == &"Widget" || line == &"Gadget").count(),
+        body.iter()
+            .filter(|line| line == &"Widget" || line == &"Gadget")
+            .count(),
         2,
         "{body:?}"
     );

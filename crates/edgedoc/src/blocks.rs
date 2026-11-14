@@ -69,14 +69,20 @@ pub struct BlocksSpec {
 impl BlocksSpec {
     /// Read the JSON a host sends. Every malformed value is a named refusal, never a silent default.
     pub fn parse(json: &str) -> Result<Self, BlockIssue> {
-        let value = parse_json(json)
-            .map_err(|message| issue("blocks.json", message))?;
+        let value = parse_json(json).map_err(|message| issue("blocks.json", message))?;
         let Some(root) = value.as_object() else {
             return Err(issue("blocks.json", "The description is one JSON object."));
         };
-        let title = root.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
+        let title = root
+            .get("title")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
         let Some(entries) = root.get("blocks").and_then(|v| v.as_array()) else {
-            return Err(issue("blocks.json", "The description names a \"blocks\" array."));
+            return Err(issue(
+                "blocks.json",
+                "The description names a \"blocks\" array.",
+            ));
         };
         let mut blocks = Vec::with_capacity(entries.len());
         for (index, entry) in entries.iter().enumerate() {
@@ -104,7 +110,10 @@ impl BlocksSpec {
             ));
         }
         if blocks.is_empty() {
-            return Err(issue("blocks.empty", "A document needs at least one block."));
+            return Err(issue(
+                "blocks.empty",
+                "A document needs at least one block.",
+            ));
         }
         Ok(Self { title, blocks })
     }
@@ -131,14 +140,18 @@ impl BlocksSpec {
                     builder = builder.paragraph(para);
                 }
                 Block::Table(columns) => {
-                    let header: Vec<&str> = columns.iter().map(|column| column.header.as_str()).collect();
+                    let header: Vec<&str> = columns
+                        .iter()
+                        .map(|column| column.header.as_str())
+                        .collect();
                     let mut table = Table::new().header(header);
                     let cells: Vec<Cell> = columns
                         .iter()
                         .map(|column| {
                             let para = Paragraph::new().merge_field(&column.field);
                             // A cell's blocks are `Arc<Block>`; the paragraph replaces its start.
-                            Cell::paragraph("").blocks(vec![std::sync::Arc::new(ModelBlock::Paragraph(para))])
+                            Cell::paragraph("")
+                                .blocks(vec![std::sync::Arc::new(ModelBlock::Paragraph(para))])
                         })
                         .collect();
                     table.rows.push(Row::cells(cells));
@@ -152,7 +165,10 @@ impl BlocksSpec {
 
 fn parse_paragraph(index: usize, value: &Json) -> Result<ParagraphBlock, BlockIssue> {
     let Some(object) = value.as_object() else {
-        return Err(issue("blocks.shape", format!("blocks[{index}].paragraph must be an object.")));
+        return Err(issue(
+            "blocks.shape",
+            format!("blocks[{index}].paragraph must be an object."),
+        ));
     };
     for key in object.keys() {
         if !matches!(key.as_str(), "text" | "field" | "after") {
@@ -177,18 +193,32 @@ fn parse_paragraph(index: usize, value: &Json) -> Result<ParagraphBlock, BlockIs
         }
     }
     Ok(ParagraphBlock {
-        text: object.get("text").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        text: object
+            .get("text")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
         field,
-        after: object.get("after").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        after: object
+            .get("after")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
     })
 }
 
 fn parse_table(index: usize, value: &Json) -> Result<Vec<TableColumn>, BlockIssue> {
     let Some(columns) = value.as_array() else {
-        return Err(issue("blocks.shape", format!("blocks[{index}].table must be an array of columns.")));
+        return Err(issue(
+            "blocks.shape",
+            format!("blocks[{index}].table must be an array of columns."),
+        ));
     };
     if columns.is_empty() {
-        return Err(issue("blocks.empty", format!("blocks[{index}].table has no column.")));
+        return Err(issue(
+            "blocks.empty",
+            format!("blocks[{index}].table has no column."),
+        ));
     }
     let mut out = Vec::with_capacity(columns.len());
     for (column_index, column) in columns.iter().enumerate() {

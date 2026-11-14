@@ -181,12 +181,7 @@ impl Parser<'_> {
             match self.bump() {
                 Some(b',') => continue,
                 Some(b'}') => return Ok(Json::Object(map)),
-                _ => {
-                    return Err(format!(
-                        "Expected \",\" or \"}}\" at offset {}.",
-                        self.at
-                    ))
-                }
+                _ => return Err(format!("Expected \",\" or \"}}\" at offset {}.", self.at)),
             }
         }
     }
@@ -206,12 +201,7 @@ impl Parser<'_> {
             match self.bump() {
                 Some(b',') => continue,
                 Some(b']') => return Ok(Json::Array(items)),
-                _ => {
-                    return Err(format!(
-                        "Expected \",\" or \"]\" at offset {}.",
-                        self.at
-                    ))
-                }
+                _ => return Err(format!("Expected \",\" or \"]\" at offset {}.", self.at)),
             }
         }
     }

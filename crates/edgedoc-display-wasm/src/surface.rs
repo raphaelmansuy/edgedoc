@@ -382,7 +382,12 @@ impl DisplayHandle {
     ///
     /// Returns the state, with the count of matches replaced in `replaced`, so the surface can say
     /// "Replaced 3" without a second query.
-    pub fn edit_replace(&mut self, query: &str, text: &str, all: bool) -> Result<String, (String, String)> {
+    pub fn edit_replace(
+        &mut self,
+        query: &str,
+        text: &str,
+        all: bool,
+    ) -> Result<String, (String, String)> {
         let count = self
             .editor
             .as_mut()
@@ -492,6 +497,31 @@ impl DisplayHandle {
         self.finish_edit()
     }
 
+    /// The sheet as `[width, height, landscape (0 or 1), left margin]` in twips, or nothing with no editor.
+    pub fn page_sheet(&self) -> Option<[f32; 4]> {
+        let (w, h, landscape, margin) = self.editor.as_ref()?.sheet();
+        Some([
+            w as f32,
+            h as f32,
+            if landscape { 1.0 } else { 0.0 },
+            margin as f32,
+        ])
+    }
+
+    pub fn edit_page_setup(
+        &mut self,
+        paper: &str,
+        landscape: bool,
+        margin: i32,
+    ) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .set_page_setup(paper, landscape, margin)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
     pub fn edit_mark(&mut self, mark: &str) -> Result<String, (String, String)> {
         self.editor
             .as_mut()
@@ -533,6 +563,24 @@ impl DisplayHandle {
             .as_mut()
             .ok_or_else(editor_closed)?
             .set_font_size(size)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_font_step(&mut self, grow: bool) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .step_font_size(grow)
+            .map_err(edit_err)?;
+        self.finish_edit()
+    }
+
+    pub fn edit_clear_character_formatting(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .clear_character_formatting()
             .map_err(edit_err)?;
         self.finish_edit()
     }
@@ -592,6 +640,14 @@ impl DisplayHandle {
             .as_mut()
             .ok_or_else(editor_closed)?
             .move_caret(key, extend);
+        self.finish_edit()
+    }
+
+    pub fn edit_select_paragraph(&mut self) -> Result<String, (String, String)> {
+        self.editor
+            .as_mut()
+            .ok_or_else(editor_closed)?
+            .select_paragraph();
         self.finish_edit()
     }
 
@@ -826,7 +882,7 @@ fn encode_state(state: &EditorState, replaced: usize) -> String {
         .as_deref()
         .map_or_else(|| "null".to_string(), json_string);
     format!(
-        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{},\"replaced\":{},\"tableSpan\":{}}}",
+        "{{\"path\":{},\"offset\":{},\"page\":{},\"x\":{:.2},\"y\":{:.2},\"h\":{:.2},\"anchorPath\":{},\"anchorOffset\":{},\"marks\":[{}],\"bold\":{},\"italic\":{},\"underline\":{},\"strike\":{},\"subscript\":{},\"superscript\":{},\"fontSize\":{:.2},\"fontName\":{},\"fontSizeMixed\":{},\"fontNameMixed\":{},\"color\":{},\"highlight\":{},\"align\":{},\"list\":{},\"field\":{},\"canUndo\":{},\"canRedo\":{},\"preview\":{},\"dirty\":{},\"words\":{},\"pages\":{},\"fields\":[{}],\"title\":{},\"revision\":{},\"selection\":{},\"indentLeft\":{:.2},\"line\":{:.2},\"look\":{},\"painter\":{},\"paraShading\":{},\"paraBorderBottom\":{},\"replaced\":{},\"tableSpan\":{}}}",
         json_string(&state.path),
         state.offset,
         state.page,
@@ -843,6 +899,10 @@ fn encode_state(state: &EditorState, replaced: usize) -> String {
         state.subscript,
         state.superscript,
         state.font_size,
+        json_string(&state.font_name),
+        state.font_size_mixed, state.font_name_mixed,
+        json_string(&state.color),
+        json_string(&state.highlight),
         json_string(&state.align),
         json_string(&state.list),
         field,
@@ -1036,6 +1096,21 @@ mod tests {
         h.layout().expect("layout");
         let svg = h.svg(0).expect("svg");
         assert!(svg.starts_with("<svg"));
+    }
+
+    #[test]
+    fn ribbon_state_reports_requested_font_color_and_highlight() {
+        let mut handle = DisplayHandle::new();
+        handle.edit_blank().expect("blank");
+        let state = handle.edit_font("Times New Roman").expect("font");
+        assert!(
+            state.contains("\"fontName\":\"Times New Roman\""),
+            "{state}"
+        );
+        let state = handle.edit_color("#123456").expect("color");
+        assert!(state.contains("\"color\":\"123456\""), "{state}");
+        let state = handle.edit_highlight("yellow").expect("highlight");
+        assert!(state.contains("\"highlight\":\"yellow\""), "{state}");
     }
 
     #[test]

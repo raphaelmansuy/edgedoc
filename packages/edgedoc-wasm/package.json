@@ -1,6 +1,6 @@
 {
   "name": "edgedoc-wasm",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Read, create, edit, merge, and save Word documents. The same Rust core as the edgedoc crate, compiled to WebAssembly.",
   "license": "Apache-2.0",
   "main": "edgedoc.js",
@@ -10,7 +10,8 @@
     "edgedoc.d.ts",
     "edgedoc_bg.wasm",
     "edgedoc_bg.wasm.d.ts",
-    "README.md"
+    "README.md",
+    "display"
   ],
   "repository": {
     "type": "git",
@@ -27,5 +28,14 @@
   ],
   "engines": {
     "node": ">=18"
+  },
+  "exports": {
+    ".": {
+      "types": "./edgedoc.d.ts",
+      "require": "./edgedoc.js",
+      "default": "./edgedoc.js"
+    },
+    "./viewer": "./display/edgedoc-viewer.js",
+    "./display/*": "./display/*"
   }
 }

@@ -7,8 +7,8 @@ mod dataset;
 mod records;
 
 pub use dataset::{
-    dataset_from_json, field_index, field_index_json, merge_dataset, options_from_json, record_sets,
-    Dataset, DatasetOptions, FieldLocation,
+    dataset_from_json, field_index, field_index_json, merge_dataset, options_from_json,
+    record_sets, Dataset, DatasetOptions, FieldLocation,
 };
 pub use records::{CsvOptions, MissingField, Op, Record, Records, Rule, SortKey};
 
@@ -349,7 +349,11 @@ fn write_band_rows(
     parent: usize,
     depth: usize,
 ) -> Result<Vec<edgedoc_model::Row>, MergeError> {
-    let Some(set) = request.repeats.get(alias).and_then(|by_parent| by_parent.get(parent)) else {
+    let Some(set) = request
+        .repeats
+        .get(alias)
+        .and_then(|by_parent| by_parent.get(parent))
+    else {
         return Ok(Vec::new());
     };
     let mut out = Vec::with_capacity(set.len());
@@ -374,7 +378,13 @@ fn write_band_rows(
         let mut frozen = parent;
         let mut keep = true;
         for cell in &mut copy.cells {
-            if !merge_blocks(&scoped, &mut cell.blocks, &mut frozen, parent + 1, depth + 1)? {
+            if !merge_blocks(
+                &scoped,
+                &mut cell.blocks,
+                &mut frozen,
+                parent + 1,
+                depth + 1,
+            )? {
                 keep = false;
                 break;
             }
@@ -390,7 +400,13 @@ fn write_band_rows(
 /// Every merge field name in a row, in document order.
 fn row_fields(row: &edgedoc_model::Row) -> Vec<String> {
     let mut out = Vec::new();
-    collect_fields(&row.cells.iter().flat_map(|cell| cell.blocks.iter().cloned()).collect::<Vec<_>>(), &mut out);
+    collect_fields(
+        &row.cells
+            .iter()
+            .flat_map(|cell| cell.blocks.iter().cloned())
+            .collect::<Vec<_>>(),
+        &mut out,
+    );
     out
 }
 

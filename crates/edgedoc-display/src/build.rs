@@ -24,6 +24,29 @@ pub struct Prepared {
     pub footnotes_each_page: bool,
 }
 
+/// Rendering and editing resolve the same defaults, styles, theme and compatibility settings.
+pub(crate) fn cascade_for_editing(
+    doc: &Document,
+    fonts: &edgedoc_fonts::FontDb,
+) -> Result<Cascade> {
+    let known: Vec<String> = fonts
+        .faces()
+        .iter()
+        .map(|face| face.family.clone())
+        .collect();
+    let mut cascade = Cascade::new(doc.styles(), &known);
+    configure_default_style(doc, &mut cascade);
+    let settings = DisplaySettings::of(doc);
+    let defaults = doc
+        .default_formatting()
+        .map_err(|error| crate::Error::new(error.code, error.message))?;
+    cascade.set_default_properties(&defaults.0, &defaults.1);
+    cascade.set_default_tab(settings.default_tab);
+    cascade.set_compatibility_mode(settings.compatibility_mode);
+    load_numbering(doc, &mut cascade);
+    Ok(cascade)
+}
+
 /// Prepare a document. See `DP-P-14`.
 pub fn prepare(
     doc: &Document,
@@ -35,17 +58,11 @@ pub fn prepare(
         let core = doc.core_props();
         *metadata.borrow_mut() = (core.title.clone(), core.creator.clone());
     });
-    let known: Vec<String> = fonts.faces().iter().map(|f| f.family.clone()).collect();
-    let mut cascade = Cascade::new(doc.styles(), &known);
-    configure_default_style(doc, &mut cascade);
     let settings = DisplaySettings::of(doc);
     let defaults = doc
         .default_formatting()
-        .map_err(|e| crate::Error::new(e.code, e.message))?;
-    cascade.set_default_properties(&defaults.0, &defaults.1);
-    cascade.set_default_tab(settings.default_tab);
-    cascade.set_compatibility_mode(settings.compatibility_mode);
-    load_numbering(doc, &mut cascade);
+        .map_err(|error| crate::Error::new(error.code, error.message))?;
+    let mut cascade = cascade_for_editing(doc, fonts)?;
     let mut source = body_blocks(doc);
     set_note_numbers(&source, doc, &settings, note_pages);
     let mut flat = Vec::new();

@@ -196,11 +196,14 @@ wasm: ## Build the WebAssembly module
 	@$(CARGO) build --target wasm32-unknown-unknown -p edgedoc-wasm --features wasm
 
 .PHONY: package-wasm
-package-wasm: ## Build the npm package in packages/edgedoc-wasm
+package-wasm: display-wasm ## Build the server and browser npm package in packages/edgedoc-wasm
 	@printf '%s→%s wasm-bindgen into packages/edgedoc-wasm\n' '$(BLUE)' '$(RESET)'
 	@$(CARGO) build --release --target wasm32-unknown-unknown -p edgedoc-wasm --features wasm
 	@wasm-bindgen --target nodejs --out-dir packages/edgedoc-wasm --out-name edgedoc \
 		$(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/edgedoc_wasm.wasm
+	@mkdir -p packages/edgedoc-wasm/display
+	@cp site/display/edgedoc-viewer.js site/display/edgedoc_display.js site/display/edgedoc_display_bg.wasm packages/edgedoc-wasm/display/
+	@printf '%s\n' '{"type":"module"}' > packages/edgedoc-wasm/display/package.json
 
 .PHONY: python
 python: ## Build the Python wheel with maturin

@@ -56,10 +56,13 @@ pub fn merge_dataset_bytes(
     // (DOC2-15). Reading with the engine default would let a zip bomb expand before the merge
     // budget ever mattered.
     let options = edgedoc::options_from_json(options_json)?;
-    let mut document = Document::read_bytes_with(template, &edgedoc::ReadOptions {
-        budget: options.budget.clone(),
-        ..edgedoc::ReadOptions::new()
-    })
+    let mut document = Document::read_bytes_with(
+        template,
+        &edgedoc::ReadOptions {
+            budget: options.budget.clone(),
+            ..edgedoc::ReadOptions::new()
+        },
+    )
     .map_err(|err| format!("{} {}", err.code, err.message))?;
     let dataset = edgedoc::dataset_from_json(dataset_json)?;
     let documents = edgedoc::merge_dataset(&document.model(), &dataset, &options)?;
@@ -80,10 +83,13 @@ pub fn preview_dataset_text(
     options_json: &str,
 ) -> Result<String, String> {
     let options = edgedoc::options_from_json(options_json)?;
-    let document = Document::read_bytes_with(template, &edgedoc::ReadOptions {
-        budget: options.budget.clone(),
-        ..edgedoc::ReadOptions::new()
-    })
+    let document = Document::read_bytes_with(
+        template,
+        &edgedoc::ReadOptions {
+            budget: options.budget.clone(),
+            ..edgedoc::ReadOptions::new()
+        },
+    )
     .map_err(|err| format!("{} {}", err.code, err.message))?;
     let dataset = edgedoc::dataset_from_json(dataset_json)?;
     let documents = edgedoc::merge_dataset(&document.model(), &dataset, &options)?;
@@ -96,15 +102,15 @@ pub fn preview_dataset_text(
 
 /// Every merge field with its story, table, and row, as JSON text.
 pub fn field_index_of(template: &[u8]) -> Result<String, String> {
-    let document = Document::read_bytes(template)
-        .map_err(|err| format!("{} {}", err.code, err.message))?;
+    let document =
+        Document::read_bytes(template).map_err(|err| format!("{} {}", err.code, err.message))?;
     Ok(edgedoc::field_index_json(&document.model()))
 }
 
 /// Every zip entry name.
 pub fn part_names_of(template: &[u8]) -> Result<Vec<String>, String> {
-    let doc = Document::read_bytes(template)
-        .map_err(|err| format!("{} {}", err.code, err.message))?;
+    let doc =
+        Document::read_bytes(template).map_err(|err| format!("{} {}", err.code, err.message))?;
     Ok(doc.part_names())
 }
 
@@ -390,13 +396,21 @@ mod bind {
     /// shape for `directory`/`labels`, and the first document when `join` is `none` and there is one
     /// parent. A host that files one document per parent calls this once per parent with `from`/`to`.
     #[wasm_bindgen(js_name = mergeDataset)]
-    pub fn merge_dataset(template: &[u8], dataset_json: &str, options_json: &str) -> Result<Vec<u8>, JsValue> {
+    pub fn merge_dataset(
+        template: &[u8],
+        dataset_json: &str,
+        options_json: &str,
+    ) -> Result<Vec<u8>, JsValue> {
         super::merge_dataset_bytes(template, dataset_json, options_json).map_err(JsValue::from)
     }
 
     /// The plain text of the first merged document of a dataset. A check, never a file.
     #[wasm_bindgen(js_name = previewDataset)]
-    pub fn preview_dataset(template: &[u8], dataset_json: &str, options_json: &str) -> Result<String, JsValue> {
+    pub fn preview_dataset(
+        template: &[u8],
+        dataset_json: &str,
+        options_json: &str,
+    ) -> Result<String, JsValue> {
         super::preview_dataset_text(template, dataset_json, options_json).map_err(JsValue::from)
     }
 
