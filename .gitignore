@@ -24,3 +24,6 @@ site/display/edgedoc_display_bg.wasm.d.ts
 
 # A copy of the corpus that the demo serves. The canonical files live in tests/corpus/downloaded.
 site/assets/corpus/
+
+# Browser distribution assembled by make package-wasm.
+packages/edgedoc-wasm/display/

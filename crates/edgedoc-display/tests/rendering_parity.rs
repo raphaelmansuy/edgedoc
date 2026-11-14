@@ -9,6 +9,12 @@ use edgedoc_flow::{Fragment, ParagraphFragment};
 const W: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const R: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
+fn append_xml(mut xml: String, part: impl std::fmt::Display) -> String {
+    use std::fmt::Write as _;
+    write!(&mut xml, "{part}").expect("writing into a String is infallible");
+    xml
+}
+
 fn package(body: &str, section: &str, settings: &str, headers: &[(&str, &str)]) -> Vec<u8> {
     let mut zip = zip::ZipWriter::new(Cursor::new(Vec::new()));
     let mut put = |name: &str, text: String| {
@@ -16,7 +22,7 @@ fn package(body: &str, section: &str, settings: &str, headers: &[(&str, &str)]) 
             .unwrap();
         zip.write_all(text.as_bytes()).unwrap();
     };
-    put("[Content_Types].xml", format!(r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>{}</Types>"#, headers.iter().map(|(id, _)| format!(r#"<Override PartName="/word/{id}.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.{}+xml"/>"#, if id.starts_with("footer") { "footer" } else { "header" })).collect::<String>()));
+    put("[Content_Types].xml", format!(r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>{}</Types>"#, headers.iter().map(|(id, _)| format!(r#"<Override PartName="/word/{id}.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.{}+xml"/>"#, if id.starts_with("footer") { "footer" } else { "header" })).fold(String::new(), append_xml)));
     put(
         "_rels/.rels",
         format!(
@@ -47,7 +53,7 @@ fn package(body: &str, section: &str, settings: &str, headers: &[(&str, &str)]) 
                         "header"
                     }
                 ))
-                .collect::<String>()
+                .fold(String::new(), append_xml)
         ),
     );
     for (id, contents) in headers {
@@ -334,7 +340,7 @@ fn identical_text_with_different_alignment_does_not_share_the_wrong_layout() {
 
 #[test]
 fn line_spacing_exact_at_least_and_multiple_reach_geometry() {
-    let body = [24, 36].iter().map(|size| format!(r#"<w:p><w:pPr><w:spacing w:line="{}" w:lineRule="exact"/></w:pPr><w:r><w:t>Same</w:t></w:r></w:p>"#, size * 20)).collect::<String>();
+    let body = [24, 36].iter().map(|size| format!(r#"<w:p><w:pPr><w:spacing w:line="{}" w:lineRule="exact"/></w:pPr><w:r><w:t>Same</w:t></w:r></w:p>"#, size * 20)).fold(String::new(), append_xml);
     let doc = render(&body, "", "", &[]);
     let ps = paragraphs(&doc, 0);
     assert!((ps[0].layout.lines[0].height - 24.0).abs() < 0.01);
@@ -459,11 +465,15 @@ fn header_and_footer_distances_are_measured_from_the_page_edges() {
 
 #[test]
 fn tall_headers_and_footers_reserve_body_space_and_keep_all_their_lines() {
-    let header = (0..8).map(|i| p(&format!("Header{i}"))).collect::<String>();
-    let footer = (0..8).map(|i| p(&format!("Footer{i}"))).collect::<String>();
+    let header = (0..8)
+        .map(|i| p(&format!("Header{i}")))
+        .fold(String::new(), append_xml);
+    let footer = (0..8)
+        .map(|i| p(&format!("Footer{i}")))
+        .fold(String::new(), append_xml);
     let body = (0..80)
         .map(|i| p(&format!("Body{i:03}")))
-        .collect::<String>();
+        .fold(String::new(), append_xml);
     let doc = render(
         &body,
         r#"<w:headerReference w:type="default" r:id="header"/><w:footerReference w:type="default" r:id="footer"/>"#,
@@ -608,7 +618,7 @@ fn a_multi_page_table_keeps_each_row_once_and_repeats_its_header() {
         row("Heading", true),
         (0..90)
             .map(|i| row(&format!("Row{i:03}"), false))
-            .collect::<String>()
+            .fold(String::new(), append_xml)
     );
     let doc = render(&body, "", "", &[]);
     assert!(doc.pages().len() >= 2);
@@ -1631,7 +1641,7 @@ fn small_caps_shape_lowercase_letters_as_smaller_capitals() {
             edgedoc_display::Op::Glyphs(glyphs) => Some(glyphs.text.as_str()),
             _ => None,
         })
-        .collect::<String>();
+        .fold(String::new(), append_xml);
     assert!(text.contains("SMALL CAPS"));
 }
 
@@ -1918,7 +1928,7 @@ fn table_list_numbers_continue_and_repeated_headers_do_not_advance_them() {
         row("Heading", true),
         (0..90)
             .map(|i| row(&format!("Row{i:03}"), false))
-            .collect::<String>(),
+            .fold(String::new(), append_xml),
         list("After")
     );
     let numbering = format!(
@@ -1971,7 +1981,7 @@ fn merged_cells_do_not_draw_internal_table_grid_borders() {
     let borders = ["top", "bottom", "left", "right", "insideH", "insideV"]
         .iter()
         .map(|name| border(name))
-        .collect::<String>();
+        .fold(String::new(), append_xml);
     let cell =
         |text: &str, props: &str| format!("<w:tc><w:tcPr>{props}</w:tcPr>{}</w:tc>", p(text));
     let body = format!("<w:tbl><w:tblPr><w:tblW w:w=\"7200\" w:type=\"dxa\"/><w:tblLayout w:type=\"fixed\"/><w:tblBorders>{borders}</w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w=\"2400\"/><w:gridCol w:w=\"2400\"/><w:gridCol w:w=\"2400\"/></w:tblGrid><w:tr>{}{}</w:tr><w:tr>{}{}</w:tr><w:tr>{}{}{}</w:tr></w:tbl>",
@@ -2117,7 +2127,7 @@ fn row_grid_before_and_after_position_cells_on_the_table_grid() {
     let borders = ["top", "bottom", "left", "right", "insideH", "insideV"]
         .iter()
         .map(|n| format!("<w:{n} w:val=\"single\" w:sz=\"8\"/>"))
-        .collect::<String>();
+        .fold(String::new(), append_xml);
     let cell = |text: &str| format!("<w:tc>{}</w:tc>", p(text));
     let body = format!("<w:tbl><w:tblPr><w:tblW w:w=\"7200\" w:type=\"dxa\"/><w:tblLayout w:type=\"fixed\"/><w:tblBorders>{borders}</w:tblBorders></w:tblPr><w:tblGrid>{}</w:tblGrid><w:tr><w:trPr><w:gridBefore w:val=\"1\"/><w:gridAfter w:val=\"1\"/></w:trPr>{}{}</w:tr><w:tr>{}{}{}{}</w:tr></w:tbl>", "<w:gridCol w:w=\"1800\"/>".repeat(4), cell("A"), cell("B"), cell("C"), cell("D"), cell("E"), cell("F"));
     let doc = render(&body, "", "", &[]);
@@ -2234,7 +2244,9 @@ fn a_column_break_survives_an_edited_save() {
 fn continuous_column_changes_start_below_the_previous_column_set() {
     let body = format!(
         r#"{}<w:p><w:pPr><w:sectPr><w:cols w:num="2"/></w:sectPr></w:pPr></w:p>{}"#,
-        (0..8).map(|i| p(&format!("Before{i}"))).collect::<String>(),
+        (0..8)
+            .map(|i| p(&format!("Before{i}")))
+            .fold(String::new(), append_xml),
         p("After")
     );
     let doc = render(&body, r#"<w:type w:val="continuous"/>"#, "", &[]);
@@ -2307,7 +2319,9 @@ fn known_fidelity_gaps_are_reported_and_relayout_does_not_duplicate_diagnostics(
 fn final_columns_balance_before_a_continuous_section() {
     let body = format!(
         r#"{}<w:p><w:pPr><w:sectPr><w:cols w:num="2"/></w:sectPr></w:pPr></w:p>{}"#,
-        (0..8).map(|i| p(&format!("Before{i}"))).collect::<String>(),
+        (0..8)
+            .map(|i| p(&format!("Before{i}")))
+            .fold(String::new(), append_xml),
         p("After")
     );
     let doc = render(&body, r#"<w:type w:val="continuous"/>"#, "", &[]);
@@ -2396,7 +2410,7 @@ fn fixed_and_multiple_spacing_follow_wordcraft_baseline_rules() {
 
 #[test]
 fn separate_clipped_paragraphs_have_distinct_svg_clip_paths() {
-    let body = ["First", "Second", "Third"].iter().map(|text| format!(r#"<w:p><w:pPr><w:spacing w:line="480" w:lineRule="exact"/></w:pPr><w:r><w:t>{text}</w:t></w:r></w:p>"#)).collect::<String>();
+    let body = ["First", "Second", "Third"].iter().map(|text| format!(r#"<w:p><w:pPr><w:spacing w:line="480" w:lineRule="exact"/></w:pPr><w:r><w:t>{text}</w:t></w:r></w:p>"#)).fold(String::new(), append_xml);
     let doc = render(&body, "", "", &[]);
     let svg = doc.to_svg(0).unwrap();
     let ids = svg
@@ -3834,7 +3848,7 @@ fn note_references_count_each_kind_in_document_order() {
                 p(&format!("Body line {index}"))
             }
         })
-        .collect::<String>();
+        .fold(String::new(), append_xml);
     let crowded = replace_part(&bytes, "word/document.xml", |xml| {
         xml.replace(body, &crowded_body)
     });
@@ -4179,7 +4193,7 @@ fn conditional_table_last_edges_and_column_bands_follow_look_switches() {
         ("swCell", "FFEEAA"),
         ("seCell", "AAEEFF"),
     ];
-    let regions = parts.iter().map(|(name, color)| format!(r#"<w:tblStylePr w:type="{name}"><w:tcPr><w:shd w:val="clear" w:fill="{color}"/></w:tcPr></w:tblStylePr>"#)).collect::<String>();
+    let regions = parts.iter().map(|(name, color)| format!(r#"<w:tblStylePr w:type="{name}"><w:tcPr><w:shd w:val="clear" w:fill="{color}"/></w:tcPr></w:tblStylePr>"#)).fold(String::new(), append_xml);
     let styles = format!(
         r#"<w:styles xmlns:w="{W}"><w:style w:type="table" w:styleId="Grid"><w:tblPr><w:tblStyleRowBandSize w:val="1"/><w:tblStyleColBandSize w:val="1"/></w:tblPr>{regions}</w:style></w:styles>"#
     );
@@ -4188,7 +4202,7 @@ fn conditional_table_last_edges_and_column_bands_follow_look_switches() {
             "<w:tr>{}</w:tr>",
             (0..4)
                 .map(|c| format!("<w:tc><w:p><w:r><w:t>{r}{c}</w:t></w:r></w:p></w:tc>"))
-                .collect::<String>()
+                .fold(String::new(), append_xml)
         )
     };
     let body = format!(

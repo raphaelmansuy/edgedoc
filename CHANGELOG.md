@@ -4,6 +4,30 @@ All notable changes to this project are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-11-14
+
+### Added
+
+- Explicit paragraph selection and document-wide Select All, effective/mixed font state,
+  per-run Grow/Shrink and direct character-format reset through the display WASM API.
+- Browser viewer export in the npm package (`edgedoc-wasm/viewer`) alongside its matching WASM.
+- Page setup and multi-paragraph selection prerequisites previously present only in the
+  EdgeBase integration checkout, now covered by the engine release.
+
+### Fixed
+
+- Paragraph alignment, spacing, indentation, lists, shading and borders cover selected paragraphs
+  in one Undo transaction and retain the chosen character format for subsequent typing.
+- Selected character edits preserve run-size differences, semantic properties and opaque package content.
+- Reading-order uniqueness and selected range length inspection avoid repeated full scans/copies.
+
+### Qualification
+
+- Display/WASM engine regression: 256 tests passed in the integration checkout.
+- EdgeBase integration: 93 live-stack browser cases passed without retries.
+- Native Word review/layout fidelity remains unqualified. This release does not implement Word's
+  complete review, reference or advanced layout feature set.
+
 ## [0.2.0] - 2026-11-09
 
 ### Added

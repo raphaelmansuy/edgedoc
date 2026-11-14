@@ -18,9 +18,9 @@ pub use sheet::{records_from_xlsx, xlsx_with_cached_formula as sheet_fixture};
 
 pub use edgedoc_limit::Budget;
 pub use edgedoc_merge::{
-    dataset_from_json, field_index, field_index_json, merge_dataset, options_from_json, record_sets,
-    CsvOptions, Dataset, DatasetOptions, FieldLocation, Join, MergeKind, MissingField, Op, Record,
-    Records, Repeats, Rule, SortKey, ENVELOPES,
+    dataset_from_json, field_index, field_index_json, merge_dataset, options_from_json,
+    record_sets, CsvOptions, Dataset, DatasetOptions, FieldLocation, Join, MergeKind, MissingField,
+    Op, Record, Records, Repeats, Rule, SortKey, ENVELOPES,
 };
 pub use edgedoc_model::BlockPath;
 pub use edgedoc_model::ContentItem;

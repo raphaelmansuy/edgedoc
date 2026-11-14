@@ -21,7 +21,8 @@ use edgedoc_limit::Budget;
 use edgedoc_model::ModelDocument;
 
 use crate::{
-    finish, join_documents, Join, MergeError, MergeKind, MergeRequest, MissingField, Records, Repeats,
+    finish, join_documents, Join, MergeError, MergeKind, MergeRequest, MissingField, Records,
+    Repeats,
 };
 
 /// `code message`, the shape every adapter renders.
@@ -118,11 +119,20 @@ pub fn options_from_json(text: &str) -> Result<DatasetOptions, String> {
         options.budget = Budget::from_limits(
             numbers.get("maxPart").and_then(Json::as_u64),
             numbers.get("maxTotal").and_then(Json::as_u64),
-            numbers.get("maxEntries").and_then(Json::as_u64).map(|value| value as usize),
+            numbers
+                .get("maxEntries")
+                .and_then(Json::as_u64)
+                .map(|value| value as usize),
         );
     }
-    options.from = root.get("from").and_then(Json::as_u64).map(|value| value as usize);
-    options.to = root.get("to").and_then(Json::as_u64).map(|value| value as usize);
+    options.from = root
+        .get("from")
+        .and_then(Json::as_u64)
+        .map(|value| value as usize);
+    options.to = root
+        .get("to")
+        .and_then(Json::as_u64)
+        .map(|value| value as usize);
     Ok(options)
 }
 
@@ -136,7 +146,12 @@ pub fn record_sets(dataset: &Dataset) -> Result<(Records, Repeats), String> {
     let cells = dataset
         .parents
         .iter()
-        .map(|parent| headers.iter().map(|header| parent.get(header).cloned().unwrap_or_default()).collect())
+        .map(|parent| {
+            headers
+                .iter()
+                .map(|header| parent.get(header).cloned().unwrap_or_default())
+                .collect()
+        })
         .collect();
     let parents = Records::from_rows(headers, cells).map_err(rendered)?;
 
@@ -163,9 +178,7 @@ pub fn record_sets(dataset: &Dataset) -> Result<(Records, Repeats), String> {
                 })
                 .collect();
             // An empty child set needs no headers: `Records::from_rows` takes them as given.
-            sets.push(
-                Records::from_rows(child_headers, child_cells).map_err(rendered)?,
-            );
+            sets.push(Records::from_rows(child_headers, child_cells).map_err(rendered)?);
         }
         repeats.insert(alias.clone(), sets);
     }
@@ -231,7 +244,10 @@ pub fn field_index(template: &ModelDocument) -> Vec<FieldLocation> {
     let mut out = Vec::new();
     collect_index(&template.body, &mut out, None, None);
     for part in template.parts.values() {
-        if matches!(part.kind, edgedoc_model::PartKind::Header | edgedoc_model::PartKind::Footer) {
+        if matches!(
+            part.kind,
+            edgedoc_model::PartKind::Header | edgedoc_model::PartKind::Footer
+        ) {
             collect_index(&part.blocks, &mut out, None, None);
         }
     }
@@ -616,16 +632,16 @@ impl Parser<'_> {
                     if width > 1 {
                         self.at = start + width;
                         if self.at > self.bytes.len() {
-                            return Err("merge.dataset A text value ends inside a character.".to_string());
+                            return Err(
+                                "merge.dataset A text value ends inside a character.".to_string()
+                            );
                         }
                     }
                     let slice = &self.bytes[start..self.at];
                     match std::str::from_utf8(slice) {
                         Ok(text) => out.push_str(text),
                         Err(_) => {
-                            return Err(format!(
-                                "merge.dataset Invalid UTF-8 at offset {start}."
-                            ))
+                            return Err(format!("merge.dataset Invalid UTF-8 at offset {start}."))
                         }
                     }
                 }
@@ -639,9 +655,12 @@ impl Parser<'_> {
             let byte = self
                 .bump()
                 .ok_or_else(|| "merge.dataset A \\u escape is short.".to_string())?;
-            let digit = (byte as char)
-                .to_digit(16)
-                .ok_or_else(|| format!("merge.dataset A \\u escape has a bad digit at offset {}.", self.at))?;
+            let digit = (byte as char).to_digit(16).ok_or_else(|| {
+                format!(
+                    "merge.dataset A \\u escape has a bad digit at offset {}.",
+                    self.at
+                )
+            })?;
             code = code * 16 + digit;
         }
         char::from_u32(code)

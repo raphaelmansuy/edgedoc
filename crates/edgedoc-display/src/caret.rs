@@ -76,10 +76,40 @@ pub fn selection_marks(
         return marks;
     }
     // A selection that leaves one paragraph paints each paragraph it covers in full, between the
-    // two ends. Paths that are not the same block list still paint their own ends.
-    push_range(pages, start_path, start, usize::MAX, &mut marks);
-    push_range(pages, end_path, 0, end, &mut marks);
+    // two ends, in reading order — whichever end the person dragged from. Paths the layout did not
+    // paint still paint their own ends.
+    let order = paragraph_order(pages);
+    let position = |path: &str| order.iter().position(|candidate| candidate == path);
+    let (Some(a), Some(b)) = (position(start_path), position(end_path)) else {
+        push_range(pages, start_path, start, usize::MAX, &mut marks);
+        push_range(pages, end_path, 0, end, &mut marks);
+        return marks;
+    };
+    let (first, first_offset, last, last_offset, from, to) = if a <= b {
+        (start_path, start, end_path, end, a, b)
+    } else {
+        (end_path, end, start_path, start, b, a)
+    };
+    push_range(pages, first, first_offset, usize::MAX, &mut marks);
+    for path in &order[from + 1..to] {
+        push_range(pages, path, 0, usize::MAX, &mut marks);
+    }
+    push_range(pages, last, 0, last_offset, &mut marks);
     marks
+}
+
+/// The painted paragraphs in reading order, each once (a paragraph that breaks across pages is one).
+pub fn paragraph_order(pages: &[PageGeometry]) -> Vec<String> {
+    let mut order: Vec<String> = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+    for page in pages {
+        each_paragraph(&page.fragments, &mut |para| {
+            if seen.insert(para.path.clone()) {
+                order.push(para.path.clone());
+            }
+        });
+    }
+    order
 }
 
 fn push_range(

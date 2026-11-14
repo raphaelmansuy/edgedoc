@@ -24,14 +24,24 @@ fn cell(field: &str) -> Cell {
 /// Header, two scalars, a line table with a band row, and a total.
 fn template() -> ModelDocument {
     let mut doc = ModelDocument::new();
-    doc.body
-        .push(std::sync::Arc::new(Block::Paragraph(Paragraph::new().text("Invoice ").merge_field("Number"))));
-    doc.body.push(std::sync::Arc::new(Block::Table(Table::new().header(["A", "B"]))));
-    if let Some(Block::Table(table)) = doc.body.last_mut().and_then(|block| std::sync::Arc::get_mut(block)) {
-        table.rows.push(Row::cells(vec![cell("Lines.Name"), cell("Lines.Qty")]));
+    doc.body.push(std::sync::Arc::new(Block::Paragraph(
+        Paragraph::new().text("Invoice ").merge_field("Number"),
+    )));
+    doc.body.push(std::sync::Arc::new(Block::Table(
+        Table::new().header(["A", "B"]),
+    )));
+    if let Some(Block::Table(table)) = doc
+        .body
+        .last_mut()
+        .and_then(|block| std::sync::Arc::get_mut(block))
+    {
+        table
+            .rows
+            .push(Row::cells(vec![cell("Lines.Name"), cell("Lines.Qty")]));
     }
-    doc.body
-        .push(std::sync::Arc::new(Block::Paragraph(Paragraph::new().text("Total ").merge_field("Total"))));
+    doc.body.push(std::sync::Arc::new(Block::Paragraph(
+        Paragraph::new().text("Total ").merge_field("Total"),
+    )));
     doc.ensure_nonempty();
     doc
 }
@@ -55,7 +65,10 @@ fn lines(doc: &ModelDocument) -> Vec<String> {
 fn a_dataset_reads_parents_and_their_child_rows() {
     let dataset = dataset_from_json(DATASET).expect("dataset");
     assert_eq!(dataset.parents.len(), 1);
-    assert_eq!(dataset.parents[0].get("Number").map(String::as_str), Some("Q-1"));
+    assert_eq!(
+        dataset.parents[0].get("Number").map(String::as_str),
+        Some("Q-1")
+    );
     let group = &dataset.repeats["Lines"][0];
     assert_eq!(group.len(), 2);
     assert_eq!(group[1].get("Name").map(String::as_str), Some("Gadget"));
@@ -80,7 +93,10 @@ fn the_budget_is_clamped_to_the_engine_ceiling() {
     )
     .expect("options");
     let base = Budget::default();
-    assert_eq!(options.budget.max_part, base.max_part, "a host cannot raise the ceiling");
+    assert_eq!(
+        options.budget.max_part, base.max_part,
+        "a host cannot raise the ceiling"
+    );
     assert_eq!(options.budget.max_total, base.max_total);
     assert_eq!(options.budget.max_entries, base.max_entries);
 }
@@ -89,14 +105,21 @@ fn the_budget_is_clamped_to_the_engine_ceiling() {
 fn a_tighter_budget_is_kept() {
     let options = options_from_json(r#"{ "budget": { "maxPart": 1024 } }"#).expect("options");
     assert_eq!(options.budget.max_part, 1024);
-    assert_eq!(options.budget.max_total, Budget::default().max_total, "unspecified stays default");
+    assert_eq!(
+        options.budget.max_total,
+        Budget::default().max_total,
+        "unspecified stays default"
+    );
 }
 
 #[test]
 fn an_unknown_kind_is_named() {
     let error = options_from_json(r#"{ "kind": "invoice" }"#).expect_err("refused");
     assert!(error.contains("Unknown merge kind"), "{error}");
-    assert!(error.contains("normal"), "the message lists the legal words: {error}");
+    assert!(
+        error.contains("normal"),
+        "the message lists the legal words: {error}"
+    );
 }
 
 #[test]
@@ -116,7 +139,11 @@ fn normal_is_one_continuing_document() {
     )
     .expect("dataset");
     let documents = merge_dataset(&template, &dataset, &options).expect("merge");
-    assert_eq!(documents.len(), 2, "two parents are two documents when join is none");
+    assert_eq!(
+        documents.len(),
+        2,
+        "two parents are two documents when join is none"
+    );
     // Joined into one package: `auto` folds them, and `normal` keeps them in one continuous flow.
     let joined_options = DatasetOptions {
         join: Join::Auto,
@@ -148,23 +175,34 @@ fn a_parent_with_no_group_gets_an_empty_band() {
     .expect("dataset");
     let (_parents, repeats) = record_sets(&dataset).expect("sets");
     assert_eq!(repeats["Lines"].len(), 2, "one child set per parent");
-    assert!(repeats["Lines"][1].is_empty(), "the second parent has no lines");
+    assert!(
+        repeats["Lines"][1].is_empty(),
+        "the second parent has no lines"
+    );
 }
 
 #[test]
 fn a_non_text_value_is_named() {
-    let error = dataset_from_json(r#"{ "records": [ { "Number": ["a"] } ] }"#).expect_err("refused");
+    let error =
+        dataset_from_json(r#"{ "records": [ { "Number": ["a"] } ] }"#).expect_err("refused");
     assert!(error.contains("records[0].Number"), "{error}");
     assert!(error.contains("must be text"), "{error}");
 }
 
 #[test]
 fn a_number_and_a_null_are_widened() {
-    let dataset = dataset_from_json(r#"{ "records": [ { "Count": 3, "Gone": null, "Flag": true } ] }"#)
-        .expect("dataset");
-    assert_eq!(dataset.parents[0].get("Count").map(String::as_str), Some("3"));
+    let dataset =
+        dataset_from_json(r#"{ "records": [ { "Count": 3, "Gone": null, "Flag": true } ] }"#)
+            .expect("dataset");
+    assert_eq!(
+        dataset.parents[0].get("Count").map(String::as_str),
+        Some("3")
+    );
     assert_eq!(dataset.parents[0].get("Gone").map(String::as_str), Some(""));
-    assert_eq!(dataset.parents[0].get("Flag").map(String::as_str), Some("true"));
+    assert_eq!(
+        dataset.parents[0].get("Flag").map(String::as_str),
+        Some("true")
+    );
 }
 
 #[test]
@@ -187,15 +225,17 @@ fn deep_nesting_is_refused_rather_than_recursing() {
     }
     // The parser stops at the depth cap before it reaches the end.
     let error = dataset_from_json(&text).expect_err("refused");
-    assert!(error.contains("nested too deeply") || error.contains("merge.dataset"), "{error}");
+    assert!(
+        error.contains("nested too deeply") || error.contains("merge.dataset"),
+        "{error}"
+    );
 }
 
 #[test]
 fn an_escaped_string_is_read() {
-    let dataset = dataset_from_json(
-        r#"{ "records": [ { "Note": "line\u0020one\ntwo \"quoted\"" } ] }"#,
-    )
-    .expect("dataset");
+    let dataset =
+        dataset_from_json(r#"{ "records": [ { "Note": "line\u0020one\ntwo \"quoted\"" } ] }"#)
+            .expect("dataset");
     assert_eq!(
         dataset.parents[0].get("Note").map(String::as_str),
         Some("line one\ntwo \"quoted\"")
@@ -214,22 +254,33 @@ fn a_utf8_value_survives() {
 
 #[test]
 fn a_records_order_is_the_hosts_order() {
-    let dataset = dataset_from_json(
-        r#"{ "records": [ { "Number": "B" }, { "Number": "A" } ] }"#,
-    )
-    .expect("dataset");
-    assert_eq!(dataset.parents[0].get("Number").map(String::as_str), Some("B"));
-    assert_eq!(dataset.parents[1].get("Number").map(String::as_str), Some("A"));
+    let dataset = dataset_from_json(r#"{ "records": [ { "Number": "B" }, { "Number": "A" } ] }"#)
+        .expect("dataset");
+    assert_eq!(
+        dataset.parents[0].get("Number").map(String::as_str),
+        Some("B")
+    );
+    assert_eq!(
+        dataset.parents[1].get("Number").map(String::as_str),
+        Some("A")
+    );
 }
 
 #[test]
 fn the_field_index_names_the_table_row_of_a_band_field() {
     let index = field_index(&template());
-    let band: Vec<_> = index.iter().filter(|field| field.name.starts_with("Lines.")).collect();
+    let band: Vec<_> = index
+        .iter()
+        .filter(|field| field.name.starts_with("Lines."))
+        .collect();
     assert_eq!(band.len(), 2, "two band fields: {index:?}");
     for field in band {
         assert_eq!(field.table, Some(0), "both sit in table 0");
-        assert_eq!(field.row, Some(1), "both sit in row 1 (row 0 is the header)");
+        assert_eq!(
+            field.row,
+            Some(1),
+            "both sit in row 1 (row 0 is the header)"
+        );
     }
     let scalar = index
         .iter()
@@ -249,5 +300,9 @@ fn parents_keep_the_header_order_of_the_first_record() {
     };
     let (records, _) = record_sets(&dataset).expect("sets");
     let headers = records.headers();
-    assert_eq!(headers, &["Alpha".to_string(), "Zeta".to_string()], "a map is ordered by key");
+    assert_eq!(
+        headers,
+        &["Alpha".to_string(), "Zeta".to_string()],
+        "a map is ordered by key"
+    );
 }

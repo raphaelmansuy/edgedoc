@@ -61,6 +61,20 @@ pub struct CharProps {
 }
 
 impl CharProps {
+    /// Reset modeled manual character appearance while retaining semantic links, language,
+    /// character styles and opaque extensions. This is not paragraph/style deletion.
+    pub fn clear_manual_formatting(&mut self) {
+        *self = Self {
+            link: self.link.clone(),
+            style: self.style.clone(),
+            lang: self.lang.clone(),
+            lang_bidi: self.lang_bidi.clone(),
+            lang_ea: self.lang_ea.clone(),
+            extra: self.extra.clone(),
+            ..Self::default()
+        };
+    }
+
     pub fn is_empty(&self) -> bool {
         *self == CharProps::default()
     }

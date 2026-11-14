@@ -62,12 +62,18 @@ impl Budget {
     /// specs/144 DOC2-15: a host passes a budget that is **tighter** than the default, never looser.
     /// A caller that asks for more than the engine allows gets the engine's ceiling and no error —
     /// the point of the argument is to lower the ceiling, not to raise it.
-    pub fn from_limits(max_part: Option<u64>, max_total: Option<u64>, max_entries: Option<usize>) -> Self {
+    pub fn from_limits(
+        max_part: Option<u64>,
+        max_total: Option<u64>,
+        max_entries: Option<usize>,
+    ) -> Self {
         let base = Self::default();
         Self {
             max_part: max_part.unwrap_or(base.max_part).min(base.max_part),
             max_total: max_total.unwrap_or(base.max_total).min(base.max_total),
-            max_entries: max_entries.unwrap_or(base.max_entries).min(base.max_entries),
+            max_entries: max_entries
+                .unwrap_or(base.max_entries)
+                .min(base.max_entries),
             ..base
         }
     }

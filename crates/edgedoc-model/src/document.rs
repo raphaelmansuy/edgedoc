@@ -843,10 +843,18 @@ impl<'a> DocumentEdit<'a> {
                 // An empty colour or highlight means "inherit", the convention `VertAlign` already uses:
                 // it is how Word's "Automatic" and "No highlight" arrive through one door.
                 FormatKind::Color(ref hex) => {
-                    props.color = if hex.is_empty() { None } else { Some(hex.clone()) };
+                    props.color = if hex.is_empty() {
+                        None
+                    } else {
+                        Some(hex.clone())
+                    };
                 }
                 FormatKind::Highlight(ref name) => {
-                    props.highlight = if name.is_empty() || name == "none" { None } else { Some(name.clone()) };
+                    props.highlight = if name.is_empty() || name == "none" {
+                        None
+                    } else {
+                        Some(name.clone())
+                    };
                 }
                 FormatKind::VertAlign(ref name) => {
                     props.vert_align = if enable && !name.is_empty() {
@@ -920,10 +928,16 @@ impl<'a> DocumentEdit<'a> {
         let index = table_block_index(&table_path)?;
         self.with_parent(&table_path, |blocks, _| {
             let block = blocks.get_mut(index).ok_or_else(|| {
-                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+                ModelError::new(
+                    "model.bad_path",
+                    "That table is not in the document anymore.",
+                )
             })?;
             let Block::Table(table) = Arc::make_mut(block) else {
-                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That path does not name a table.",
+                ));
             };
             let cols = table
                 .rows
@@ -951,10 +965,16 @@ impl<'a> DocumentEdit<'a> {
         let mut landed = row_index;
         self.with_parent(&table_path, |blocks, _| {
             let block = blocks.get_mut(index).ok_or_else(|| {
-                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+                ModelError::new(
+                    "model.bad_path",
+                    "That table is not in the document anymore.",
+                )
             })?;
             let Block::Table(table) = Arc::make_mut(block) else {
-                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That path does not name a table.",
+                ));
             };
             if table.rows.len() <= 1 {
                 return Err(ModelError::new(
@@ -1009,7 +1029,11 @@ impl<'a> DocumentEdit<'a> {
                 "Cells can be merged across a row, not down a column. Vertical merge is not supported yet.",
             ));
         }
-        let (start, end) = if from_cell <= to_cell { (from_cell, to_cell) } else { (to_cell, from_cell) };
+        let (start, end) = if from_cell <= to_cell {
+            (from_cell, to_cell)
+        } else {
+            (to_cell, from_cell)
+        };
         if start == end {
             return Ok(TextCaret {
                 path: format!("{table_path}/row[{from_row}]/cell[{start}]/block[0]"),
@@ -1019,10 +1043,16 @@ impl<'a> DocumentEdit<'a> {
         let index = table_block_index(&table_path)?;
         self.with_parent(&table_path, |blocks, _| {
             let block = blocks.get_mut(index).ok_or_else(|| {
-                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+                ModelError::new(
+                    "model.bad_path",
+                    "That table is not in the document anymore.",
+                )
             })?;
             let Block::Table(table) = Arc::make_mut(block) else {
-                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That path does not name a table.",
+                ));
             };
             let row = table.rows.get_mut(from_row).ok_or_else(|| {
                 ModelError::new("model.bad_path", "That row is not in the table anymore.")
@@ -1111,25 +1141,36 @@ impl<'a> DocumentEdit<'a> {
     /// `widths` vector **and** a per-cell `width`, and a file whose two disagree is rendered by Word from
     /// the cell widths. So both are written, together, for every row — including a cell that spans
     /// columns, which takes the sum of the columns it covers so the grid still adds up.
-    pub fn set_table_column_width(&mut self, cell_path: &str, width: i32) -> ModelResult<TextCaret> {
+    pub fn set_table_column_width(
+        &mut self,
+        cell_path: &str,
+        width: i32,
+    ) -> ModelResult<TextCaret> {
         let (table_path, row_index, column) = table_cell_position(cell_path)?;
         let twips = width.clamp(120, 20_000);
         let index = table_block_index(&table_path)?;
         self.with_parent(&table_path, |blocks, _| {
             let block = blocks.get_mut(index).ok_or_else(|| {
-                ModelError::new("model.bad_path", "That table is not in the document anymore.")
+                ModelError::new(
+                    "model.bad_path",
+                    "That table is not in the document anymore.",
+                )
             })?;
             let Block::Table(table) = Arc::make_mut(block) else {
-                return Err(ModelError::new("model.bad_path", "That path does not name a table."));
+                return Err(ModelError::new(
+                    "model.bad_path",
+                    "That path does not name a table.",
+                ));
             };
             // The declared grid, widened if a row is longer than it (a table read from a file may be).
-            let longest = table.rows.iter().map(|row| row.cells.len()).max().unwrap_or(0);
+            let longest = table
+                .rows
+                .iter()
+                .map(|row| row.cells.len())
+                .max()
+                .unwrap_or(0);
             if table.widths.len() < longest {
-                let fill = table
-                    .widths
-                    .last()
-                    .copied()
-                    .unwrap_or(crate::Twips(2_400));
+                let fill = table.widths.last().copied().unwrap_or(crate::Twips(2_400));
                 table.widths.resize(longest, fill);
             }
             if let Some(slot) = table.widths.get_mut(column) {
@@ -1141,12 +1182,8 @@ impl<'a> DocumentEdit<'a> {
                 for cell in row.cells.iter_mut() {
                     let span = cell.span.max(1);
                     if col == column || (col < column && column < col + span) {
-                        let covered: i32 = column_widths
-                            .iter()
-                            .skip(col)
-                            .take(span)
-                            .map(|w| w.0)
-                            .sum();
+                        let covered: i32 =
+                            column_widths.iter().skip(col).take(span).map(|w| w.0).sum();
                         cell.width = Some(crate::Twips(if span > 1 { covered } else { twips }));
                     }
                     col += span;
@@ -1164,7 +1201,8 @@ impl<'a> DocumentEdit<'a> {
         })
     }
 
-    pub fn paragraph_info(&self, path: &str, offset: usize) -> ModelResult<ParagraphInfo> {        let para = self.paragraph_ref(path)?;
+    pub fn paragraph_info(&self, path: &str, offset: usize) -> ModelResult<ParagraphInfo> {
+        let para = self.paragraph_ref(path)?;
         let align = para
             .props
             .align
@@ -1225,6 +1263,51 @@ impl<'a> DocumentEdit<'a> {
             para.raw_xml = None;
             Ok(())
         })
+    }
+
+    /// Page Setup for the whole document: the sheet (portrait `paper` in twips, width then height),
+    /// its orientation, and one margin on all four sides. Every section takes it, the last one and each
+    /// section break, so a multi-section document keeps one page size. A margin that leaves no room for
+    /// text on the narrow side is refused, as Word refuses it.
+    pub fn set_page_setup(
+        &mut self,
+        paper: (i32, i32),
+        landscape: bool,
+        margin: i32,
+    ) -> ModelResult<()> {
+        let short = paper.0.min(paper.1);
+        if margin < 0 || i64::from(margin) * 2 >= i64::from(short) / 2 {
+            return Err(ModelError::new(
+                "layout.margin",
+                format!("A margin of {margin} twips leaves no room for text on this paper."),
+            ));
+        }
+        fn apply(props: &mut SectionProps, paper: (i32, i32), landscape: bool, margin: i32) {
+            let (w, h) = if landscape {
+                (paper.1.max(paper.0), paper.0.min(paper.1))
+            } else {
+                (paper.0.min(paper.1), paper.0.max(paper.1))
+            };
+            props.page_w = crate::Twips(w);
+            props.page_h = crate::Twips(h);
+            props.landscape = landscape;
+            props.margin_top = crate::Twips(margin);
+            props.margin_bottom = crate::Twips(margin);
+            props.margin_left = crate::Twips(margin);
+            props.margin_right = crate::Twips(margin);
+        }
+        apply(&mut self.doc.last_section, paper, landscape, margin);
+        for block in self.doc.body.iter_mut() {
+            if !matches!(block.as_ref(), Block::Paragraph(p) if p.section.is_some()) {
+                continue;
+            }
+            if let Block::Paragraph(para) = Arc::make_mut(block) {
+                if let Some(brk) = para.section.as_mut() {
+                    apply(&mut brk.props, paper, landscape, margin);
+                }
+            }
+        }
+        Ok(())
     }
 
     /// Set automatic line spacing. Common values: 240 single, 360 1.5, 480 double.
@@ -1323,6 +1406,45 @@ impl<'a> DocumentEdit<'a> {
             }
             Ok(())
         })
+    }
+
+    /// Read a paragraph snapshot without exposing a mutable model path.
+    pub fn paragraph_snapshot(&self, path: &str) -> ModelResult<Paragraph> {
+        Ok(self.paragraph_ref(path)?.clone())
+    }
+
+    /// Transform each selected run using the unchanged paragraph's style context.
+    /// One model operation preserves fields, objects and all unselected run properties.
+    pub fn transform_character_range<F>(
+        &mut self,
+        path: &str,
+        start: usize,
+        end: usize,
+        mut change: F,
+    ) -> ModelResult<()>
+    where
+        F: FnMut(&Paragraph, &mut crate::props::CharProps),
+    {
+        self.with_leaf(path, |para| {
+            let context = para.clone();
+            para.update_range(start.min(end), start.max(end), |props| {
+                change(&context, props)
+            })
+        })
+    }
+
+    pub fn range_matches_context<F>(
+        &self,
+        path: &str,
+        start: usize,
+        end: usize,
+        mut test: F,
+    ) -> ModelResult<bool>
+    where
+        F: FnMut(&Paragraph, &crate::props::CharProps) -> bool,
+    {
+        let para = self.paragraph_ref(path)?;
+        Ok(para.range_all(start.min(end), start.max(end), |props| test(para, props)))
     }
 
     /// True when every character in the range satisfies `pred`.
@@ -1707,7 +1829,8 @@ fn table_block_index(table_path: &str) -> ModelResult<usize> {
     }
 }
 
-fn next_block_path(path: &str) -> String {    let parsed = parse_path(path);
+fn next_block_path(path: &str) -> String {
+    let parsed = parse_path(path);
     let Ok(parsed) = parsed else {
         return path.to_string();
     };

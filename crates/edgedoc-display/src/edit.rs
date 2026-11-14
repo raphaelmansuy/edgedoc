@@ -33,6 +33,9 @@ pub struct EditorState {
     pub subscript: bool,
     pub superscript: bool,
     pub font_size: f32,
+    pub font_name: String,
+    pub font_size_mixed: bool,
+    pub font_name_mixed: bool,
     pub align: String,
     pub list: String,
     pub field: Option<String>,
@@ -162,7 +165,7 @@ impl Editor {
             return false;
         }
         match self.package() {
-            Ok(bytes) => bytes != &*self.saved_bytes,
+            Ok(bytes) => bytes != *self.saved_bytes,
             // A package that cannot be written is not provably saved.
             Err(_) => true,
         }
@@ -212,6 +215,13 @@ impl Editor {
             .pending
             .clone()
             .or_else(|| info.as_ref().map(|i| i.props.clone()));
+        let computed = props
+            .as_ref()
+            .and_then(|props| self.computed_caret_run(props));
+        let (font_size_mixed, font_name_mixed) = computed
+            .as_ref()
+            .map(|run| self.mixed_fonts(run))
+            .unwrap_or((false, false));
         let words = self
             .display
             .inner
@@ -240,7 +250,13 @@ impl Editor {
                 .as_ref()
                 .and_then(|p| p.vert_align.as_deref())
                 .is_some_and(|v| v == "superscript"),
-            font_size: props.as_ref().and_then(|p| p.size_pt).unwrap_or(11.0),
+            font_size: computed.as_ref().map(|run| run.size).unwrap_or(11.0),
+            font_name: computed
+                .as_ref()
+                .map(|run| run.requested_face.clone())
+                .unwrap_or_default(),
+            font_size_mixed,
+            font_name_mixed,
             align: info
                 .as_ref()
                 .map(|i| i.align.clone())
@@ -274,14 +290,14 @@ impl Editor {
                 .unwrap_or_default(),
             para_border_bottom: info.as_ref().is_some_and(|i| i.border_bottom),
             table_span: info.as_ref().and_then(|i| i.table_span).unwrap_or(0),
-            color: info
+            color: props
                 .as_ref()
-                .and_then(|i| i.props.color.clone())
+                .and_then(|p| p.color.clone())
                 .map(|hex| hex.trim_start_matches('#').to_ascii_uppercase())
                 .unwrap_or_default(),
-            highlight: info
+            highlight: props
                 .as_ref()
-                .and_then(|i| i.props.highlight.clone())
+                .and_then(|p| p.highlight.clone())
                 .filter(|name| !name.is_empty() && name != "none")
                 .unwrap_or_default(),
             title: {
@@ -301,20 +317,48 @@ impl Editor {
         let Some(anchor) = &self.anchor else {
             return String::new();
         };
-        if anchor.path != self.caret.path || anchor.offset == self.caret.offset {
-            return String::new();
+        // The text between two offsets of one paragraph; empty when an offset is not a char boundary.
+        let slice = |text: &str, from: usize, to: usize| -> String {
+            let to = to.min(text.len());
+            let from = from.min(to);
+            if !text.is_char_boundary(from) || !text.is_char_boundary(to) {
+                return String::new();
+            }
+            text[from..to]
+                .chars()
+                .filter(|c| *c != '\u{FFFC}')
+                .collect()
+        };
+        if anchor.path == self.caret.path {
+            if anchor.offset == self.caret.offset {
+                return String::new();
+            }
+            let text = self.para_text(&self.caret.path);
+            let (start, end) = ordered_off(anchor.offset, self.caret.offset);
+            return slice(&text, start, end);
         }
-        let text = self.para_text(&self.caret.path);
-        let (start, end) = ordered_off(anchor.offset, self.caret.offset);
-        let end = end.min(text.len());
-        let start = start.min(end);
-        if !text.is_char_boundary(start) || !text.is_char_boundary(end) {
+        // A selection across paragraphs reads each one in reading order, joined by a line break.
+        let order = caret::paragraph_order(self.display.pages());
+        let position = |path: &str| order.iter().position(|candidate| candidate == path);
+        let (Some(a), Some(b)) = (position(&anchor.path), position(&self.caret.path)) else {
             return String::new();
+        };
+        let (first, last) = if a <= b {
+            (anchor, &self.caret)
+        } else {
+            (&self.caret, anchor)
+        };
+        let (from, to) = (a.min(b), a.max(b));
+        let mut parts = vec![slice(
+            &self.para_text(&first.path),
+            first.offset,
+            usize::MAX,
+        )];
+        for path in &order[from + 1..to] {
+            parts.push(slice(&self.para_text(path), 0, usize::MAX));
         }
-        text[start..end]
-            .chars()
-            .filter(|c| *c != '\u{FFFC}')
-            .collect()
+        parts.push(slice(&self.para_text(&last.path), 0, last.offset));
+        parts.join("\n")
     }
 
     pub fn package(&self) -> Result<Vec<u8>> {
@@ -371,15 +415,41 @@ impl Editor {
         let _ = self.apply_painter();
     }
 
-    pub fn select_all(&mut self) {
+    /// Triple click selects only the caret paragraph; Select All remains document-wide.
+    pub fn select_paragraph(&mut self) {
         self.end_typing_run();
         let path = self.caret.path.clone();
-        let len = self.para_len(&path);
         self.anchor = Some(Place {
             path: path.clone(),
             offset: 0,
         });
-        self.caret = Place { path, offset: len };
+        self.caret = Place {
+            offset: self.para_len(&path),
+            path,
+        };
+        self.pending = None;
+        let _ = self.apply_painter();
+    }
+
+    pub fn select_all(&mut self) {
+        self.end_typing_run();
+        let paths = caret::paragraph_order(self.display.pages());
+        let first = paths
+            .first()
+            .cloned()
+            .unwrap_or_else(|| self.caret.path.clone());
+        let last = paths
+            .last()
+            .cloned()
+            .unwrap_or_else(|| self.caret.path.clone());
+        self.anchor = Some(Place {
+            path: first,
+            offset: 0,
+        });
+        self.caret = Place {
+            offset: self.para_len(&last),
+            path: last,
+        };
         self.pending = None;
         let _ = self.apply_painter();
     }
@@ -504,20 +574,13 @@ impl Editor {
 
     /// Bump the left indent by half an inch when `delta` is ±1.
     pub fn bump_indent(&mut self, delta: i32) -> Result<()> {
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
         let step = delta.saturating_mul(720);
-        self.transact_keep(move |edit| {
-            edit.bump_indent(&path, step)?;
-            Ok(TextCaret { path, offset })
-        })
+        self.paragraph_command(move |edit, path| edit.bump_indent(path, step))
     }
 
     /// Set automatic line spacing: `1`, `1.5`, or `2`.
     pub fn set_line_spacing(&mut self, multiple: f32) -> Result<()> {
         self.end_typing_run();
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
         let line = if (multiple - 1.0).abs() < 0.01 {
             240
         } else if (multiple - 1.5).abs() < 0.01 {
@@ -529,10 +592,7 @@ impl Editor {
         } else {
             (multiple * 240.0).round() as i32
         };
-        self.transact_keep(move |edit| {
-            edit.set_line_spacing(&path, line)?;
-            Ok(TextCaret { path, offset })
-        })
+        self.paragraph_command(move |edit, path| edit.set_line_spacing(path, line))
     }
 
     /// Apply a named look: Normal, No Spacing, Heading, Heading 2, Title, or Subtitle.
@@ -1024,41 +1084,74 @@ impl Editor {
         })
     }
 
+    /// The sheet the document is set on: width and height in twips as stored (portrait order), whether it is
+    /// landscape, and the left margin. The ribbon reads this so a change keeps what it does not change.
+    pub fn sheet(&self) -> (i32, i32, bool, i32) {
+        let section = self.display.inner.section();
+        (
+            section.page_w.0,
+            section.page_h.0,
+            section.landscape,
+            section.margin_left.0,
+        )
+    }
+
+    /// Page Setup, for the whole document: the paper (`a4` or `letter`), its orientation, and one margin on
+    /// all four sides in twips. It is one undo step, and every page repaints with the new sheet.
+    pub fn set_page_setup(&mut self, paper: &str, landscape: bool, margin: i32) -> Result<()> {
+        let size = match paper {
+            "a4" => (11906, 16838),
+            "letter" => (12240, 15840),
+            other => {
+                return Err(Error::new(
+                    "layout.paper",
+                    format!("Paper \"{other}\" is not offered. Choose A4 or Letter."),
+                ))
+            }
+        };
+        let caret = self.caret.clone();
+        self.transact(move |edit| {
+            edit.set_page_setup(size, landscape, margin)?;
+            Ok(TextCaret {
+                path: caret.path,
+                offset: caret.offset,
+            })
+        })
+    }
+
     pub fn toggle_mark(&mut self, mark: &str) -> Result<()> {
         let caret = self.caret.clone();
-        let anchor = self.anchor.clone();
-        if let Some(anchor) = anchor.clone() {
-            if anchor.path == caret.path && anchor.offset != caret.offset {
-                let mark = mark.to_string();
-                return self.transact_keep(move |edit| {
-                    let (start, end) = ordered_off(anchor.offset, caret.offset);
-                    let enable = !match mark.as_str() {
-                        "italic" => edit.range_is(&caret.path, start, end, |p| p.italic)?,
-                        "underline" => edit.range_is(&caret.path, start, end, |p| p.underline)?,
-                        "strike" => edit.range_is(&caret.path, start, end, |p| p.strike)?,
-                        "subscript" => edit.range_is(&caret.path, start, end, |p| {
-                            p.vert_align.as_deref() == Some("subscript")
-                        })?,
-                        "superscript" => edit.range_is(&caret.path, start, end, |p| {
-                            p.vert_align.as_deref() == Some("superscript")
-                        })?,
-                        _ => edit.range_is(&caret.path, start, end, |p| p.bold)?,
-                    };
-                    let kind = match mark.as_str() {
-                        "italic" => FormatKind::Italic,
-                        "underline" => FormatKind::Underline,
-                        "strike" => FormatKind::Strike,
-                        "subscript" => FormatKind::VertAlign("subscript".into()),
-                        "superscript" => FormatKind::VertAlign("superscript".into()),
-                        _ => FormatKind::Bold,
-                    };
-                    edit.format_range(&caret.path, start, end, kind, enable)?;
-                    Ok(TextCaret {
-                        path: caret.path,
-                        offset: caret.offset,
-                    })
-                });
-            }
+        let spans = self.selected_format_spans()?;
+        if !spans.is_empty() {
+            let mark = mark.to_string();
+            return self.transact_keep(move |edit| {
+                let mut all_on = true;
+                for (path, start, end) in &spans {
+                    all_on &= edit.range_is(path, *start, *end, |props| match mark.as_str() {
+                        "italic" => props.italic,
+                        "underline" => props.underline,
+                        "strike" => props.strike,
+                        "subscript" => props.vert_align.as_deref() == Some("subscript"),
+                        "superscript" => props.vert_align.as_deref() == Some("superscript"),
+                        _ => props.bold,
+                    })?;
+                }
+                let kind = match mark.as_str() {
+                    "italic" => FormatKind::Italic,
+                    "underline" => FormatKind::Underline,
+                    "strike" => FormatKind::Strike,
+                    "subscript" => FormatKind::VertAlign("subscript".into()),
+                    "superscript" => FormatKind::VertAlign("superscript".into()),
+                    _ => FormatKind::Bold,
+                };
+                for (path, start, end) in spans {
+                    edit.format_range(&path, start, end, kind.clone(), !all_on)?;
+                }
+                Ok(TextCaret {
+                    path: caret.path,
+                    offset: caret.offset,
+                })
+            });
         }
         let mut props = self.typing_props();
         match mark {
@@ -1083,6 +1176,59 @@ impl Editor {
         }
         self.pending = Some(props);
         Ok(())
+    }
+
+    /// Relative size changes preserve differences between runs, including inherited style sizes.
+    pub fn step_font_size(&mut self, grow: bool) -> Result<()> {
+        self.end_typing_run();
+        let caret = self.caret.clone();
+        let spans = self.selected_format_spans()?;
+        let mut cascade =
+            crate::build::cascade_for_editing(&self.display.inner, self.display.fonts())?;
+        if spans.is_empty() {
+            let mut props = self.typing_props();
+            let size = self
+                .computed_caret_run(&props)
+                .map(|run| run.size)
+                .unwrap_or(11.0);
+            props.size_pt = Some(next_font_size(size, grow));
+            self.pending = Some(props);
+            return Ok(());
+        }
+        self.transact_keep(move |edit| {
+            for (path, start, end) in spans {
+                edit.transform_character_range(&path, start, end, |para, props| {
+                    props.size_pt = Some(next_font_size(cascade.run(para, props).size, grow));
+                })?;
+            }
+            Ok(TextCaret {
+                path: caret.path,
+                offset: caret.offset,
+            })
+        })
+    }
+
+    pub fn clear_character_formatting(&mut self) -> Result<()> {
+        self.end_typing_run();
+        let caret = self.caret.clone();
+        let spans = self.selected_format_spans()?;
+        if spans.is_empty() {
+            let mut props = self.typing_props();
+            props.clear_manual_formatting();
+            self.pending = Some(props);
+            return Ok(());
+        }
+        self.transact_keep(move |edit| {
+            for (path, start, end) in spans {
+                edit.transform_character_range(&path, start, end, |_, props| {
+                    props.clear_manual_formatting()
+                })?;
+            }
+            Ok(TextCaret {
+                path: caret.path,
+                offset: caret.offset,
+            })
+        })
     }
 
     pub fn set_font_size(&mut self, size: f32) -> Result<()> {
@@ -1140,85 +1286,57 @@ impl Editor {
             "justify" | "both" => "both",
             _ => "left",
         };
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
         let owned = align.to_string();
-        self.transact_keep(move |edit| {
-            edit.set_align(&path, &owned)?;
-            Ok(TextCaret { path, offset })
-        })
+        self.paragraph_command(move |edit, path| edit.set_align(path, &owned))
     }
 
     pub fn toggle_list(&mut self, kind: &str) -> Result<()> {
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
-        if matches!(kind, "none" | "off") {
-            return self.transact_keep(move |edit| {
-                edit.set_list(&path, None)?;
-                Ok(TextCaret { path, offset })
-            });
-        }
         let list_kind = match kind {
-            "number" | "decimal" => edgedoc::ListKind::Decimal,
-            "lowerroman" | "lower_roman" => edgedoc::ListKind::LowerRoman,
-            "upperroman" | "upper_roman" => edgedoc::ListKind::UpperRoman,
-            "lowerletter" | "lower_letter" => edgedoc::ListKind::LowerLetter,
-            "upperletter" | "upper_letter" => edgedoc::ListKind::UpperLetter,
-            _ => edgedoc::ListKind::Bullet,
+            "none" | "off" => None,
+            "number" | "decimal" => Some(edgedoc::ListKind::Decimal),
+            "lowerroman" | "lower_roman" => Some(edgedoc::ListKind::LowerRoman),
+            "upperroman" | "upper_roman" => Some(edgedoc::ListKind::UpperRoman),
+            "lowerletter" | "lower_letter" => Some(edgedoc::ListKind::LowerLetter),
+            "upperletter" | "upper_letter" => Some(edgedoc::ListKind::UpperLetter),
+            _ => Some(edgedoc::ListKind::Bullet),
         };
-        let current = self.info().ok().and_then(|info| info.list);
-        let next = if current == Some(list_kind) {
+        let next = if self.info().ok().and_then(|info| info.list) == list_kind {
             None
         } else {
-            Some(list_kind)
+            list_kind
         };
-        self.transact_keep(move |edit| {
-            edit.set_list(&path, next)?;
-            Ok(TextCaret { path, offset })
-        })
+        self.paragraph_command(move |edit, path| edit.set_list(path, next))
     }
 
     pub fn set_para_shading(&mut self, fill: Option<&str>) -> Result<()> {
-        self.end_typing_run();
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
         let owned = fill.map(|color| color.trim_start_matches('#').to_uppercase());
-        self.transact_keep(move |edit| {
-            edit.set_para_shading(&path, owned.as_deref())?;
-            Ok(TextCaret { path, offset })
-        })
+        self.paragraph_command(move |edit, path| edit.set_para_shading(path, owned.as_deref()))
     }
 
     pub fn set_para_border(&mut self, kind: &str) -> Result<()> {
-        self.end_typing_run();
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
         let kind = kind.to_string();
-        self.transact_keep(move |edit| {
-            edit.set_para_border(&path, &kind)?;
-            Ok(TextCaret { path, offset })
-        })
+        self.paragraph_command(move |edit, path| edit.set_para_border(path, &kind))
     }
 
-    /// Paragraph spacing shortcuts aligned with Word’s line-and-paragraph spacing menu.
+    /// Closed Word-style before/after presets; unknown action names cannot silently succeed.
     pub fn para_spacing(&mut self, action: &str) -> Result<()> {
-        let path = self.caret.path.clone();
-        let offset = self.caret.offset;
-        let twips = match action {
-            "before" => 240,
-            "clear-before" => 0,
-            "after" => 240,
-            "clear-after" => 0,
-            _ => return Ok(()),
-        };
-        self.transact_keep(move |edit| match action {
-            "before" | "clear-before" => {
-                edit.set_space_before(&path, twips)?;
-                Ok(TextCaret { path, offset })
-            }
+        let (before, twips) = match action {
+            "before" => (true, 240),
+            "clear-before" => (true, 0),
+            "after" => (false, 240),
+            "clear-after" => (false, 0),
             _ => {
-                edit.set_space_after(&path, twips)?;
-                Ok(TextCaret { path, offset })
+                return Err(Error::new(
+                    "editor.spacing",
+                    "Choose spacing before or after the paragraph.",
+                ))
+            }
+        };
+        self.paragraph_command(move |edit, path| {
+            if before {
+                edit.set_space_before(path, twips)
+            } else {
+                edit.set_space_after(path, twips)
             }
         })
     }
@@ -1268,19 +1386,175 @@ impl Editor {
         self.reload(&bytes)
     }
 
+    fn selected_paragraph_paths(&self) -> Result<Vec<String>> {
+        let Some(anchor) = &self.anchor else {
+            return Ok(vec![self.caret.path.clone()]);
+        };
+        if anchor.path == self.caret.path {
+            return Ok(vec![self.caret.path.clone()]);
+        }
+        let paths = caret::paragraph_order(self.display.pages());
+        let position = |path: &str| paths.iter().position(|candidate| candidate == path);
+        let (Some(a), Some(b)) = (position(&anchor.path), position(&self.caret.path)) else {
+            return Err(Error::new(
+                "editor.selection",
+                "The selected paragraphs cannot be changed.",
+            ));
+        };
+        let last_offset = if a < b {
+            self.caret.offset
+        } else {
+            anchor.offset
+        };
+        let mut selected = paths[a.min(b)..=a.max(b)].to_vec();
+        if last_offset == 0 {
+            selected.pop();
+        }
+        Ok(selected)
+    }
+
+    fn paragraph_command<F>(&mut self, mut change: F) -> Result<()>
+    where
+        F: FnMut(&mut DocumentEdit<'_>, &str) -> edgedoc_model::ModelResult<()>,
+    {
+        self.end_typing_run();
+        let paths = self.selected_paragraph_paths()?;
+        let caret = self.caret.clone();
+        let pending = self.pending.clone();
+        self.transact_keep(move |edit| {
+            for path in paths {
+                change(edit, &path)?;
+            }
+            Ok(TextCaret {
+                path: caret.path,
+                offset: caret.offset,
+            })
+        })?;
+        // Paragraph presentation must not discard the character format chosen for new typing.
+        self.pending = pending;
+        Ok(())
+    }
+
+    fn computed_caret_run(&self, props: &CharProps) -> Option<edgedoc_style::ComputedRun> {
+        let mut cascade =
+            crate::build::cascade_for_editing(&self.display.inner, self.display.fonts()).ok()?;
+        let mut computed = None;
+        let _ = self
+            .display
+            .inner
+            .clone()
+            .edit(EditOptions::default(), |edit| {
+                let para = edit.paragraph_snapshot(&self.caret.path)?;
+                computed = Some(cascade.run(&para, props));
+                Err(edgedoc_model::ModelError::new("editor.peek", "read only"))
+            });
+        computed
+    }
+
+    fn mixed_fonts(&self, current: &edgedoc_style::ComputedRun) -> (bool, bool) {
+        let Ok(spans) = self.selected_format_spans() else {
+            return (false, false);
+        };
+        if spans.is_empty() {
+            return (false, false);
+        }
+        let Ok(mut cascade) =
+            crate::build::cascade_for_editing(&self.display.inner, self.display.fonts())
+        else {
+            return (false, false);
+        };
+        let mut mixed = (false, false);
+        let _ = self
+            .display
+            .inner
+            .clone()
+            .edit(EditOptions::default(), |edit| {
+                for (path, start, end) in spans {
+                    edit.range_matches_context(&path, start, end, |para, props| {
+                        let run = cascade.run(para, props);
+                        mixed.0 |= (run.size - current.size).abs() > 0.01;
+                        mixed.1 |= !run
+                            .requested_face
+                            .eq_ignore_ascii_case(&current.requested_face);
+                        true
+                    })?;
+                }
+                Err(edgedoc_model::ModelError::new("editor.peek", "read only"))
+            });
+        mixed
+    }
+
+    /// Shared selection walk for character formatting, in document order rather than lexical path order.
+    fn selected_format_spans(&self) -> Result<Vec<(String, usize, usize)>> {
+        let Some(anchor) = &self.anchor else {
+            return Ok(Vec::new());
+        };
+        if anchor.path == self.caret.path {
+            let (start, end) = ordered_off(anchor.offset, self.caret.offset);
+            return Ok(if start == end {
+                Vec::new()
+            } else {
+                vec![(anchor.path.clone(), start, end)]
+            });
+        }
+        let paths = caret::paragraph_order(self.display.pages());
+        let position = |path: &str| paths.iter().position(|candidate| candidate == path);
+        let (Some(a), Some(b)) = (position(&anchor.path), position(&self.caret.path)) else {
+            return Err(Error::new(
+                "editor.selection",
+                "The selected paragraphs cannot be formatted.",
+            ));
+        };
+        let (first, last) = if a <= b {
+            (anchor, &self.caret)
+        } else {
+            (&self.caret, anchor)
+        };
+        let mut spans = Vec::new();
+        let mut problem = None;
+        let _ = self
+            .display
+            .inner
+            .clone()
+            .edit(EditOptions::default(), |edit| {
+                for path in &paths[a.min(b)..=a.max(b)] {
+                    let start = if path == &first.path { first.offset } else { 0 };
+                    let end = if path == &last.path {
+                        last.offset
+                    } else {
+                        match edit.paragraph_info(path, 0) {
+                            Ok(info) => info.len,
+                            Err(error) => {
+                                problem = Some(error);
+                                break;
+                            }
+                        }
+                    };
+                    if start < end {
+                        spans.push((path.clone(), start, end));
+                    }
+                }
+                Err(edgedoc_model::ModelError::new("editor.peek", "read only"))
+            });
+        if let Some(error) = problem {
+            return Err(Error::new(error.code, error.message));
+        }
+        Ok(spans)
+    }
+
     fn apply_format(&mut self, kind: FormatKind) -> Result<()> {
         let caret = self.caret.clone();
-        let anchor = self.anchor.clone();
-        if let Some(anchor) = anchor {
-            if anchor.path == caret.path && anchor.offset != caret.offset {
-                return self.transact_keep(move |edit| {
-                    edit.format_range(&caret.path, anchor.offset, caret.offset, kind, true)?;
-                    Ok(TextCaret {
-                        path: caret.path,
-                        offset: caret.offset,
-                    })
-                });
-            }
+        let spans = self.selected_format_spans()?;
+        if !spans.is_empty() {
+            return self.transact_keep(move |edit| {
+                for (path, start, end) in spans {
+                    edit.format_range(&path, start, end, kind.clone(), true)?;
+                }
+                Ok(TextCaret {
+                    path: caret.path,
+                    offset: caret.offset,
+                })
+            });
         }
         let mut props = self.typing_props();
         match kind {
@@ -1292,7 +1566,11 @@ impl Editor {
             FormatKind::Font(name) => props.font = Some(name),
             FormatKind::Color(hex) => props.color = if hex.is_empty() { None } else { Some(hex) },
             FormatKind::Highlight(name) => {
-                props.highlight = if name.is_empty() || name == "none" { None } else { Some(name) };
+                props.highlight = if name.is_empty() || name == "none" {
+                    None
+                } else {
+                    Some(name)
+                };
             }
             FormatKind::VertAlign(name) => {
                 props.vert_align = if name.is_empty() { None } else { Some(name) };
@@ -1460,7 +1738,11 @@ impl Editor {
         // The snapshot IS the document now: if it is byte-for-byte the saved state, nothing is unsaved.
         // A non-zero count would force `differs_from_saved` to write a package on every keystroke, so
         // landing exactly on the baseline is the case worth recognising here.
-        self.edits_since_saved = if snap.bytes == *self.saved_bytes { 0 } else { 1 };
+        self.edits_since_saved = if snap.bytes == *self.saved_bytes {
+            0
+        } else {
+            1
+        };
         self.reload(&snap.bytes)
     }
 
@@ -1822,6 +2104,42 @@ fn word_end(text: &str, start: usize) -> usize {
     end
 }
 
+fn next_font_size(size: f32, grow: bool) -> f32 {
+    const SIZES: [f32; 16] = [
+        8., 9., 10., 11., 12., 14., 16., 18., 20., 22., 24., 26., 28., 36., 48., 72.,
+    ];
+    let size = if size.is_finite() && size > 0.0 {
+        size
+    } else {
+        11.0
+    };
+    if size >= 72.0 && grow {
+        return ((size / 10.0).floor() * 10.0 + 10.0).min(1638.0);
+    }
+    if size > 72.0 && !grow {
+        return ((size / 10.0).ceil() * 10.0 - 10.0).max(72.0);
+    }
+    if size < 8.0 {
+        return if grow {
+            (size.floor() + 1.0).min(8.0)
+        } else {
+            (size.ceil() - 1.0).max(1.0)
+        };
+    }
+    if grow {
+        SIZES
+            .into_iter()
+            .find(|value| *value > size)
+            .unwrap_or(80.0)
+    } else {
+        SIZES
+            .into_iter()
+            .rev()
+            .find(|value| *value < size)
+            .unwrap_or(7.0)
+    }
+}
+
 fn word_char(c: char) -> bool {
     !c.is_whitespace() && c != '\u{FFFC}' && c != '\u{000C}'
 }
@@ -2002,14 +2320,22 @@ mod tests {
         editor.set_color("").expect("clear");
         assert_eq!(editor.state().color, "", "an empty colour must clear it");
         editor.set_color("auto").expect("automatic");
-        assert_eq!(editor.state().color, "", "Automatic is the same as clearing");
+        assert_eq!(
+            editor.state().color,
+            "",
+            "Automatic is the same as clearing"
+        );
         editor.set_color("#047857").expect("colour again");
         assert_eq!(editor.state().color, "047857");
 
         editor.set_highlight("yellow").expect("highlight");
         assert_eq!(editor.state().highlight, "yellow");
         editor.set_highlight("none").expect("no highlight");
-        assert_eq!(editor.state().highlight, "", "`none` must clear the highlight");
+        assert_eq!(
+            editor.state().highlight,
+            "",
+            "`none` must clear the highlight"
+        );
         editor.set_highlight("").expect("empty highlight");
         assert_eq!(editor.state().highlight, "");
 
@@ -2044,14 +2370,22 @@ mod tests {
         editor.insert_text("Two").expect("type");
         assert_eq!(editor.undo_depth(), 3, "two words and the break above them");
         editor.undo().expect("undo");
-        assert_eq!(editor.para_text("body[1]"), "", "the second word is its own step");
+        assert_eq!(
+            editor.para_text("body[1]"),
+            "",
+            "the second word is its own step"
+        );
 
         // A caret move also ends the run: it is a separate intent, and Word starts a new step there.
         let mut moved = Editor::blank().expect("blank");
         moved.insert_text("abc").expect("type");
         moved.move_caret("left", false);
         moved.insert_text("X").expect("type");
-        assert_eq!(moved.undo_depth(), 2, "typing before and after a move are two steps");
+        assert_eq!(
+            moved.undo_depth(),
+            2,
+            "typing before and after a move are two steps"
+        );
     }
 
     /// specs/144 DOC2-35: Word's Change Case has five rows. The module had three, and the missing one
@@ -2059,7 +2393,9 @@ mod tests {
     #[test]
     fn change_case_offers_sentence_alongside_upper_lower_and_title() {
         let mut editor = Editor::blank().expect("blank");
-        editor.insert_text("quarterly REVENUE report").expect("type");
+        editor
+            .insert_text("quarterly REVENUE report")
+            .expect("type");
         editor.select_all();
 
         editor.change_case("upper").expect("upper");
@@ -2201,6 +2537,210 @@ mod tests {
         assert_eq!(editor.state().selection, "Pay soon.");
     }
 
+    fn three_paragraphs() -> Editor {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("One").expect("type");
+        editor.insert_newline(false).expect("enter");
+        editor.insert_text("Two").expect("type");
+        editor.insert_newline(false).expect("enter");
+        editor.insert_text("Three").expect("type");
+        editor.layout().expect("layout");
+        editor
+    }
+
+    #[test]
+    fn a_selection_across_paragraphs_reads_and_paints_every_one() {
+        let mut editor = three_paragraphs();
+        editor.move_caret("doc-start", false);
+        editor.move_caret("doc-end", true);
+        let state = editor.state();
+        assert_eq!(state.selection, "One\nTwo\nThree");
+        // One band per paragraph, the middle one included.
+        assert_eq!(state.marks.len(), 3);
+        let mut tops: Vec<f32> = state.marks.iter().map(|mark| mark.y).collect();
+        tops.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        assert!(tops[0] < tops[1] && tops[1] < tops[2]);
+    }
+
+    #[test]
+    fn character_formatting_across_paragraphs_survives_package_and_one_undo() {
+        for backward in [false, true] {
+            let mut editor = three_paragraphs();
+            editor.move_caret(if backward { "doc-end" } else { "doc-start" }, false);
+            editor.move_caret(if backward { "doc-start" } else { "doc-end" }, true);
+            editor.set_font("Georgia").expect("font");
+            editor.set_font_size(10.5).expect("size");
+            editor.toggle_mark("bold").expect("bold");
+            let bytes = editor.package().expect("package");
+            let reopened = Editor::open(&bytes).expect("reopen");
+            for path in ["body[0]", "body[1]", "body[2]"] {
+                let props = reopened.info_at(path).expect("paragraph").props;
+                assert_eq!(props.font.as_deref(), Some("Georgia"));
+                assert_eq!(props.size_pt, Some(10.5));
+                assert!(props.bold);
+            }
+            editor.undo().expect("undo one mark command");
+            for path in ["body[0]", "body[1]", "body[2]"] {
+                let props = editor.info_at(path).expect("paragraph").props;
+                assert!(!props.bold);
+                assert_eq!(props.size_pt, Some(10.5));
+            }
+        }
+    }
+
+    #[test]
+    fn paragraph_selection_and_whole_document_selection_are_distinct() {
+        let mut editor = three_paragraphs();
+        editor.select_paragraph();
+        assert_eq!(editor.state().selection, "Three");
+        assert_eq!(editor.state().marks.len(), 1);
+        editor.select_all();
+        assert_eq!(editor.state().selection, "One\nTwo\nThree");
+        assert_eq!(editor.state().marks.len(), 3);
+    }
+
+    #[test]
+    fn paragraph_formatting_keeps_the_chosen_typing_format() {
+        let mut editor = three_paragraphs();
+        editor.move_caret("doc-end", false);
+        editor.set_font_size(14.0).unwrap();
+        editor.toggle_mark("bold").unwrap();
+        editor.set_align("right").unwrap();
+        editor.para_spacing("after").unwrap();
+        assert_eq!(editor.state().font_size, 14.0);
+        assert!(editor.state().bold);
+        editor.insert_text("More").unwrap();
+        let bytes = editor.package().unwrap();
+        let mut reopened = Editor::open(&bytes).unwrap();
+        reopened.move_caret("doc-end", false);
+        assert_eq!(reopened.state().font_size, 14.0);
+        assert!(reopened.state().bold);
+        assert_eq!(reopened.state().align, "right");
+    }
+
+    #[test]
+    fn mixed_font_steps_preserve_run_sizes_and_undo_as_one_change() {
+        for backward in [false, true] {
+            let mut editor = three_paragraphs();
+            for (path, size, font) in [
+                ("body[0]", 14.0, "Georgia"),
+                ("body[1]", 20.0, "Arial"),
+                ("body[2]", 10.5, "Arial"),
+            ] {
+                editor.anchor = Some(Place {
+                    path: path.into(),
+                    offset: 0,
+                });
+                editor.caret = Place {
+                    path: path.into(),
+                    offset: editor.para_len(path),
+                };
+                editor.set_font_size(size).unwrap();
+                editor.set_font(font).unwrap();
+            }
+            editor.layout().unwrap();
+            editor.move_caret(if backward { "doc-end" } else { "doc-start" }, false);
+            editor.move_caret(if backward { "doc-start" } else { "doc-end" }, true);
+            assert!(editor.state().font_size_mixed);
+            assert!(editor.state().font_name_mixed);
+            editor.step_font_size(true).unwrap();
+            let bytes = editor.package().unwrap();
+            let reopened = Editor::open(&bytes).unwrap();
+            for (path, size) in [("body[0]", 16.0), ("body[1]", 22.0), ("body[2]", 11.0)] {
+                assert_eq!(reopened.info_at(path).unwrap().props.size_pt, Some(size));
+            }
+            editor.undo().unwrap();
+            assert_eq!(editor.info_at("body[0]").unwrap().props.size_pt, Some(14.0));
+            assert_eq!(editor.info_at("body[1]").unwrap().props.size_pt, Some(20.0));
+            editor.redo().unwrap();
+            assert_eq!(editor.info_at("body[1]").unwrap().props.size_pt, Some(22.0));
+        }
+    }
+
+    #[test]
+    fn selected_paragraph_operations_and_character_reset_survive_save_and_undo() {
+        let mut editor = three_paragraphs();
+        editor.select_all();
+        editor.toggle_mark("bold").unwrap();
+        editor.set_font_size(18.0).unwrap();
+        editor.set_align("center").unwrap();
+        editor.bump_indent(1).unwrap();
+        editor.set_line_spacing(1.15).unwrap();
+        editor.para_spacing("before").unwrap();
+        editor.para_spacing("after").unwrap();
+        assert!(editor.para_spacing("add").is_err());
+        editor.clear_character_formatting().unwrap();
+        let reopened = Editor::open(&editor.package().unwrap()).unwrap();
+        for path in ["body[0]", "body[1]", "body[2]"] {
+            let props = reopened.info_at(path).unwrap();
+            assert!(!props.props.bold);
+            assert_eq!(props.props.size_pt, None);
+            assert_eq!(props.align, "center");
+        }
+        editor.undo().unwrap();
+        for path in ["body[0]", "body[1]", "body[2]"] {
+            assert!(editor.info_at(path).unwrap().props.bold);
+            assert_eq!(editor.info_at(path).unwrap().props.size_pt, Some(18.0));
+        }
+    }
+
+    #[test]
+    fn a_backward_selection_paints_the_same_bands_as_a_forward_one() {
+        let mut forward = three_paragraphs();
+        forward.move_caret("doc-start", false);
+        forward.move_caret("doc-end", true);
+        let mut backward = three_paragraphs();
+        backward.move_caret("doc-end", false);
+        backward.move_caret("doc-start", true);
+        assert_eq!(backward.state().selection, forward.state().selection);
+        assert_eq!(backward.state().marks, forward.state().marks);
+    }
+
+    #[test]
+    fn page_setup_turns_the_sheet_landscape_and_survives_a_save() {
+        let mut editor = Editor::blank().expect("blank");
+        editor.insert_text("Wide page").expect("type");
+        editor.set_page_setup("a4", true, 720).expect("landscape");
+        editor.layout().expect("layout");
+        let page = editor.display.pages()[0].clone();
+        assert!(
+            page.w > page.h,
+            "landscape must be wider than tall: {}x{}",
+            page.w,
+            page.h
+        );
+        // The change is in the file, not only on the screen.
+        let bytes = editor.package().expect("save");
+        let reopened = Editor::open(&bytes).expect("reopen");
+        let again = &reopened.display.pages()[0];
+        assert!(
+            again.w > again.h,
+            "the saved file keeps the landscape sheet"
+        );
+        assert_eq!(editor.sheet(), (16838, 11906, true, 720));
+    }
+
+    #[test]
+    fn page_setup_is_one_undo_step() {
+        let mut editor = Editor::blank().expect("blank");
+        editor
+            .set_page_setup("letter", true, 1440)
+            .expect("landscape");
+        assert!(editor.state().can_undo);
+        editor.undo().expect("undo");
+        editor.layout().expect("layout");
+        let page = editor.display.pages()[0].clone();
+        assert!(page.h > page.w, "undo restores portrait");
+    }
+
+    #[test]
+    fn page_setup_refuses_a_margin_that_leaves_no_text_room() {
+        let mut editor = Editor::blank().expect("blank");
+        assert!(editor.set_page_setup("letter", false, 5000).is_err());
+        assert!(editor.set_page_setup("letter", false, i32::MAX).is_err());
+        assert!(editor.set_page_setup("tabloid", false, 1440).is_err());
+    }
+
     #[test]
     fn select_all_reports_the_paragraph_text() {
         let mut editor = Editor::blank().expect("blank");
@@ -2250,7 +2790,10 @@ mod tests {
         assert_eq!(editor.caret.path, "body[1]/row[0]/cell[0]/block[0]");
 
         editor.insert_table_row().expect("insert row");
-        assert_eq!(editor.caret.path, "body[1]/row[0]/cell[0]/block[0]", "the caret stays put");
+        assert_eq!(
+            editor.caret.path, "body[1]/row[0]/cell[0]/block[0]",
+            "the caret stays put"
+        );
 
         let bytes = editor.package().expect("bytes");
         let doc = Document::read_bytes(&bytes).expect("read");
@@ -2258,7 +2801,11 @@ mod tests {
             panic!("a table");
         };
         assert_eq!(table.rows.len(), 3, "the row was added");
-        assert_eq!(table.rows[2].cells.len(), 3, "and it is as wide as the table");
+        assert_eq!(
+            table.rows[2].cells.len(),
+            3,
+            "and it is as wide as the table"
+        );
 
         editor.undo().expect("undo");
         let bytes = editor.package().expect("bytes");
@@ -2362,7 +2909,9 @@ mod tests {
         editor.insert_text("Keep me").expect("type");
         assert_eq!(editor.caret.path, "body[1]/row[0]/cell[0]/block[0]");
 
-        editor.merge_table_cells("body[1]/row[0]/cell[1]/block[0]").expect("merge");
+        editor
+            .merge_table_cells("body[1]/row[0]/cell[1]/block[0]")
+            .expect("merge");
 
         let bytes = editor.package().expect("bytes");
         let doc = Document::read_bytes(&bytes).expect("read");
@@ -2374,7 +2923,9 @@ mod tests {
         assert_eq!(row.cells[0].span, 2, "the first cell covers two columns");
         assert_eq!(row.cells[1].h_merge.as_deref(), Some("continue"));
         // The content of the cell that was swallowed is gone; the first cell's is kept.
-        assert!(row.cells[0].blocks.iter().any(|b| matches!(b.as_ref(), edgedoc::Block::Paragraph(p) if p.text.contains("Keep me"))));
+        assert!(row.cells[0].blocks.iter().any(
+            |b| matches!(b.as_ref(), edgedoc::Block::Paragraph(p) if p.text.contains("Keep me"))
+        ));
     }
 
     /// specs/144 DOC2-43: splitting puts the covered cells back, and an unmerged cell is a quiet no-op.
@@ -2383,7 +2934,9 @@ mod tests {
         let mut editor = Editor::blank().expect("blank");
         editor.insert_text("Before").expect("type");
         editor.insert_table(1, 3).expect("table");
-        editor.merge_table_cells("body[1]/row[0]/cell[2]/block[0]").expect("merge three");
+        editor
+            .merge_table_cells("body[1]/row[0]/cell[2]/block[0]")
+            .expect("merge three");
         editor.split_table_cell().expect("split");
 
         let bytes = editor.package().expect("bytes");
@@ -2392,10 +2945,15 @@ mod tests {
             panic!("a table");
         };
         assert_eq!(table.rows[0].cells[0].span, 1, "the span is back to one");
-        assert_eq!(table.rows[0].cells[1].h_merge, None, "and the continuation is a cell again");
+        assert_eq!(
+            table.rows[0].cells[1].h_merge, None,
+            "and the continuation is a cell again"
+        );
 
         // A cell that was never merged: nothing changes, and nothing is refused.
-        editor.split_table_cell().expect("split a plain cell is a no-op");
+        editor
+            .split_table_cell()
+            .expect("split a plain cell is a no-op");
         let bytes = editor.package().expect("bytes");
         let doc = Document::read_bytes(&bytes).expect("read");
         let edgedoc::Block::Table(table) = doc.block_at(1).expect("block") else {
@@ -2410,9 +2968,15 @@ mod tests {
         let mut editor = Editor::blank().expect("blank");
         editor.insert_text("Before").expect("type");
         editor.insert_table(2, 2).expect("table");
-        let err = editor.merge_table_cells("body[1]/row[1]/cell[0]/block[0]").unwrap_err();
+        let err = editor
+            .merge_table_cells("body[1]/row[1]/cell[0]/block[0]")
+            .unwrap_err();
         assert_eq!(err.code, "model.limit");
-        assert!(err.message.contains("row"), "the message says what is supported: {}", err.message);
+        assert!(
+            err.message.contains("row"),
+            "the message says what is supported: {}",
+            err.message
+        );
     }
 
     /// specs/144 DOC2-43: a column width is written to the grid **and** to every cell, because Word
@@ -2458,7 +3022,10 @@ mod tests {
             offset: 0,
         };
         let before = editor.caret.path.clone();
-        assert!(before.contains("row[2]"), "the caret must be in the last row: {before}");
+        assert!(
+            before.contains("row[2]"),
+            "the caret must be in the last row: {before}"
+        );
 
         editor.set_table_column_width(3_600).expect("width");
         assert_eq!(
@@ -2497,12 +3064,19 @@ mod tests {
     #[test]
     fn a_replace_all_takes_every_match_in_one_step() {
         let mut editor = Editor::blank().expect("blank");
-        editor.insert_text("Pay soon. Pay now. Pay later.").expect("type");
+        editor
+            .insert_text("Pay soon. Pay now. Pay later.")
+            .expect("type");
         editor.move_caret("doc-start", false);
 
-        let changed = editor.replace_text("pay", "Send", true).expect("replace all");
+        let changed = editor
+            .replace_text("pay", "Send", true)
+            .expect("replace all");
         assert_eq!(changed, 3, "a case-insensitive replace takes all three");
-        assert_eq!(editor.para_text("body[0]"), "Send soon. Send now. Send later.");
+        assert_eq!(
+            editor.para_text("body[0]"),
+            "Send soon. Send now. Send later."
+        );
 
         editor.undo().expect("undo");
         assert_eq!(
@@ -2525,9 +3099,14 @@ mod tests {
         editor.insert_field("Name").expect("field");
         editor.insert_text(", hello").expect("type");
         let before = editor.para_text("body[0]");
-        assert!(before.contains('\u{FFFC}'), "the field is one marker: {before:?}");
+        assert!(
+            before.contains('\u{FFFC}'),
+            "the field is one marker: {before:?}"
+        );
 
-        let changed = editor.replace_text("hello", "bonjour", true).expect("replace");
+        let changed = editor
+            .replace_text("hello", "bonjour", true)
+            .expect("replace");
         assert_eq!(changed, 1, "the word beside the field is replaced");
         assert_eq!(
             editor.display.inner.merge_field_names(),
@@ -2559,7 +3138,10 @@ mod tests {
         let mut editor = Editor::blank().expect("blank");
         editor.insert_text("Le café est bon.").expect("type");
         let changed = editor.replace_text("cafe", "thé", false).expect("replace");
-        assert_eq!(changed, 1, "the find folds accents, so the replace must too");
+        assert_eq!(
+            changed, 1,
+            "the find folds accents, so the replace must too"
+        );
         assert_eq!(editor.para_text("body[0]"), "Le thé est bon.");
     }
 }

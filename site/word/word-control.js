@@ -909,8 +909,7 @@ function syncNav() {
 }
 
 function nudgeSize(delta) {
-  const next = Math.min(72, Math.max(8, Math.round((state && state.fontSize) || 11) + delta));
-  run(() => viewer.viewer.editFontSize(next));
+  run(() => viewer.viewer.editFontStep(delta > 0));
 }
 
 function copySelection() {
@@ -1203,7 +1202,7 @@ viewer.viewport.addEventListener("mousedown", (event) => {
   closeMenus();
   const clicks = event.detail;
   run(() => viewer.viewer.editCaret(point.page, point.x, point.y, event.shiftKey)).then(() => {
-    if (clicks >= 3) run(() => viewer.viewer.editSelectAll());
+    if (clicks >= 3) run(() => viewer.viewer.editSelectParagraph());
     else if (clicks === 2) run(() => viewer.viewer.editSelectWord());
   });
 });

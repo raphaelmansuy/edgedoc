@@ -186,7 +186,12 @@ mod bind {
 
         /// Replace the next match, or every match (specs/144 DOC2-39). One call, one undo step.
         #[wasm_bindgen(js_name = editReplace)]
-        pub fn edit_replace(&mut self, query: &str, text: &str, all: bool) -> Result<String, JsValue> {
+        pub fn edit_replace(
+            &mut self,
+            query: &str,
+            text: &str,
+            all: bool,
+        ) -> Result<String, JsValue> {
             self.inner.edit_replace(query, text, all).map_err(js_error)
         }
 
@@ -247,6 +252,25 @@ mod bind {
                 .map_err(js_error)
         }
 
+        #[wasm_bindgen(js_name = pageSheet)]
+        pub fn page_sheet(&self) -> Option<Box<[f32]>> {
+            self.inner
+                .page_sheet()
+                .map(|sheet| Box::new(sheet) as Box<[f32]>)
+        }
+
+        #[wasm_bindgen(js_name = editPageSetup)]
+        pub fn edit_page_setup(
+            &mut self,
+            paper: &str,
+            landscape: bool,
+            margin: i32,
+        ) -> Result<String, JsValue> {
+            self.inner
+                .edit_page_setup(paper, landscape, margin)
+                .map_err(js_error)
+        }
+
         #[wasm_bindgen(js_name = editMark)]
         pub fn edit_mark(&mut self, mark: &str) -> Result<String, JsValue> {
             self.inner.edit_mark(mark).map_err(js_error)
@@ -270,6 +294,18 @@ mod bind {
         #[wasm_bindgen(js_name = editFontSize)]
         pub fn edit_font_size(&mut self, size: f32) -> Result<String, JsValue> {
             self.inner.edit_font_size(size).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editFontStep)]
+        pub fn edit_font_step(&mut self, grow: bool) -> Result<String, JsValue> {
+            self.inner.edit_font_step(grow).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editClearCharacterFormatting)]
+        pub fn edit_clear_character_formatting(&mut self) -> Result<String, JsValue> {
+            self.inner
+                .edit_clear_character_formatting()
+                .map_err(js_error)
         }
 
         #[wasm_bindgen(js_name = editColor)]
@@ -306,6 +342,11 @@ mod bind {
         #[wasm_bindgen(js_name = editMove)]
         pub fn edit_move(&mut self, key: &str, extend: bool) -> Result<String, JsValue> {
             self.inner.edit_move(key, extend).map_err(js_error)
+        }
+
+        #[wasm_bindgen(js_name = editSelectParagraph)]
+        pub fn edit_select_paragraph(&mut self) -> Result<String, JsValue> {
+            self.inner.edit_select_paragraph().map_err(js_error)
         }
 
         #[wasm_bindgen(js_name = editSelectAll)]

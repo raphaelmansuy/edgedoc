@@ -913,7 +913,7 @@ fn inline_control_survives_edited_save() -> Test {
         .find("<w:sdtContent>")
         .ok_or("missing control start")?;
     let end = saved.find("</w:sdtContent>").ok_or("missing control end")?;
-    if !saved[start..end].contains("X") {
+    if !saved[start..end].contains('X') {
         return fail("edit moved outside the inline control");
     }
     Ok(())
