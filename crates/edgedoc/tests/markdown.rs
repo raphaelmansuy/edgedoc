@@ -186,7 +186,7 @@ fn the_link_prefix_is_independent_of_the_directory() -> Test {
     }
     let file = chart.rsplit('/').next().unwrap_or("");
     let stored = dir.join(file);
-    if std::fs::read(&stored).map_err(err)? != b"PNG-BYTES" {
+    if std::fs::read(stored).map_err(err)? != b"PNG-BYTES" {
         return Err("the chart file was not written beside the other prefix".into());
     }
     let _ = std::fs::remove_dir_all(&dir);
@@ -564,7 +564,7 @@ fn a_hand_written_docx_exports_markdown_and_its_images() -> Test {
         if stored != image_dir.join(file_name) {
             return Err(format!("{}", stored.display()));
         }
-        if std::fs::read(&stored).map_err(err)? != bytes {
+        if std::fs::read(stored).map_err(err)? != bytes {
             return Err(format!("{file_name} on disk does not match"));
         }
     }
@@ -1102,10 +1102,12 @@ fn office_math_edge_cases() -> Test {
         } else {
             format!("<m:dPr>{pr}</m:dPr>")
         };
-        let args: String = args
-            .iter()
-            .map(|arg| format!("<m:e>{}</m:e>", run(arg)))
-            .collect();
+        let args = args.iter().fold(String::new(), |mut xml, arg| {
+            xml.push_str("<m:e>");
+            xml.push_str(&run(arg));
+            xml.push_str("</m:e>");
+            xml
+        });
         format!("<m:d>{pr}{args}</m:d>")
     }
     let cases = vec![
