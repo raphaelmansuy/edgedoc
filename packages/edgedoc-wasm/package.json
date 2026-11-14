@@ -36,6 +36,7 @@
       "default": "./edgedoc.js"
     },
     "./viewer": "./display/edgedoc-viewer.js",
-    "./display/*": "./display/*"
+    "./display/*": "./display/*",
+    "./*": "./*"
   }
 }
