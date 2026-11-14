@@ -133,16 +133,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install the build tools
-        run: python3 -m pip install --upgrade pip maturin pytest
+      - name: Install isolated build tools
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip 'maturin>=1.14,<2' pytest
       - name: Build the example documents
         run: cargo run --quiet -p edgedoc-demos --bin write-demos -- target/examples
       - name: Build and install the wheel
-        run: maturin develop --manifest-path crates/edgedoc-py/Cargo.toml --features python
+        run: .venv/bin/maturin develop --manifest-path crates/edgedoc-py/Cargo.toml --features python
       - name: Run the examples
-        run: python3 examples/python/basic.py
+        run: .venv/bin/python examples/python/basic.py
       - name: Run the tests
-        run: python3 -m pytest examples/python -q
+        run: .venv/bin/python -m pytest examples/python -q
 
   docs:
     name: documentation

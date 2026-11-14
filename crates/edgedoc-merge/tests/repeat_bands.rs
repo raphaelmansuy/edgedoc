@@ -52,6 +52,7 @@ fn template() -> ModelDocument {
     doc
 }
 
+#[allow(clippy::expect_used)] // Static test fixtures fail immediately when malformed.
 fn parents(rows: &[(&str, &str, &str)]) -> Records {
     let headers = vec!["Number".into(), "Customer".into(), "Total".into()];
     let cells = rows
@@ -63,6 +64,7 @@ fn parents(rows: &[(&str, &str, &str)]) -> Records {
     Records::from_rows(headers, cells).expect("parents")
 }
 
+#[allow(clippy::expect_used)] // Static test fixtures fail immediately when malformed.
 fn children(sets: &[&[(&str, &str, &str)]]) -> Vec<Records> {
     sets.iter()
         .map(|set| {
