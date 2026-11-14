@@ -165,7 +165,7 @@ impl Editor {
             return false;
         }
         match self.package() {
-            Ok(bytes) => bytes != &*self.saved_bytes,
+            Ok(bytes) => bytes != *self.saved_bytes,
             // A package that cannot be written is not provably saved.
             Err(_) => true,
         }

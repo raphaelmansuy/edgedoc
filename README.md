@@ -72,11 +72,12 @@ cargo add edgedoc
 pip install edgedoc
 ```
 
-The WebAssembly package name is `edgedoc-wasm`. The npm name `edgedoc` belongs to
-a different project. Build the module with `make package-wasm`. Version tags publish
-the matching server/browser package and browser assets as a GitHub release. Registry
-publication to npm, crates.io and PyPI runs when its publishing secret is configured;
-a GitHub release alone does not mean those registries were updated. GitHub Pages
+The WebAssembly package name is `edgedoc-wasm`. The npm name `edgedoc` belongs to another project.
+Build the module with `make package-wasm`.
+Version tags publish a GitHub release with matching server and browser assets.
+If a publishing secret is available, the release workflow also updates its registry.
+A GitHub release does not confirm publication to npm, crates.io or PyPI.
+GitHub Pages
 ships the read-only [display demo](https://raphaelmansuy.github.io/edgedoc/display/) and
 the [Word control](https://raphaelmansuy.github.io/edgedoc/word/).
 

@@ -25,7 +25,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Display/WASM engine regression: 256 tests passed in the integration checkout.
 - EdgeBase integration: 93 live-stack browser cases passed without retries.
-- Native Word review/layout fidelity remains unqualified; this release does not implement Word's
+- Native Word review/layout fidelity remains unqualified. This release does not implement Word's
   complete review, reference or advanced layout feature set.
 
 ## [0.2.0] - 2026-11-09
