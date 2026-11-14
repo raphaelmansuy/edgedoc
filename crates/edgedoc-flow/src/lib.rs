@@ -631,6 +631,17 @@ pub struct FlowRow {
     pub cant_split: bool,
 }
 
+fn row_continues_vertical_merge(row: &FlowRow, column: usize) -> bool {
+    let mut start = row.grid_before;
+    for cell in &row.cells {
+        if start == column && cell.v_merge_continue {
+            return true;
+        }
+        start += cell.span.max(1);
+    }
+    false
+}
+
 /// Which side of a cell a border belongs to.
 pub const SIDE_TOP: usize = 0;
 pub const SIDE_LEFT: usize = 1;
@@ -4249,14 +4260,11 @@ fn table_row_heights<S: Shaper>(
             let span = cell.span.max(1);
             if cell.v_merge_start {
                 let mut end = row_index;
-                while t.rows.get(end + 1).is_some_and(|next| {
-                    let mut start = next.grid_before;
-                    next.cells.iter().any(|c| {
-                        let found = start == col && c.v_merge_continue;
-                        start += c.span.max(1);
-                        found
-                    })
-                }) {
+                while t
+                    .rows
+                    .get(end + 1)
+                    .is_some_and(|next| row_continues_vertical_merge(next, col))
+                {
                     end += 1;
                 }
                 let (border_top, border_bottom) = cell_border_bands(t, row_index, col, cell);
@@ -4366,14 +4374,9 @@ fn build_table_fragment<S: Shaper>(
             if cell.v_merge_start {
                 let mut next_row = r + 1;
                 while next_row < t.rows.len()
-                    && t.rows.get(next_row).is_some_and(|next| {
-                        let mut start = next.grid_before;
-                        next.cells.iter().any(|c| {
-                            let found = start == col && c.v_merge_continue;
-                            start += c.span.max(1);
-                            found
-                        })
-                    })
+                    && t.rows
+                        .get(next_row)
+                        .is_some_and(|next| row_continues_vertical_merge(next, col))
                 {
                     span_height += row_heights.get(next_row).copied().unwrap_or(0.0);
                     next_row += 1;
