@@ -2737,6 +2737,7 @@ mod tests {
     fn page_setup_refuses_a_margin_that_leaves_no_text_room() {
         let mut editor = Editor::blank().expect("blank");
         assert!(editor.set_page_setup("letter", false, 5000).is_err());
+        assert!(editor.set_page_setup("letter", false, i32::MAX).is_err());
         assert!(editor.set_page_setup("tabloid", false, 1440).is_err());
     }
 

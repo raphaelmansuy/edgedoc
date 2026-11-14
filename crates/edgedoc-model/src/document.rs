@@ -1276,7 +1276,7 @@ impl<'a> DocumentEdit<'a> {
         margin: i32,
     ) -> ModelResult<()> {
         let short = paper.0.min(paper.1);
-        if margin < 0 || margin * 2 >= short / 2 {
+        if margin < 0 || i64::from(margin) * 2 >= i64::from(short) / 2 {
             return Err(ModelError::new(
                 "layout.margin",
                 format!("A margin of {margin} twips leaves no room for text on this paper."),
